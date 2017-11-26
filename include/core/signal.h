@@ -35,15 +35,7 @@ namespace nescc {
 					__in_opt bool clearing = SIGNAL_CLEARING
 					);
 
-				signal(
-					__in const signal &other
-					);
-
 				virtual ~signal(void);
-
-				signal &operator=(
-					__in const signal &other
-					);
 
 				void clear(void);
 
@@ -59,13 +51,21 @@ namespace nescc {
 
 				virtual std::string to_string(
 					__in_opt bool verbose = false
-					);
+					) const;
 
 				bool wait(
 					__in_opt uint32_t timeout = SIGNAL_NO_TIMEOUT
 					);
 
 			protected:
+
+				signal(
+					__in const signal &other
+					) = delete;
+
+				signal &operator=(
+					__in const signal &other
+					) = delete;
 
 				void abandon(void);
 

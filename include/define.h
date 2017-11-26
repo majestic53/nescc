@@ -46,8 +46,8 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 1
-	#define NESCC_VERSION_WEEK 1747
+	#define NESCC_VERSION_REVISION 2
+	#define NESCC_VERSION_WEEK 1748
 
 	#define REFERENCE_INIT 1
 
@@ -64,12 +64,21 @@ namespace nescc {
 	#define STRING_CHECK(_STR_) \
 		(_STR_.empty() ? STRING_EMPTY : _STR_.c_str())
 
+	#define THREAD_FREERUNNING false
+	#define THREAD_TIMEOUT 5000
+
 	typedef enum {
 		SIGNAL_CLEAR = 0,
 		SIGNAL_NOTIFY,
 		SIGNAL_TIMEOUT,
 		SIGNAL_ABANDON,
 	} signal_state_t;
+
+	typedef enum {
+		THREAD_STOP = 0,
+		THREAD_RUN,
+		THREAD_PAUSE,
+	} thread_state_t;
 }
 
 #endif // NESCC_DEFINE_H_

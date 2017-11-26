@@ -20,13 +20,86 @@
 #define NESCC_CORE_THREAD_H_
 
 #include <thread>
+#include "../exception.h"
 #include "./signal.h"
 
 namespace nescc {
 
 	namespace core {
 
-		// TODO
+		class thread {
+
+			public:
+
+				thread(void);
+
+				virtual ~thread(void);
+
+				bool freerunning(void) const;
+
+				void notify(void);
+
+				void pause(void);
+
+				bool running(void) const;
+
+				void start(
+					__in_opt bool freerunning = THREAD_FREERUNNING,
+					__in_opt uint32_t timeout = THREAD_TIMEOUT
+					);
+
+				thread_state_t state(void) const;
+
+				void stop(void);
+
+				virtual std::string to_string(
+					__in_opt bool verbose = false
+					) const;
+
+				void unpause(void);
+
+			protected:
+
+				thread(
+					__in const thread &other
+					) = delete;
+
+				thread &operator=(
+					__in const thread &other
+					) = delete;
+
+				virtual void on_pause(void);
+
+				virtual bool on_run(void);
+
+				virtual bool on_start(void);
+
+				virtual void on_stop(void);
+
+				virtual void on_unpause(void);
+
+				bool run(void);
+
+				nescc::exception m_exception;
+
+				bool m_freerunning;
+
+				std::mutex m_mutex;
+
+				nescc::core::signal m_signal_pause;
+
+				nescc::core::signal m_signal_start;
+
+				nescc::core::signal m_signal_stop;
+
+				nescc::core::signal m_signal_wait;
+
+				thread_state_t m_state;
+
+				std::thread m_thread;
+
+				uint32_t m_timeout;
+		};
 	}
 }
 

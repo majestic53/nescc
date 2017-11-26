@@ -79,6 +79,16 @@ namespace nescc {
 		return *this;
 	}
 
+	void
+	exception::clear(void)
+	{
+		std::runtime_error::operator=(std::runtime_error(std::string()));
+		m_empty = true;
+		m_file.clear();
+		m_function.clear();
+		m_line = 0;
+	}
+
 	bool
 	exception::empty(void) const
 	{

@@ -22,8 +22,12 @@ make release
 Changelog
 =========
 
-Version 0.1.1747
+Version 0.1.1748
 ----------------
+*Updated: 11/26/2017*
+
+* Added core thread class
+
 *Updated: 11/25/2017*
 
 * Initial commit

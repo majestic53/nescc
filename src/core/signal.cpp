@@ -33,32 +33,9 @@ namespace nescc {
 			return;
 		}
 
-		signal::signal(
-			__in const signal &other
-			) :
-				m_clearing(other.m_clearing),
-				m_state(other.m_state)
-		{
-			return;
-		}
-
 		signal::~signal(void)
 		{
 			abandon();
-		}
-
-		signal &
-		signal::operator=(
-			__in const signal &other
-			)
-		{
-
-			if(this != &other) {
-				m_clearing = other.m_clearing;
-				m_state = other.m_state;
-			}
-
-			return *this;
 		}
 
 		void
@@ -131,7 +108,7 @@ namespace nescc {
 		std::string
 		signal::to_string(
 			__in_opt bool verbose
-			)
+			) const
 		{
 			std::stringstream result;
 

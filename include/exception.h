@@ -56,6 +56,8 @@ namespace nescc {
 				__in const exception &other
 				);
 
+			void clear(void);
+
 			bool empty(void) const;
 
 			std::string file(void) const;
