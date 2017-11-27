@@ -30,7 +30,7 @@ all: build archive
 archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
-	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o \
+	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
 		$(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
@@ -39,13 +39,16 @@ build: build_base build_core
 
 ### BASE ###
 
-build_base: base_exception.o base_runtime.o
+build_base: base_exception.o base_runtime.o base_trace.o
 
 base_exception.o: $(DIR_SRC)exception.cpp $(DIR_INC)exception.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)exception.cpp -o $(DIR_BUILD)base_exception.o
 
 base_runtime.o: $(DIR_SRC)runtime.cpp $(DIR_INC)runtime.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)runtime.cpp -o $(DIR_BUILD)base_runtime.o
+
+base_trace.o: $(DIR_SRC)trace.cpp $(DIR_INC)trace.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)trace.cpp -o $(DIR_BUILD)base_trace.o
 
 ### CORE ###
 

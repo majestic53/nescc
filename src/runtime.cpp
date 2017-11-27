@@ -21,28 +21,62 @@
 
 namespace nescc {
 
-	runtime::runtime(void)
+	runtime::runtime(void) :
+		m_trace(nescc::trace::acquire())
 	{
+		m_trace.initialize();
+
+		TRACE_ENTRY();
+
+		TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, NESCC, "Ver. %s", STRING_CHECK(nescc::runtime::version(true)));
+		TRACE_MESSAGE(TRACE_INFORMATION, NESCC_COPYRIGHT);
+
 		// TODO
+
+		TRACE_EXIT();
 	}
 
 	runtime::~runtime(void)
 	{
+		TRACE_ENTRY();
+
 		// TODO
+
+		TRACE_EXIT();
+
+		m_trace.uninitialize();
+		m_trace.release();
 	}
 
 	bool
 	runtime::on_create(void)
 	{
+		bool result = true;
+
+		TRACE_ENTRY();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime creating...");
+
 		// TODO
 
-		return true;
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime created.");
+
+		TRACE_EXIT_FORMAT("Result=%x", result);
+		return result;
 	}
 
 	void
 	runtime::on_destroy(void)
 	{
+		TRACE_ENTRY();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime destroying...");
+
 		// TODO
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime destroyed.");
+
+		TRACE_EXIT();
 	}
 
 	bool
@@ -50,15 +84,32 @@ namespace nescc {
 		__in const std::vector<uint8_t> &input
 		)
 	{
+		bool result = true;
+
+		TRACE_ENTRY();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime initializing...");
+
 		// TODO
 
-		return true;
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime initialized.");
+
+		TRACE_EXIT_FORMAT("Result=%x", result);
+		return result;
 	}
 
 	void
 	runtime::on_uninitialize(void)
 	{
+		TRACE_ENTRY();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitializing...");
+
 		// TODO
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitialized.");
+
+		TRACE_EXIT();
 	}
 
 	std::string
@@ -68,12 +119,15 @@ namespace nescc {
 	{
 		std::stringstream result;
 
+		TRACE_ENTRY();
+
 		result << NESCC_RUNTIME_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 		if(verbose) {
 			result << " Base=" << nescc::interface::singleton<nescc::runtime>::to_string(verbose);
 		}
 
+		TRACE_EXIT();
 		return result.str();
 	}
 
@@ -84,6 +138,8 @@ namespace nescc {
 	{
 		std::stringstream result;
 
+		TRACE_ENTRY();
+
 		result << NESCC_VERSION_MAJOR << "." << NESCC_VERSION_MINOR << "." << NESCC_VERSION_WEEK
 			<< "." << NESCC_VERSION_REVISION;
 
@@ -91,6 +147,7 @@ namespace nescc {
 			result << "-" << NESCC_VERSION_RELEASE;
 		}
 
+		TRACE_EXIT();
 		return result.str();
 	}
 }

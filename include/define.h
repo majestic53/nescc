@@ -49,12 +49,15 @@ namespace nescc {
 	#define NESCC_VERSION_REVISION 2
 	#define NESCC_VERSION_WEEK 1748
 
+	#define EXCEPTION_UNKNOWN "Unknown exception"
+
 	#define REFERENCE_INIT 1
 
 	#define SIGNAL_CLEARING true
 	#define SIGNAL_NO_TIMEOUT 0
 
 	#define STRING_EMPTY "Empty"
+	#define STRING_INVALID "Invalid"
 	#define STRING_UNKNOWN "Unknown"
 
 	#define SCALAR_AS_HEX(_TYPE_, _VAL_) \
@@ -66,6 +69,44 @@ namespace nescc {
 
 	#define THREAD_FREERUNNING false
 	#define THREAD_TIMEOUT 5000
+
+	#define THROW_EXCEPTION(_EXCEPT_) \
+		THROW_EXCEPTION_FORMAT(_EXCEPT_, "", "")
+	#define THROW_EXCEPTION_FORMAT(_EXCEPT_, _FORMAT_, ...) \
+		nescc::exception::generate(_EXCEPT_, __FILE__, __FUNCTION__, __LINE__, \
+			_FORMAT_, __VA_ARGS__)
+
+#ifndef NDEBUG
+	#define _TRACE(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
+		nescc::trace &instance = nescc::trace::acquire(); \
+		try { \
+			if(((_LEVEL_) <= TRACE) && instance.initialized()) { \
+				instance.generate(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, \
+					_LINE_, _FORMAT_, __VA_ARGS__); \
+			} \
+		} catch(...) { } \
+		instance.release(); \
+		}
+	#define TRACE_ENTRY() TRACE_ENTRY_FORMAT("", "")
+	#define TRACE_ENTRY_FORMAT(_FORMAT_, ...) \
+		_TRACE(nescc::TRACE_VERBOSE, "+", __FUNCTION__, __FILE__, __FUNCTION__, __LINE__, \
+			_FORMAT_, __VA_ARGS__)
+	#define TRACE_EXIT() TRACE_EXIT_FORMAT("", "")
+	#define TRACE_EXIT_FORMAT(_FORMAT_, ...) \
+		_TRACE(nescc::TRACE_VERBOSE, "-", __FUNCTION__, __FILE__, __FUNCTION__, __LINE__, \
+			_FORMAT_, __VA_ARGS__)
+	#define TRACE_MESSAGE(_LEVEL_, _MESSAGE_) TRACE_MESSAGE_FORMAT(_LEVEL_, _MESSAGE_, "", "")
+	#define TRACE_MESSAGE_FORMAT(_LEVEL_, _MESSAGE_, _FORMAT_, ...) \
+		_TRACE(nescc::_LEVEL_, std::string(), _MESSAGE_, __FILE__, __FUNCTION__, __LINE__, \
+			_FORMAT_, __VA_ARGS__)
+#else
+	#define TRACE_ENTRY()
+	#define TRACE_ENTRY_FORMAT(_FORMAT_, ...)
+	#define TRACE_EXIT()
+	#define TRACE_EXIT_FORMAT(_FORMAT_, ...)
+	#define TRACE_MESSAGE(_LEVEL_, _MESSAGE_)
+	#define TRACE_MESSAGE_FORMAT(_LEVEL_, _MESSAGE_, _FORMAT_, ...)
+#endif // NDEBUG
 
 	typedef enum {
 		SIGNAL_CLEAR = 0,
@@ -79,6 +120,13 @@ namespace nescc {
 		THREAD_RUN,
 		THREAD_PAUSE,
 	} thread_state_t;
+
+	typedef enum {
+		TRACE_ERROR = 0,
+		TRACE_WARNING,
+		TRACE_INFORMATION,
+		TRACE_VERBOSE,
+	} trace_level_t;
 }
 
 #endif // NESCC_DEFINE_H_

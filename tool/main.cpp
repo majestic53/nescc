@@ -23,9 +23,6 @@ main(void)
 {
 	int result = EXIT_SUCCESS;
 
-	std::cout << NESCC << " " << nescc::runtime::version() << std::endl
-		<< NESCC_COPYRIGHT << std::endl;
-
 	try {
 		nescc::runtime &instance = nescc::runtime::acquire();
 

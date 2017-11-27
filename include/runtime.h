@@ -19,7 +19,7 @@
 #ifndef NESCC_RUNTIME_H_
 #define NESCC_RUNTIME_H_
 
-#include "./interface/singleton.h"
+#include "./trace.h"
 
 namespace nescc {
 
@@ -61,6 +61,8 @@ namespace nescc {
 				);
 
 			void on_uninitialize(void);
+
+			nescc::trace &m_trace;
 	};
 }
 

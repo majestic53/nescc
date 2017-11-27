@@ -27,6 +27,7 @@ Version 0.1.1748
 *Updated: 11/26/2017*
 
 * Added core thread class
+* Added base tracing class
 
 *Updated: 11/25/2017*
 

@@ -20,17 +20,9 @@
 #define NESCC_EXCEPTION_H_
 
 #include <stdexcept>
-#include "../include/define.h"
+#include "./define.h"
 
 namespace nescc {
-
-	#define EXCEPTION_UNKNOWN "Unknown exception"
-
-	#define THROW_EXCEPTION(_EXCEPT_) \
-		THROW_EXCEPTION_FORMAT(_EXCEPT_, "", "")
-	#define THROW_EXCEPTION_FORMAT(_EXCEPT_, _FORMAT_, ...) \
-		nescc::exception::generate(_EXCEPT_, __FILE__, __FUNCTION__, __LINE__, \
-			_FORMAT_, __VA_ARGS__)
 
 	class exception :
 			public std::runtime_error {
