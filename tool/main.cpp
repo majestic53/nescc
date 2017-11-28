@@ -18,6 +18,8 @@
 
 #include "../include/runtime.h"
 
+#define ROM_PATH "./asset/rom/test.nes"
+
 int
 main(void)
 {
@@ -27,9 +29,8 @@ main(void)
 		nescc::runtime &instance = nescc::runtime::acquire();
 
 		instance.initialize();
-
-		// TODO
-
+		instance.run(ROM_PATH);
+		instance.wait();
 		instance.uninitialize();
 		instance.release();
 	} catch(nescc::exception &exc) {

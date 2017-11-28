@@ -21,15 +21,15 @@
 
 #include <queue>
 #include <tuple>
+#include "./core/singleton.h"
 #include "./core/thread.h"
-#include "./interface/singleton.h"
 
 namespace nescc {
 
 	typedef std::tuple<std::string, std::string, trace_level_t, size_t, std::string, std::time_t> trace_entry;
 
 	class trace :
-			public nescc::interface::singleton<nescc::trace>,
+			public nescc::core::singleton<nescc::trace>,
 			protected nescc::core::thread {
 
 		public:
@@ -57,7 +57,7 @@ namespace nescc {
 
 		protected:
 
-			friend class nescc::interface::singleton<nescc::trace>;
+			friend class nescc::core::singleton<nescc::trace>;
 
 			trace(void);
 
@@ -77,9 +77,7 @@ namespace nescc {
 				__in const trace_entry &entry
 				);
 
-			bool on_initialize(
-				__in_opt const std::vector<uint8_t> &input = std::vector<uint8_t>()
-				);
+			bool on_initialize(void);
 
 			bool on_run(void);
 

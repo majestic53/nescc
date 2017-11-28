@@ -24,6 +24,10 @@ Changelog
 
 Version 0.1.1748
 ----------------
+*Updated: 11/27/2017*
+
+* Added interface display class
+
 *Updated: 11/26/2017*
 
 * Added core thread class

@@ -41,6 +41,8 @@ namespace nescc {
 
 				void pause(void);
 
+				bool paused(void) const;
+
 				bool running(void) const;
 
 				void start(
@@ -57,6 +59,10 @@ namespace nescc {
 					) const;
 
 				void unpause(void);
+
+				bool wait(
+					__in_opt uint32_t timeout = SIGNAL_NO_TIMEOUT
+					);
 
 			protected:
 

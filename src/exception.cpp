@@ -18,6 +18,7 @@
 
 #include <cstdarg>
 #include "../include/exception.h"
+#include "../include/trace.h"
 #include "./exception_type.h"
 
 namespace nescc {
@@ -151,6 +152,7 @@ namespace nescc {
 			}
 		}
 
+		_TRACE(TRACE_ERROR, std::string(), result.str(), file, function, line, "", "");
 		throw nescc::exception(result.str(), file, function, line);
 	}
 

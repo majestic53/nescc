@@ -19,16 +19,30 @@
 #ifndef NESCC_RUNTIME_H_
 #define NESCC_RUNTIME_H_
 
+#include "./interface/display.h"
 #include "./trace.h"
 
 namespace nescc {
 
 	class runtime :
-			public nescc::interface::singleton<nescc::runtime> {
+			public nescc::core::singleton<nescc::runtime>,
+			protected nescc::core::thread {
 
 		public:
 
 			~runtime(void);
+
+			void pause(void);
+
+			bool paused(void) const;
+
+			void run(
+				__in const std::string &path
+				);
+
+			bool running(void) const;
+
+			void terminate(void);
 
 			std::string to_string(
 				__in_opt bool verbose = false
@@ -38,9 +52,13 @@ namespace nescc {
 				__in_opt bool verbose = false
 				);
 
+			bool wait(
+				__in_opt uint32_t timeout = SIGNAL_NO_TIMEOUT
+				);
+
 		protected:
 
-			friend class nescc::interface::singleton<nescc::runtime>;
+			friend class nescc::core::singleton<nescc::runtime>;
 
 			runtime(void);
 
@@ -52,15 +70,31 @@ namespace nescc {
 				__in const runtime &other
 				) = delete;
 
-			bool on_create(void);
+			void generate(void);
 
-			void on_destroy(void);
+			bool on_initialize(void);
 
-			bool on_initialize(
-				__in const std::vector<uint8_t> &input
-				);
+			void on_pause(void);
+
+			bool on_run(void);
+
+			bool on_start(void);
+
+			void on_stop(void);
 
 			void on_uninitialize(void);
+
+			void on_unpause(void);
+
+			bool poll(void);
+
+			void render(void);
+
+			nescc::interface::display &m_display;
+
+			std::string m_path;
+
+			std::string m_title;
 
 			nescc::trace &m_trace;
 	};

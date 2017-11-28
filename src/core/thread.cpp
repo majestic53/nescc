@@ -102,6 +102,12 @@ namespace nescc {
 		}
 
 		bool
+		thread::paused(void) const
+		{
+			return (m_state == THREAD_PAUSE);
+		}
+
+		bool
 		thread::run(void)
 		{
 			bool result = true;
@@ -123,6 +129,7 @@ namespace nescc {
 						}
 
 						if(!on_run()) {
+							m_state = THREAD_STOP;
 							break;
 						}
 					} else if(m_state == THREAD_PAUSE) {
@@ -212,16 +219,16 @@ namespace nescc {
 
 				m_signal_stop.wait(m_timeout);
 
-				if(m_thread.joinable()) {
-					m_thread.join();
-				}
-
 				on_stop();
 
 				if(!m_exception.empty()) {
 					THROW_NESCC_CORE_THREAD_EXCEPTION_FORMAT(NESCC_CORE_THREAD_EXCEPTION_INTERNAL, "%s",
 						STRING_CHECK(m_exception.to_string(true)));
 				}
+			}
+
+			if(m_thread.joinable()) {
+				m_thread.join();
 			}
 		}
 
@@ -261,6 +268,19 @@ namespace nescc {
 				m_state = THREAD_RUN;
 				m_signal_pause.notify();
 			}
+		}
+
+		bool
+		thread::wait(
+			__in_opt uint32_t timeout
+			)
+		{
+
+			if(m_state == THREAD_STOP) {
+				THROW_NESCC_CORE_THREAD_EXCEPTION(NESCC_CORE_THREAD_EXCEPTION_STOPPED);
+			}
+
+			return m_signal_stop.wait(timeout);
 		}
 	}
 }

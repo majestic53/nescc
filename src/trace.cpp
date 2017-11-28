@@ -145,9 +145,7 @@ namespace nescc {
 	}
 
 	bool
-	trace::on_initialize(
-		__in_opt const std::vector<uint8_t> &input
-		)
+	trace::on_initialize(void)
 	{
 		bool result = true;
 
@@ -248,7 +246,7 @@ namespace nescc {
 		result << NESCC_TRACE_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 		if(verbose) {
-			result << " Base=" << nescc::interface::singleton<nescc::trace>::to_string(verbose)
+			result << " Base=" << nescc::core::singleton<nescc::trace>::to_string(verbose)
 				<< ", Thread=" << nescc::core::thread::to_string(verbose)
 				<< ", Queue[" << m_queue.size() << "=" << SCALAR_AS_HEX(uintptr_t, &m_queue);
 		}

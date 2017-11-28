@@ -41,17 +41,27 @@ namespace nescc {
 	#define __inout_opt
 #endif // __inout_opt
 
+	#define DISPLAY_FLAGS (0)
+	#define DISPLAY_HEIGHT 240
+	#define DISPLAY_RENDERER_FLAGS (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
+	#define DISPLAY_WIDTH 256
+
+	#define EXCEPTION_UNKNOWN "Unknown exception"
+
 	#define NESCC "Nescc"
 	#define NESCC_COPYRIGHT "Copyright (C) 2017 David Jolly"
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 2
+	#define NESCC_VERSION_REVISION 3
 	#define NESCC_VERSION_WEEK 1748
 
-	#define EXCEPTION_UNKNOWN "Unknown exception"
-
 	#define REFERENCE_INIT 1
+
+	#define RUNTIME_DELTA (1000.f / RUNTIME_RATE)
+	#define RUNTIME_RATE 60
+
+	#define SDL_FLAGS (SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO)
 
 	#define SIGNAL_CLEARING true
 	#define SIGNAL_NO_TIMEOUT 0
@@ -100,6 +110,7 @@ namespace nescc {
 		_TRACE(nescc::_LEVEL_, std::string(), _MESSAGE_, __FILE__, __FUNCTION__, __LINE__, \
 			_FORMAT_, __VA_ARGS__)
 #else
+	#define _TRACE(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...)
 	#define TRACE_ENTRY()
 	#define TRACE_ENTRY_FORMAT(_FORMAT_, ...)
 	#define TRACE_EXIT()
