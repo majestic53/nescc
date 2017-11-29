@@ -27,6 +27,15 @@ namespace nescc {
 
 	namespace core {
 
+		#define THREAD_FREERUNNING false
+		#define THREAD_TIMEOUT 5000
+
+		typedef enum {
+			THREAD_STOP = 0,
+			THREAD_RUN,
+			THREAD_PAUSE,
+		} thread_state_t;
+
 		class thread {
 
 			public:

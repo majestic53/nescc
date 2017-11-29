@@ -19,6 +19,7 @@
 #ifndef NESCC_RUNTIME_H_
 #define NESCC_RUNTIME_H_
 
+#include "./console/cartridge.h"
 #include "./interface/display.h"
 #include "./trace.h"
 
@@ -78,10 +79,6 @@ namespace nescc {
 
 			bool on_run(void);
 
-			bool on_start(void);
-
-			void on_stop(void);
-
 			void on_uninitialize(void);
 
 			void on_unpause(void);
@@ -89,6 +86,8 @@ namespace nescc {
 			bool poll(void);
 
 			void render(void);
+
+			nescc::console::cartridge &m_cartridge;
 
 			nescc::interface::display &m_display;
 

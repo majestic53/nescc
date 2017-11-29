@@ -22,6 +22,7 @@
 namespace nescc {
 
 	runtime::runtime(void) :
+		m_cartridge(nescc::console::cartridge::acquire()),
 		m_display(nescc::interface::display::acquire()),
 		m_trace(nescc::trace::acquire())
 	{
@@ -39,6 +40,7 @@ namespace nescc {
 	{
 		TRACE_ENTRY();
 
+		m_cartridge.release();
 		m_display.release();
 
 		TRACE_EXIT();
@@ -76,6 +78,7 @@ namespace nescc {
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL initialized.");
 
 		m_display.initialize();
+		m_cartridge.initialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime initialized.");
 
@@ -105,16 +108,18 @@ namespace nescc {
 	runtime::on_run(void)
 	{
 		bool result = true;
-		uint32_t delta, start;
 
 		TRACE_ENTRY();
 
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
+		m_display.show();
+		m_cartridge.load(m_path);
 
 		// TODO: create cpu/ppu/apu, additional setup, load rom at path
 
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
+
 		for(;;) {
-			start = SDL_GetTicks();
+			uint32_t delta, start = SDL_GetTicks();
 
 			result = poll();
 			if(!result) {
@@ -132,39 +137,11 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");
 
-		TRACE_EXIT_FORMAT("Result=%x", result);
-		return result;
-	}
-
-	bool
-	runtime::on_start(void)
-	{
-		bool result = true;
-
-		TRACE_ENTRY();
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime starting...");
-
-		m_display.show();
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime started.");
-
-		TRACE_EXIT_FORMAT("Result=%x", result);
-		return result;
-	}
-
-	void
-	runtime::on_stop(void)
-	{
-		TRACE_ENTRY();
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime stopped...");
-
+		m_cartridge.unload();
 		m_display.hide();
 
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime stopped.");
-
-		TRACE_EXIT();
+		TRACE_EXIT_FORMAT("Result=%x", result);
+		return result;
 	}
 
 	void
@@ -174,6 +151,7 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitializing...");
 
+		m_cartridge.uninitialize();
 		m_display.uninitialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitializing...");
@@ -258,7 +236,8 @@ namespace nescc {
 		TRACE_ENTRY();
 
 		// TODO: render to display buffer
-		// TODO: update display
+
+		m_display.present();
 
 		TRACE_EXIT();
 	}

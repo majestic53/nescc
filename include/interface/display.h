@@ -36,8 +36,21 @@ namespace nescc {
 
 				void hide(void);
 
+				uint32_t pixel(
+					__in uint16_t x,
+					__in uint16_t y
+					) const;
+
+				void present(void);
+
 				void set_icon(
 					__in const std::string &path
+					);
+
+				void set_pixel(
+					__in uint16_t x,
+					__in uint16_t y,
+					__in uint8_t value
 					);
 
 				void set_title(
@@ -53,10 +66,6 @@ namespace nescc {
 				virtual std::string to_string(
 					__in_opt bool verbose = false
 					) const;
-
-				void update(
-					__in std::vector<uint32_t> &pixels
-					);
 
 			protected:
 
@@ -75,6 +84,8 @@ namespace nescc {
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
+
+				std::vector<uint32_t> m_pixel;
 
 				SDL_Renderer *m_renderer;
 

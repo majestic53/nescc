@@ -27,6 +27,16 @@ namespace nescc {
 
 	namespace core {
 
+		#define SIGNAL_CLEARING true
+		#define SIGNAL_NO_TIMEOUT 0
+
+		typedef enum {
+			SIGNAL_CLEAR = 0,
+			SIGNAL_NOTIFY,
+			SIGNAL_TIMEOUT,
+			SIGNAL_ABANDON,
+		} signal_state_t;
+
 		class signal {
 
 			public:

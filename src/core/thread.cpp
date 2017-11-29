@@ -140,9 +140,11 @@ namespace nescc {
 				}
 			} catch(nescc::exception &exc) {
 				m_exception = exc;
+				m_state = THREAD_STOP;
 				result = false;
 			} catch(std::exception &exc) {
 				m_exception = nescc::exception(exc.what(), __FILE__, __FUNCTION__, __LINE__);
+				m_state = THREAD_STOP;
 				result = false;
 			}
 

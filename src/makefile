@@ -20,9 +20,11 @@ CC_FLAGS_EXT=
 DIR_BIN=./../bin/
 DIR_BUILD=./../build/
 DIR_INC=./../include/
+DIR_INC_CONSOLE=./../include/console/
 DIR_INC_CORE=./../include/core/
 DIR_INC_INTERFACE=./../include/interface/
 DIR_SRC=./
+DIR_SRC_CONSOLE=./console/
 DIR_SRC_CORE=./core/
 DIR_SRC_INTERFACE=./interface/
 LIB=libnescc.a
@@ -33,12 +35,13 @@ archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
+		$(DIR_BUILD)console_cartridge.o \
 		$(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
 		$(DIR_BUILD)interface_display.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
 
-build: build_base build_core build_interface
+build: build_base build_console build_core build_interface
 
 ### BASE ###
 
@@ -52,6 +55,13 @@ base_runtime.o: $(DIR_SRC)runtime.cpp $(DIR_INC)runtime.h
 
 base_trace.o: $(DIR_SRC)trace.cpp $(DIR_INC)trace.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)trace.cpp -o $(DIR_BUILD)base_trace.o
+
+### CONSOLE ###
+
+build_console: console_cartridge.o
+
+console_cartridge.o: $(DIR_SRC_CONSOLE)cartridge.cpp $(DIR_INC_CONSOLE)cartridge.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)cartridge.cpp -o $(DIR_BUILD)console_cartridge.o
 
 ### CORE ###
 

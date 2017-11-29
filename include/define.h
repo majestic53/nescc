@@ -41,30 +41,15 @@ namespace nescc {
 	#define __inout_opt
 #endif // __inout_opt
 
-	#define DISPLAY_FLAGS (0)
-	#define DISPLAY_HEIGHT 240
-	#define DISPLAY_RENDERER_FLAGS (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
-	#define DISPLAY_WIDTH 256
-
-	#define EXCEPTION_UNKNOWN "Unknown exception"
+	#define NIBBLE_WID 4
 
 	#define NESCC "Nescc"
 	#define NESCC_COPYRIGHT "Copyright (C) 2017 David Jolly"
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 3
+	#define NESCC_VERSION_REVISION 4
 	#define NESCC_VERSION_WEEK 1748
-
-	#define REFERENCE_INIT 1
-
-	#define RUNTIME_DELTA (1000.f / RUNTIME_RATE)
-	#define RUNTIME_RATE 60
-
-	#define SDL_FLAGS (SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO)
-
-	#define SIGNAL_CLEARING true
-	#define SIGNAL_NO_TIMEOUT 0
 
 	#define STRING_EMPTY "Empty"
 	#define STRING_INVALID "Invalid"
@@ -76,68 +61,6 @@ namespace nescc {
 
 	#define STRING_CHECK(_STR_) \
 		(_STR_.empty() ? STRING_EMPTY : _STR_.c_str())
-
-	#define THREAD_FREERUNNING false
-	#define THREAD_TIMEOUT 5000
-
-	#define THROW_EXCEPTION(_EXCEPT_) \
-		THROW_EXCEPTION_FORMAT(_EXCEPT_, "", "")
-	#define THROW_EXCEPTION_FORMAT(_EXCEPT_, _FORMAT_, ...) \
-		nescc::exception::generate(_EXCEPT_, __FILE__, __FUNCTION__, __LINE__, \
-			_FORMAT_, __VA_ARGS__)
-
-#ifndef NDEBUG
-	#define _TRACE(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
-		nescc::trace &instance = nescc::trace::acquire(); \
-		try { \
-			if(((_LEVEL_) <= TRACE) && instance.initialized()) { \
-				instance.generate(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, \
-					_LINE_, _FORMAT_, __VA_ARGS__); \
-			} \
-		} catch(...) { } \
-		instance.release(); \
-		}
-	#define TRACE_ENTRY() TRACE_ENTRY_FORMAT("", "")
-	#define TRACE_ENTRY_FORMAT(_FORMAT_, ...) \
-		_TRACE(nescc::TRACE_VERBOSE, "+", __FUNCTION__, __FILE__, __FUNCTION__, __LINE__, \
-			_FORMAT_, __VA_ARGS__)
-	#define TRACE_EXIT() TRACE_EXIT_FORMAT("", "")
-	#define TRACE_EXIT_FORMAT(_FORMAT_, ...) \
-		_TRACE(nescc::TRACE_VERBOSE, "-", __FUNCTION__, __FILE__, __FUNCTION__, __LINE__, \
-			_FORMAT_, __VA_ARGS__)
-	#define TRACE_MESSAGE(_LEVEL_, _MESSAGE_) TRACE_MESSAGE_FORMAT(_LEVEL_, _MESSAGE_, "", "")
-	#define TRACE_MESSAGE_FORMAT(_LEVEL_, _MESSAGE_, _FORMAT_, ...) \
-		_TRACE(nescc::_LEVEL_, std::string(), _MESSAGE_, __FILE__, __FUNCTION__, __LINE__, \
-			_FORMAT_, __VA_ARGS__)
-#else
-	#define _TRACE(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...)
-	#define TRACE_ENTRY()
-	#define TRACE_ENTRY_FORMAT(_FORMAT_, ...)
-	#define TRACE_EXIT()
-	#define TRACE_EXIT_FORMAT(_FORMAT_, ...)
-	#define TRACE_MESSAGE(_LEVEL_, _MESSAGE_)
-	#define TRACE_MESSAGE_FORMAT(_LEVEL_, _MESSAGE_, _FORMAT_, ...)
-#endif // NDEBUG
-
-	typedef enum {
-		SIGNAL_CLEAR = 0,
-		SIGNAL_NOTIFY,
-		SIGNAL_TIMEOUT,
-		SIGNAL_ABANDON,
-	} signal_state_t;
-
-	typedef enum {
-		THREAD_STOP = 0,
-		THREAD_RUN,
-		THREAD_PAUSE,
-	} thread_state_t;
-
-	typedef enum {
-		TRACE_ERROR = 0,
-		TRACE_WARNING,
-		TRACE_INFORMATION,
-		TRACE_VERBOSE,
-	} trace_level_t;
 }
 
 #endif // NESCC_DEFINE_H_

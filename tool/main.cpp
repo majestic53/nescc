@@ -18,7 +18,7 @@
 
 #include "../include/runtime.h"
 
-#define ROM_PATH "./asset/rom/test.nes"
+#define ROM_PATH "../rom/smb.nes"
 
 int
 main(void)
