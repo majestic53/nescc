@@ -41,19 +41,24 @@ namespace nescc {
 	#define __inout_opt
 #endif // __inout_opt
 
-	#define NIBBLE_WID 4
+	#define KILOBYTE 1024.f
+
+	#define NIBBLE 4
 
 	#define NESCC "Nescc"
 	#define NESCC_COPYRIGHT "Copyright (C) 2017 David Jolly"
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 4
+	#define NESCC_VERSION_REVISION 5
 	#define NESCC_VERSION_WEEK 1748
 
 	#define STRING_EMPTY "Empty"
 	#define STRING_INVALID "Invalid"
 	#define STRING_UNKNOWN "Unknown"
+
+	#define FLOAT_PRECISION(_PREC_, _VAL_) \
+		std::setprecision(_PREC_) << std::fixed << (_VAL_) << std::defaultfloat
 
 	#define SCALAR_AS_HEX(_TYPE_, _VAL_) \
 		std::setw(sizeof(_TYPE_) * 2) << std::setfill('0') << std::hex \

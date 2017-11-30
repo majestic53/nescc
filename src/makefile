@@ -36,7 +36,7 @@ archive:
 	@echo '--- BUILDING LIBRARY -----------------------'
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
 		$(DIR_BUILD)console_cartridge.o \
-		$(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
+		$(DIR_BUILD)core_memory.o $(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
 		$(DIR_BUILD)interface_display.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
@@ -65,7 +65,10 @@ console_cartridge.o: $(DIR_SRC_CONSOLE)cartridge.cpp $(DIR_INC_CONSOLE)cartridge
 
 ### CORE ###
 
-build_core: core_signal.o core_thread.o
+build_core: core_memory.o core_signal.o core_thread.o
+
+core_memory.o: $(DIR_SRC_CORE)memory.cpp $(DIR_INC_CORE)memory.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)memory.cpp -o $(DIR_BUILD)core_memory.o
 
 core_signal.o: $(DIR_SRC_CORE)signal.cpp $(DIR_INC_CORE)signal.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)signal.cpp -o $(DIR_BUILD)core_signal.o

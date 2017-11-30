@@ -19,30 +19,17 @@
 #ifndef NESCC_CONSOLE_CARTRIDGE_H_
 #define NESCC_CONSOLE_CARTRIDGE_H_
 
+#include "../core/memory.h"
 #include "../core/singleton.h"
 
 namespace nescc {
 
 	namespace console {
 
-		typedef struct __attribute__((packed)) {
-			uint8_t magic[4];
-			uint8_t prg_rom;
-			uint8_t chr_rom;
-			uint32_t mirroring : 1;
-			uint32_t battery : 1;
-			uint32_t trainer : 1;
-			uint32_t vram : 1;
-			uint32_t mapper_low : 4;
-			uint32_t vs_unisystem : 1;
-			uint32_t play_choice_10 : 1;
-			uint32_t version : 2;
-			uint32_t mapper_high : 4;
-			uint32_t prg_ram : 8;
-			uint32_t tv_system : 1;
-			uint32_t unused_0 : 7;
-			uint8_t unused_1[6];
-		} cartridge_header;
+		typedef enum {
+			ROM_CHARACTER = 0,
+			ROM_PROGRAM,
+		} rom_bank_t;
 
 		class cartridge :
 				public nescc::core::singleton<nescc::console::cartridge> {
@@ -56,6 +43,33 @@ namespace nescc {
 					);
 
 				bool loaded(void) const;
+
+				uint8_t mapper(void) const;
+
+				uint8_t mirroring(void) const;
+
+				size_t ram_banks(void) const;
+
+				uint8_t ram_bank_read(
+					__in size_t index,
+					__in uint16_t offset
+					);
+
+				void ram_bank_write(
+					__in size_t index,
+					__in uint16_t offset,
+					__in uint8_t value
+					);
+
+				size_t rom_banks(
+					__in rom_bank_t type
+					) const;
+
+				uint8_t rom_bank_read(
+					__in rom_bank_t type,
+					__in size_t index,
+					__in uint16_t offset
+					);
 
 				std::string to_string(
 					__in_opt bool verbose = false
@@ -83,11 +97,17 @@ namespace nescc {
 
 				void on_uninitialize(void);
 
-				cartridge_header m_header;
-
 				bool m_loaded;
 
 				uint8_t m_mapper;
+
+				uint8_t m_mirroring;
+
+				std::vector<nescc::core::memory> m_ram;
+
+				std::vector<nescc::core::memory> m_rom_character;
+
+				std::vector<nescc::core::memory> m_rom_program;
 		};
 	}
 }

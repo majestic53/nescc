@@ -86,7 +86,7 @@ namespace nescc {
 
 			title << NESCC << " " << nescc::runtime::version(true);
 
-			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, 0x00);
+			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, 0);
 
 			m_window = SDL_CreateWindow(title.str().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 					DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_FLAGS);
@@ -110,7 +110,7 @@ namespace nescc {
 					"SDL_CreateTexture failed! Error=%s", SDL_GetError());
 			}
 
-			if(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest") == SDL_FALSE) {
+			if(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, DISPLAY_QUALITY) == SDL_FALSE) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_SetHint failed! Error=%s", SDL_GetError());
 			}
