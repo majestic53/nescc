@@ -121,7 +121,7 @@ namespace nescc {
 					if(!(iter % MEMORY_BLOCK_LENGTH)) {
 
 						if(verbose && !buffer.empty()) {
-							result << "       " << buffer;
+							result << " | " << buffer;
 							buffer.clear();
 						}
 
@@ -148,7 +148,7 @@ namespace nescc {
 				}
 
 				if(verbose && !buffer.empty()) {
-					result << "       " << buffer;
+					result << " | " << buffer;
 					buffer.clear();
 				}
 			}

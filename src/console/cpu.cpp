@@ -310,9 +310,8 @@ namespace nescc {
 
 				if(!(m_flags & CPU_FLAG_INTERRUPT_DISABLE)) {
 					result += interrupt_maskable();
+					m_signal_maskable = false;
 				}
-
-				m_signal_maskable = false;
 			}
 
 			result += step();

@@ -96,7 +96,7 @@ namespace nescc {
 			}
 
 			if(m_loaded) {
-				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_LOADED);
+				clear();
 			}
 
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Cartridge path", "[%u]=%s", path.size(), STRING_CHECK(path));
