@@ -76,10 +76,6 @@ namespace nescc {
 
 			~trace(void);
 
-			bool empty(void) const;
-
-			void flush(void);
-
 			void generate(
 				__in trace_level_t level,
 				__in const std::string &prefix,
@@ -116,6 +112,8 @@ namespace nescc {
 			void enqueue(
 				__in const trace_entry &entry
 				);
+
+			void flush(void);
 
 			bool on_initialize(void);
 

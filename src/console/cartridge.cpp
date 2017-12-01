@@ -27,7 +27,7 @@ namespace nescc {
 	namespace console {
 
 		typedef struct __attribute__((packed)) {
-			uint8_t magic[INES_MAGIC_LENGTH];
+			uint8_t magic[CARTRIDGE_MAGIC_LENGTH];
 			uint8_t rom_program;
 			uint8_t rom_character;
 			uint32_t mirroring : 1;
@@ -46,7 +46,7 @@ namespace nescc {
 		} cartridge_header;
 
 		typedef struct {
-			uint8_t unused[TRAINER_LENGTH];
+			uint8_t unused[CARTRIDGE_TRAINER_LENGTH];
 		} cartridge_trainer;
 
 		cartridge::cartridge(void) :
@@ -99,7 +99,6 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_LOADED);
 			}
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge loading...");
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Cartridge path", "[%u]=%s", path.size(), STRING_CHECK(path));
 
 			file = std::ifstream(path.c_str(), std::ios::in | std::ios::binary);
@@ -120,13 +119,14 @@ namespace nescc {
 
 			file.read((char *) &header, sizeof(header));
 
-			if(std::vector<uint8_t>(header.magic, header.magic + INES_MAGIC_LENGTH)
-					!= std::vector<uint8_t>(INES_MAGIC, INES_MAGIC + INES_MAGIC_LENGTH)) {
+			if(std::vector<uint8_t>(header.magic, header.magic + CARTRIDGE_MAGIC_LENGTH)
+					!= std::vector<uint8_t>(CARTRIDGE_MAGIC, CARTRIDGE_MAGIC + CARTRIDGE_MAGIC_LENGTH)) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_MALFORMED);
 			}
 
-			if(length < (sizeof(header) + (header.trainer ? TRAINER_LENGTH : 0) + (header.rom_program * ROM_PROGRAM_LENGTH)
-					+ (header.rom_character * ROM_CHARACTER_LENGTH))) {
+			if(length < (sizeof(header) + (header.trainer ? CARTRIDGE_TRAINER_LENGTH : 0)
+					+ (header.rom_program * CARTRIDGE_ROM_PROGRAM_LENGTH)
+					+ (header.rom_character * CARTRIDGE_ROM_CHARACTER_LENGTH))) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_MALFORMED);
 			}
 
@@ -137,20 +137,20 @@ namespace nescc {
 
 			for(iter = 0; iter <= header.ram_program; ++iter) {
 				m_ram.push_back(nescc::core::memory());
-				m_ram.back().set_size(RAM_PROGRAM_LENGTH);
+				m_ram.back().set_size(CARTRIDGE_RAM_PROGRAM_LENGTH);
 				m_ram.back().set_readonly(false);
 			}
 
 			for(iter = 0; iter < header.rom_program; ++iter) {
 				m_rom_program.push_back(nescc::core::memory());
-				m_rom_program.back().set_size(ROM_PROGRAM_LENGTH);
+				m_rom_program.back().set_size(CARTRIDGE_ROM_PROGRAM_LENGTH);
 				m_rom_program.back().set_readonly(true);
 				file.read((char *) m_rom_program.back().raw(), m_rom_program.back().size());
 			}
 
 			for(iter = 0; iter < header.rom_character; ++iter) {
 				m_rom_character.push_back(nescc::core::memory());
-				m_rom_character.back().set_size(ROM_CHARACTER_LENGTH);
+				m_rom_character.back().set_size(CARTRIDGE_ROM_CHARACTER_LENGTH);
 				m_rom_character.back().set_readonly(true);
 				file.read((char *) m_rom_character.back().raw(), m_rom_character.back().size());
 			}
@@ -160,18 +160,20 @@ namespace nescc {
 			m_mapper = ((header.mapper_high << NIBBLE) | header.mapper_low);
 			m_mirroring = header.mirroring;
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge loaded.");
-			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-iNES version", "%u", (header.version == INES_VERSION_2)
-				? INES_VERSION_2 : INES_VERSION_1);
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Version", "%u", (header.version == CARTRIDGE_VERSION_2)
+				? CARTRIDGE_VERSION_2 : CARTRIDGE_VERSION_1);
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM", "%u(%.01f KB)", header.rom_program, header.rom_program
-				* (ROM_PROGRAM_LENGTH / KILOBYTE));
+				* (CARTRIDGE_ROM_PROGRAM_LENGTH / KILOBYTE));
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG RAM", "%u(%.01f KB)", header.ram_program + 1,
-				(header.ram_program + 1) * (RAM_PROGRAM_LENGTH / KILOBYTE));
+				(header.ram_program + 1) * (CARTRIDGE_RAM_PROGRAM_LENGTH / KILOBYTE));
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-CHR ROM", "%u(%.01f KB)", header.rom_character, header.rom_character
-				* (ROM_CHARACTER_LENGTH / KILOBYTE));
-			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Mapper", "%u(%s)", m_mapper, MAPPER_STRING(m_mapper));
-			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Mirroring", "%u(%s)", m_mirroring, MIRRORING_STRING(m_mirroring));
-			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-TV system", "%u(%s)", header.tv_system, TV_SYSTEM_STRING(header.tv_system));
+				* (CARTRIDGE_ROM_CHARACTER_LENGTH / KILOBYTE));
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Mapper", "%u(%s)", m_mapper,
+				CARTRIDGE_MAPPER_STRING(m_mapper));
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Mirroring", "%u(%s)", m_mirroring,
+				CARTRIDGE_MIRRORING_STRING(m_mirroring));
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-TV system", "%u(%s)", header.tv_system,
+				CARTRIDGE_TV_SYSTEM_STRING(header.tv_system));
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-VRAM", "%s", header.vram ? "true" : "false");
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Trainer", "%s", header.trainer ? "true" : "false");
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Battery", "%s", header.battery ? "true" : "false");
@@ -185,6 +187,11 @@ namespace nescc {
 		cartridge::loaded(void) const
 		{
 			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
 			TRACE_EXIT_FORMAT("Result=%x", m_loaded);
 			return m_loaded;
 		}
@@ -193,7 +200,12 @@ namespace nescc {
 		cartridge::mapper(void) const
 		{
 			TRACE_ENTRY();
-			TRACE_EXIT_FORMAT("Result=%u(%s)", m_mapper, MAPPER_STRING(m_mapper));
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%s)", m_mapper, CARTRIDGE_MAPPER_STRING(m_mapper));
 			return m_mapper;
 		}
 
@@ -201,7 +213,12 @@ namespace nescc {
 		cartridge::mirroring(void) const
 		{
 			TRACE_ENTRY();
-			TRACE_EXIT_FORMAT("Result=%u(%s)", m_mirroring, MIRRORING_STRING(m_mirroring));
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%s)", m_mirroring, CARTRIDGE_MIRRORING_STRING(m_mirroring));
 			return m_mirroring;
 		}
 
@@ -213,8 +230,6 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge initializing...");
-
-			clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge initialized.");
 
@@ -229,28 +244,15 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge uninitializing...");
 
-			unload();
+			clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge uninitialized.");
 
 			TRACE_EXIT();
 		}
 
-		size_t
-		cartridge::ram_banks(void) const
-		{
-			size_t result;
-
-			TRACE_ENTRY();
-
-			result = m_ram.size();
-
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
-		}
-
 		uint8_t
-		cartridge::ram_bank_read(
+		cartridge::read_ram_program(
 			__in size_t index,
 			__in uint16_t offset
 			)
@@ -258,6 +260,10 @@ namespace nescc {
 			uint8_t result = 0;
 
 			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x)", index, offset, offset);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
 
 			if(index >= m_ram.size()) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
@@ -270,84 +276,51 @@ namespace nescc {
 			return result;
 		}
 
-		void
-		cartridge::ram_bank_write(
-			__in size_t index,
-			__in uint16_t offset,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x), Value=%u(%02x)", index, offset, offset, value, value);
-
-			if(index >= m_ram.size()) {
-				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
-					"Index=%u", index);
-			}
-
-			m_ram.at(index).write(offset, value);
-
-			TRACE_EXIT();
-		}
-
-		size_t
-		cartridge::rom_banks(
-			__in rom_bank_t type
-			) const
-		{
-			size_t result = 0;
-
-			TRACE_ENTRY_FORMAT("Type=%u(%s)", type, ROM_STRING(type));
-
-			switch(type) {
-				case ROM_CHARACTER:
-					result = m_rom_character.size();
-					break;
-				case ROM_PROGRAM:
-					result = m_rom_program.size();
-					break;
-				default:
-					THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_TYPE,
-						"Type=%u", type);
-			}
-
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
-		}
-
 		uint8_t
-		cartridge::rom_bank_read(
-			__in rom_bank_t type,
+		cartridge::read_rom_character(
 			__in size_t index,
 			__in uint16_t offset
 			)
 		{
 			uint8_t result = 0;
 
-			TRACE_ENTRY_FORMAT("Type=%u(%s), Index=%u, Offset=%u(%04x)", type, ROM_STRING(type), index, offset, offset);
+			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x)", index, offset, offset);
 
-			switch(type) {
-				case ROM_CHARACTER: {
-
-						if(index >= m_rom_character.size()) {
-							THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
-								"Index=%u", index);
-						}
-
-						result = m_rom_character.at(index).read(offset);
-					} break;
-				case ROM_PROGRAM: {
-
-						if(index >= m_rom_program.size()) {
-							THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
-								"Index=%u", index);
-						}
-
-						result = m_rom_program.at(index).read(offset);
-					} break;
-				default:
-					THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_TYPE,
-						"Type=%u", type);
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+
+			if(index >= m_rom_character.size()) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
+					"Index=%u", index);
+			}
+
+			result = m_rom_character.at(index).read(offset);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result);
+			return result;
+		}
+
+		uint8_t
+		cartridge::read_rom_program(
+			__in size_t index,
+			__in uint16_t offset
+			)
+		{
+			uint8_t result = 0;
+
+			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x)", index, offset, offset);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
+			if(index >= m_rom_program.size()) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
+					"Index=%u", index);
+			}
+
+			result = m_rom_program.at(index).read(offset);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result);
 			return result;
@@ -371,13 +344,16 @@ namespace nescc {
 					result << ", State=" << (m_loaded ? "Loaded" : "Unloaded");
 
 					if(m_loaded) {
-						result << ", Mapper=" << (int) m_mapper << "(" << MAPPER_STRING(m_mapper) << ")"
-							<< ", Mirroring=" << (int) m_mirroring << "(" << MIRRORING_STRING(m_mirroring) << ")"
-							<< ", PRG RAM[" << m_ram.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_ram[0])
+						result << ", PRG RAM[" << m_ram.size() << "]="
+								<< SCALAR_AS_HEX(uintptr_t, &m_ram[0])
 							<< ", PRG ROM[" << m_rom_program.size() << "]="
 								<< SCALAR_AS_HEX(uintptr_t, &m_rom_program[0])
 							<< ", CHR ROM[" << m_rom_character.size() << "]="
-								<< SCALAR_AS_HEX(uintptr_t, &m_rom_character[0]);
+								<< SCALAR_AS_HEX(uintptr_t, &m_rom_character[0])
+							<< ", Mapper=" << (int) m_mapper
+								<< "(" << CARTRIDGE_MAPPER_STRING(m_mapper) << ")"
+							<< ", Mirroring=" << (int) m_mirroring
+								<< "(" << CARTRIDGE_MIRRORING_STRING(m_mirroring) << ")";
 					}
 				}
 			}
@@ -387,21 +363,24 @@ namespace nescc {
 		}
 
 		void
-		cartridge::unload(void)
+		cartridge::write_ram_program(
+			__in size_t index,
+			__in uint16_t offset,
+			__in uint8_t value
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x), Value=%u(%02x)", index, offset, offset, value, value);
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
-			if(m_loaded) {
-				TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge unloading...");
-
-				clear();
-
-				TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge unloaded.");
+			if(index >= m_ram.size()) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
+					"Index=%u", index);
 			}
+
+			m_ram.at(index).write(offset, value);
 
 			TRACE_EXIT();
 		}

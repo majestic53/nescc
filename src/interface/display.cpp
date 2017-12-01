@@ -40,40 +40,6 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		void
-		display::hide(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
-			}
-
-			SDL_HideWindow(m_window);
-
-			TRACE_EXIT();
-		}
-
-		uint32_t
-		display::pixel(
-			__in uint16_t x,
-			__in uint16_t y
-			) const
-		{
-			uint8_t result;
-
-			TRACE_ENTRY_FORMAT("Position={%u, %u}", x, y);
-
-			if(!m_initialized) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
-			}
-
-			result = m_pixel.at((y * DISPLAY_WIDTH) + x);
-
-			TRACE_EXIT_FORMAT("Result=%08x", result);
-			return result;
-		}
-
 		bool
 		display::on_initialize(void)
 		{
@@ -165,33 +131,24 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		void
-		display::present(void)
+		uint32_t
+		display::read(
+			__in uint16_t x,
+			__in uint16_t y
+			) const
 		{
-			TRACE_ENTRY();
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Position={%u, %u}", x, y);
 
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
 
-			if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(uint32_t))) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_UpdateTexture failed! Error=%s", SDL_GetError());
-			}
+			result = m_pixel.at((y * DISPLAY_WIDTH) + x);
 
-			if(SDL_RenderClear(m_renderer)) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_RenderClear failed! Error=%s", SDL_GetError());
-			}
-
-			if(SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr)) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_RenderCopy failed! Error=%s", SDL_GetError());
-			}
-
-			SDL_RenderPresent(m_renderer);
-
-			TRACE_EXIT();
+			TRACE_EXIT_FORMAT("Result=%08x", result);
+			return result;
 		}
 
 		void
@@ -224,24 +181,6 @@ namespace nescc {
 		}
 
 		void
-		display::set_pixel(
-			__in uint16_t x,
-			__in uint16_t y,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Position={%u, %u}, Value=%02x", x, y, value);
-
-			if(!m_initialized) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
-			}
-
-			m_pixel.at((y * DISPLAY_WIDTH) + x) = PALETTE_VALUE(value);
-
-			TRACE_EXIT();
-		}
-
-		void
 		display::set_title(
 			__in const std::string &title
 			)
@@ -255,52 +194,6 @@ namespace nescc {
 			SDL_SetWindowTitle(m_window, title.c_str());
 
 			TRACE_EXIT();
-		}
-
-		void
-		display::show(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
-			}
-
-			SDL_ShowWindow(m_window);
-
-			TRACE_EXIT();
-		}
-
-		bool
-		display::shown(void) const
-		{
-			bool result = false;
-
-			TRACE_ENTRY();
-
-			if(m_initialized) {
-				result = (SDL_GetWindowFlags(m_window) & SDL_WINDOW_SHOWN);
-			}
-
-			TRACE_EXIT_FORMAT("Result=%x", result);
-			return result;
-		}
-
-		std::string
-		display::title(void) const
-		{
-			std::string result;
-
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
-			}
-
-			result = SDL_GetWindowTitle(m_window);
-
-			TRACE_EXIT();
-			return result;
 		}
 
 		std::string
@@ -327,6 +220,53 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		void
+		display::update(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+
+			if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(uint32_t))) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_UpdateTexture failed! Error=%s", SDL_GetError());
+			}
+
+			if(SDL_RenderClear(m_renderer)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_RenderClear failed! Error=%s", SDL_GetError());
+			}
+
+			if(SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+			}
+
+			SDL_RenderPresent(m_renderer);
+
+			TRACE_EXIT();
+		}
+
+		void
+		display::write(
+			__in uint16_t x,
+			__in uint16_t y,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Position={%u, %u}, Value=%02x", x, y, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_pixel.at((y * DISPLAY_WIDTH) + x) = DISPLAY_PALETTE_VALUE(value);
+
+			TRACE_EXIT();
 		}
 	}
 }

@@ -23,6 +23,7 @@ namespace nescc {
 
 	runtime::runtime(void) :
 		m_cartridge(nescc::console::cartridge::acquire()),
+		m_cpu(nescc::console::cpu::acquire()),
 		m_display(nescc::interface::display::acquire()),
 		m_trace(nescc::trace::acquire())
 	{
@@ -41,22 +42,13 @@ namespace nescc {
 		TRACE_ENTRY();
 
 		m_cartridge.release();
+		m_cpu.release();
 		m_display.release();
 
 		TRACE_EXIT();
 
 		m_trace.uninitialize();
 		m_trace.release();
-	}
-
-	void
-	runtime::generate(void)
-	{
-		TRACE_ENTRY();
-
-		// TODO: run cpu/ppu/apu through an entire frame
-
-		TRACE_EXIT();
 	}
 
 	bool
@@ -70,38 +62,22 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL initializing...");
 
-		if(SDL_Init(SDL_FLAGS)) {
+		if(SDL_Init(RUNTIME_SDL_FLAGS)) {
 			THROW_NESCC_RUNTIME_EXCEPTION_FORMAT(NESCC_RUNTIME_EXCEPTION_EXTERNAL,
 				"SDL_Init failed! Error=%s", SDL_GetError());
 		}
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL initialized.");
 
-		m_display.initialize();
 		m_cartridge.initialize();
+		m_cpu.initialize();
+
+		// TODO: initialize ppu/apu
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime initialized.");
 
 		TRACE_EXIT_FORMAT("Result=%x", result);
 		return result;
-	}
-
-	void
-	runtime::on_pause(void)
-	{
-		std::stringstream title;
-
-		TRACE_ENTRY();
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime pausing...");
-
-		m_title = m_display.title();
-		title << "[Paused] " << m_title;
-		m_display.set_title(title.str());
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime paused.");
-
-		TRACE_EXIT();
 	}
 
 	bool
@@ -111,22 +87,24 @@ namespace nescc {
 
 		TRACE_ENTRY();
 
-		m_display.show();
 		m_cartridge.load(m_path);
+		m_cpu.reset();
 
-		// TODO: create cpu/ppu/apu, additional setup, load rom at path
+		// TODO: reset ppu/apu
+
+		m_display.initialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
 
 		for(;;) {
 			uint32_t delta, start = SDL_GetTicks();
 
-			result = poll();
+			result = poll_events();
 			if(!result) {
 				break;
 			}
 
-			generate();
+			update();
 			render();
 
 			delta = (SDL_GetTicks() - start);
@@ -137,8 +115,12 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");
 
-		m_cartridge.unload();
-		m_display.hide();
+		m_display.uninitialize();
+
+		// TODO: clear apu/ppu
+
+		m_cpu.clear();
+		m_cartridge.clear();
 
 		TRACE_EXIT_FORMAT("Result=%x", result);
 		return result;
@@ -151,8 +133,10 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitializing...");
 
+		// TODO: uninitialize apu/ppu
+
+		m_cpu.uninitialize();
 		m_cartridge.uninitialize();
-		m_display.uninitialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitializing...");
 
@@ -165,49 +149,8 @@ namespace nescc {
 		TRACE_EXIT();
 	}
 
-	void
-	runtime::on_unpause(void)
-	{
-		TRACE_ENTRY();
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime unpausing...");
-
-		m_display.set_title(m_title);
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime unpaused.");
-
-		TRACE_EXIT();
-	}
-
-	void
-	runtime::pause(void)
-	{
-		TRACE_ENTRY();
-
-		if(!m_initialized) {
-			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
-		}
-
-		nescc::core::thread::pause();
-
-		TRACE_EXIT();
-	}
-
 	bool
-	runtime::paused(void) const
-	{
-		bool result;
-
-		TRACE_ENTRY();
-
-		result = nescc::core::thread::paused();
-
-		TRACE_EXIT_FORMAT("Result=%x", result);
-		return result;
-	}
-
-	bool
-	runtime::poll(void)
+	runtime::poll_events(void)
 	{
 		SDL_Event event;
 		bool result = true;
@@ -237,7 +180,7 @@ namespace nescc {
 
 		// TODO: render to display buffer
 
-		m_display.present();
+		m_display.update();
 
 		TRACE_EXIT();
 	}
@@ -254,7 +197,6 @@ namespace nescc {
 		}
 
 		m_path = path;
-		m_title.clear();
 		nescc::core::thread::start(true);
 
 		TRACE_EXIT();
@@ -266,6 +208,10 @@ namespace nescc {
 		bool result;
 
 		TRACE_ENTRY();
+
+		if(!m_initialized) {
+			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
+		}
 
 		result = nescc::core::thread::running();
 
@@ -304,6 +250,16 @@ namespace nescc {
 
 		TRACE_EXIT();
 		return result.str();
+	}
+
+	void
+	runtime::update(void)
+	{
+		TRACE_ENTRY();
+
+		// TODO: run cpu/ppu/apu through an entire frame
+
+		TRACE_EXIT();
 	}
 
 	std::string

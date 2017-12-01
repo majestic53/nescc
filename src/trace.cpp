@@ -48,12 +48,6 @@ namespace nescc {
 		m_queue.pop();
 	}
 
-	bool
-	trace::empty(void) const
-	{
-		return m_queue.empty();
-	}
-
 	void
 	trace::enqueue(
 		__in const trace_entry &entry
@@ -72,10 +66,6 @@ namespace nescc {
 	trace::flush(void)
 	{
 		trace_entry entry;
-
-		if(!m_initialized) {
-			THROW_NESCC_TRACE_EXCEPTION(NESCC_TRACE_EXCEPTION_UNINITIALIZED);
-		}
 
 		while(!m_queue.empty()) {
 			dequeue(entry);

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_CONSOLE_CARTRIDGE_H_
-#define NESCC_CONSOLE_CARTRIDGE_H_
+#ifndef NESCC_CONSOLE_CPU_H_
+#define NESCC_CONSOLE_CPU_H_
 
 #include "../core/memory.h"
 #include "../core/singleton.h"
@@ -26,81 +26,85 @@ namespace nescc {
 
 	namespace console {
 
-		class cartridge :
-				public nescc::core::singleton<nescc::console::cartridge> {
+		class cpu :
+				public nescc::core::singleton<nescc::console::cpu> {
 
 			public:
 
-				~cartridge(void);
+				~cpu(void);
+
+				std::string as_string(
+					__in_opt bool verbose = false
+					) const;
 
 				void clear(void);
 
-				void load(
-					__in const std::string &path
-					);
-
-				bool loaded(void) const;
-
-				uint8_t mapper(void) const;
-
-				uint8_t mirroring(void) const;
-
-				uint8_t read_ram_program(
-					__in size_t index,
+				uint8_t read(
 					__in uint16_t offset
-					);
+					) const;
 
-				uint8_t read_rom_character(
-					__in size_t index,
-					__in uint16_t offset
-					);
+				size_t reset(void);
 
-				uint8_t read_rom_program(
-					__in size_t index,
-					__in uint16_t offset
-					);
+				void signal_maskable(void);
+
+				void signal_non_maskable(void);
 
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
 
-				void write_ram_program(
-					__in size_t index,
+				size_t update(void);
+
+				void write(
 					__in uint16_t offset,
 					__in uint8_t value
 					);
 
 			protected:
 
-				friend class nescc::core::singleton<nescc::console::cartridge>;
+				friend class nescc::core::singleton<nescc::console::cpu>;
 
-				cartridge(void);
+				cpu(void);
 
-				cartridge(
-					__in const cartridge &other
+				cpu(
+					__in const cpu &other
 					) = delete;
 
-				cartridge &operator=(
-					__in const cartridge &other
+				cpu &operator=(
+					__in const cpu &other
 					) = delete;
+
+				size_t interrupt_maskable(void);
+
+				size_t interrupt_non_maskable(void);
 
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
-				bool m_loaded;
+				size_t step(void);
 
-				uint8_t m_mapper;
+				uint8_t m_accumulator;
 
-				uint8_t m_mirroring;
+				size_t m_cycle;
 
-				std::vector<nescc::core::memory> m_ram;
+				uint8_t m_flags;
 
-				std::vector<nescc::core::memory> m_rom_character;
+				uint8_t m_index_x;
 
-				std::vector<nescc::core::memory> m_rom_program;
+				uint8_t m_index_y;
+
+				uint16_t m_program_counter;
+
+				nescc::core::memory m_ram;
+
+				bool m_signal_maskable;
+
+				bool m_signal_non_maskable;
+
+				uint8_t m_stack_pointer;
 		};
 	}
 }
 
-#endif // NESCC_CONSOLE_CARTRIDGE_H_
+#endif // NESCC_CONSOLE_CPU_H_

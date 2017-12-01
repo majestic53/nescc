@@ -64,12 +64,6 @@ namespace nescc {
 			}
 		}
 
-		bool
-		signal::clearing(void) const
-		{
-			return m_clearing;
-		}
-
 		void
 		signal::notify(void)
 		{
@@ -99,12 +93,6 @@ namespace nescc {
 			m_clearing = clearing;
 		}
 
-		signal_state_t
-		signal::state(void) const
-		{
-			return m_state;
-		}
-
 		std::string
 		signal::to_string(
 			__in_opt bool verbose
@@ -115,7 +103,7 @@ namespace nescc {
 			result << NESCC_CORE_SIGNAL_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 			if(verbose) {
-				result << " State=" << SCALAR_AS_HEX(signal_state_t, m_state) << "(" << SIGNAL_STRING(m_state) << ")"
+				result << " State=" << SCALAR_AS_HEX(int, m_state) << "(" << SIGNAL_STRING(m_state) << ")"
 					<< ", Mode=" << (m_clearing ? "Clearing" : "Non-clearing");
 			}
 

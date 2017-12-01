@@ -34,38 +34,30 @@ namespace nescc {
 
 				~display(void);
 
-				void hide(void);
-
-				uint32_t pixel(
+				uint32_t read(
 					__in uint16_t x,
 					__in uint16_t y
 					) const;
 
-				void present(void);
-
 				void set_icon(
 					__in const std::string &path
-					);
-
-				void set_pixel(
-					__in uint16_t x,
-					__in uint16_t y,
-					__in uint8_t value
 					);
 
 				void set_title(
 					__in const std::string &title
 					);
 
-				void show(void);
-
-				bool shown(void) const;
-
-				std::string title(void) const;
-
 				virtual std::string to_string(
 					__in_opt bool verbose = false
 					) const;
+
+				void update(void);
+
+				void write(
+					__in uint16_t x,
+					__in uint16_t y,
+					__in uint8_t value
+					);
 
 			protected:
 

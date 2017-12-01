@@ -24,6 +24,11 @@ Changelog
 
 Version 0.1.1748
 ----------------
+*Updated: 11/30/2017*
+
+* Added console cpu class
+* Minor code cleanup
+
 *Updated: 11/29/2017*
 
 * Completed console cartridge class

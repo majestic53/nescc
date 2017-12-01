@@ -58,6 +58,12 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_CORE_THREAD_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
+		enum {
+			THREAD_STOP = 0,
+			THREAD_RUN,
+			THREAD_PAUSE,
+		};
+
 		#define THREAD_MAX THREAD_PAUSE
 
 		static const std::string THREAD_STR[] = {

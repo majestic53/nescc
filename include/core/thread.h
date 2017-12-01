@@ -27,14 +27,7 @@ namespace nescc {
 
 	namespace core {
 
-		#define THREAD_FREERUNNING false
 		#define THREAD_TIMEOUT 5000
-
-		typedef enum {
-			THREAD_STOP = 0,
-			THREAD_RUN,
-			THREAD_PAUSE,
-		} thread_state_t;
 
 		class thread {
 
@@ -43,8 +36,6 @@ namespace nescc {
 				thread(void);
 
 				virtual ~thread(void);
-
-				bool freerunning(void) const;
 
 				void notify(void);
 
@@ -55,11 +46,9 @@ namespace nescc {
 				bool running(void) const;
 
 				void start(
-					__in_opt bool freerunning = THREAD_FREERUNNING,
+					__in_opt bool freerunning = false,
 					__in_opt uint32_t timeout = THREAD_TIMEOUT
 					);
-
-				thread_state_t state(void) const;
 
 				void stop(void);
 
@@ -109,7 +98,7 @@ namespace nescc {
 
 				nescc::core::signal m_signal_wait;
 
-				thread_state_t m_state;
+				int m_state;
 
 				std::thread m_thread;
 

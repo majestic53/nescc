@@ -27,37 +27,25 @@ namespace nescc {
 
 	namespace core {
 
-		#define SIGNAL_CLEARING true
 		#define SIGNAL_NO_TIMEOUT 0
-
-		typedef enum {
-			SIGNAL_CLEAR = 0,
-			SIGNAL_NOTIFY,
-			SIGNAL_TIMEOUT,
-			SIGNAL_ABANDON,
-		} signal_state_t;
 
 		class signal {
 
 			public:
 
 				explicit signal(
-					__in_opt bool clearing = SIGNAL_CLEARING
+					__in_opt bool clearing = true
 					);
 
 				virtual ~signal(void);
 
 				void clear(void);
 
-				bool clearing(void) const;
-
 				void notify(void);
 
 				void set_clearing(
 					__in bool clearing
 					);
-
-				signal_state_t state(void) const;
 
 				virtual std::string to_string(
 					__in_opt bool verbose = false
@@ -85,7 +73,7 @@ namespace nescc {
 
 				std::mutex m_mutex;
 
-				signal_state_t m_state;
+				int m_state;
 		};
 	}
 }

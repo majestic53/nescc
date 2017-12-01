@@ -96,18 +96,6 @@ namespace nescc {
 		return m_empty;
 	}
 
-	std::string
-	exception::file(void) const
-	{
-		return m_file;
-	}
-
-	std::string
-	exception::function(void) const
-	{
-		return m_function;
-	}
-
 	void
 	exception::generate(
 		__in const std::string &message,
@@ -154,12 +142,6 @@ namespace nescc {
 
 		_TRACE(TRACE_ERROR, std::string(), result.str(), file, function, line, "", "");
 		throw nescc::exception(result.str(), file, function, line);
-	}
-
-	size_t
-	exception::line(void) const
-	{
-		return m_line;
 	}
 
 	std::string

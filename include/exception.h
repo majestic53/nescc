@@ -60,10 +60,6 @@ namespace nescc {
 
 			bool empty(void) const;
 
-			std::string file(void) const;
-
-			std::string function(void) const;
-
 			static void generate(
 				__in const std::string &message,
 				__in const std::string &file,
@@ -72,8 +68,6 @@ namespace nescc {
 				__in const char *format,
 				...
 				);
-
-			size_t line(void) const;
 
 			virtual std::string to_string(
 				__in_opt bool verbose = false

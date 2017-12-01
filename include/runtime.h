@@ -20,6 +20,7 @@
 #define NESCC_RUNTIME_H_
 
 #include "./console/cartridge.h"
+#include "./console/cpu.h"
 #include "./interface/display.h"
 #include "./trace.h"
 
@@ -32,10 +33,6 @@ namespace nescc {
 		public:
 
 			~runtime(void);
-
-			void pause(void);
-
-			bool paused(void) const;
 
 			void run(
 				__in const std::string &path
@@ -71,29 +68,25 @@ namespace nescc {
 				__in const runtime &other
 				) = delete;
 
-			void generate(void);
+			bool poll_events(void);
 
 			bool on_initialize(void);
-
-			void on_pause(void);
 
 			bool on_run(void);
 
 			void on_uninitialize(void);
 
-			void on_unpause(void);
-
-			bool poll(void);
-
 			void render(void);
 
+			void update(void);
+
 			nescc::console::cartridge &m_cartridge;
+
+			nescc::console::cpu &m_cpu;
 
 			nescc::interface::display &m_display;
 
 			std::string m_path;
-
-			std::string m_title;
 
 			nescc::trace &m_trace;
 	};

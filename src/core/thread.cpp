@@ -36,12 +36,6 @@ namespace nescc {
 			stop();
 		}
 
-		bool
-		thread::freerunning(void) const
-		{
-			return m_freerunning;
-		}
-
 		void
 		thread::notify(void)
 		{
@@ -195,12 +189,6 @@ namespace nescc {
 			}
 		}
 
-		thread_state_t
-		thread::state(void) const
-		{
-			return m_state;
-		}
-
 		void
 		thread::stop(void)
 		{
@@ -244,7 +232,7 @@ namespace nescc {
 			result << NESCC_CORE_THREAD_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 			if(verbose) {
-				result << " State=" << SCALAR_AS_HEX(thread_state_t, m_state) << "(" << THREAD_STRING(m_state) << ")";
+				result << " State=" << SCALAR_AS_HEX(int, m_state) << "(" << THREAD_STRING(m_state) << ")";
 
 				if(m_state != THREAD_STOP) {
 					result << ", Id=" << m_thread.get_id()

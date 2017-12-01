@@ -44,9 +44,6 @@ namespace nescc {
 		memory::~memory(void)
 		{
 			TRACE_ENTRY();
-
-			clear();
-
 			TRACE_EXIT();
 		}
 

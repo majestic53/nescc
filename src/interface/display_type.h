@@ -61,9 +61,9 @@ namespace nescc {
 		#define DISPLAY_RENDERER_FLAGS (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 		#define DISPLAY_WIDTH 256
 
-		#define PALETTE_MAX 64
+		#define DISPLAY_PALETTE_MAX 64
 
-		static const uint32_t PALETTE_VAL[] = {
+		static const uint32_t DISPLAY_PALETTE_VAL[] = {
 			0xff7c7c7c, 0xff0000fc, 0xff0000bc, 0xff4428bc, 0xff940084, 0xffa80020, 0xffa81000, 0xff881400,
 			0xff503000, 0xff007800, 0xff006800, 0xff005800, 0xff004058, 0xff000000, 0xff000000, 0xff000000,
 			0xffbcbcbc, 0xff0078f8, 0xff0058f8, 0xff6844fc, 0xffd800cc, 0xffe40058, 0xfff83800, 0xffe45c10,
@@ -74,9 +74,9 @@ namespace nescc {
 			0xfff8d878, 0xffd8f878, 0xffb8f8b8, 0xffb8f8d8, 0xff00fcfc, 0xfff8d8f8, 0xff000000, 0xff000000,
 			};
 
-		#define PALETTE_VALUE(_VAL_) \
-			(((_VAL_) > PALETTE_MAX) ? PALETTE_VAL[PALETTE_MAX - 1] : \
-				PALETTE_VAL[_VAL_])
+		#define DISPLAY_PALETTE_VALUE(_VAL_) \
+			(((_VAL_) > DISPLAY_PALETTE_MAX) ? DISPLAY_PALETTE_VAL[DISPLAY_PALETTE_MAX - 1] : \
+				DISPLAY_PALETTE_VAL[_VAL_])
 }
 
 #endif // NESCC_INTERFACE_DISPLAY_TYPE_H_

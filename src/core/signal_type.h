@@ -54,6 +54,13 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_CORE_SIGNAL_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
+		enum {
+			SIGNAL_CLEAR = 0,
+			SIGNAL_NOTIFY,
+			SIGNAL_TIMEOUT,
+			SIGNAL_ABANDON,
+		};
+
 		#define SIGNAL_MAX SIGNAL_ABANDON
 
 		static const std::string SIGNAL_STR[] = {
