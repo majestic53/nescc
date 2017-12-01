@@ -162,23 +162,17 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		uint8_t
-		cpu::read(
-			__in uint16_t offset
-			) const
+		nescc::core::memory &
+		cpu::ram(void)
 		{
-			uint8_t result;
-
-			TRACE_ENTRY_FORMAT("Offset=%u(%04x)", offset, offset);
+			TRACE_ENTRY();
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
 
-			result = m_ram.read(offset);
-
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
-			return result;
+			TRACE_EXIT();
+			return m_ram;
 		}
 
 		size_t
@@ -319,23 +313,6 @@ namespace nescc {
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
-		}
-
-		void
-		cpu::write(
-			__in uint16_t offset,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Offset=%u(%04x), Value=%u(%02x)", offset, offset, value, value);
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
-			}
-
-			m_ram.write(offset, value);
-
-			TRACE_EXIT();
 		}
 	}
 }

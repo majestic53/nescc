@@ -251,15 +251,12 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		uint8_t
-		cartridge::read_ram_program(
-			__in size_t index,
-			__in uint16_t offset
+		nescc::core::memory &
+		cartridge::ram(
+			__in size_t index
 			)
 		{
-			uint8_t result = 0;
-
-			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x)", index, offset, offset);
+			TRACE_ENTRY();
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
@@ -270,21 +267,29 @@ namespace nescc {
 					"Index=%u", index);
 			}
 
-			result = m_ram.at(index).read(offset);
+			TRACE_EXIT();
+			return m_ram.at(index);
+		}
 
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", result);
+		size_t
+		cartridge::ram_banks(void) const
+		{
+			size_t result;
+
+			TRACE_ENTRY();
+
+			result = m_ram.size();
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
 
-		uint8_t
-		cartridge::read_rom_character(
-			__in size_t index,
-			__in uint16_t offset
+		nescc::core::memory &
+		cartridge::rom_character(
+			__in size_t index
 			)
 		{
-			uint8_t result = 0;
-
-			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x)", index, offset, offset);
+			TRACE_ENTRY();
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
@@ -295,21 +300,29 @@ namespace nescc {
 					"Index=%u", index);
 			}
 
-			result = m_rom_character.at(index).read(offset);
+			TRACE_EXIT();
+			return m_rom_character.at(index);
+		}
 
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", result);
+		size_t
+		cartridge::rom_character_banks(void) const
+		{
+			size_t result;
+
+			TRACE_ENTRY();
+
+			result = m_rom_character.size();
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
 
-		uint8_t
-		cartridge::read_rom_program(
-			__in size_t index,
-			__in uint16_t offset
+		nescc::core::memory &
+		cartridge::rom_program(
+			__in size_t index
 			)
 		{
-			uint8_t result = 0;
-
-			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x)", index, offset, offset);
+			TRACE_ENTRY();
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
@@ -320,9 +333,20 @@ namespace nescc {
 					"Index=%u", index);
 			}
 
-			result = m_rom_program.at(index).read(offset);
+			TRACE_EXIT();
+			return m_rom_program.at(index);
+		}
 
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", result);
+		size_t
+		cartridge::rom_program_banks(void) const
+		{
+			size_t result;
+
+			TRACE_ENTRY();
+
+			result = m_rom_program.size();
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
 
@@ -360,29 +384,6 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
-		}
-
-		void
-		cartridge::write_ram_program(
-			__in size_t index,
-			__in uint16_t offset,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Index=%u, Offset=%u(%04x), Value=%u(%02x)", index, offset, offset, value, value);
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
-			}
-
-			if(index >= m_ram.size()) {
-				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
-					"Index=%u", index);
-			}
-
-			m_ram.at(index).write(offset, value);
-
-			TRACE_EXIT();
 		}
 	}
 }

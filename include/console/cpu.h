@@ -39,9 +39,7 @@ namespace nescc {
 
 				void clear(void);
 
-				uint8_t read(
-					__in uint16_t offset
-					) const;
+				nescc::core::memory &ram(void);
 
 				size_t reset(void);
 
@@ -54,11 +52,6 @@ namespace nescc {
 					) const;
 
 				size_t update(void);
-
-				void write(
-					__in uint16_t offset,
-					__in uint8_t value
-					);
 
 			protected:
 
