@@ -22,8 +22,7 @@
 namespace nescc {
 
 	runtime::runtime(void) :
-		m_cartridge(nescc::console::cartridge::acquire()),
-		m_cpu(nescc::console::cpu::acquire()),
+		m_bus(nescc::console::bus::acquire()),
 		m_display(nescc::interface::display::acquire()),
 		m_trace(nescc::trace::acquire())
 	{
@@ -41,8 +40,7 @@ namespace nescc {
 	{
 		TRACE_ENTRY();
 
-		m_cartridge.release();
-		m_cpu.release();
+		m_bus.release();
 		m_display.release();
 
 		TRACE_EXIT();
@@ -69,10 +67,7 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL initialized.");
 
-		m_cartridge.initialize();
-		m_cpu.initialize();
-
-		// TODO: initialize ppu/apu
+		m_bus.initialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime initialized.");
 
@@ -87,10 +82,8 @@ namespace nescc {
 
 		TRACE_ENTRY();
 
-		m_cartridge.load(m_path);
-		m_cpu.reset();
-
-		// TODO: reset ppu/apu
+		m_bus.reset();
+		m_bus.cartridge().load(m_path);
 
 		m_display.initialize();
 
@@ -117,11 +110,6 @@ namespace nescc {
 
 		m_display.uninitialize();
 
-		// TODO: clear apu/ppu
-
-		m_cpu.clear();
-		m_cartridge.clear();
-
 		TRACE_EXIT_FORMAT("Result=%x", result);
 		return result;
 	}
@@ -133,10 +121,7 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitializing...");
 
-		// TODO: uninitialize apu/ppu
-
-		m_cpu.uninitialize();
-		m_cartridge.uninitialize();
+		m_bus.uninitialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitializing...");
 

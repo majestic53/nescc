@@ -24,6 +24,11 @@ Changelog
 
 Version 0.1.1748
 ----------------
+*Updated: 12/1/2017*
+
+* Added console bus/component classes
+* Integrated bus components into bus class
+
 *Updated: 11/30/2017*
 
 * Added console cpu class

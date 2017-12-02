@@ -45,7 +45,7 @@ namespace nescc {
 					);
 
 				std::string as_string(
-					__in size_t base,
+					__in size_t address,
 					__in size_t offset,
 					__in_opt bool verbose = false
 					) const;
@@ -55,7 +55,7 @@ namespace nescc {
 				uint8_t *raw(void);
 
 				uint8_t read(
-					__in size_t offset
+					__in size_t address
 					) const;
 
 				bool readonly(void) const;
@@ -76,7 +76,7 @@ namespace nescc {
 					) const;
 
 				void write(
-					__in size_t offset,
+					__in size_t address,
 					__in uint8_t value
 					);
 

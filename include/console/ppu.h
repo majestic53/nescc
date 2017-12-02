@@ -16,10 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_CONSOLE_CPU_H_
-#define NESCC_CONSOLE_CPU_H_
+#ifndef NESCC_CONSOLE_PPU_H_
+#define NESCC_CONSOLE_PPU_H_
 
-#include "../core/memory.h"
 #include "../core/singleton.h"
 #include "./interface/bus.h"
 
@@ -27,12 +26,12 @@ namespace nescc {
 
 	namespace console {
 
-		class cpu :
-				public nescc::core::singleton<nescc::console::cpu> {
+		class ppu :
+				public nescc::core::singleton<nescc::console::ppu> {
 
 			public:
 
-				~cpu(void);
+				~ppu(void);
 
 				std::string as_string(
 					__in_opt bool verbose = false
@@ -40,75 +39,33 @@ namespace nescc {
 
 				void clear(void);
 
-				nescc::core::memory &ram(void);
-
-				size_t reset(
+				void reset(
 					nescc::console::interface::bus &bus
 					);
-
-				void signal_maskable(void);
-
-				void signal_non_maskable(void);
 
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
 
-				size_t update(
-					nescc::console::interface::bus &bus
-					);
-
 			protected:
 
-				friend class nescc::core::singleton<nescc::console::cpu>;
+				friend class nescc::core::singleton<nescc::console::ppu>;
 
-				cpu(void);
+				ppu(void);
 
-				cpu(
-					__in const cpu &other
+				ppu(
+					__in const ppu &other
 					) = delete;
 
-				cpu &operator=(
-					__in const cpu &other
+				ppu &operator=(
+					__in const ppu &other
 					) = delete;
-
-				size_t interrupt_maskable(
-					nescc::console::interface::bus &bus
-					);
-
-				size_t interrupt_non_maskable(
-					nescc::console::interface::bus &bus
-					);
 
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
-
-				size_t step(
-					nescc::console::interface::bus &bus
-					);
-
-				uint8_t m_accumulator;
-
-				size_t m_cycle;
-
-				uint8_t m_flags;
-
-				uint8_t m_index_x;
-
-				uint8_t m_index_y;
-
-				uint16_t m_program_counter;
-
-				nescc::core::memory m_ram;
-
-				bool m_signal_maskable;
-
-				bool m_signal_non_maskable;
-
-				uint8_t m_stack_pointer;
 		};
 	}
 }
 
-#endif // NESCC_CONSOLE_CPU_H_
+#endif // NESCC_CONSOLE_PPU_H_

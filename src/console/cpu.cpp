@@ -106,11 +106,13 @@ namespace nescc {
 		}
 
 		size_t
-		cpu::interrupt_maskable(void)
+		cpu::interrupt_maskable(
+			nescc::console::interface::bus &bus
+			)
 		{
 			size_t result = CPU_CYCLE_INTERRUPT;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			// TODO: perform maskable interrupt
 
@@ -119,11 +121,13 @@ namespace nescc {
 		}
 
 		size_t
-		cpu::interrupt_non_maskable(void)
+		cpu::interrupt_non_maskable(
+			nescc::console::interface::bus &bus
+			)
 		{
 			size_t result = CPU_CYCLE_INTERRUPT;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			// TODO: perform non-maskable interrupt
 
@@ -176,11 +180,17 @@ namespace nescc {
 		}
 
 		size_t
-		cpu::reset(void)
+		cpu::reset(
+			nescc::console::interface::bus &bus
+			)
 		{
 			size_t result = CPU_CYCLE_INTERRUPT;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu resetting...");
 
@@ -228,11 +238,13 @@ namespace nescc {
 		}
 
 		size_t
-		cpu::step(void)
+		cpu::step(
+			nescc::console::interface::bus &bus
+			)
 		{
 			size_t result;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			// TODO: perform a single cpu fetch/decode/execute operation
 			result = 0;
@@ -287,28 +299,30 @@ namespace nescc {
 		}
 
 		size_t
-		cpu::update(void)
+		cpu::update(
+			nescc::console::interface::bus &bus
+			)
 		{
 			size_t result = 0;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
 
 			if(m_signal_non_maskable) {
-				result += interrupt_non_maskable();
+				result += interrupt_non_maskable(bus);
 				m_signal_non_maskable = false;
 			} else if(m_signal_maskable) {
 
 				if(!(m_flags & CPU_FLAG_INTERRUPT_DISABLE)) {
-					result += interrupt_maskable();
+					result += interrupt_maskable(bus);
 					m_signal_maskable = false;
 				}
 			}
 
-			result += step();
+			result += step(bus);
 			m_cycle += result;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
