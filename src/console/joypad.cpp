@@ -56,7 +56,15 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad Clearing...");
+
 			// TODO
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad cleared.");
 
 			TRACE_EXIT();
 		}
@@ -69,8 +77,6 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad initializing...");
-
-			clear();
 
 			// TODO
 

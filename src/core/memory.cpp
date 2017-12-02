@@ -65,20 +65,20 @@ namespace nescc {
 
 		std::string
 		memory::as_string(
-			__in size_t address,
-			__in size_t offset,
+			__in uint16_t address,
+			__in uint16_t offset,
 			__in_opt bool verbose
 			) const
 		{
 			std::stringstream result;
 
-			TRACE_ENTRY_FORMAT("Address=%u(%08x), Offset=%u(%08x), Verbose=%x", address, address, offset, offset, verbose);
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Verbose=%x", address, address, offset, offset, verbose);
 
 			if(offset > 0) {
 				std::string buffer;
-				size_t far = (address + offset), iter, post, pre;
+				uint32_t far = (address + offset), iter, post, pre;
 
-				result << "[" << SCALAR_AS_HEX(size_t, address) << " - " << SCALAR_AS_HEX(size_t, far) << "], "
+				result << "[" << SCALAR_AS_HEX(uint32_t, address) << " - " << SCALAR_AS_HEX(uint32_t, far) << "], "
 					<< FLOAT_PRECISION(1, offset / KILOBYTE) << " KB (" << offset << " bytes)";
 
 				pre = (address % MEMORY_BLOCK_LENGTH);
@@ -93,7 +93,7 @@ namespace nescc {
 					post = 0;
 				}
 
-				result << std::endl << "                   ";
+				result << std::endl << "           ";
 
 				for(iter = 0; iter < MEMORY_BLOCK_LENGTH; ++iter) {
 
@@ -104,7 +104,7 @@ namespace nescc {
 					result << SCALAR_AS_HEX(uint8_t, iter);
 				}
 
-				result << std::endl << "                   ";
+				result << std::endl << "           ";
 
 				for(iter = 0; iter < MEMORY_BLOCK_LENGTH; ++iter) {
 
@@ -125,7 +125,7 @@ namespace nescc {
 							buffer.clear();
 						}
 
-						result << std::endl << SCALAR_AS_HEX(size_t, iter) << " |";
+						result << std::endl << SCALAR_AS_HEX(uint32_t, iter) << " |";
 					}
 
 					if((iter >= address) && (iter <= (address + offset))) {
@@ -183,16 +183,16 @@ namespace nescc {
 
 		uint8_t
 		memory::read(
-			__in size_t address
+			__in uint16_t address
 			) const
 		{
 			uint8_t result;
 
-			TRACE_ENTRY_FORMAT("Address=%u(%08x)", address, address);
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 			if(address >= m_vector.size()) {
 				THROW_NESCC_CORE_MEMORY_EXCEPTION_FORMAT(NESCC_CORE_MEMORY_EXCEPTION_ADDRESS,
-					"Address=%u(%08x)", address, address);
+					"Address=%u(%04x)", address, address);
 			}
 
 			result = m_vector.at(address);
@@ -223,7 +223,7 @@ namespace nescc {
 
 		void
 		memory::set_size(
-			__in size_t size,
+			__in uint16_t size,
 			__in_opt uint8_t fill
 			)
 		{
@@ -234,10 +234,10 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		size_t
+		uint16_t
 		memory::size(void) const
 		{
-			size_t result;
+			uint16_t result;
 
 			TRACE_ENTRY();
 
@@ -269,20 +269,20 @@ namespace nescc {
 
 		void
 		memory::write(
-			__in size_t address,
+			__in uint16_t address,
 			__in uint8_t value
 			)
 		{
-			TRACE_ENTRY_FORMAT("Address=%u(%08x), Value=%u(%02x)", address, address, value, value);
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
 			if(m_readonly) {
 				THROW_NESCC_CORE_MEMORY_EXCEPTION_FORMAT(NESCC_CORE_MEMORY_EXCEPTION_READONLY,
-					"Address=%u(%08x), Value=%u(%02x)", address, address, value, value);
+					"Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 			}
 
 			if(address >= m_vector.size()) {
 				THROW_NESCC_CORE_MEMORY_EXCEPTION_FORMAT(NESCC_CORE_MEMORY_EXCEPTION_ADDRESS,
-					"Address=%u(%08x), Value=%u(%02x)", address, address, value, value);
+					"Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 			}
 
 			m_vector.at(address) = value;

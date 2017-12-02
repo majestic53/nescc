@@ -34,7 +34,8 @@ namespace nescc {
 			~runtime(void);
 
 			void run(
-				__in const std::string &path
+				__in const std::string &path,
+				__in_opt bool wait = true
 				);
 
 			bool running(void) const;
@@ -74,10 +75,6 @@ namespace nescc {
 			bool on_run(void);
 
 			void on_uninitialize(void);
-
-			void render(void);
-
-			void update(void);
 
 			nescc::console::bus &m_bus;
 

@@ -40,6 +40,20 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		void
+		display::clear(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, 0);
+
+			TRACE_EXIT();
+		}
+
 		bool
 		display::on_initialize(void)
 		{

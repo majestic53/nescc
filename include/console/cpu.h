@@ -46,15 +46,15 @@ namespace nescc {
 					nescc::console::interface::bus &bus
 					);
 
-				void signal_maskable(void);
+				void signal_interrupt_maskable(void);
 
-				void signal_non_maskable(void);
+				void signal_interrupt_non_maskable(void);
 
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
 
-				size_t update(
+				uint8_t update(
 					nescc::console::interface::bus &bus
 					);
 
@@ -72,11 +72,11 @@ namespace nescc {
 					__in const cpu &other
 					) = delete;
 
-				size_t interrupt_maskable(
+				uint8_t interrupt_maskable(
 					nescc::console::interface::bus &bus
 					);
 
-				size_t interrupt_non_maskable(
+				uint8_t interrupt_non_maskable(
 					nescc::console::interface::bus &bus
 					);
 
@@ -84,13 +84,13 @@ namespace nescc {
 
 				void on_uninitialize(void);
 
-				size_t step(
+				uint8_t step(
 					nescc::console::interface::bus &bus
 					);
 
 				uint8_t m_accumulator;
 
-				size_t m_cycle;
+				uint32_t m_cycle;
 
 				uint8_t m_flags;
 

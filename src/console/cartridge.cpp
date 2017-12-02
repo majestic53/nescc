@@ -69,12 +69,20 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge Clearing...");
+
 			m_ram.clear();
 			m_rom_character.clear();
 			m_rom_program.clear();
 			m_loaded = false;
 			m_mapper = 0;
 			m_mirroring = 0;
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge cleared.");
 
 			TRACE_EXIT();	
 		}
@@ -251,10 +259,8 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::core::memory &
-		cartridge::ram(
-			__in size_t index
-			)
+		std::vector<nescc::core::memory> &
+		cartridge::ram(void)
 		{
 			TRACE_ENTRY();
 
@@ -262,32 +268,12 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
-			if(index >= m_ram.size()) {
-				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
-					"Index=%u", index);
-			}
-
 			TRACE_EXIT();
-			return m_ram.at(index);
+			return m_ram;
 		}
 
-		size_t
-		cartridge::ram_banks(void) const
-		{
-			size_t result;
-
-			TRACE_ENTRY();
-
-			result = m_ram.size();
-
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
-		}
-
-		nescc::core::memory &
-		cartridge::rom_character(
-			__in size_t index
-			)
+		std::vector<nescc::core::memory> &
+		cartridge::rom_character(void)
 		{
 			TRACE_ENTRY();
 
@@ -295,32 +281,12 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
-			if(index >= m_rom_character.size()) {
-				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
-					"Index=%u", index);
-			}
-
 			TRACE_EXIT();
-			return m_rom_character.at(index);
+			return m_rom_character;
 		}
 
-		size_t
-		cartridge::rom_character_banks(void) const
-		{
-			size_t result;
-
-			TRACE_ENTRY();
-
-			result = m_rom_character.size();
-
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
-		}
-
-		nescc::core::memory &
-		cartridge::rom_program(
-			__in size_t index
-			)
+		std::vector<nescc::core::memory> &
+		cartridge::rom_program(void)
 		{
 			TRACE_ENTRY();
 
@@ -328,26 +294,8 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
-			if(index >= m_rom_program.size()) {
-				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
-					"Index=%u", index);
-			}
-
 			TRACE_EXIT();
-			return m_rom_program.at(index);
-		}
-
-		size_t
-		cartridge::rom_program_banks(void) const
-		{
-			size_t result;
-
-			TRACE_ENTRY();
-
-			result = m_rom_program.size();
-
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			return m_rom_program;
 		}
 
 		std::string

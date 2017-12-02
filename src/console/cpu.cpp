@@ -91,6 +91,12 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu Clearing...");
+
 			m_accumulator = 0;
 			m_cycle = 0;
 			m_flags = 0;
@@ -102,15 +108,17 @@ namespace nescc {
 			m_signal_non_maskable = false;
 			m_stack_pointer = 0;
 
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu cleared.");
+
 			TRACE_EXIT();
 		}
 
-		size_t
+		uint8_t
 		cpu::interrupt_maskable(
 			nescc::console::interface::bus &bus
 			)
 		{
-			size_t result = CPU_CYCLE_INTERRUPT;
+			uint8_t result = CPU_CYCLE_INTERRUPT;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
@@ -120,12 +128,12 @@ namespace nescc {
 			return result;
 		}
 
-		size_t
+		uint8_t
 		cpu::interrupt_non_maskable(
 			nescc::console::interface::bus &bus
 			)
 		{
-			size_t result = CPU_CYCLE_INTERRUPT;
+			uint8_t result = CPU_CYCLE_INTERRUPT;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
@@ -143,8 +151,6 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu initializing...");
-
-			clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu initialized.");
 
@@ -205,7 +211,7 @@ namespace nescc {
 		}
 
 		void
-		cpu::signal_maskable(void)
+		cpu::signal_interrupt_maskable(void)
 		{
 			TRACE_ENTRY();
 
@@ -221,7 +227,7 @@ namespace nescc {
 		}
 
 		void
-		cpu::signal_non_maskable(void)
+		cpu::signal_interrupt_non_maskable(void)
 		{
 			TRACE_ENTRY();
 
@@ -234,12 +240,12 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		size_t
+		uint8_t
 		cpu::step(
 			nescc::console::interface::bus &bus
 			)
 		{
-			size_t result;
+			uint8_t result;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
@@ -295,12 +301,12 @@ namespace nescc {
 			return result.str();
 		}
 
-		size_t
+		uint8_t
 		cpu::update(
 			nescc::console::interface::bus &bus
 			)
 		{
-			size_t result = 0;
+			uint8_t result = 0;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 

@@ -48,83 +48,38 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::console::apu &
-		bus::apu(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
-
-			TRACE_EXIT();
-			return m_apu;
-		}
-
-		nescc::console::cartridge &
-		bus::cartridge(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
-
-			TRACE_EXIT();
-			return m_cartridge;
-		}
-
 		void
 		bus::clear(void)
 		{
 			TRACE_ENTRY();
 
-			m_cartridge.clear();
-			m_joypad.clear();
-			m_apu.clear();
-			m_cpu.clear();		
-			m_ppu.clear();
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Bus Clearing...");
+
+			// TODO
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Bus cleared.");
 
 			TRACE_EXIT();
 		}
 
-		nescc::console::cpu &
-		bus::cpu(void)
+		void
+		bus::load(
+			__in const std::string &path
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_EXIT();
-			return m_cpu;
-		}
-
-		nescc::console::joypad &
-		bus::joypad(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
+			m_cartridge.load(path);
 
 			TRACE_EXIT();
-			return m_joypad;
-		}
-
-		nescc::console::ppu &
-		bus::ppu(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
-
-			TRACE_EXIT();
-			return m_ppu;
 		}
 
 		bool
@@ -136,12 +91,10 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus initializing...");
 
-			clear();
-
 			m_cartridge.initialize();
 			m_joypad.initialize();
 			m_apu.initialize();
-			m_cpu.initialize();		
+			m_cpu.initialize();
 			m_ppu.initialize();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus initialized.");
@@ -157,12 +110,11 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus uninitializing...");
 
-			m_ppu.uninitialize();		
+			m_ppu.uninitialize();
 			m_cpu.uninitialize();
 			m_apu.uninitialize();
 			m_joypad.uninitialize();
 			m_cartridge.uninitialize();
-
 			clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus uninitialized.");
@@ -179,6 +131,10 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
 			// TODO
 			result = 0;
 			// ---
@@ -192,10 +148,46 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Bus resetting...");
+
 			m_joypad.reset(*this);
 			m_apu.reset(*this);
 			m_cpu.reset(*this);
 			m_ppu.reset(*this);
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Bus reset.");
+
+			TRACE_EXIT();
+		}
+
+		void
+		bus::signal_interrupt_maskable(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_cpu.signal_interrupt_maskable();
+
+			TRACE_EXIT();
+		}
+
+		void
+		bus::signal_interrupt_non_maskable(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_cpu.signal_interrupt_non_maskable();
 
 			TRACE_EXIT();
 		}
@@ -228,12 +220,31 @@ namespace nescc {
 		}
 
 		void
+		bus::update(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			// TODO: run cpu/ppu/apu through an entire frame
+			// TODO: write pixels to display
+
+			TRACE_EXIT();
+		}
+
+		void
 		bus::write(
 			__in uint16_t address,
 			__in uint8_t value
 			)
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
 
 			// TODO
 

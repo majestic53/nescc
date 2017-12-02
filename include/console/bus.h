@@ -37,17 +37,11 @@ namespace nescc {
 
 				~bus(void);
 
-				nescc::console::apu &apu(void);
-
-				nescc::console::cartridge &cartridge(void);
-
 				void clear(void);
 
-				nescc::console::cpu &cpu(void);
-
-				nescc::console::joypad &joypad(void);
-
-				nescc::console::ppu &ppu(void);
+				void load(
+					__in const std::string &path
+					);
 
 				uint8_t read(
 					__in uint16_t address
@@ -55,9 +49,15 @@ namespace nescc {
 
 				void reset(void);
 
+				void signal_interrupt_maskable(void);
+
+				void signal_interrupt_non_maskable(void);
+
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
+
+				void update(void);
 
 				void write(
 					__in uint16_t address,

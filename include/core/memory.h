@@ -45,8 +45,8 @@ namespace nescc {
 					);
 
 				std::string as_string(
-					__in size_t address,
-					__in size_t offset,
+					__in uint16_t address,
+					__in uint16_t offset,
 					__in_opt bool verbose = false
 					) const;
 
@@ -55,7 +55,7 @@ namespace nescc {
 				uint8_t *raw(void);
 
 				uint8_t read(
-					__in size_t address
+					__in uint16_t address
 					) const;
 
 				bool readonly(void) const;
@@ -65,18 +65,18 @@ namespace nescc {
 					);
 
 				void set_size(
-					__in size_t size,
+					__in uint16_t size,
 					__in_opt uint8_t fill = MEMORY_FILL
 					);
 
-				size_t size(void) const;
+				uint16_t size(void) const;
 
 				virtual std::string to_string(
 					__in_opt bool verbose = false
 					) const;
 
 				void write(
-					__in size_t address,
+					__in uint16_t address,
 					__in uint8_t value
 					);
 

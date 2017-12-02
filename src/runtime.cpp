@@ -83,8 +83,7 @@ namespace nescc {
 		TRACE_ENTRY();
 
 		m_bus.reset();
-		m_bus.cartridge().load(m_path);
-
+		m_bus.load(m_path);
 		m_display.initialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
@@ -97,8 +96,8 @@ namespace nescc {
 				break;
 			}
 
-			update();
-			render();
+			m_bus.update();
+			m_display.update();
 
 			delta = (SDL_GetTicks() - start);
 			if(delta < RUNTIME_DELTA) {
@@ -159,23 +158,12 @@ namespace nescc {
 	}
 
 	void
-	runtime::render(void)
-	{
-		TRACE_ENTRY();
-
-		// TODO: render to display buffer
-
-		m_display.update();
-
-		TRACE_EXIT();
-	}
-
-	void
 	runtime::run(
-		__in const std::string &path
+		__in const std::string &path,
+		__in_opt bool wait
 		)
 	{
-		TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
+		TRACE_ENTRY_FORMAT("Path[%u]=%s, Wait=%x", path.size(), STRING_CHECK(path), wait);
 
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
@@ -183,6 +171,10 @@ namespace nescc {
 
 		m_path = path;
 		nescc::core::thread::start(true);
+
+		if(wait) {
+			nescc::core::thread::wait();
+		}
 
 		TRACE_EXIT();
 	}
@@ -235,16 +227,6 @@ namespace nescc {
 
 		TRACE_EXIT();
 		return result.str();
-	}
-
-	void
-	runtime::update(void)
-	{
-		TRACE_ENTRY();
-
-		// TODO: run cpu/ppu/apu through an entire frame
-
-		TRACE_EXIT();
 	}
 
 	std::string

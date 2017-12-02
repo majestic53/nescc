@@ -33,6 +33,10 @@ namespace nescc {
 						__in uint16_t address
 						) = 0;
 
+					virtual void signal_interrupt_maskable(void) = 0;
+
+					virtual void signal_interrupt_non_maskable(void) = 0;
+
 					virtual void write(
 						__in uint16_t address,
 						__in uint8_t value

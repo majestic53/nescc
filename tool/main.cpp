@@ -30,7 +30,6 @@ main(void)
 
 		instance.initialize();
 		instance.run(ROM_PATH);
-		instance.wait();
 		instance.uninitialize();
 		instance.release();
 	} catch(nescc::exception &exc) {

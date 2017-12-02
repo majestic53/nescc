@@ -34,6 +34,8 @@ namespace nescc {
 
 				~display(void);
 
+				void clear(void);
+
 				uint32_t read(
 					__in uint16_t x,
 					__in uint16_t y

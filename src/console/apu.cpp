@@ -56,7 +56,15 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Apu Clearing...");
+
 			// TODO
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Apu cleared.");
 
 			TRACE_EXIT();
 		}
@@ -69,8 +77,6 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu initializing...");
-
-			clear();
 
 			// TODO
 
