@@ -42,7 +42,7 @@ namespace nescc {
 
 				nescc::core::memory &ram(void);
 
-				size_t reset(
+				void reset(
 					nescc::console::interface::bus &bus
 					);
 

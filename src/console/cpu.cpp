@@ -179,13 +179,11 @@ namespace nescc {
 			return m_ram;
 		}
 
-		size_t
+		void
 		cpu::reset(
 			nescc::console::interface::bus &bus
 			)
 		{
-			size_t result = CPU_CYCLE_INTERRUPT;
-
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			if(!m_initialized) {
@@ -199,12 +197,11 @@ namespace nescc {
 
 			// TODO: perform reset
 
-			m_cycle = result;
+			m_cycle = CPU_CYCLE_INTERRUPT;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu reset.");
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
 		void
