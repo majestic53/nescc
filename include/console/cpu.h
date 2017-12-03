@@ -27,6 +27,8 @@ namespace nescc {
 
 	namespace console {
 
+		#define CPU_RAM_LENGTH 0x0800
+
 		class cpu :
 				public nescc::core::singleton<nescc::console::cpu> {
 

@@ -26,9 +26,9 @@ namespace nescc {
 
 		bus::bus(void) :
 			m_apu(nescc::console::apu::acquire()),
-			m_cartridge(nescc::console::cartridge::acquire()),
 			m_cpu(nescc::console::cpu::acquire()),
 			m_joypad(nescc::console::joypad::acquire()),
+			m_mapper(nescc::console::mapper::acquire()),
 			m_ppu(nescc::console::ppu::acquire())
 		{
 			TRACE_ENTRY();
@@ -40,16 +40,16 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			m_apu.release();
-			m_cartridge.release();
 			m_cpu.release();
 			m_joypad.release();
+			m_mapper.release();
 			m_ppu.release();
 
 			TRACE_EXIT();
 		}
 
-		void
-		bus::clear(void)
+		nescc::console::apu &
+		bus::apu(void)
 		{
 			TRACE_ENTRY();
 
@@ -57,29 +57,113 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Bus Clearing...");
-
-			// TODO
-
-			TRACE_MESSAGE(TRACE_INFORMATION, "Bus cleared.");
-
 			TRACE_EXIT();
+			return m_apu;
 		}
 
-		void
-		bus::load(
-			__in const std::string &path
-			)
+		nescc::console::cpu &
+		bus::cpu(void)
 		{
-			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
+			TRACE_ENTRY();
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
 
-			m_cartridge.load(path);
+			TRACE_EXIT();
+			return m_cpu;
+		}
+
+		uint8_t
+		bus::cpu_read(
+			__in uint16_t address
+			)
+		{
+			uint8_t result = 0;
+
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			switch(address) {
+				case CPU_RAM_START ... CPU_RAM_END:
+					result = m_cpu.ram().read(address % CPU_RAM_LENGTH);
+					break;
+
+				// TODO: add additional io mappings
+
+				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
+					result = m_mapper.read_ram(address - CARTRIDGE_RAM_PROGRAM_START);
+					break;
+				case CARTRIDGE_ROM_PROGRAM_0_START ... CARTRIDGE_ROM_PROGRAM_0_END:
+					result = m_mapper.read_rom_program_0(address - CARTRIDGE_ROM_PROGRAM_0_START);
+					break;
+				case CARTRIDGE_ROM_PROGRAM_1_START ... CARTRIDGE_ROM_PROGRAM_1_END:
+					result = m_mapper.read_rom_program_1(address - CARTRIDGE_ROM_PROGRAM_1_START);
+					break;
+				default:
+					break;
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		void
+		bus::cpu_write(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			switch(address) {
+				case CPU_RAM_START ... CPU_RAM_END:
+					m_cpu.ram().write(address % CPU_RAM_LENGTH, value);
+					break;
+
+				// TODO: add additional io mappings
+
+				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
+					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
+					break;
+				default:
+					break;
+			}
 
 			TRACE_EXIT();
+		}
+
+		nescc::console::joypad &
+		bus::joypad(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_joypad;
+		}
+
+		nescc::console::mapper &
+		bus::mapper(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_mapper;
 		}
 
 		bool
@@ -91,7 +175,7 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus initializing...");
 
-			m_cartridge.initialize();
+			m_mapper.initialize();
 			m_joypad.initialize();
 			m_apu.initialize();
 			m_cpu.initialize();
@@ -114,20 +198,32 @@ namespace nescc {
 			m_cpu.uninitialize();
 			m_apu.uninitialize();
 			m_joypad.uninitialize();
-			m_cartridge.uninitialize();
-			clear();
+			m_mapper.uninitialize();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus uninitialized.");
 
 			TRACE_EXIT();
 		}
 
+		nescc::console::ppu &
+		bus::ppu(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_ppu;
+		}
+
 		uint8_t
-		bus::read(
+		bus::ppu_read(
 			__in uint16_t address
 			)
 		{
-			uint8_t result;
+			uint8_t result = 0;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
@@ -135,12 +231,27 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
 
-			// TODO
-			result = 0;
-			// ---
+			// TODO: memory mapping for ppu
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
+		}
+
+		void
+		bus::ppu_write(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			// TODO: memory mapping for ppu
+
+			TRACE_EXIT();
 		}
 
 		void
@@ -164,34 +275,6 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		void
-		bus::signal_interrupt_maskable(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
-
-			m_cpu.signal_interrupt_maskable();
-
-			TRACE_EXIT();
-		}
-
-		void
-		bus::signal_interrupt_non_maskable(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
-
-			m_cpu.signal_interrupt_non_maskable();
-
-			TRACE_EXIT();
-		}
-
 		std::string
 		bus::to_string(
 			__in_opt bool verbose
@@ -207,7 +290,7 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::bus>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Cartrige=" << m_cartridge.to_string(verbose)
+					result << ", Mapper=" << m_mapper.to_string(verbose)
 						<< ", Joypad=" << m_joypad.to_string(verbose)
 						<< ", Apu=" << m_apu.to_string(verbose)
 						<< ", Cpu=" << m_cpu.to_string(verbose)
@@ -230,23 +313,6 @@ namespace nescc {
 
 			// TODO: run cpu/ppu/apu through an entire frame
 			// TODO: write pixels to display
-
-			TRACE_EXIT();
-		}
-
-		void
-		bus::write(
-			__in uint16_t address,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
-
-			// TODO
 
 			TRACE_EXIT();
 		}

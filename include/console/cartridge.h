@@ -26,6 +26,17 @@ namespace nescc {
 
 	namespace console {
 
+		#define CARTRIDGE_RAM_PROGRAM_LENGTH 0x2000
+		#define CARTRIDGE_RAM_PROGRAM_MAX (CARTRIDGE_RAM_PROGRAM_LENGTH - 1)
+		#define CARTRIDGE_ROM_CHARACTER_LENGTH 0x2000
+		#define CARTRIDGE_ROM_CHARACTER_MAX (CARTRIDGE_ROM_CHARACTER_LENGTH - 1)
+		#define CARTRIDGE_ROM_PROGRAM_LENGTH 0x4000
+		#define CARTRIDGE_ROM_PROGRAM_MAX (CARTRIDGE_ROM_PROGRAM_LENGTH - 1)
+
+		enum {
+			CARTRIDGE_MAPPER_NONE = 0,
+		};
+
 		class cartridge :
 				public nescc::core::singleton<nescc::console::cartridge> {
 

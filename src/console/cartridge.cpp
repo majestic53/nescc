@@ -73,7 +73,7 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge Clearing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge clearing...");
 
 			m_ram.clear();
 			m_rom_character.clear();
@@ -170,10 +170,10 @@ namespace nescc {
 
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Version", "%u", (header.version == CARTRIDGE_VERSION_2)
 				? CARTRIDGE_VERSION_2 : CARTRIDGE_VERSION_1);
-			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM", "%u(%.01f KB)", header.rom_program, header.rom_program
-				* (CARTRIDGE_ROM_PROGRAM_LENGTH / KILOBYTE));
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG RAM", "%u(%.01f KB)", header.ram_program + 1,
 				(header.ram_program + 1) * (CARTRIDGE_RAM_PROGRAM_LENGTH / KILOBYTE));
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM", "%u(%.01f KB)", header.rom_program, header.rom_program
+				* (CARTRIDGE_ROM_PROGRAM_LENGTH / KILOBYTE));
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-CHR ROM", "%u(%.01f KB)", header.rom_character, header.rom_character
 				* (CARTRIDGE_ROM_CHARACTER_LENGTH / KILOBYTE));
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Mapper", "%u(%s)", m_mapper,

@@ -51,7 +51,6 @@ namespace nescc {
 			__in_opt bool verbose
 			) const
 		{
-			int iter;
 			std::stringstream result;
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
@@ -62,6 +61,8 @@ namespace nescc {
 				<< std::endl << "FLG | " << SCALAR_AS_HEX(uint8_t, m_flags);
 
 			if(verbose) {
+				int iter;
+
 				result << "   ";
 
 				for(iter = CPU_FLAG_MAX; iter >= 0; iter--) {
@@ -95,7 +96,7 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu Clearing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu clearing...");
 
 			m_accumulator = 0;
 			m_cycle = 0;

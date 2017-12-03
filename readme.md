@@ -24,6 +24,10 @@ Changelog
 
 Version 0.1.1748
 ----------------
+*Updated: 12/2/2017*
+
+* Added console mapper class
+
 *Updated: 12/1/2017*
 
 * Added console bus/component classes

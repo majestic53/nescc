@@ -16,53 +16,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_CONSOLE_BUS_H_
-#define NESCC_CONSOLE_BUS_H_
+#ifndef NESCC_CONSOLE_MAPPER_H_
+#define NESCC_CONSOLE_MAPPER_H_
 
-#include "./apu.h"
-#include "./cpu.h"
-#include "./joypad.h"
-#include "./mapper.h"
-#include "./ppu.h"
+#include "./cartridge.h"
 
 namespace nescc {
 
 	namespace console {
 
-		class bus :
-				public nescc::core::singleton<nescc::console::bus>,
-				public nescc::console::interface::bus {
+		class mapper :
+				public nescc::core::singleton<nescc::console::mapper> {
 
 			public:
 
-				~bus(void);
+				~mapper(void);
 
-				nescc::console::apu &apu(void);
+				std::string as_string(
+					__in_opt bool verbose = false
+					) const;
 
-				nescc::console::cpu &cpu(void);
+				nescc::console::cartridge &cartridge(void);
 
-				uint8_t cpu_read(
+				void clear(void);
+
+				uint8_t read_ram(
 					__in uint16_t address
 					);
 
-				void cpu_write(
-					__in uint16_t address,
-					__in uint8_t value
-					);
-
-				nescc::console::joypad &joypad(void);
-
-				nescc::console::mapper &mapper(void);
-
-				nescc::console::ppu &ppu(void);
-
-				uint8_t ppu_read(
+				uint8_t read_rom_character(
 					__in uint16_t address
 					);
 
-				void ppu_write(
-					__in uint16_t address,
-					__in uint8_t value
+				uint8_t read_rom_program_0(
+					__in uint16_t address
+					);
+
+				uint8_t read_rom_program_1(
+					__in uint16_t address
 					);
 
 				void reset(void);
@@ -71,37 +62,40 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
-				void update(void);
+				void write_ram(
+					__in uint16_t address,
+					__in uint8_t value
+					);
 
 			protected:
 
-				friend class nescc::core::singleton<nescc::console::bus>;
+				friend class nescc::core::singleton<nescc::console::mapper>;
 
-				bus(void);
+				mapper(void);
 
-				bus(
-					__in const bus &other
+				mapper(
+					__in const mapper &other
 					) = delete;
 
-				bus &operator=(
-					__in const bus &other
+				mapper &operator=(
+					__in const mapper &other
 					) = delete;
 
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
-				nescc::console::apu &m_apu;
+				nescc::console::cartridge &m_cartridge;
 
-				nescc::console::cpu &m_cpu;
+				uint8_t m_ram_index;
 
-				nescc::console::joypad &m_joypad;
+				uint8_t m_rom_character_index;
 
-				nescc::console::mapper &m_mapper;
+				uint8_t m_rom_program_index_0;
 
-				nescc::console::ppu &m_ppu;
+				uint8_t m_rom_program_index_1;
 		};
 	}
 }
 
-#endif // NESCC_CONSOLE_BUS_H_
+#endif // NESCC_CONSOLE_MAPPER_H_

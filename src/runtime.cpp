@@ -82,8 +82,9 @@ namespace nescc {
 
 		TRACE_ENTRY();
 
+		m_bus.mapper().cartridge().load(m_path);
+		m_bus.mapper().reset();
 		m_bus.reset();
-		m_bus.load(m_path);
 		m_display.initialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");

@@ -29,15 +29,20 @@ namespace nescc {
 
 				public:
 
-					virtual uint8_t read(
+					virtual uint8_t cpu_read(
 						__in uint16_t address
 						) = 0;
 
-					virtual void signal_interrupt_maskable(void) = 0;
+					virtual void cpu_write(
+						__in uint16_t address,
+						__in uint8_t value
+						) = 0;
 
-					virtual void signal_interrupt_non_maskable(void) = 0;
+					virtual uint8_t ppu_read(
+						__in uint16_t address
+						) = 0;
 
-					virtual void write(
+					virtual void ppu_write(
 						__in uint16_t address,
 						__in uint8_t value
 						) = 0;

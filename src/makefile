@@ -36,7 +36,7 @@ archive:
 	@echo '--- BUILDING LIBRARY -----------------------'
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
 		$(DIR_BUILD)console_apu.o $(DIR_BUILD)console_bus.o $(DIR_BUILD)console_cartridge.o $(DIR_BUILD)console_cpu.o \
-			$(DIR_BUILD)console_joypad.o $(DIR_BUILD)console_ppu.o \
+			$(DIR_BUILD)console_joypad.o $(DIR_BUILD)console_mapper.o $(DIR_BUILD)console_ppu.o \
 		$(DIR_BUILD)core_memory.o $(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
 		$(DIR_BUILD)interface_display.o
 	@echo '--- DONE -----------------------------------'
@@ -59,7 +59,7 @@ base_trace.o: $(DIR_SRC)trace.cpp $(DIR_INC)trace.h
 
 ### CONSOLE ###
 
-build_console: console_apu.o console_bus.o console_cartridge.o console_cpu.o console_joypad.o console_ppu.o
+build_console: console_apu.o console_bus.o console_cartridge.o console_cpu.o console_joypad.o console_mapper.o console_ppu.o
 
 console_apu.o: $(DIR_SRC_CONSOLE)apu.cpp $(DIR_INC_CONSOLE)apu.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)apu.cpp -o $(DIR_BUILD)console_apu.o
@@ -75,6 +75,9 @@ console_cpu.o: $(DIR_SRC_CONSOLE)cpu.cpp $(DIR_INC_CONSOLE)cpu.h
 
 console_joypad.o: $(DIR_SRC_CONSOLE)joypad.cpp $(DIR_INC_CONSOLE)joypad.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)joypad.cpp -o $(DIR_BUILD)console_joypad.o
+
+console_mapper.o: $(DIR_SRC_CONSOLE)mapper.cpp $(DIR_INC_CONSOLE)mapper.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)mapper.cpp -o $(DIR_BUILD)console_mapper.o
 
 console_ppu.o: $(DIR_SRC_CONSOLE)ppu.cpp $(DIR_INC_CONSOLE)ppu.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)ppu.cpp -o $(DIR_BUILD)console_ppu.o
