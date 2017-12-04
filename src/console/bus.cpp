@@ -48,21 +48,48 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::console::apu &
-		bus::apu(void)
+		std::string
+		bus::cpu_as_string(
+			__in uint16_t address,
+			__in uint16_t offset,
+			__in_opt bool verbose
+			) const
 		{
-			TRACE_ENTRY();
+			std::stringstream result;
 
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Verbose=%x", address, address, offset, offset, verbose);
+
+			switch(address) {
+				case CPU_RAM_START ... CPU_RAM_END:
+					result << m_cpu.ram().as_string(address % CPU_RAM_LENGTH, offset, 0, verbose);
+					break;
+
+				// TODO: add additional cpu io mappings
+
+				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
+					result << m_mapper.cartridge().ram().at(m_mapper.ram_index()).as_string(
+							address - CARTRIDGE_RAM_PROGRAM_START, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
+					break;
+				case CARTRIDGE_ROM_PROGRAM_0_START ... CARTRIDGE_ROM_PROGRAM_0_END:
+					result << m_mapper.cartridge().rom_program().at(m_mapper.rom_program_0_index()).as_string(
+						address - CARTRIDGE_ROM_PROGRAM_0_START, offset, CARTRIDGE_ROM_PROGRAM_0_START, verbose);
+					break;
+				case CARTRIDGE_ROM_PROGRAM_1_START ... CARTRIDGE_ROM_PROGRAM_1_END:
+					result << m_mapper.cartridge().rom_program().at(m_mapper.rom_program_1_index()).as_string(
+						address - CARTRIDGE_ROM_PROGRAM_1_START, offset, CARTRIDGE_ROM_PROGRAM_1_START, verbose);
+					break;
+				default:
+					result << "Unmapped region, Address=" << address << "(" << SCALAR_AS_HEX(uint16_t, address)
+						<< "), Offset=" << offset << "(" << SCALAR_AS_HEX(uint16_t, offset) << ")";
+					break;
 			}
 
 			TRACE_EXIT();
-			return m_apu;
+			return result.str();
 		}
 
-		nescc::console::cpu &
-		bus::cpu(void)
+		void
+		bus::cpu_interrupt_maskable(void)
 		{
 			TRACE_ENTRY();
 
@@ -70,8 +97,23 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
 
+			m_cpu.interrupt_maskable();
+
 			TRACE_EXIT();
-			return m_cpu;
+		}
+
+		void
+		bus::cpu_interrupt_non_maskable(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_cpu.interrupt_non_maskable();
+
+			TRACE_EXIT();
 		}
 
 		uint8_t
@@ -92,7 +134,7 @@ namespace nescc {
 					result = m_cpu.ram().read(address % CPU_RAM_LENGTH);
 					break;
 
-				// TODO: add additional io mappings
+				// TODO: add additional cpu io mappings
 
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
 					result = m_mapper.read_ram(address - CARTRIDGE_RAM_PROGRAM_START);
@@ -128,7 +170,7 @@ namespace nescc {
 					m_cpu.ram().write(address % CPU_RAM_LENGTH, value);
 					break;
 
-				// TODO: add additional io mappings
+				// TODO: add additional cpu io mappings
 
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
 					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
@@ -140,30 +182,21 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::console::joypad &
-		bus::joypad(void)
+		void
+		bus::load(
+			__in const std::string &path
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_EXIT();
-			return m_joypad;
-		}
-
-		nescc::console::mapper &
-		bus::mapper(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
+			m_mapper.cartridge().load(path);
+			m_mapper.reset();
 
 			TRACE_EXIT();
-			return m_mapper;
 		}
 
 		bool
@@ -205,17 +238,21 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::console::ppu &
-		bus::ppu(void)
+		std::string
+		bus::ppu_as_string(
+			__in uint16_t address,
+			__in uint16_t offset,
+			__in_opt bool verbose
+			) const
 		{
-			TRACE_ENTRY();
+			std::stringstream result;
 
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Verbose=%x", address, address, offset, offset, verbose);
+
+			// TODO: read memory mapped for ppu
 
 			TRACE_EXIT();
-			return m_ppu;
+			return result.str();
 		}
 
 		uint8_t

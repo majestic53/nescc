@@ -34,13 +34,8 @@ namespace nescc {
 			~runtime(void);
 
 			void run(
-				__in const std::string &path,
-				__in_opt bool wait = true
+				__in const std::string &path
 				);
-
-			bool running(void) const;
-
-			void terminate(void);
 
 			std::string to_string(
 				__in_opt bool verbose = false
@@ -48,10 +43,6 @@ namespace nescc {
 
 			static std::string version(
 				__in_opt bool verbose = false
-				);
-
-			bool wait(
-				__in_opt uint32_t timeout = SIGNAL_NO_TIMEOUT
 				);
 
 		protected:

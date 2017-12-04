@@ -29,6 +29,16 @@ namespace nescc {
 
 				public:
 
+					virtual std::string cpu_as_string(
+						__in uint16_t address,
+						__in uint16_t offset,
+						__in_opt bool verbose = false
+						) const = 0;
+
+					virtual void cpu_interrupt_maskable(void) = 0;
+
+					virtual void cpu_interrupt_non_maskable(void) = 0;
+
 					virtual uint8_t cpu_read(
 						__in uint16_t address
 						) = 0;
@@ -37,6 +47,12 @@ namespace nescc {
 						__in uint16_t address,
 						__in uint8_t value
 						) = 0;
+
+					virtual std::string ppu_as_string(
+						__in uint16_t address,
+						__in uint16_t offset,
+						__in_opt bool verbose = false
+						) const = 0;
 
 					virtual uint8_t ppu_read(
 						__in uint16_t address

@@ -28,6 +28,7 @@ namespace nescc {
 	namespace console {
 
 		#define CPU_RAM_LENGTH 0x0800
+		#define CPU_RAM_MAX (CPU_RAM_LENGTH - 1)
 
 		class cpu :
 				public nescc::core::singleton<nescc::console::cpu> {
@@ -42,15 +43,15 @@ namespace nescc {
 
 				void clear(void);
 
+				void interrupt_maskable(void);
+
+				void interrupt_non_maskable(void);
+
 				nescc::core::memory &ram(void);
 
 				void reset(
 					nescc::console::interface::bus &bus
 					);
-
-				void signal_interrupt_maskable(void);
-
-				void signal_interrupt_non_maskable(void);
 
 				std::string to_string(
 					__in_opt bool verbose = false
@@ -74,20 +75,52 @@ namespace nescc {
 					__in const cpu &other
 					) = delete;
 
-				uint8_t interrupt_maskable(
-					nescc::console::interface::bus &bus
-					);
-
-				uint8_t interrupt_non_maskable(
-					nescc::console::interface::bus &bus
-					);
-
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
+				uint8_t pop_byte(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint16_t pop_word(
+					__in nescc::console::interface::bus &bus
+					);
+
+				void push_byte(
+					__in nescc::console::interface::bus &bus,
+					__in uint8_t value
+					);
+
+				void push_word(
+					__in nescc::console::interface::bus &bus,
+					__in uint16_t value
+					);
+
+				uint8_t read_byte(
+					__in nescc::console::interface::bus &bus,
+					__in uint16_t address
+					);
+
+				uint16_t read_word(
+					__in nescc::console::interface::bus &bus,
+					__in uint16_t address
+					);
+
 				uint8_t step(
 					nescc::console::interface::bus &bus
+					);
+
+				void write_byte(
+					__in nescc::console::interface::bus &bus,
+					__in uint16_t address,
+					__in uint8_t value
+					);
+
+				void write_word(
+					__in nescc::console::interface::bus &bus,
+					__in uint16_t address,
+					__in uint16_t value
 					);
 
 				uint8_t m_accumulator;

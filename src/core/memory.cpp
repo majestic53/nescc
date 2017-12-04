@@ -67,20 +67,23 @@ namespace nescc {
 		memory::as_string(
 			__in uint16_t address,
 			__in uint16_t offset,
+			__in_opt uint16_t origin,
 			__in_opt bool verbose
 			) const
 		{
 			std::stringstream result;
 
-			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Verbose=%x", address, address, offset, offset, verbose);
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Origin=%u(%04x), Verbose=%x", address, address, offset, offset,
+				origin, origin, verbose);
 
 			if(offset > 0) {
 				std::string buffer;
 				uint32_t far = (address + offset), iter, post, pre;
 
-				result << "[" << SCALAR_AS_HEX(uint32_t, address) << " - " << SCALAR_AS_HEX(uint32_t, far) << "], "
-					<< FLOAT_PRECISION(1, offset / KILOBYTE) << " KB (" << offset << " bytes)";
+				result << "[" << SCALAR_AS_HEX(uint32_t, (address + origin)) << " - " << SCALAR_AS_HEX(uint32_t, (far + origin - 1))
+					<< "], " << FLOAT_PRECISION(1, offset / KILOBYTE) << " KB (" << offset << " bytes)";
 
+				--offset;
 				pre = (address % MEMORY_BLOCK_LENGTH);
 
 				if(far > MEMORY_BLOCK_LENGTH) {
@@ -88,7 +91,7 @@ namespace nescc {
 				}
 
 				if(far) {
-					post = (MEMORY_BLOCK_LENGTH - far - 1);
+					post = (MEMORY_BLOCK_LENGTH - far);
 				} else {
 					post = 0;
 				}
@@ -125,7 +128,7 @@ namespace nescc {
 							buffer.clear();
 						}
 
-						result << std::endl << SCALAR_AS_HEX(uint32_t, iter) << " |";
+						result << std::endl << SCALAR_AS_HEX(uint32_t, (iter + origin)) << " |";
 					}
 
 					if((iter >= address) && (iter <= (address + offset))) {

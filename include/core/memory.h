@@ -47,6 +47,7 @@ namespace nescc {
 				std::string as_string(
 					__in uint16_t address,
 					__in uint16_t offset,
+					__in_opt uint16_t origin = 0,
 					__in_opt bool verbose = false
 					) const;
 

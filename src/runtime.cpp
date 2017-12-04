@@ -82,8 +82,7 @@ namespace nescc {
 
 		TRACE_ENTRY();
 
-		m_bus.mapper().cartridge().load(m_path);
-		m_bus.mapper().reset();
+		m_bus.load(m_path);
 		m_bus.reset();
 		m_display.initialize();
 
@@ -160,11 +159,10 @@ namespace nescc {
 
 	void
 	runtime::run(
-		__in const std::string &path,
-		__in_opt bool wait
+		__in const std::string &path
 		)
 	{
-		TRACE_ENTRY_FORMAT("Path[%u]=%s, Wait=%x", path.size(), STRING_CHECK(path), wait);
+		TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
 
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
@@ -172,41 +170,7 @@ namespace nescc {
 
 		m_path = path;
 		nescc::core::thread::start(true);
-
-		if(wait) {
-			nescc::core::thread::wait();
-		}
-
-		TRACE_EXIT();
-	}
-
-	bool
-	runtime::running(void) const
-	{
-		bool result;
-
-		TRACE_ENTRY();
-
-		if(!m_initialized) {
-			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
-		}
-
-		result = nescc::core::thread::running();
-
-		TRACE_EXIT_FORMAT("Result=%x", result);
-		return result;
-	}
-
-	void
-	runtime::terminate(void)
-	{
-		TRACE_ENTRY();
-
-		if(!m_initialized) {
-			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
-		}
-
-		nescc::core::thread::stop();
+		nescc::core::thread::wait();
 
 		TRACE_EXIT();
 	}
@@ -248,24 +212,5 @@ namespace nescc {
 
 		TRACE_EXIT();
 		return result.str();
-	}
-
-	bool
-	runtime::wait(
-		__in_opt uint32_t timeout
-		)
-	{
-		bool result;
-
-		TRACE_ENTRY();
-
-		if(!m_initialized) {
-			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
-		}
-
-		result = nescc::core::thread::wait();
-
-		TRACE_EXIT_FORMAT("Result=%x", result);
-		return result;
 	}
 }

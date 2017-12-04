@@ -37,9 +37,15 @@ namespace nescc {
 
 				~bus(void);
 
-				nescc::console::apu &apu(void);
+				std::string cpu_as_string(
+					__in uint16_t address,
+					__in uint16_t offset,
+					__in_opt bool verbose = false
+					) const;
 
-				nescc::console::cpu &cpu(void);
+				void cpu_interrupt_maskable(void);
+
+				void cpu_interrupt_non_maskable(void);
 
 				uint8_t cpu_read(
 					__in uint16_t address
@@ -50,11 +56,15 @@ namespace nescc {
 					__in uint8_t value
 					);
 
-				nescc::console::joypad &joypad(void);
+				void load(
+					__in const std::string &path
+					);
 
-				nescc::console::mapper &mapper(void);
-
-				nescc::console::ppu &ppu(void);
+				std::string ppu_as_string(
+					__in uint16_t address,
+					__in uint16_t offset,
+					__in_opt bool verbose = false
+					) const;
 
 				uint8_t ppu_read(
 					__in uint16_t address

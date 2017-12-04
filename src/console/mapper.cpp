@@ -128,6 +128,19 @@ namespace nescc {
 		}
 
 		uint8_t
+		mapper::ram_index(void) const
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", m_ram_index);
+			return m_ram_index;
+		}
+
+		uint8_t
 		mapper::read_ram(
 			__in uint16_t address
 			)
@@ -223,6 +236,45 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper reset.");
 
 			TRACE_EXIT();
+		}
+
+		uint8_t
+		mapper::rom_character_index(void) const
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", m_rom_character_index);
+			return m_rom_character_index;
+		}
+
+		uint8_t
+		mapper::rom_program_0_index(void) const
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", m_rom_program_index_0);
+			return m_rom_program_index_0;
+		}
+
+		uint8_t
+		mapper::rom_program_1_index(void) const
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", m_rom_program_index_1);
+			return m_rom_program_index_1;
 		}
 
 		std::string

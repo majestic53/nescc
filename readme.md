@@ -24,6 +24,10 @@ Changelog
 
 Version 0.1.1748
 ----------------
+*Updated: 12/3/2017*
+
+* Added cpu reset, irq, and nmi
+
 *Updated: 12/2/2017*
 
 * Added console mapper class

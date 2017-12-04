@@ -40,6 +40,8 @@ namespace nescc {
 
 				void clear(void);
 
+				uint8_t ram_index(void) const;
+
 				uint8_t read_ram(
 					__in uint16_t address
 					);
@@ -57,6 +59,12 @@ namespace nescc {
 					);
 
 				void reset(void);
+
+				uint8_t rom_character_index(void) const;
+
+				uint8_t rom_program_0_index(void) const;
+
+				uint8_t rom_program_1_index(void) const;
 
 				std::string to_string(
 					__in_opt bool verbose = false

@@ -69,14 +69,14 @@ namespace nescc {
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, 0);
 
 			m_window = SDL_CreateWindow(title.str().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-					DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_FLAGS);
+					DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_FLAG);
 
 			if(!m_window) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_CreateWindow failed! Error=%s", SDL_GetError());
 			}
 
-			m_renderer = SDL_CreateRenderer(m_window, -1, DISPLAY_RENDERER_FLAGS);
+			m_renderer = SDL_CreateRenderer(m_window, -1, DISPLAY_FLAG_RENDERER);
 			if(!m_renderer) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_CreateRenderer failed! Error=%s", SDL_GetError());
