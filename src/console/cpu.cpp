@@ -180,8 +180,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			++m_stack_pointer;
-			result = bus.cpu_read(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer);
+			result = bus.cpu_read(CPU_STACK_POINTER_ADDRESS_BASE + ++m_stack_pointer);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -196,10 +195,8 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			++m_stack_pointer;
-			result |= bus.cpu_read(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer);
-			++m_stack_pointer;
-			result |= (bus.cpu_read(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer) << CHAR_BIT);
+			result |= bus.cpu_read(CPU_STACK_POINTER_ADDRESS_BASE + ++m_stack_pointer);
+			result |= (bus.cpu_read(CPU_STACK_POINTER_ADDRESS_BASE + ++m_stack_pointer) << CHAR_BIT);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -213,8 +210,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p, Value=%u(%02x)", &bus, value, value);
 
-			bus.cpu_write(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer, value);
-			--m_stack_pointer;
+			bus.cpu_write(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer--, value);
 
 			TRACE_EXIT();
 		}
@@ -227,10 +223,8 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p, Value=%u(%04x)", &bus, value, value);
 
-			bus.cpu_write(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer, value >> CHAR_BIT);
-			--m_stack_pointer;
-			bus.cpu_write(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer, value);
-			--m_stack_pointer;
+			bus.cpu_write(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer--, value >> CHAR_BIT);
+			bus.cpu_write(CPU_STACK_POINTER_ADDRESS_BASE + m_stack_pointer--, value);
 
 			TRACE_EXIT();
 		}
