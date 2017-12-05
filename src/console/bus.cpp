@@ -79,8 +79,8 @@ namespace nescc {
 						address - CARTRIDGE_ROM_PROGRAM_1_START, offset, CARTRIDGE_ROM_PROGRAM_1_START, verbose);
 					break;
 				default:
-					result << "Unmapped region, Address=" << address << "(" << SCALAR_AS_HEX(uint16_t, address)
-						<< "), Offset=" << offset << "(" << SCALAR_AS_HEX(uint16_t, offset) << ")";
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Offset=%u(%04x)",
+						address, address, offset, offset);
 					break;
 			}
 
@@ -146,6 +146,7 @@ namespace nescc {
 					result = m_mapper.read_rom_program_1(address - CARTRIDGE_ROM_PROGRAM_1_START);
 					break;
 				default:
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x)", address, address);
 					break;
 			}
 
@@ -176,6 +177,8 @@ namespace nescc {
 					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
 					break;
 				default:
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Value=%u(%02x)",
+						address, address, value, value);
 					break;
 			}
 

@@ -22,6 +22,13 @@ make release
 Changelog
 =========
 
+Version 0.1.1749
+----------------
+*Updated: 12/4/2017*
+
+* Added cpu address mode routines
+* Added cpu opcodes
+
 Version 0.1.1748
 ----------------
 *Updated: 12/3/2017*

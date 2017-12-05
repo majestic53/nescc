@@ -28,6 +28,8 @@ namespace nescc {
 
 		#define MEMORY_FILL 0xea
 
+		#define MEMORY_WORD_LENGTH 2
+
 		class memory {
 
 			public:

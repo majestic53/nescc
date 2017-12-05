@@ -75,15 +75,122 @@ namespace nescc {
 					__in const cpu &other
 					) = delete;
 
+				uint16_t address_absolute(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint16_t address_absolute_x(
+					__in nescc::console::interface::bus &bus,
+					__inout bool &page_boundary
+					);
+
+				uint16_t address_absolute_y(
+					__in nescc::console::interface::bus &bus,
+					__inout bool &page_boundary
+					);
+
+				uint16_t address_indirect(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint16_t address_indirect_x(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint16_t address_indirect_y(
+					__in nescc::console::interface::bus &bus,
+					__inout bool &page_boundary
+					);
+
+				uint16_t address_relative(
+					__in nescc::console::interface::bus &bus,
+					__inout bool &page_boundary
+					);
+
+				uint16_t address_zero_page(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint16_t address_zero_page_x(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint16_t address_zero_page_y(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint8_t command_add_carry(
+					__in nescc::console::interface::bus &bus,
+					__in uint8_t value
+					);
+
+				uint8_t command_branch(
+					__in nescc::console::interface::bus &bus,
+					__in uint8_t flag,
+					__in bool set
+					);
+
+				uint8_t command_break(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint8_t command_flag_clear(
+					__in uint8_t flag
+					);
+
+				uint8_t command_flag_set(
+					__in uint8_t flag
+					);
+
+				uint8_t command_register_decrement(
+					__inout uint8_t &destination
+					);
+
+				uint8_t command_register_increment(
+					__inout uint8_t &destination
+					);
+
+				uint8_t command_register_transfer(
+					__in uint8_t source,
+					__inout uint8_t &destination
+					);
+
+				uint8_t command_return_interrupt(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint8_t command_return_subroutine(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint8_t command_stack_pull(
+					__in nescc::console::interface::bus &bus,
+					__inout uint8_t &destination,
+					__in bool set
+					);
+
+				uint8_t command_stack_push(
+					__in nescc::console::interface::bus &bus,
+					__in uint8_t source
+					);
+
+				uint8_t interrupt_maskable(
+					__in nescc::console::interface::bus &bus
+					);
+
+				uint8_t interrupt_non_maskable(
+					__in nescc::console::interface::bus &bus
+					);
+
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
-				uint8_t pop_byte(
+				uint8_t pull_byte(
 					__in nescc::console::interface::bus &bus
 					);
 
-				uint16_t pop_word(
+				uint16_t pull_word(
 					__in nescc::console::interface::bus &bus
 					);
 

@@ -46,6 +46,183 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		uint16_t
+		cpu::address_absolute(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			result = read_word(bus, m_program_counter);
+			m_program_counter += MEMORY_WORD_LENGTH;
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result, result);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_absolute_x(
+			__in nescc::console::interface::bus &bus,
+			__inout bool &page_boundary
+			)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			result = read_word(bus, m_program_counter);
+			m_program_counter += MEMORY_WORD_LENGTH;
+			page_boundary = (((result & UINT8_MAX) + m_index_x) > UINT8_MAX);
+			result += m_index_x;
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x), Boundary=%x", result, result, page_boundary);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_absolute_y(
+			__in nescc::console::interface::bus &bus,
+			__inout bool &page_boundary
+			)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			result = read_word(bus, m_program_counter);
+			m_program_counter += MEMORY_WORD_LENGTH;
+			page_boundary = (((result & UINT8_MAX) + m_index_y) > UINT8_MAX);
+			result += m_index_y;
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x), Boundary=%x", result, result, page_boundary);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_indirect(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint16_t indirect, result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			indirect = read_word(bus, m_program_counter);
+			m_program_counter += MEMORY_WORD_LENGTH;
+			result = read_word(bus, indirect);
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result, result);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_indirect_x(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t indirect;
+			uint16_t result = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			indirect = read_byte(bus, m_program_counter++);
+			indirect += m_index_x;
+			result |= read_byte(bus, indirect++);
+			result |= (read_byte(bus, indirect) << CHAR_BIT);
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result, result);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_indirect_y(
+			__in nescc::console::interface::bus &bus,
+			__inout bool &page_boundary
+			)
+		{
+			uint8_t indirect;
+			uint16_t result = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			indirect = read_byte(bus, m_program_counter++);
+			result |= read_byte(bus, indirect++);
+			result |= (read_byte(bus, indirect) << CHAR_BIT);
+			page_boundary = (((result & UINT8_MAX) + m_index_y) > UINT8_MAX);
+			result += m_index_y;
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x), Boundary=%x", result, result, page_boundary);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_relative(
+			__in nescc::console::interface::bus &bus,
+			__inout bool &page_boundary
+			)
+		{
+			uint16_t result;
+			int8_t relative;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			relative = read_byte(bus, m_program_counter++);
+			result = (m_program_counter + relative);
+			page_boundary = (((m_program_counter) & UINT8_MAX) != ((result) & UINT8_MAX));
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x), Boundary=%x", result, result, page_boundary);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_zero_page(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			result = read_byte(bus, m_program_counter++);
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result, result);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_zero_page_x(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			result = read_byte(bus, m_program_counter++);
+			result += m_index_x;
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result, result);
+			return result;
+		}
+
+		uint16_t
+		cpu::address_zero_page_y(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			result = read_byte(bus, m_program_counter++);
+			result += m_index_y;
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result, result);
+			return result;
+		}
+
 		std::string
 		cpu::as_string(
 			__in_opt bool verbose
@@ -114,6 +291,207 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		uint8_t
+		cpu::command_branch(
+			__in nescc::console::interface::bus &bus,
+			__in uint8_t flag,
+			__in bool set
+			)
+		{
+			uint16_t address;
+			bool page_boundary;
+			uint8_t result = CPU_CYCLES_RELATIVE;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Flag=%u(%02x), Set=%x", &bus, flag, flag, set);
+
+			address = address_relative(bus, page_boundary);
+
+			if(page_boundary) {
+				result += CPU_CYCLES_PAGE_BOUNDARY;
+			}
+
+			if((set && (m_flags & flag)) || (!set && !(m_flags & flag))) {
+				m_program_counter = address;
+				result += CPU_CYCLES_BRANCH;
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_break(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result = CPU_CYCLES_INTERRUPT;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			m_flags |= CPU_FLAG_BREAK;
+			push_word(bus, m_program_counter);
+			push_byte(bus, m_flags);
+			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
+			m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_flag_clear(
+			__in uint8_t flag
+			)
+		{
+			uint8_t result = CPU_CYCLES_IMPLIED;
+
+			TRACE_ENTRY_FORMAT("Flag=%u(%02x)", flag, flag);
+
+			m_flags &= ~flag;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_flag_set(
+			__in uint8_t flag
+			)
+		{
+			uint8_t result = CPU_CYCLES_IMPLIED;
+
+			TRACE_ENTRY_FORMAT("Flag=%u(%02x)", flag, flag);
+
+			m_flags |= flag;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_register_decrement(
+			__inout uint8_t &destination
+			)
+		{
+			uint8_t result = CPU_CYCLES_IMPLIED;
+
+			TRACE_ENTRY_FORMAT("Destination[%p]=%u(%02x)", &destination, destination, destination);
+
+			(!--destination) ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(destination & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x), Destination[%p]=%u(%02x)", result, result, &destination, destination,
+				destination);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_register_increment(
+			__inout uint8_t &destination
+			)
+		{
+			uint8_t result = CPU_CYCLES_IMPLIED;
+
+			TRACE_ENTRY_FORMAT("Destination[%p]=%u(%02x)", &destination, destination, destination);
+
+			(!++destination) ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(destination & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x), Destination[%p]=%u(%02x)", result, result, destination, destination);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_register_transfer(
+			__in uint8_t source,
+			__inout uint8_t &destination
+			)
+		{
+			uint8_t result = CPU_CYCLES_IMPLIED;
+
+			TRACE_ENTRY_FORMAT("Source=%u(%02x), Destination[%p]=%u(%02x)", source, source, &destination, destination,
+				destination);
+
+			destination = source;
+			(!destination) ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(destination & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x), Destination[%p]=%u(%02x)", result, result, &destination, destination,
+				destination);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_return_interrupt(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result = CPU_CYCLES_INTERRUPT_RETURN;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			m_flags = pull_byte(bus);
+			m_program_counter = pull_word(bus);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_return_subroutine(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result = CPU_CYCLES_INTERRUPT_RETURN;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			m_program_counter = pull_word(bus);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_stack_pull(
+			__in nescc::console::interface::bus &bus,
+			__inout uint8_t &destination,
+			__in bool set
+			)
+		{
+			uint8_t result = CPU_CYCLES_STACK_PULL;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Destination[%p]=%u(%02x), Set=%x", &bus, &destination, destination, destination,
+				set);
+
+			destination = pull_byte(bus);
+
+			if(set) {
+				(!destination) ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+				(destination & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x), Destination[%p]=%u(%02x)", result, result, &destination, destination,
+				destination);
+			return result;
+		}
+
+		uint8_t
+		cpu::command_stack_push(
+			__in nescc::console::interface::bus &bus,
+			__in uint8_t source
+			)
+		{
+			uint8_t result = CPU_CYCLES_STACK_PUSH;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Source=%u(%02x)", &bus, source, source);
+
+			push_byte(bus, source);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
 		void
 		cpu::interrupt_maskable(void)
 		{
@@ -128,6 +506,25 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		uint8_t
+		cpu::interrupt_maskable(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result = CPU_CYCLES_INTERRUPT;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			m_flags &= ~CPU_FLAG_BREAK;
+			push_word(bus, m_program_counter);
+			push_byte(bus, m_flags);
+			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
+			m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
 		void
 		cpu::interrupt_non_maskable(void)
 		{
@@ -140,6 +537,25 @@ namespace nescc {
 			m_signal_non_maskable = true;
 
 			TRACE_EXIT();
+		}
+
+		uint8_t
+		cpu::interrupt_non_maskable(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			uint8_t result = CPU_CYCLES_INTERRUPT;
+
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			m_flags &= ~CPU_FLAG_BREAK;
+			push_word(bus, m_program_counter);
+			push_byte(bus, m_flags);
+			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
+			m_program_counter = read_word(bus, CPU_INTERRUPT_NON_MASKABLE_ADDRESS);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
 		bool
@@ -172,7 +588,7 @@ namespace nescc {
 		}
 
 		uint8_t
-		cpu::pop_byte(
+		cpu::pull_byte(
 			__in nescc::console::interface::bus &bus
 			)
 		{
@@ -187,7 +603,7 @@ namespace nescc {
 		}
 
 		uint16_t
-		cpu::pop_word(
+		cpu::pull_word(
 			__in nescc::console::interface::bus &bus
 			)
 		{
@@ -314,7 +730,7 @@ update(bus);
 			nescc::console::interface::bus &bus
 			)
 		{
-			uint8_t command, result = 0;
+			uint8_t command, result;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
@@ -323,759 +739,931 @@ update(bus);
 				case CPU_COMMAND_ADC_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ADC_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ADC_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ADC_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ADC_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ADC_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ADC_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ADC_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_AND_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ASL_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ASL_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ASL_ACCUMULATOR:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ASL_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ASL_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_BCC_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_CARRY, false);
 					break;
 				case CPU_COMMAND_BCS_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_CARRY, true);
 					break;
 				case CPU_COMMAND_BEQ_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_ZERO, true);
 					break;
 				case CPU_COMMAND_BIT_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_BIT_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_BMI_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_SIGN, true);
 					break;
 				case CPU_COMMAND_BNE_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_ZERO, false);
 					break;
 				case CPU_COMMAND_BPL_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_SIGN, false);
 					break;
 				case CPU_COMMAND_BRK_IMPLIED:
-
-					// TODO
-
+					result = command_break(bus);
 					break;
 				case CPU_COMMAND_BVC_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_OVERFLOW, false);
 					break;
 				case CPU_COMMAND_BVS_RELATIVE:
-
-					// TODO
-
+					result = command_branch(bus, CPU_FLAG_OVERFLOW, true);
 					break;
 				case CPU_COMMAND_CLC_IMPLIED:
-
-					// TODO
-
+					result = command_flag_clear(CPU_FLAG_CARRY);
 					break;
 				case CPU_COMMAND_CLD_IMPLIED:
-
-					// TODO
-
+					result = command_flag_clear(CPU_FLAG_DECIMAL);
 					break;
 				case CPU_COMMAND_CLI_IMPLIED:
-
-					// TODO
-
+					result = command_flag_clear(CPU_FLAG_INTERRUPT_DISABLE);
 					break;
 				case CPU_COMMAND_CLV_IMPLIED:
-
-					// TODO
-
+					result = command_flag_clear(CPU_FLAG_OVERFLOW);
 					break;
 				case CPU_COMMAND_CMP_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CMP_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CMP_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CMP_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CMP_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CMP_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CMP_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CMP_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CPX_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CPX_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CPX_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CPY_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CPY_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_CPY_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_DEC_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_DEC_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_DEC_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_DEC_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_DEX_IMPLIED:
-
-					// TODO
-
+					result = command_register_decrement(m_index_x);
 					break;
 				case CPU_COMMAND_DEY_IMPLIED:
-
-					// TODO
-
+					result = command_register_decrement(m_index_y);
 					break;
 				case CPU_COMMAND_EOR_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_EOR_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_EOR_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_EOR_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_EOR_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_EOR_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_EOR_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_EOR_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_INC_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_INC_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_INC_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_INC_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_INX_IMPLIED:
-
-					// TODO
-
+					result = command_register_increment(m_index_x);
 					break;
 				case CPU_COMMAND_INY_IMPLIED:
-
-					// TODO
-
+					result = command_register_increment(m_index_y);
 					break;
 				case CPU_COMMAND_JMP_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_JMP_INDIRECT:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_JSR_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDA_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDX_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDX_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDX_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDX_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDX_ZERO_PAGE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDY_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDY_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDY_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDY_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LDY_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LSR_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LSR_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LSR_ACCUMULATOR:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LSR_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_LSR_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_NOP_IMPLIED:
-					result += CPU_CYCLES_IMPLIED;
+					result = CPU_CYCLES_IMPLIED;
 					break;
 				case CPU_COMMAND_ORA_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ORA_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ORA_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ORA_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ORA_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ORA_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ORA_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ORA_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_PHA_STACK:
-
-					// TODO
-
+					result = command_stack_push(bus, m_accumulator);
 					break;
 				case CPU_COMMAND_PHP_STACK:
-
-					// TODO
-
+					result = command_stack_push(bus, m_flags);
 					break;
 				case CPU_COMMAND_PLA_STACK:
-
-					// TODO
-
+					result = command_stack_pull(bus, m_accumulator, true);
 					break;
 				case CPU_COMMAND_PLP_STACK:
-
-					// TODO
-
+					result = command_stack_pull(bus, m_flags, false);
 					break;
 				case CPU_COMMAND_ROL_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROL_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROL_ACCUMULATOR:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROL_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROL_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROR_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROR_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROR_ACCUMULATOR:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROR_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_ROR_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_RTI_IMPLIED:
-
-					// TODO
-
+					result = command_return_interrupt(bus);
 					break;
 				case CPU_COMMAND_RTS_IMPLIED:
-
-					// TODO
-
+					result = command_return_subroutine(bus);
 					break;
 				case CPU_COMMAND_SBC_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SBC_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SBC_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SBC_IMMEDIATE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SBC_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SBC_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SBC_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SBC_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_SEC_IMPLIED:
-
-					// TODO
-
+					result = command_flag_set(CPU_FLAG_CARRY);
 					break;
 				case CPU_COMMAND_SED_IMPLIED:
-
-					// TODO
-
+					result = command_flag_set(CPU_FLAG_DECIMAL);
 					break;
 				case CPU_COMMAND_SEI_IMPLIED:
-
-					// TODO
-
+					result = command_flag_set(CPU_FLAG_INTERRUPT_DISABLE);
 					break;
 				case CPU_COMMAND_STA_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STA_ABSOLUTE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STA_ABSOLUTE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STA_INDIRECT_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STA_INDIRECT_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STA_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STA_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STX_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STX_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STX_ZERO_PAGE_Y:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STY_ABSOLUTE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STY_ZERO_PAGE:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_STY_ZERO_PAGE_X:
 
 					// TODO
+					result = 0;
+					// ---
 
 					break;
 				case CPU_COMMAND_TAX_IMPLIED:
-
-					// TODO
-
+					result = command_register_transfer(m_accumulator, m_index_x);
 					break;
 				case CPU_COMMAND_TAY_IMPLIED:
-
-					// TODO
-
+					result = command_register_transfer(m_accumulator, m_index_y);
 					break;
 				case CPU_COMMAND_TSX_STACK:
-
-					// TODO
-
+					result = command_register_transfer(m_stack_pointer, m_index_x);
 					break;
 				case CPU_COMMAND_TXA_IMPLIED:
-
-					// TODO
-
+					result = command_register_transfer(m_index_x, m_accumulator);
 					break;
 				case CPU_COMMAND_TXS_STACK:
-
-					// TODO
-
+					result = command_register_transfer(m_index_x, m_stack_pointer);
 					break;
 				case CPU_COMMAND_TYA_IMPLIED:
-
-					// TODO
-
+					result = command_register_transfer(m_index_y, m_accumulator);
 					break;
 				default:
-					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unsupported command", "%u(%02x)", command, command);
-					result += CPU_CYCLES_IMPLIED;
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unsupported cpu command", "%u(%02x)", command, command);
+					result = CPU_CYCLES_IMPLIED;
 					break;
 			}
 
@@ -1141,22 +1729,12 @@ update(bus);
 			}
 
 			if(m_signal_non_maskable) {
-				m_flags &= ~CPU_FLAG_BREAK;
-				push_word(bus, m_program_counter);
-				push_byte(bus, m_flags);
-				m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
-				m_program_counter = read_word(bus, CPU_INTERRUPT_NON_MASKABLE_ADDRESS);
-				result += CPU_CYCLES_INTERRUPT;
+				result += interrupt_non_maskable(bus);
 				m_signal_non_maskable = false;
 			} else if(m_signal_maskable) {
 
 				if(!(m_flags & CPU_FLAG_INTERRUPT_DISABLE)) {
-					m_flags &= ~CPU_FLAG_BREAK;
-					push_word(bus, m_program_counter);
-					push_byte(bus, m_flags);
-					m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
-					m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
-					result += CPU_CYCLES_INTERRUPT;
+					result += interrupt_maskable(bus);
 				}
 
 				m_signal_maskable = false;
