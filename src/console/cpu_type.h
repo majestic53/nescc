@@ -52,176 +52,6 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
-		#define CPU_COMMAND_ADC_ABSOLUTE 0x6d
-		#define CPU_COMMAND_ADC_ABSOLUTE_X 0x7d
-		#define CPU_COMMAND_ADC_ABSOLUTE_Y 0x79
-		#define CPU_COMMAND_ADC_IMMEDIATE 0x69
-		#define CPU_COMMAND_ADC_INDIRECT_X 0x61
-		#define CPU_COMMAND_ADC_INDIRECT_Y 0x71
-		#define CPU_COMMAND_ADC_ZERO_PAGE 0x65
-		#define CPU_COMMAND_ADC_ZERO_PAGE_X 0x75
-		#define CPU_COMMAND_AND_ABSOLUTE 0x2d
-		#define CPU_COMMAND_AND_ABSOLUTE_X 0x3d
-		#define CPU_COMMAND_AND_ABSOLUTE_Y 0x39
-		#define CPU_COMMAND_AND_IMMEDIATE 0x29
-		#define CPU_COMMAND_AND_INDIRECT_X 0x21
-		#define CPU_COMMAND_AND_INDIRECT_Y 0x31
-		#define CPU_COMMAND_AND_ZERO_PAGE 0x25
-		#define CPU_COMMAND_AND_ZERO_PAGE_X 0x35
-		#define CPU_COMMAND_ASL_ABSOLUTE 0x0e
-		#define CPU_COMMAND_ASL_ABSOLUTE_X 0x1e
-		#define CPU_COMMAND_ASL_ACCUMULATOR 0x0a
-		#define CPU_COMMAND_ASL_ZERO_PAGE 0x06
-		#define CPU_COMMAND_ASL_ZERO_PAGE_X 0x16
-		#define CPU_COMMAND_BCC_RELATIVE 0x90
-		#define CPU_COMMAND_BCS_RELATIVE 0xb0
-		#define CPU_COMMAND_BEQ_RELATIVE 0xf0
-		#define CPU_COMMAND_BIT_ABSOLUTE 0x2c
-		#define CPU_COMMAND_BIT_ZERO_PAGE 0x24
-		#define CPU_COMMAND_BMI_RELATIVE 0x30
-		#define CPU_COMMAND_BNE_RELATIVE 0xd0
-		#define CPU_COMMAND_BPL_RELATIVE 0x10
-		#define CPU_COMMAND_BRK_IMPLIED 0x00
-		#define CPU_COMMAND_BVC_RELATIVE 0x50
-		#define CPU_COMMAND_BVS_RELATIVE 0x70
-		#define CPU_COMMAND_CLC_IMPLIED 0x18
-		#define CPU_COMMAND_CLD_IMPLIED 0xd8
-		#define CPU_COMMAND_CLI_IMPLIED 0x58
-		#define CPU_COMMAND_CLV_IMPLIED 0xb8
-		#define CPU_COMMAND_CMP_ABSOLUTE 0xcd
-		#define CPU_COMMAND_CMP_ABSOLUTE_X 0xdd
-		#define CPU_COMMAND_CMP_ABSOLUTE_Y 0xd9
-		#define CPU_COMMAND_CMP_IMMEDIATE 0xc9
-		#define CPU_COMMAND_CMP_INDIRECT_X 0xc1
-		#define CPU_COMMAND_CMP_INDIRECT_Y 0xd1
-		#define CPU_COMMAND_CMP_ZERO_PAGE 0xc5
-		#define CPU_COMMAND_CMP_ZERO_PAGE_X 0xd5
-		#define CPU_COMMAND_CPX_ABSOLUTE 0xec
-		#define CPU_COMMAND_CPX_IMMEDIATE 0xe0
-		#define CPU_COMMAND_CPX_ZERO_PAGE 0xe4
-		#define CPU_COMMAND_CPY_ABSOLUTE 0xcc
-		#define CPU_COMMAND_CPY_IMMEDIATE 0xc0
-		#define CPU_COMMAND_CPY_ZERO_PAGE 0xc4
-		#define CPU_COMMAND_DEC_ABSOLUTE 0xce
-		#define CPU_COMMAND_DEC_ABSOLUTE_X 0xde
-		#define CPU_COMMAND_DEC_ZERO_PAGE 0xc6
-		#define CPU_COMMAND_DEC_ZERO_PAGE_X 0xd6
-		#define CPU_COMMAND_DEX_IMPLIED 0xca
-		#define CPU_COMMAND_DEY_IMPLIED 0x88
-		#define CPU_COMMAND_EOR_ABSOLUTE 0x4d
-		#define CPU_COMMAND_EOR_ABSOLUTE_X 0x5d
-		#define CPU_COMMAND_EOR_ABSOLUTE_Y 0x59
-		#define CPU_COMMAND_EOR_IMMEDIATE 0x49
-		#define CPU_COMMAND_EOR_INDIRECT_X 0x41
-		#define CPU_COMMAND_EOR_INDIRECT_Y 0x51
-		#define CPU_COMMAND_EOR_ZERO_PAGE 0x45
-		#define CPU_COMMAND_EOR_ZERO_PAGE_X 0x55
-		#define CPU_COMMAND_INC_ABSOLUTE 0xee
-		#define CPU_COMMAND_INC_ABSOLUTE_X 0xfe
-		#define CPU_COMMAND_INC_ZERO_PAGE 0xe6
-		#define CPU_COMMAND_INC_ZERO_PAGE_X 0xf6
-		#define CPU_COMMAND_INX_IMPLIED 0xe8
-		#define CPU_COMMAND_INY_IMPLIED 0xc8
-		#define CPU_COMMAND_JMP_ABSOLUTE 0x4c
-		#define CPU_COMMAND_JMP_INDIRECT 0x6c
-		#define CPU_COMMAND_JSR_ABSOLUTE 0x20
-		#define CPU_COMMAND_LDA_ABSOLUTE 0xad
-		#define CPU_COMMAND_LDA_ABSOLUTE_X 0xbd
-		#define CPU_COMMAND_LDA_ABSOLUTE_Y 0xb9
-		#define CPU_COMMAND_LDA_IMMEDIATE 0xa9
-		#define CPU_COMMAND_LDA_INDIRECT_X 0xa1
-		#define CPU_COMMAND_LDA_INDIRECT_Y 0xb1
-		#define CPU_COMMAND_LDA_ZERO_PAGE 0xa5
-		#define CPU_COMMAND_LDA_ZERO_PAGE_X 0xb5
-		#define CPU_COMMAND_LDX_ABSOLUTE 0xae
-		#define CPU_COMMAND_LDX_ABSOLUTE_Y 0xbe
-		#define CPU_COMMAND_LDX_IMMEDIATE 0xa2
-		#define CPU_COMMAND_LDX_ZERO_PAGE 0xa6
-		#define CPU_COMMAND_LDX_ZERO_PAGE_Y 0xb6
-		#define CPU_COMMAND_LDY_ABSOLUTE 0xac
-		#define CPU_COMMAND_LDY_ABSOLUTE_X 0xbc
-		#define CPU_COMMAND_LDY_IMMEDIATE 0xa0
-		#define CPU_COMMAND_LDY_ZERO_PAGE 0xa4
-		#define CPU_COMMAND_LDY_ZERO_PAGE_X 0xb4
-		#define CPU_COMMAND_LSR_ABSOLUTE 0x4e
-		#define CPU_COMMAND_LSR_ABSOLUTE_X 0x5e
-		#define CPU_COMMAND_LSR_ACCUMULATOR 0x4a
-		#define CPU_COMMAND_LSR_ZERO_PAGE 0x46
-		#define CPU_COMMAND_LSR_ZERO_PAGE_X 0x56
-		#define CPU_COMMAND_NOP_IMPLIED 0xea
-		#define CPU_COMMAND_ORA_ABSOLUTE 0x0d
-		#define CPU_COMMAND_ORA_ABSOLUTE_X 0x1d
-		#define CPU_COMMAND_ORA_ABSOLUTE_Y 0x19
-		#define CPU_COMMAND_ORA_IMMEDIATE 0x09
-		#define CPU_COMMAND_ORA_INDIRECT_X 0x01
-		#define CPU_COMMAND_ORA_INDIRECT_Y 0x11
-		#define CPU_COMMAND_ORA_ZERO_PAGE 0x05
-		#define CPU_COMMAND_ORA_ZERO_PAGE_X 0x15
-		#define CPU_COMMAND_PHA_STACK 0x48
-		#define CPU_COMMAND_PHP_STACK 0x08
-		#define CPU_COMMAND_PLA_STACK 0x68
-		#define CPU_COMMAND_PLP_STACK 0x28
-		#define CPU_COMMAND_ROL_ABSOLUTE 0x2e
-		#define CPU_COMMAND_ROL_ABSOLUTE_X 0x3e
-		#define CPU_COMMAND_ROL_ACCUMULATOR 0x2a
-		#define CPU_COMMAND_ROL_ZERO_PAGE 0x26
-		#define CPU_COMMAND_ROL_ZERO_PAGE_X 0x36
-		#define CPU_COMMAND_ROR_ABSOLUTE 0x6e
-		#define CPU_COMMAND_ROR_ABSOLUTE_X 0x7e
-		#define CPU_COMMAND_ROR_ACCUMULATOR 0x6a
-		#define CPU_COMMAND_ROR_ZERO_PAGE 0x66
-		#define CPU_COMMAND_ROR_ZERO_PAGE_X 0x76
-		#define CPU_COMMAND_RTI_IMPLIED 0x40
-		#define CPU_COMMAND_RTS_IMPLIED 0x60
-		#define CPU_COMMAND_SBC_ABSOLUTE 0xed
-		#define CPU_COMMAND_SBC_ABSOLUTE_X 0xfd
-		#define CPU_COMMAND_SBC_ABSOLUTE_Y 0xf9
-		#define CPU_COMMAND_SBC_IMMEDIATE 0xe9
-		#define CPU_COMMAND_SBC_INDIRECT_X 0xe1
-		#define CPU_COMMAND_SBC_INDIRECT_Y 0xf1
-		#define CPU_COMMAND_SBC_ZERO_PAGE 0xe5
-		#define CPU_COMMAND_SBC_ZERO_PAGE_X 0xf5
-		#define CPU_COMMAND_SEC_IMPLIED 0x38
-		#define CPU_COMMAND_SED_IMPLIED 0xf8
-		#define CPU_COMMAND_SEI_IMPLIED 0x78
-		#define CPU_COMMAND_STA_ABSOLUTE 0x8d
-		#define CPU_COMMAND_STA_ABSOLUTE_X 0x9d
-		#define CPU_COMMAND_STA_ABSOLUTE_Y 0x99
-		#define CPU_COMMAND_STA_INDIRECT_X 0x81
-		#define CPU_COMMAND_STA_INDIRECT_Y 0x91
-		#define CPU_COMMAND_STA_ZERO_PAGE 0x85
-		#define CPU_COMMAND_STA_ZERO_PAGE_X 0x95
-		#define CPU_COMMAND_STX_ABSOLUTE 0x8e
-		#define CPU_COMMAND_STX_ZERO_PAGE 0x86
-		#define CPU_COMMAND_STX_ZERO_PAGE_Y 0x96
-		#define CPU_COMMAND_STY_ABSOLUTE 0x8c
-		#define CPU_COMMAND_STY_ZERO_PAGE 0x84
-		#define CPU_COMMAND_STY_ZERO_PAGE_X 0x94
-		#define CPU_COMMAND_TAX_IMPLIED 0xaa
-		#define CPU_COMMAND_TAY_IMPLIED 0xa8
-		#define CPU_COMMAND_TSX_STACK 0xba
-		#define CPU_COMMAND_TXA_IMPLIED 0x8a
-		#define CPU_COMMAND_TXS_STACK 0x9a
-		#define CPU_COMMAND_TYA_IMPLIED 0x98
-
-		#define CPU_CYCLES_ABSOLUTE 4
-		#define CPU_CYCLES_ABSOLUTE_X 4
-		#define CPU_CYCLES_ABSOLUTE_Y 4
-		#define CPU_CYCLES_ACCUMULATOR 2
-		#define CPU_CYCLES_IMMEDIATE 2
-		#define CPU_CYCLES_IMPLIED 2
-		#define CPU_CYCLES_INDIRECT 5
-		#define CPU_CYCLES_INDIRECT_X 6
-		#define CPU_CYCLES_INDIRECT_Y 5
-		#define CPU_CYCLES_INTERRUPT 7
-		#define CPU_CYCLES_INTERRUPT_RETURN 6
-		#define CPU_CYCLES_RELATIVE 2
-		#define CPU_CYCLES_STACK_PULL 4
-		#define CPU_CYCLES_STACK_PUSH 3
-		#define CPU_CYCLES_ZERO_PAGE 3
-		#define CPU_CYCLES_ZERO_PAGE_X 4
-		#define CPU_CYCLES_ZERO_PAGE_Y 4
-
 		#define CPU_CYCLES_BRANCH 1
 		#define CPU_CYCLES_PAGE_BOUNDARY 1
 		#define CPU_CYCLES_READ_WRITE 2
@@ -237,6 +67,13 @@ namespace nescc {
 
 		#define CPU_FLAG_RESET (CPU_FLAG_UNUSED | CPU_FLAG_BREAK | CPU_FLAG_INTERRUPT_DISABLE & ~CPU_FLAG_DECIMAL)
 
+		#define CPU_INTERRUPT_MASKABLE_ADDRESS 0xfffe
+		#define CPU_INTERRUPT_NON_MASKABLE_ADDRESS 0xfffa
+		#define CPU_INTERRUPT_RESET_ADDRESS 0xfffc
+
+		#define CPU_STACK_POINTER_ADDRESS_BASE (UINT8_MAX + 1)
+		#define CPU_STACK_POINTER_ADDRESS_MAX UINT8_MAX
+
 		#define CPU_FLAG_MAX (CHAR_BIT - 1)
 
 		static const std::string CPU_FLAG_STR[] = {
@@ -249,12 +86,342 @@ namespace nescc {
 
 		#define CPU_FLAG_VALUE(_FLAG_) (uint8_t) (1 << (_FLAG_))
 
-		#define CPU_INTERRUPT_MASKABLE_ADDRESS 0xfffe
-		#define CPU_INTERRUPT_NON_MASKABLE_ADDRESS 0xfffa
-		#define CPU_INTERRUPT_RESET_ADDRESS 0xfffc
+		enum {
+			CPU_MODE_ABSOLUTE = 0,
+			CPU_MODE_ABSOLUTE_X,
+			CPU_MODE_ABSOLUTE_Y,
+			CPU_MODE_ACCUMULATOR,
+			CPU_MODE_IMMEDIATE,
+			CPU_MODE_IMPLIED,
+			CPU_MODE_INDIRECT,
+			CPU_MODE_INDIRECT_X,
+			CPU_MODE_INDIRECT_Y,
+			CPU_MODE_INTERRUPT,
+			CPU_MODE_INTERRUPT_RETURN,
+			CPU_MODE_RELATIVE,
+			CPU_MODE_STACK_PULL,
+			CPU_MODE_STACK_PUSH,
+			CPU_MODE_ZERO_PAGE,
+			CPU_MODE_ZERO_PAGE_X,
+			CPU_MODE_ZERO_PAGE_Y,
+		};
 
-		#define CPU_STACK_POINTER_ADDRESS_BASE (UINT8_MAX + 1)
-		#define CPU_STACK_POINTER_ADDRESS_MAX UINT8_MAX
+		#define CPU_MODE_MAX CPU_MODE_ZERO_PAGE_Y
+
+		static uint8_t CPU_MODE_CYC[] = {
+			4, 4, 4, 2, 2, 2, 5, 6, 5, 7, 6, 2, 4, 3, 3, 4, 4,
+			};
+
+		#define CPU_MODE_CYCLES(_TYPE_) \
+			(((_TYPE_) > CPU_MODE_MAX) ? CPU_MODE_CYC[CPU_MODE_IMPLIED] : \
+				CPU_MODE_CYC[_TYPE_])
+
+		static const std::string CPU_MODE_STR[] = {
+			"Absolute", "Absolute-X", "Absolute-Y", "Accumulator", "Immiediate", "Implied",
+			"Indirect", "Indirect-X", "Indirect-Y", "Interrupt", "Interrupt-Return", "Relative",
+			"Stack-Pull", "Stack-Push", "Zero-Page", "Zero-Page-X", "Zero-Page-Y",
+			};
+
+		#define CPU_MODE_STRING(_TYPE_) \
+			(((_TYPE_) > CPU_MODE_MAX) ? STRING_UNKNOWN : \
+				STRING_CHECK(CPU_MODE_STR[_TYPE_]))
+
+		enum {
+			CPU_COMMAND_ADC = 0, CPU_COMMAND_AND, CPU_COMMAND_ASL, CPU_COMMAND_BCC,
+			CPU_COMMAND_BCS, CPU_COMMAND_BEQ, CPU_COMMAND_BIT, CPU_COMMAND_BMI,
+			CPU_COMMAND_BNE, CPU_COMMAND_BPL, CPU_COMMAND_BRK, CPU_COMMAND_BVC,
+			CPU_COMMAND_BVS, CPU_COMMAND_CLC, CPU_COMMAND_CLD, CPU_COMMAND_CLI,
+			CPU_COMMAND_CLV, CPU_COMMAND_CMP, CPU_COMMAND_CPX, CPU_COMMAND_CPY,
+			CPU_COMMAND_DEC, CPU_COMMAND_DEX, CPU_COMMAND_DEY, CPU_COMMAND_EOR,
+			CPU_COMMAND_INC, CPU_COMMAND_INX, CPU_COMMAND_INY, CPU_COMMAND_JMP,
+			CPU_COMMAND_JSR, CPU_COMMAND_LDA, CPU_COMMAND_LDX, CPU_COMMAND_LDY,
+			CPU_COMMAND_LSR, CPU_COMMAND_NOP, CPU_COMMAND_ORA, CPU_COMMAND_PHA,
+			CPU_COMMAND_PHP, CPU_COMMAND_PLA, CPU_COMMAND_PLP, CPU_COMMAND_ROL,
+			CPU_COMMAND_ROR, CPU_COMMAND_RTI, CPU_COMMAND_RTS, CPU_COMMAND_SBC,
+			CPU_COMMAND_SEC, CPU_COMMAND_SED, CPU_COMMAND_SEI, CPU_COMMAND_STA,
+			CPU_COMMAND_STX, CPU_COMMAND_STY, CPU_COMMAND_TAX, CPU_COMMAND_TAY,
+			CPU_COMMAND_TSX, CPU_COMMAND_TXA, CPU_COMMAND_TXS, CPU_COMMAND_TYA,
+		};
+
+		#define CPU_COMMAND_MAX CPU_COMMAND_TYA
+
+		static const std::string CPU_COMMAND_STR[] = {
+			"ADC", "AND", "ASL", "BCC", "BCS", "BEQ", "BIT", "BMI", "BNE", "BPL",
+			"BRK", "BVC", "BVS", "CLC", "CLD", "CLI", "CLV", "CMP", "CPX", "CPY",
+			"DEC", "DEX", "DEY", "EOR", "INC", "INX", "INY", "JMP", "JSR", "LDA",
+			"LDX", "LDY", "LSR", "NOP", "ORA", "PHA", "PHP", "PLA", "PLP", "ROL",
+			"ROR", "RTI", "RTS", "SBC", "SEC", "SED", "SEI", "STA", "STX", "STY",
+			"TAX", "TAY", "TSX", "TXA", "TXS", "TYA",
+			};
+
+		#define CPU_COMMAND_STRING(_TYPE_) \
+			(((_TYPE_) > CPU_COMMAND_MAX) ? STRING_UNKNOWN : \
+				STRING_CHECK(CPU_COMMAND_STR[_TYPE_]))
+
+		#define CPU_COMMAND_CODE_UNSUPPORTED 0xea
+
+		static const std::pair<uint8_t, uint8_t> CPU_CMD[] = {
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BRK, CPU_MODE_INTERRUPT),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ASL, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_PHP, CPU_MODE_STACK_PUSH),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ASL, CPU_MODE_ACCUMULATOR),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ASL, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BPL, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ASL, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CLC, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ASL, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_JSR, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BIT, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROL, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_PLP, CPU_MODE_STACK_PULL),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROL, CPU_MODE_ACCUMULATOR),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BIT, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROL, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BMI, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROL, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SEC, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROL, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_RTI, CPU_MODE_INTERRUPT_RETURN),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LSR, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_PHA, CPU_MODE_STACK_PUSH),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LSR, CPU_MODE_ACCUMULATOR),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_JMP, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LSR, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BVC, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LSR, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CLI, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LSR, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_RTS, CPU_MODE_INTERRUPT_RETURN),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROR, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_PLA, CPU_MODE_STACK_PULL),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROR, CPU_MODE_ACCUMULATOR),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_JMP, CPU_MODE_INDIRECT),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROR, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BVS, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROR, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SEI, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROR, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STY, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STX, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEY, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_TXA, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STY, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STX, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BCC, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STY, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STX, CPU_MODE_ZERO_PAGE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_TYA, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_TXS, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_TAY, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_TAX, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BCS, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_ZERO_PAGE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CLV, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_TSX, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INY, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEX, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BNE, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CLD, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_INDIRECT_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ZERO_PAGE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INX, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BEQ, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_INDIRECT_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ZERO_PAGE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SED, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ABSOLUTE_Y),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ABSOLUTE_X),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			};
+
+		#define CPU_COMMAND(_TYPE_) \
+			(((_TYPE_) > UINT8_MAX) ? CPU_CMD[CPU_COMMAND_CODE_UNSUPPORTED] : \
+				CPU_CMD[_TYPE_])
 	}
 }
 
