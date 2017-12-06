@@ -28,7 +28,7 @@ Version 0.1.1749
 
 * Added cpu address mode routines
 * Added cpu opcodes
-* Added cpu command/modes
+* Added cpu commands/modes
 
 Version 0.1.1748
 ----------------
