@@ -119,6 +119,136 @@ namespace nescc {
 					__in nescc::console::interface::bus &bus
 					);
 
+				uint8_t execute_command_add(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_and(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_bit(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_branch(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_break(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_call(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_compare(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_decrement(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_flag(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_increment(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_jump(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_load(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_nop(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_or(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_or_exclusive(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_stack_pull(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_stack_push(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_rotate_left(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_rotate_right(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_return(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_return_interrupt(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_shift_left(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_shift_right(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_store(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_subtract(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_transfer(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
 				uint8_t execute_interrupt_maskable(
 					__in nescc::console::interface::bus &bus
 					);

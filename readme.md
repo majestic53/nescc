@@ -24,6 +24,10 @@ Changelog
 
 Version 0.1.1749
 ----------------
+*Updated: 12/6/2017*
+
+* Added cpu command routines
+
 *Updated: 12/4-5/2017*
 
 * Added cpu address mode routines

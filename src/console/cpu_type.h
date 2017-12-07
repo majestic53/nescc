@@ -34,12 +34,16 @@ namespace nescc {
 
 		enum {
 			NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED = 0,
+			NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_FLAG,
+			NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_TRANSFER,
 		};
 
-		#define NESCC_CONSOLE_CPU_EXCEPTION_MAX NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED
+		#define NESCC_CONSOLE_CPU_EXCEPTION_MAX NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_TRANSFER
 
 		static const std::string NESCC_CONSOLE_CPU_EXCEPTION_STR[] = {
 			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Cpu is uninitialized",
+			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Unsupported cpu flag command",
+			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Unsupported cpu transfer command",
 			};
 
 		#define NESCC_CONSOLE_CPU_EXCEPTION_STRING(_TYPE_) \
@@ -117,9 +121,8 @@ namespace nescc {
 				CPU_MODE_CYC[_TYPE_])
 
 		static const std::string CPU_MODE_STR[] = {
-			"Absolute", "Absolute-X", "Absolute-Y", "Accumulator", "Immiediate", "Implied",
-			"Indirect", "Indirect-X", "Indirect-Y", "Interrupt", "Interrupt-Return", "Relative",
-			"Stack-Pull", "Stack-Push", "Zero-Page", "Zero-Page-X", "Zero-Page-Y",
+			"a", "a, x", "a, y", "A", "#", "", "(a)", "(zp, x)", "(zp), y",
+			"", "", "r", "", "", "zp", "zp, x", "zp, y",
 			};
 
 		#define CPU_MODE_STRING(_TYPE_) \
@@ -146,21 +149,19 @@ namespace nescc {
 		#define CPU_COMMAND_MAX CPU_COMMAND_TYA
 
 		static const std::string CPU_COMMAND_STR[] = {
-			"ADC", "AND", "ASL", "BCC", "BCS", "BEQ", "BIT", "BMI", "BNE", "BPL",
-			"BRK", "BVC", "BVS", "CLC", "CLD", "CLI", "CLV", "CMP", "CPX", "CPY",
-			"DEC", "DEX", "DEY", "EOR", "INC", "INX", "INY", "JMP", "JSR", "LDA",
-			"LDX", "LDY", "LSR", "NOP", "ORA", "PHA", "PHP", "PLA", "PLP", "ROL",
-			"ROR", "RTI", "RTS", "SBC", "SEC", "SED", "SEI", "STA", "STX", "STY",
-			"TAX", "TAY", "TSX", "TXA", "TXS", "TYA",
+			"adc", "and", "asl", "bcc", "bcs", "beq", "bit", "bmi", "bne", "bpl",
+			"brk", "bvc", "bvs", "clc", "cld", "cli", "clv", "cmp", "cpx", "cpy",
+			"dec", "dex", "dey", "eor", "inc", "inx", "iny", "jmp", "jsr", "lda",
+			"ldx", "ldy", "lsr", "nop", "ora", "pha", "php", "pla", "plp", "rol",
+			"ror", "rti", "rts", "sbc", "sec", "sed", "sei", "sta", "stx", "sty",
+			"tax", "tay", "tsx", "txa", "txs", "tya",
 			};
 
 		#define CPU_COMMAND_STRING(_TYPE_) \
 			(((_TYPE_) > CPU_COMMAND_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(CPU_COMMAND_STR[_TYPE_]))
 
-		#define CPU_COMMAND_CODE_UNSUPPORTED 0xea
-
-		static const std::pair<uint8_t, uint8_t> CPU_CMD[] = {
+		static const std::vector<std::pair<uint8_t, uint8_t>> CPU_COMMAND = {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BRK, CPU_MODE_INTERRUPT),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
@@ -418,10 +419,6 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			};
-
-		#define CPU_COMMAND(_TYPE_) \
-			(((_TYPE_) > UINT8_MAX) ? CPU_CMD[CPU_COMMAND_CODE_UNSUPPORTED] : \
-				CPU_CMD[_TYPE_])
 	}
 }
 

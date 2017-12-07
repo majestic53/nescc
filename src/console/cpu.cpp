@@ -292,6 +292,495 @@ namespace nescc {
 		}
 
 		uint8_t
+		cpu::execute_command_add(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_and(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_bit(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_branch(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_break(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_call(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_compare(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_decrement(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_flag(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.first) {
+				case CPU_COMMAND_CLC:
+					m_flags &= ~CPU_FLAG_CARRY;
+					break;
+				case CPU_COMMAND_CLD:
+					m_flags &= ~CPU_FLAG_DECIMAL;
+					break;
+				case CPU_COMMAND_CLI:
+					m_flags &= ~CPU_FLAG_INTERRUPT_DISABLE;
+					break;
+				case CPU_COMMAND_CLV:
+					m_flags &= ~CPU_FLAG_OVERFLOW;
+					break;
+				case CPU_COMMAND_SEC:
+					m_flags |= CPU_FLAG_CARRY;
+					break;
+				case CPU_COMMAND_SED:
+					m_flags |= CPU_FLAG_DECIMAL;
+					break;
+				case CPU_COMMAND_SEI:
+					m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_FLAG,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_increment(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_jump(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_load(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_nop(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_or(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_or_exclusive(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_stack_pull(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_stack_push(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_rotate_left(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_rotate_right(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_return(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_return_interrupt(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_shift_left(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_shift_right(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_store(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_subtract(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			// TODO
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_transfer(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.first) {
+				case CPU_COMMAND_TAX:
+					value = m_index_x = m_accumulator;
+					break;
+				case CPU_COMMAND_TAY:
+					value = m_index_y = m_accumulator;
+					break;
+				case CPU_COMMAND_TSX:
+					value = m_index_x = m_stack_pointer;
+					break;
+				case CPU_COMMAND_TXA:
+					value = m_accumulator = m_index_x;
+					break;
+				case CPU_COMMAND_TXS:
+					value = m_stack_pointer = m_index_x;
+					break;
+				case CPU_COMMAND_TYA:
+					value = m_accumulator = m_index_y;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_TRANSFER,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
 		cpu::execute_interrupt_maskable(
 			__in nescc::console::interface::bus &bus
 			)
@@ -529,15 +1018,127 @@ update(bus);
 			nescc::console::interface::bus &bus
 			)
 		{
-			uint8_t command, result;
+			uint8_t result;
+			std::pair<uint8_t, uint8_t> command;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			command = read_byte(bus, m_program_counter++);
-			// TODO
-			(void) command;
-			result = 0;
-			// ---
+			command = CPU_COMMAND.at(read_byte(bus, m_program_counter++));
+			switch(command.first) {
+				case CPU_COMMAND_ADC:
+					result = execute_command_add(bus, command);
+					break;
+				case CPU_COMMAND_AND:
+					result = execute_command_and(bus, command);
+					break;
+				case CPU_COMMAND_ASL:
+					result = execute_command_shift_left(bus, command);
+					break;
+				case CPU_COMMAND_BCC:
+				case CPU_COMMAND_BCS:
+				case CPU_COMMAND_BEQ:
+				case CPU_COMMAND_BMI:
+				case CPU_COMMAND_BNE:
+				case CPU_COMMAND_BPL:
+				case CPU_COMMAND_BVC:
+				case CPU_COMMAND_BVS:
+					result = execute_command_branch(bus, command);
+					break;
+				case CPU_COMMAND_BIT:
+					result = execute_command_bit(bus, command);
+					break;
+				case CPU_COMMAND_BRK:
+					result = execute_command_break(bus, command);
+					break;
+				case CPU_COMMAND_CLC:
+				case CPU_COMMAND_CLD:
+				case CPU_COMMAND_CLI:
+				case CPU_COMMAND_CLV:
+				case CPU_COMMAND_SEC:
+				case CPU_COMMAND_SED:
+				case CPU_COMMAND_SEI:
+					result = execute_command_flag(bus, command);
+					break;
+				case CPU_COMMAND_CMP:
+				case CPU_COMMAND_CPX:
+				case CPU_COMMAND_CPY:
+					result = execute_command_compare(bus, command);
+					break;
+				case CPU_COMMAND_DEC:
+				case CPU_COMMAND_DEX:
+				case CPU_COMMAND_DEY:
+					result = execute_command_decrement(bus, command);
+					break;
+				case CPU_COMMAND_EOR:
+					result = execute_command_or_exclusive(bus, command);
+					break;
+				case CPU_COMMAND_INC:
+				case CPU_COMMAND_INX:
+				case CPU_COMMAND_INY:
+					result = execute_command_increment(bus, command);
+					break;
+				case CPU_COMMAND_JMP:
+					result = execute_command_jump(bus, command);
+					break;
+				case CPU_COMMAND_JSR:
+					result = execute_command_call(bus, command);
+					break;
+				case CPU_COMMAND_LDA:
+				case CPU_COMMAND_LDX:
+				case CPU_COMMAND_LDY:
+					result = execute_command_load(bus, command);
+					break;
+				case CPU_COMMAND_LSR:
+					result = execute_command_shift_right(bus, command);
+					break;
+				case CPU_COMMAND_NOP:
+					result = execute_command_nop(bus, command);
+					break;
+				case CPU_COMMAND_ORA:
+					result = execute_command_or(bus, command);
+					break;
+				case CPU_COMMAND_PHA:
+				case CPU_COMMAND_PHP:
+					result = execute_command_stack_push(bus, command);
+					break;
+				case CPU_COMMAND_PLA:
+				case CPU_COMMAND_PLP:
+					result = execute_command_stack_pull(bus, command);
+					break;
+				case CPU_COMMAND_ROL:
+					result = execute_command_rotate_left(bus, command);
+					break;
+				case CPU_COMMAND_ROR:
+					result = execute_command_rotate_right(bus, command);
+					break;
+				case CPU_COMMAND_RTI:
+					result = execute_command_return_interrupt(bus, command);
+					break;
+				case CPU_COMMAND_RTS:
+					result = execute_command_return(bus, command);
+					break;
+				case CPU_COMMAND_SBC:
+					result = execute_command_subtract(bus, command);
+					break;
+				case CPU_COMMAND_STA:
+				case CPU_COMMAND_STX:
+				case CPU_COMMAND_STY:
+					result = execute_command_store(bus, command);
+					break;
+				case CPU_COMMAND_TAX:
+				case CPU_COMMAND_TAY:
+				case CPU_COMMAND_TSX:
+				case CPU_COMMAND_TXA:
+				case CPU_COMMAND_TXS:
+				case CPU_COMMAND_TYA:
+					result = execute_command_transfer(bus, command);
+					break;
+				default:
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unsupported command", "Command=%u(%02x), Mode=%u",
+						command.first, command.first, command.second);
+					result = execute_command_nop(bus, command);
+					break;
+			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
