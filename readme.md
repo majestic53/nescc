@@ -24,7 +24,7 @@ Changelog
 
 Version 0.1.1749
 ----------------
-*Updated: 12/6/2017*
+*Updated: 12/6-7/2017*
 
 * Added cpu command routines
 
