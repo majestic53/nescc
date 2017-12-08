@@ -144,11 +144,6 @@ namespace nescc {
 					__in const std::pair<uint8_t, uint8_t> &command
 					);
 
-				uint8_t execute_command_call(
-					__in nescc::console::interface::bus &bus,
-					__in const std::pair<uint8_t, uint8_t> &command
-					);
-
 				uint8_t execute_command_compare(
 					__in nescc::console::interface::bus &bus,
 					__in const std::pair<uint8_t, uint8_t> &command
@@ -234,6 +229,11 @@ namespace nescc {
 					);
 
 				uint8_t execute_command_store(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_subroutine(
 					__in nescc::console::interface::bus &bus,
 					__in const std::pair<uint8_t, uint8_t> &command
 					);
