@@ -56,9 +56,9 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			result = (m_accumulator + value + (m_flags & CPU_FLAG_CARRY));
-			(result > UINT8_MAX) ? m_flags |= CPU_FLAG_CARRY : m_flags &= CPU_FLAG_CARRY;
+			(result > UINT8_MAX) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
 			(~(m_accumulator ^ value) & (m_accumulator ^ result) & CPU_FLAG_SIGN)
-				? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= CPU_FLAG_OVERFLOW;
+				? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= ~CPU_FLAG_OVERFLOW;
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", (uint8_t) result, (uint8_t) result);
 			return (uint8_t) result;
@@ -127,7 +127,13 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			indirect = read_word(bus, m_program_counter);
+			if((m_program_counter & UINT8_MAX) == UINT8_MAX) {
+				indirect = ((read_byte(bus, m_program_counter - UINT8_MAX) << CHAR_BIT)
+					| read_byte(bus, m_program_counter));
+			} else {
+				indirect = read_word(bus, m_program_counter);
+			}
+
 			m_program_counter += MEMORY_WORD_LENGTH;
 			result = read_word(bus, indirect);
 
@@ -516,9 +522,8 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			m_flags |= CPU_FLAG_BREAK;
 			push_word(bus, m_program_counter);
-			push_byte(bus, m_flags);
+			push_byte(bus, m_flags | CPU_FLAG_BREAK);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
 
@@ -797,7 +802,6 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
-			uint16_t address;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
@@ -805,17 +809,10 @@ namespace nescc {
 
 			switch(command.second) {
 				case CPU_MODE_ABSOLUTE:
-					m_program_counter = read_word(bus, address_absolute(bus));
+					m_program_counter = address_absolute(bus);
 					break;
 				case CPU_MODE_INDIRECT:
-
-					address = address_indirect(bus);
-					if((address & UINT8_MAX) == UINT8_MAX) {
-						m_program_counter = ((read_byte(bus, address) << CHAR_BIT)
-							| read_byte(bus, address - UINT8_MAX));
-					} else {
-						m_program_counter = read_word(bus, address);
-					}
+					m_program_counter = address_indirect(bus);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
@@ -1351,7 +1348,7 @@ namespace nescc {
 					push_byte(bus, m_accumulator);
 					break;
 				case CPU_COMMAND_PHP:
-					push_byte(bus, m_flags);
+					push_byte(bus, m_flags | CPU_FLAG_BREAK);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STACK_PUSH,
@@ -1411,13 +1408,13 @@ namespace nescc {
 
 					switch(command.second) {
 						case CPU_MODE_ABSOLUTE:
-							write_byte(bus, address_absolute(bus), m_accumulator);
+							write_byte(bus, address_absolute(bus), m_index_x);
 							break;
 						case CPU_MODE_ZERO_PAGE:
-							write_byte(bus, address_zero_page(bus), m_accumulator);
+							write_byte(bus, address_zero_page(bus), m_index_x);
 							break;
 						case CPU_MODE_ZERO_PAGE_Y:
-							write_byte(bus, address_zero_page_y(bus), m_accumulator);
+							write_byte(bus, address_zero_page_y(bus), m_index_x);
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
@@ -1428,13 +1425,13 @@ namespace nescc {
 
 					switch(command.second) {
 						case CPU_MODE_ABSOLUTE:
-							write_byte(bus, address_absolute(bus), m_accumulator);
+							write_byte(bus, address_absolute(bus), m_index_y);
 							break;
 						case CPU_MODE_ZERO_PAGE:
-							write_byte(bus, address_zero_page(bus), m_accumulator);
+							write_byte(bus, address_zero_page(bus), m_index_y);
 							break;
 						case CPU_MODE_ZERO_PAGE_X:
-							write_byte(bus, address_zero_page_x(bus), m_accumulator);
+							write_byte(bus, address_zero_page_x(bus), m_index_y);
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
@@ -1456,13 +1453,15 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
+			uint16_t address;
 			uint8_t result = (CPU_MODE_CYCLES(command.second) + CPU_CYCLES_READ_WRITE);
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			push_word(bus, m_program_counter - 1);
-			m_program_counter = read_word(bus, address_absolute(bus));
+			address = address_absolute(bus);
+			push_word(bus, m_program_counter);
+			m_program_counter = address;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1787,7 +1786,52 @@ namespace nescc {
 			m_stack_pointer = CPU_STACK_POINTER_ADDRESS_MAX;
 
 // TODO
-update(bus);
+/*m_program_counter = 0x0600;
+
+// JSR $0609
+bus.cpu_write(0x0600, 0x20);
+bus.cpu_write(0x0601, 0x09);
+bus.cpu_write(0x0602, 0x06);
+
+// JSR $060c
+bus.cpu_write(0x0603, 0x20);
+bus.cpu_write(0x0604, 0x0c);
+bus.cpu_write(0x0605, 0x06);
+
+// JSR $0612
+bus.cpu_write(0x0606, 0x20);
+bus.cpu_write(0x0607, 0x12);
+bus.cpu_write(0x0608, 0x06);
+
+// LDX #$00
+bus.cpu_write(0x0609, 0xa2);
+bus.cpu_write(0x060a, 0x00);
+
+// RTS
+bus.cpu_write(0x060b, 0x60);
+
+// INX
+bus.cpu_write(0x060c, 0xe8);
+
+// CPX #$05
+bus.cpu_write(0x060d, 0xe0);
+bus.cpu_write(0x060e, 0x05);
+
+// BNE $060c
+bus.cpu_write(0x060f, 0xd0);
+bus.cpu_write(0x0610, 0xfb);
+
+// RTS
+bus.cpu_write(0x0611, 0x60);
+
+// BRK
+bus.cpu_write(0x0612, 0x00);
+
+for(;;) {
+	update(bus);
+	std::cin.get();
+	std::cout << std::endl;
+}*/
 // ---
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu reset.");
@@ -2073,11 +2117,13 @@ update(bus);
 			m_cycle += result;
 
 // TODO
-std::cout << as_string(true)
+/*std::cout << as_string(true)
+	<< std::endl << std::endl << bus.cpu_as_string(0, 0x100, true)
 	<< std::endl << std::endl << bus.cpu_as_string(CPU_STACK_POINTER_ADDRESS_BASE, 0x100, true)
 	<< std::endl << std::endl << bus.cpu_as_string(CPU_INTERRUPT_NON_MASKABLE_ADDRESS, 6, true)
 	<< std::endl << std::endl << bus.cpu_as_string(0x8000, 0x20, true)
-	<< std::endl << std::endl;
+	<< std::endl << std::endl << bus.cpu_as_string(0x0600, 0x20, true)
+	<< std::endl << std::endl;*/
 // ---
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
