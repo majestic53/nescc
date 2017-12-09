@@ -75,6 +75,10 @@ namespace nescc {
 					__in const cpu &other
 					) = delete;
 
+				uint8_t add(
+					__in uint8_t value
+					);
+
 				uint16_t address_absolute(
 					__in nescc::console::interface::bus &bus
 					);
@@ -117,10 +121,6 @@ namespace nescc {
 
 				uint16_t address_zero_page_y(
 					__in nescc::console::interface::bus &bus
-					);
-
-				uint8_t execute_add(
-					__in uint8_t value
 					);
 
 				uint8_t execute_command_add(
@@ -251,28 +251,12 @@ namespace nescc {
 					__in const std::pair<uint8_t, uint8_t> &command
 					);
 
-				uint8_t execute_interrupt_maskable(
+				uint8_t interrupt_maskable(
 					__in nescc::console::interface::bus &bus
 					);
 
-				uint8_t execute_interrupt_non_maskable(
+				uint8_t interrupt_non_maskable(
 					__in nescc::console::interface::bus &bus
-					);
-
-				uint8_t execute_rotate_left(
-					__in uint8_t value
-					);
-
-				uint8_t execute_rotate_right(
-					__in uint8_t value
-					);
-
-				uint8_t execute_shift_left(
-					__in uint8_t value
-					);
-
-				uint8_t execute_shift_right(
-					__in uint8_t value
 					);
 
 				bool on_initialize(void);
@@ -305,6 +289,22 @@ namespace nescc {
 				uint16_t read_word(
 					__in nescc::console::interface::bus &bus,
 					__in uint16_t address
+					);
+
+				uint8_t rotate_left(
+					__in uint8_t value
+					);
+
+				uint8_t rotate_right(
+					__in uint8_t value
+					);
+
+				uint8_t shift_left(
+					__in uint8_t value
+					);
+
+				uint8_t shift_right(
+					__in uint8_t value
 					);
 
 				uint8_t step(
