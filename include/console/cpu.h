@@ -119,6 +119,10 @@ namespace nescc {
 					__in nescc::console::interface::bus &bus
 					);
 
+				uint8_t execute_add(
+					__in uint8_t value
+					);
+
 				uint8_t execute_command_add(
 					__in nescc::console::interface::bus &bus,
 					__in const std::pair<uint8_t, uint8_t> &command
@@ -253,6 +257,22 @@ namespace nescc {
 
 				uint8_t execute_interrupt_non_maskable(
 					__in nescc::console::interface::bus &bus
+					);
+
+				uint8_t execute_rotate_left(
+					__in uint8_t value
+					);
+
+				uint8_t execute_rotate_right(
+					__in uint8_t value
+					);
+
+				uint8_t execute_shift_left(
+					__in uint8_t value
+					);
+
+				uint8_t execute_shift_right(
+					__in uint8_t value
 					);
 
 				bool on_initialize(void);

@@ -292,17 +292,73 @@ namespace nescc {
 		}
 
 		uint8_t
+		cpu::execute_add(
+			__in uint8_t value
+			)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			result = (m_accumulator + value + (m_flags & CPU_FLAG_CARRY));
+			(result > UINT8_MAX) ? m_flags |= CPU_FLAG_CARRY : m_flags &= CPU_FLAG_CARRY;
+			(~(m_accumulator ^ value) & (m_accumulator ^ result) & CPU_FLAG_SIGN)
+				? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= CPU_FLAG_OVERFLOW;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", (uint8_t) result, (uint8_t) result);
+			return (uint8_t) result;
+		}
+
+		uint8_t
 		cpu::execute_command_add(
 			__in nescc::console::interface::bus &bus,
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
+			uint8_t value = 0;
+			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					value = read_byte(bus, address_absolute(bus));
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					value = read_byte(bus, address_absolute_x(bus, boundary));
+					break;
+				case CPU_MODE_ABSOLUTE_Y:
+					value = read_byte(bus, address_absolute_y(bus, boundary));
+					break;
+				case CPU_MODE_IMMEDIATE:
+					value = read_byte(bus, m_program_counter++);
+					break;
+				case CPU_MODE_INDIRECT_X:
+					value = read_byte(bus, address_indirect_x(bus));
+					break;
+				case CPU_MODE_INDIRECT_Y:
+					value = read_byte(bus, address_indirect_y(bus, boundary));
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					value = read_byte(bus, address_zero_page(bus));
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					value = read_byte(bus, address_zero_page_x(bus));
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			if(boundary) {
+				result += CPU_CYCLES_PAGE_BOUNDARY;
+			}
+
+			m_accumulator = execute_add(value);
+			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -314,12 +370,48 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
+			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					m_accumulator &= read_byte(bus, address_absolute(bus));
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					m_accumulator &= read_byte(bus, address_absolute_x(bus, boundary));
+					break;
+				case CPU_MODE_ABSOLUTE_Y:
+					m_accumulator &= read_byte(bus, address_absolute_y(bus, boundary));
+					break;
+				case CPU_MODE_IMMEDIATE:
+					m_accumulator &= read_byte(bus, m_program_counter++);
+					break;
+				case CPU_MODE_INDIRECT_X:
+					m_accumulator &= read_byte(bus, address_indirect_x(bus));
+					break;
+				case CPU_MODE_INDIRECT_Y:
+					m_accumulator &= read_byte(bus, address_indirect_y(bus, boundary));
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					m_accumulator &= read_byte(bus, address_zero_page(bus));
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					m_accumulator &= read_byte(bus, address_zero_page_x(bus));
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			if(boundary) {
+				result += CPU_CYCLES_PAGE_BOUNDARY;
+			}
+
+			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -348,6 +440,7 @@ namespace nescc {
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
 			}
 
+			value &= m_accumulator;
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_OVERFLOW) ? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= ~CPU_FLAG_OVERFLOW;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
@@ -575,11 +668,10 @@ namespace nescc {
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
 								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
-
-						value = read_byte(bus, address);
-						write_byte(bus, address, --value);
 					}
 
+					value = read_byte(bus, address);
+					write_byte(bus, address, --value);
 					result += CPU_CYCLES_READ_WRITE;
 					break;
 				case CPU_COMMAND_DEX:
@@ -677,11 +769,10 @@ namespace nescc {
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
 								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
-
-						value = read_byte(bus, address);
-						write_byte(bus, address, ++value);
 					}
 
+					value = read_byte(bus, address);
+					write_byte(bus, address, ++value);
 					result += CPU_CYCLES_READ_WRITE;
 					break;
 				case CPU_COMMAND_INX:
@@ -870,12 +961,48 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
+			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					m_accumulator |= read_byte(bus, address_absolute(bus));
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					m_accumulator |= read_byte(bus, address_absolute_x(bus, boundary));
+					break;
+				case CPU_MODE_ABSOLUTE_Y:
+					m_accumulator |= read_byte(bus, address_absolute_y(bus, boundary));
+					break;
+				case CPU_MODE_IMMEDIATE:
+					m_accumulator |= read_byte(bus, m_program_counter++);
+					break;
+				case CPU_MODE_INDIRECT_X:
+					m_accumulator |= read_byte(bus, address_indirect_x(bus));
+					break;
+				case CPU_MODE_INDIRECT_Y:
+					m_accumulator |= read_byte(bus, address_indirect_y(bus, boundary));
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					m_accumulator |= read_byte(bus, address_zero_page(bus));
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					m_accumulator |= read_byte(bus, address_zero_page_x(bus));
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			if(boundary) {
+				result += CPU_CYCLES_PAGE_BOUNDARY;
+			}
+
+			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -887,12 +1014,48 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
+			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					m_accumulator ^= read_byte(bus, address_absolute(bus));
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					m_accumulator ^= read_byte(bus, address_absolute_x(bus, boundary));
+					break;
+				case CPU_MODE_ABSOLUTE_Y:
+					m_accumulator ^= read_byte(bus, address_absolute_y(bus, boundary));
+					break;
+				case CPU_MODE_IMMEDIATE:
+					m_accumulator ^= read_byte(bus, m_program_counter++);
+					break;
+				case CPU_MODE_INDIRECT_X:
+					m_accumulator ^= read_byte(bus, address_indirect_x(bus));
+					break;
+				case CPU_MODE_INDIRECT_Y:
+					m_accumulator ^= read_byte(bus, address_indirect_y(bus, boundary));
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					m_accumulator ^= read_byte(bus, address_zero_page(bus));
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					m_accumulator ^= read_byte(bus, address_zero_page_x(bus));
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			if(boundary) {
+				result += CPU_CYCLES_PAGE_BOUNDARY;
+			}
+
+			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -904,12 +1067,48 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
-			uint8_t result = CPU_MODE_CYCLES(command.second);
+			uint16_t address;
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ACCUMULATOR:
+					value = m_accumulator = execute_rotate_left(m_accumulator);
+					break;
+				case CPU_MODE_ABSOLUTE:
+					address = address_absolute(bus);
+					value = execute_rotate_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					address = address_absolute_x(bus, boundary);
+					value = execute_rotate_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += (CPU_CYCLES_READ_WRITE + CPU_CYCLES_PAGE_BOUNDARY);
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					address = address_zero_page(bus);
+					value = execute_rotate_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					address = address_zero_page_x(bus);
+					value = execute_rotate_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -921,12 +1120,48 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
-			uint8_t result = CPU_MODE_CYCLES(command.second);
+			uint16_t address;
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ACCUMULATOR:
+					value = m_accumulator = execute_rotate_right(m_accumulator);
+					break;
+				case CPU_MODE_ABSOLUTE:
+					address = address_absolute(bus);
+					value = execute_rotate_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					address = address_absolute_x(bus, boundary);
+					value = execute_rotate_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += (CPU_CYCLES_READ_WRITE + CPU_CYCLES_PAGE_BOUNDARY);
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					address = address_zero_page(bus);
+					value = execute_rotate_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					address = address_zero_page_x(bus);
+					value = execute_rotate_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -973,12 +1208,48 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
-			uint8_t result = CPU_MODE_CYCLES(command.second);
+			uint16_t address;
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ACCUMULATOR:
+					value = m_accumulator = execute_shift_left(m_accumulator);
+					break;
+				case CPU_MODE_ABSOLUTE:
+					address = address_absolute(bus);
+					value = execute_shift_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					address = address_absolute_x(bus, boundary);
+					value = execute_shift_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += (CPU_CYCLES_READ_WRITE + CPU_CYCLES_PAGE_BOUNDARY);
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					address = address_zero_page(bus);
+					value = execute_shift_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					address = address_zero_page_x(bus);
+					value = execute_shift_left(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -990,12 +1261,48 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
-			uint8_t result = CPU_MODE_CYCLES(command.second);
+			uint16_t address;
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ACCUMULATOR:
+					value = m_accumulator = execute_shift_right(m_accumulator);
+					break;
+				case CPU_MODE_ABSOLUTE:
+					address = address_absolute(bus);
+					value = execute_shift_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					address = address_absolute_x(bus, boundary);
+					value = execute_shift_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += (CPU_CYCLES_READ_WRITE + CPU_CYCLES_PAGE_BOUNDARY);
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					address = address_zero_page(bus);
+					value = execute_shift_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					address = address_zero_page_x(bus);
+					value = execute_shift_right(read_byte(bus, address));
+					write_byte(bus, address, value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1078,15 +1385,18 @@ namespace nescc {
 							break;
 						case CPU_MODE_ABSOLUTE_X:
 							write_byte(bus, address_absolute_x(bus, boundary), m_accumulator);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
 							break;
 						case CPU_MODE_ABSOLUTE_Y:
 							write_byte(bus, address_absolute_y(bus, boundary), m_accumulator);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
 							break;
 						case CPU_MODE_INDIRECT_X:
 							write_byte(bus, address_indirect_x(bus), m_accumulator);
 							break;
 						case CPU_MODE_INDIRECT_Y:
 							write_byte(bus, address_indirect_y(bus, boundary), m_accumulator);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
 							break;
 						case CPU_MODE_ZERO_PAGE:
 							write_byte(bus, address_zero_page(bus), m_accumulator);
@@ -1097,10 +1407,6 @@ namespace nescc {
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
 								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
-					}
-
-					if(boundary) {
-						result += CPU_CYCLES_PAGE_BOUNDARY;
 					}
 					break;
 				case CPU_COMMAND_STX:
@@ -1170,12 +1476,50 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
+			uint8_t value = 0;
+			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			// TODO
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					value = read_byte(bus, address_absolute(bus));
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					value = read_byte(bus, address_absolute_x(bus, boundary));
+					break;
+				case CPU_MODE_ABSOLUTE_Y:
+					value = read_byte(bus, address_absolute_y(bus, boundary));
+					break;
+				case CPU_MODE_IMMEDIATE:
+					value = read_byte(bus, m_program_counter++);
+					break;
+				case CPU_MODE_INDIRECT_X:
+					value = read_byte(bus, address_indirect_x(bus));
+					break;
+				case CPU_MODE_INDIRECT_Y:
+					value = read_byte(bus, address_indirect_y(bus, boundary));
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					value = read_byte(bus, address_zero_page(bus));
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					value = read_byte(bus, address_zero_page_x(bus));
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			if(boundary) {
+				result += CPU_CYCLES_PAGE_BOUNDARY;
+			}
+
+			m_accumulator = execute_add(~value);
+			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1255,6 +1599,80 @@ namespace nescc {
 			push_byte(bus, m_flags);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_NON_MASKABLE_ADDRESS);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_rotate_left(
+			__in uint8_t value
+			)
+		{
+			uint8_t carry, result;
+
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			carry = (m_flags & CPU_FLAG_CARRY);
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+			result = (value << 1);
+
+			if(carry) {
+				result |= CPU_FLAG_CARRY;
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_rotate_right(
+			__in uint8_t value
+			)
+		{
+			uint8_t carry, result;
+
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			carry = (m_flags & CPU_FLAG_CARRY);
+			(value & CPU_FLAG_CARRY) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+			result = (value >> 1);
+
+			if(carry) {
+				result |= CPU_FLAG_SIGN;
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_shift_left(
+			__in uint8_t value
+			)
+		{
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+			result = (value << 1);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_shift_right(
+			__in uint8_t value
+			)
+		{
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			(value & CPU_FLAG_CARRY) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+			result = (value >> 1);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
