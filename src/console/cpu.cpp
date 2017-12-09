@@ -315,7 +315,6 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
-			uint8_t value = 0;
 			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
@@ -324,28 +323,28 @@ namespace nescc {
 
 			switch(command.second) {
 				case CPU_MODE_ABSOLUTE:
-					value = read_byte(bus, address_absolute(bus));
+					m_accumulator = execute_add(read_byte(bus, address_absolute(bus)));
 					break;
 				case CPU_MODE_ABSOLUTE_X:
-					value = read_byte(bus, address_absolute_x(bus, boundary));
+					m_accumulator = execute_add(read_byte(bus, address_absolute_x(bus, boundary)));
 					break;
 				case CPU_MODE_ABSOLUTE_Y:
-					value = read_byte(bus, address_absolute_y(bus, boundary));
+					m_accumulator = execute_add(read_byte(bus, address_absolute_y(bus, boundary)));
 					break;
 				case CPU_MODE_IMMEDIATE:
-					value = read_byte(bus, m_program_counter++);
+					m_accumulator = execute_add(read_byte(bus, m_program_counter++));
 					break;
 				case CPU_MODE_INDIRECT_X:
-					value = read_byte(bus, address_indirect_x(bus));
+					m_accumulator = execute_add(read_byte(bus, address_indirect_x(bus)));
 					break;
 				case CPU_MODE_INDIRECT_Y:
-					value = read_byte(bus, address_indirect_y(bus, boundary));
+					m_accumulator = execute_add(read_byte(bus, address_indirect_y(bus, boundary)));
 					break;
 				case CPU_MODE_ZERO_PAGE:
-					value = read_byte(bus, address_zero_page(bus));
+					m_accumulator = execute_add(read_byte(bus, address_zero_page(bus)));
 					break;
 				case CPU_MODE_ZERO_PAGE_X:
-					value = read_byte(bus, address_zero_page_x(bus));
+					m_accumulator = execute_add(read_byte(bus, address_zero_page_x(bus)));
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
@@ -356,7 +355,6 @@ namespace nescc {
 				result += CPU_CYCLES_PAGE_BOUNDARY;
 			}
 
-			m_accumulator = execute_add(value);
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
@@ -1476,7 +1474,6 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
-			uint8_t value = 0;
 			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second);
 
@@ -1485,28 +1482,28 @@ namespace nescc {
 
 			switch(command.second) {
 				case CPU_MODE_ABSOLUTE:
-					value = read_byte(bus, address_absolute(bus));
+					m_accumulator = execute_add(~read_byte(bus, address_absolute(bus)));
 					break;
 				case CPU_MODE_ABSOLUTE_X:
-					value = read_byte(bus, address_absolute_x(bus, boundary));
+					m_accumulator = execute_add(~read_byte(bus, address_absolute_x(bus, boundary)));
 					break;
 				case CPU_MODE_ABSOLUTE_Y:
-					value = read_byte(bus, address_absolute_y(bus, boundary));
+					m_accumulator = execute_add(~read_byte(bus, address_absolute_y(bus, boundary)));
 					break;
 				case CPU_MODE_IMMEDIATE:
-					value = read_byte(bus, m_program_counter++);
+					m_accumulator = execute_add(~read_byte(bus, m_program_counter++));
 					break;
 				case CPU_MODE_INDIRECT_X:
-					value = read_byte(bus, address_indirect_x(bus));
+					m_accumulator = execute_add(~read_byte(bus, address_indirect_x(bus)));
 					break;
 				case CPU_MODE_INDIRECT_Y:
-					value = read_byte(bus, address_indirect_y(bus, boundary));
+					m_accumulator = execute_add(~read_byte(bus, address_indirect_y(bus, boundary)));
 					break;
 				case CPU_MODE_ZERO_PAGE:
-					value = read_byte(bus, address_zero_page(bus));
+					m_accumulator = execute_add(~read_byte(bus, address_zero_page(bus)));
 					break;
 				case CPU_MODE_ZERO_PAGE_X:
-					value = read_byte(bus, address_zero_page_x(bus));
+					m_accumulator = execute_add(~read_byte(bus, address_zero_page_x(bus)));
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
@@ -1517,7 +1514,6 @@ namespace nescc {
 				result += CPU_CYCLES_PAGE_BOUNDARY;
 			}
 
-			m_accumulator = execute_add(~value);
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
