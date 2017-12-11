@@ -54,7 +54,8 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_CONSOLE_JOYPAD_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
-		#define JOYPAD_BUS_ID 0x40
+		#define JOYPAD_DATA_BUS 0x40
+		#define JOYPAD_DATA_FILL 0x80
 
 		enum {
 			JOYPAD_1 = 0,

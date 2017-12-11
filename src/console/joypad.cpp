@@ -163,11 +163,8 @@ namespace nescc {
 			}
 
 			value = m_ram.read(pad);
-			result = (JOYPAD_BUS_ID | (value & 1));
-
-			if(!m_strobe) {
-				m_ram.write(pad, value >> 1);
-			}
+			result = (JOYPAD_DATA_BUS | (value & 1));
+			m_ram.write(pad, JOYPAD_DATA_FILL | (value >> 1));
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
