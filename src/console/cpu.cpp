@@ -1783,7 +1783,7 @@ namespace nescc {
 			m_ram.set_readonly(false);
 			m_signal_maskable = false;
 			m_signal_non_maskable = false;
-			m_stack_pointer = CPU_STACK_POINTER_ADDRESS_MAX;
+			m_stack_pointer = CPU_STACK_POINTER_ADDRESS_INIT;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu reset.");
 
