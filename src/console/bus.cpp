@@ -66,6 +66,12 @@ namespace nescc {
 
 				// TODO: add additional cpu io mappings
 
+				case JOYPAD_REGISTER_1 ... JOYPAD_REGISTER_2:
+					result << m_joypad.ram().as_string(address - JOYPAD_REGISTER_1, offset, JOYPAD_REGISTER_1, verbose);
+					break;
+
+				// TODO: add additional cpu io mappings
+
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
 					result << m_mapper.cartridge().ram().at(m_mapper.ram_index()).as_string(
 							address - CARTRIDGE_RAM_PROGRAM_START, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
@@ -136,6 +142,12 @@ namespace nescc {
 
 				// TODO: add additional cpu io mappings
 
+				case JOYPAD_REGISTER_1 ... JOYPAD_REGISTER_2:
+					result = m_joypad.read(address - JOYPAD_REGISTER_1);
+					break;
+
+				// TODO: add additional cpu io mappings
+
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
 					result = m_mapper.read_ram(address - CARTRIDGE_RAM_PROGRAM_START);
 					break;
@@ -169,6 +181,12 @@ namespace nescc {
 			switch(address) {
 				case CPU_RAM_START ... CPU_RAM_END:
 					m_cpu.ram().write(address % CPU_RAM_LENGTH, value);
+					break;
+
+				// TODO: add additional cpu io mappings
+
+				case JOYPAD_REGISTER_1:
+					m_joypad.write(value);
 					break;
 
 				// TODO: add additional cpu io mappings

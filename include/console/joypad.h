@@ -19,12 +19,16 @@
 #ifndef NESCC_CONSOLE_JOYPAD_H_
 #define NESCC_CONSOLE_JOYPAD_H_
 
+#include "../core/memory.h"
 #include "../core/singleton.h"
 #include "./interface/bus.h"
 
 namespace nescc {
 
 	namespace console {
+
+		#define JOYPAD_REGISTER_1 0x4016
+		#define JOYPAD_REGISTER_2 0x4017
 
 		class joypad :
 				public nescc::core::singleton<nescc::console::joypad> {
@@ -39,6 +43,12 @@ namespace nescc {
 
 				void clear(void);
 
+				nescc::core::memory &ram(void);
+
+				uint8_t read(
+					__in int pad
+					);
+
 				void reset(
 					nescc::console::interface::bus &bus
 					);
@@ -46,6 +56,10 @@ namespace nescc {
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
+
+				void write(
+					__in uint8_t value
+					);
 
 			protected:
 
@@ -64,6 +78,12 @@ namespace nescc {
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
+
+				void update(void);
+
+				nescc::core::memory m_ram;
+
+				bool m_strobe;
 		};
 	}
 }

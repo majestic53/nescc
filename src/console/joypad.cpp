@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <SDL2/SDL.h>
 #include "../../include/console/joypad.h"
 #include "../../include/trace.h"
 #include "./joypad_type.h"
@@ -24,7 +25,8 @@ namespace nescc {
 
 	namespace console {
 
-		joypad::joypad(void)
+		joypad::joypad(void) :
+			m_strobe(false)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -41,11 +43,37 @@ namespace nescc {
 			__in_opt bool verbose
 			) const
 		{
+			int iter;
 			std::stringstream result;
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			// TODO
+			for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
+				result << "PAD" << (iter + 1) << "  | " << SCALAR_AS_HEX(uint8_t, m_ram.read(iter));
+
+				if(verbose) {
+					int button;
+
+					for(button = 0; button <= JOYPAD_BUTTON_MAX; ++button) {
+						result << JOYPAD_BUTTON_STRING(button);
+					}
+
+					result << std::endl << "             ";
+
+					for(button = 0; button <= JOYPAD_BUTTON_MAX; ++button) {
+
+						if(button) {
+							result << "   ";
+						}
+
+						result << ((m_ram.read(iter) & (1 << button)) ? "1" : "0");
+					}
+				}
+
+				result << std::endl << std::endl;
+			}
+
+			result << "STRB  | " << (m_strobe ? "1" : "0");
 
 			TRACE_EXIT();
 			return result.str();
@@ -62,7 +90,8 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad clearing...");
 
-			// TODO
+			m_ram.clear();
+			m_strobe = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad cleared.");
 
@@ -78,8 +107,6 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad initializing...");
 
-			// TODO
-
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad initialized.");
 
 			TRACE_EXIT_FORMAT("Result=%x", result);
@@ -93,13 +120,57 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad uninitializing...");
 
-			// TODO
-
 			clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad uninitialized.");
 
 			TRACE_EXIT();
+		}
+
+		nescc::core::memory &
+		joypad::ram(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_ram;
+		}
+
+		uint8_t
+		joypad::read(
+			__in int pad
+			)
+		{
+			uint8_t result, value;
+
+			TRACE_ENTRY_FORMAT("Pad=%u(%s)", pad, JOYPAD_STRING(pad));
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+
+			if(pad > JOYPAD_MAX) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION_FORMAT(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNSUPPORTED,
+					"Pad=%u(%s)", pad, JOYPAD_STRING(pad));
+			}
+
+			if(m_strobe) {
+				update();
+			}
+
+			value = m_ram.read(pad);
+			result = (JOYPAD_BUS_ID | (value & 1));
+
+			if(!m_strobe) {
+				m_ram.write(pad, value >> 1);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
 		void
@@ -115,7 +186,9 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad resetting...");
 
-			// TODO
+			m_ram.set_size(JOYPAD_MAX + 1);
+			m_ram.set_readonly(false);
+			m_strobe = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad reset.");
 
@@ -137,14 +210,64 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::joypad>::to_string(verbose);
 
 				if(m_initialized) {
+					int iter;
 
-					// TODO
+					result << ", RAM=" << m_ram.to_string(verbose);
 
+					for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
+
+						result << ", Pad" << (iter + 1) << "=" << m_ram.read(iter)
+								<< "(" << SCALAR_AS_HEX(uint8_t, m_ram.read(iter)) << ")";
+					}
+
+					result << ", Strobe=" << m_strobe;
 				}
 			}
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		void
+		joypad::update(void)
+		{
+			uint8_t pad1 = 0, pad2 = 0;
+
+			TRACE_ENTRY();
+
+			const uint8_t *state = SDL_GetKeyboardState(nullptr);
+			if(state) {
+
+				for(int iter = 0; iter <= JOYPAD_BUTTON_MAX; ++iter) {
+					state[JOYPAD_1_BUTTON(iter)] ? pad1 |= (1 << iter) : 0;
+					state[JOYPAD_2_BUTTON(iter)] ? pad2 |= (1 << iter) : 0;
+				}
+			}
+
+			m_ram.write(JOYPAD_1, pad1);
+			m_ram.write(JOYPAD_2, pad2);
+
+			TRACE_EXIT();
+		}
+
+		void
+		joypad::write(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+
+			if(m_strobe && !value) {
+				update();
+			}
+
+			m_strobe = (value ? true : false);
+
+			TRACE_EXIT();
 		}
 	}
 }

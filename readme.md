@@ -24,6 +24,10 @@ Changelog
 
 Version 0.1.1749
 ----------------
+*Updated: 12/10/2017*
+
+* Implemented console joypad class
+
 *Updated: 12/6-8/2017*
 
 * Added cpu command routines

@@ -1773,66 +1773,17 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu resetting...");
 
-			m_ram.set_size(CPU_RAM_LENGTH);
-			m_ram.set_readonly(false);
 			m_accumulator = 0;
 			m_cycle = CPU_MODE_CYCLES(CPU_MODE_INTERRUPT);
 			m_flags = CPU_FLAG_RESET;
 			m_index_x = 0;
 			m_index_y = 0;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_RESET_ADDRESS);
+			m_ram.set_size(CPU_RAM_LENGTH);
+			m_ram.set_readonly(false);
 			m_signal_maskable = false;
 			m_signal_non_maskable = false;
 			m_stack_pointer = CPU_STACK_POINTER_ADDRESS_MAX;
-
-// TODO
-/*m_program_counter = 0x0600;
-
-// JSR $0609
-bus.cpu_write(0x0600, 0x20);
-bus.cpu_write(0x0601, 0x09);
-bus.cpu_write(0x0602, 0x06);
-
-// JSR $060c
-bus.cpu_write(0x0603, 0x20);
-bus.cpu_write(0x0604, 0x0c);
-bus.cpu_write(0x0605, 0x06);
-
-// JSR $0612
-bus.cpu_write(0x0606, 0x20);
-bus.cpu_write(0x0607, 0x12);
-bus.cpu_write(0x0608, 0x06);
-
-// LDX #$00
-bus.cpu_write(0x0609, 0xa2);
-bus.cpu_write(0x060a, 0x00);
-
-// RTS
-bus.cpu_write(0x060b, 0x60);
-
-// INX
-bus.cpu_write(0x060c, 0xe8);
-
-// CPX #$05
-bus.cpu_write(0x060d, 0xe0);
-bus.cpu_write(0x060e, 0x05);
-
-// BNE $060c
-bus.cpu_write(0x060f, 0xd0);
-bus.cpu_write(0x0610, 0xfb);
-
-// RTS
-bus.cpu_write(0x0611, 0x60);
-
-// BRK
-bus.cpu_write(0x0612, 0x00);
-
-for(;;) {
-	update(bus);
-	std::cin.get();
-	std::cout << std::endl;
-}*/
-// ---
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu reset.");
 
@@ -2115,16 +2066,6 @@ for(;;) {
 
 			result += step(bus);
 			m_cycle += result;
-
-// TODO
-/*std::cout << as_string(true)
-	<< std::endl << std::endl << bus.cpu_as_string(0, 0x100, true)
-	<< std::endl << std::endl << bus.cpu_as_string(CPU_STACK_POINTER_ADDRESS_BASE, 0x100, true)
-	<< std::endl << std::endl << bus.cpu_as_string(CPU_INTERRUPT_NON_MASKABLE_ADDRESS, 6, true)
-	<< std::endl << std::endl << bus.cpu_as_string(0x8000, 0x20, true)
-	<< std::endl << std::endl << bus.cpu_as_string(0x0600, 0x20, true)
-	<< std::endl << std::endl;*/
-// ---
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
