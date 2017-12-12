@@ -30,6 +30,8 @@ namespace nescc {
 		#define CPU_RAM_LENGTH 0x0800
 		#define CPU_RAM_MAX (CPU_RAM_LENGTH - 1)
 
+		#define CPU_OAM_DMA 0x4014
+
 		class cpu :
 				public nescc::core::singleton<nescc::console::cpu> {
 
@@ -50,7 +52,7 @@ namespace nescc {
 				nescc::core::memory &ram(void);
 
 				void reset(
-					nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus
 					);
 
 				std::string to_string(
@@ -58,7 +60,12 @@ namespace nescc {
 					) const;
 
 				uint8_t update(
-					nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus
+					);
+
+				void write_oam_dma(
+					__in nescc::console::interface::bus &bus,
+					__in uint8_t bank
 					);
 
 			protected:
@@ -308,7 +315,7 @@ namespace nescc {
 					);
 
 				uint8_t step(
-					nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus
 					);
 
 				void write_byte(

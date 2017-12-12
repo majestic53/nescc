@@ -1762,7 +1762,7 @@ namespace nescc {
 
 		void
 		cpu::reset(
-			nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus
 			)
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
@@ -1866,7 +1866,7 @@ namespace nescc {
 
 		uint8_t
 		cpu::step(
-			nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus
 			)
 		{
 			uint8_t result;
@@ -2041,7 +2041,7 @@ namespace nescc {
 
 		uint8_t
 		cpu::update(
-			nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus
 			)
 		{
 			uint8_t result = 0;
@@ -2083,6 +2083,28 @@ namespace nescc {
 			bus.cpu_write(address, value);
 
 			TRACE_EXIT();
+		}
+
+		void
+		cpu::write_oam_dma(
+			__in nescc::console::interface::bus &bus,
+			__in uint8_t bank
+			)
+		{
+			// TODO: PPU_OAM_DMA: How is this address determined?
+
+			/*uint8_t iter;
+			uint16_t base;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Bank=%u(%02x)", &bus, bank, bank);
+
+			base = (bank * (UINT8_MAX + 1));
+
+			for(iter = 0; iter <= UINT8_MAX; ++iter) {
+				bus.cpu_write(PPU_OAM_DMA, bus.cpu_read(base + iter));
+			}
+
+			TRACE_EXIT();*/
 		}
 
 		void

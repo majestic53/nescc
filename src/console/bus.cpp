@@ -191,6 +191,9 @@ namespace nescc {
 
 				// TODO: add additional cpu io mappings
 
+				case CPU_OAM_DMA:
+					m_cpu.write_oam_dma(*this, value);
+					break;
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END:
 					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
 					break;
