@@ -41,7 +41,7 @@ namespace nescc {
 
 		static const std::string NESCC_CONSOLE_PPU_EXCEPTION_STR[] = {
 			NESCC_CONSOLE_PPU_EXCEPTION_HEADER "Ppu is uninitialized",
-			NESCC_CONSOLE_PPU_EXCEPTION_HEADER "Unsupported ppu read/write",
+			NESCC_CONSOLE_PPU_EXCEPTION_HEADER "Unsupported ppu port",
 			};
 
 		#define NESCC_CONSOLE_PPU_EXCEPTION_STRING(_TYPE_) \
