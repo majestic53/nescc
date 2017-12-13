@@ -22,6 +22,13 @@ make release
 Changelog
 =========
 
+Version 0.1.1750
+----------------
+*Updated: 12/12/2017*
+
+* Added console ppu ports/memory
+* Integrated ppu into bus
+
 Version 0.1.1749
 ----------------
 *Updated: 12/10/2017*
@@ -37,49 +44,6 @@ Version 0.1.1749
 * Added cpu address mode routines
 * Added cpu opcodes
 * Added cpu commands/modes
-
-Version 0.1.1748
-----------------
-*Updated: 12/3/2017*
-
-* Added cpu reset, irq, and nmi
-
-*Updated: 12/2/2017*
-
-* Added console mapper class
-
-*Updated: 12/1/2017*
-
-* Added console bus/component classes
-* Integrated bus components into bus class
-
-*Updated: 11/30/2017*
-
-* Added console cpu class
-* Minor code cleanup
-
-*Updated: 11/29/2017*
-
-* Completed console cartridge class
-* Added core memory class
-
-*Updated: 11/28/2017*
-
-* Added console cartridge class
-* Added color palette to display
-
-*Updated: 11/27/2017*
-
-* Added interface display class
-
-*Updated: 11/26/2017*
-
-* Added core thread class
-* Added base tracing class
-
-*Updated: 11/25/2017*
-
-* Initial commit
 
 *Changelog truncated (see file history for full log)*
 

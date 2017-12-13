@@ -19,12 +19,29 @@
 #ifndef NESCC_CONSOLE_PPU_H_
 #define NESCC_CONSOLE_PPU_H_
 
+#include "../core/memory.h"
 #include "../core/singleton.h"
 #include "./interface/bus.h"
 
 namespace nescc {
 
 	namespace console {
+
+		enum {
+			PPU_PORT_CONTROL = 0,
+			PPU_PORT_MASK,
+			PPU_PORT_STATUS,
+			PPU_PORT_OAM_ADDRESS,
+			PPU_PORT_OAM_DATA,
+			PPU_PORT_SCROLL,
+			PPU_PORT_ADDRESS,
+			PPU_PORT_DATA,
+		};
+
+		#define PPU_PORT_MAX PPU_PORT_DATA
+
+		#define PPU_RAM_LENGTH 0x1000
+		#define PPU_RAM_PALETTE_LENGTH 0x20
 
 		class ppu :
 				public nescc::core::singleton<nescc::console::ppu> {
@@ -39,6 +56,26 @@ namespace nescc {
 
 				void clear(void);
 
+				nescc::core::memory &oam(void);
+
+				nescc::core::memory &port(void);
+
+				nescc::core::memory &ram(void);
+
+				nescc::core::memory &ram_palette(void);
+
+				uint8_t read_port(
+					__in uint8_t port
+					);
+
+				uint8_t read_ram(
+					__in uint16_t address
+					);
+
+				uint8_t read_ram_palette(
+					__in uint16_t address
+					);
+
 				void reset(
 					nescc::console::interface::bus &bus
 					);
@@ -46,6 +83,21 @@ namespace nescc {
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
+
+				void write_port(
+					__in uint8_t port,
+					__in uint8_t value
+					);
+
+				void write_ram(
+					__in uint16_t address,
+					__in uint8_t value
+					);
+
+				void write_ram_palette(
+					__in uint16_t address,
+					__in uint8_t value
+					);
 
 			protected:
 
@@ -64,6 +116,48 @@ namespace nescc {
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
+
+				uint8_t read_port_data(void);
+
+				uint8_t read_port_oam_data(void);
+
+				uint8_t read_port_status(void);
+
+				void write_port_address(
+					__in uint8_t value
+					);
+
+				void write_port_control(
+					__in uint8_t value
+					);
+
+				void write_port_data(
+					__in uint8_t value
+					);
+
+				void write_port_mask(
+					__in uint8_t value
+					);
+
+				void write_port_oam_address(
+					__in uint8_t value
+					);
+
+				void write_port_oam_data(
+					__in uint8_t value
+					);
+
+				void write_port_scroll(
+					__in uint8_t value
+					);
+
+				nescc::core::memory m_oam;
+
+				nescc::core::memory m_port;
+
+				nescc::core::memory m_ram;
+
+				nescc::core::memory m_ram_palette;
 		};
 	}
 }

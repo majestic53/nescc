@@ -49,6 +49,8 @@ namespace nescc {
 
 				void interrupt_non_maskable(void);
 
+				nescc::core::memory &oam_dma(void);
+
 				nescc::core::memory &ram(void);
 
 				void reset(
@@ -339,6 +341,8 @@ namespace nescc {
 				uint8_t m_index_x;
 
 				uint8_t m_index_y;
+
+				nescc::core::memory m_oam_dma;
 
 				uint16_t m_program_counter;
 

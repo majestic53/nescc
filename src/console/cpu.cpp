@@ -304,6 +304,7 @@ namespace nescc {
 			m_flags = 0;
 			m_index_x =0;
 			m_index_y = 0;
+			m_oam_dma.clear();
 			m_program_counter = 0;
 			m_ram.clear();
 			m_signal_maskable = false;
@@ -1627,6 +1628,19 @@ namespace nescc {
 			return result;
 		}
 
+		nescc::core::memory &
+		cpu::oam_dma(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_oam_dma;
+		}
+
 		bool
 		cpu::on_initialize(void)
 		{
@@ -1778,6 +1792,8 @@ namespace nescc {
 			m_flags = CPU_FLAG_RESET;
 			m_index_x = 0;
 			m_index_y = 0;
+			m_oam_dma.set_size(CPU_OAM_DMA_LENGTH);
+			m_oam_dma.set_readonly(false);
 			m_program_counter = read_word(bus, CPU_INTERRUPT_RESET_ADDRESS);
 			m_ram.set_size(CPU_RAM_LENGTH);
 			m_ram.set_readonly(false);
@@ -2010,7 +2026,10 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::cpu>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", RAM=" << m_ram.to_string(verbose) << ", Cycle=" << m_cycle << ", Signal={";
+					result << ", RAM=" << m_ram.to_string(verbose)
+						<< ", OAM DMA=" << m_oam_dma.to_string(verbose)
+						<< ", Cycle=" << m_cycle
+						<< ", Signal={";
 
 					if(m_signal_non_maskable) {
 						result << " NMI";
@@ -2098,7 +2117,8 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Bank=%u(%02x)", &bus, bank, bank);
 
-			base = (bank * (UINT8_MAX + 1));
+			m_oam_dma.write(0, bank);
+			base = (m_oam_dma.read(0) * (UINT8_MAX + 1));
 
 			for(iter = 0; iter <= UINT8_MAX; ++iter) {
 				bus.cpu_write(PPU_OAM_DMA, bus.cpu_read(base + iter));
