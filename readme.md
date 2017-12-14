@@ -24,6 +24,10 @@ Changelog
 
 Version 0.1.1750
 ----------------
+*Updated: 12/13/2017*
+
+* Bug fixes and code cleanup
+
 *Updated: 12/12/2017*
 
 * Added console ppu ports/memory

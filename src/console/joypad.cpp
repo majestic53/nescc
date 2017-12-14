@@ -49,7 +49,7 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
 			for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
-				result << "PAD" << (iter + 1) << "  | " << SCALAR_AS_HEX(uint8_t, m_ram.read(iter));
+				result << "PAD" << (iter + 1) << "  | " << SCALAR_AS_HEX(uint8_t, m_state.read(iter));
 
 				if(verbose) {
 					int button;
@@ -66,7 +66,7 @@ namespace nescc {
 							result << "   ";
 						}
 
-						result << ((m_ram.read(iter) & (1 << button)) ? "1" : "0");
+						result << ((m_state.read(iter) & (1 << button)) ? "1" : "0");
 					}
 				}
 
@@ -90,7 +90,7 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad clearing...");
 
-			m_ram.clear();
+			m_state.clear();
 			m_strobe = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad cleared.");
@@ -127,21 +127,8 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::core::memory &
-		joypad::ram(void)
-		{
-			TRACE_ENTRY();
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
-			}
-
-			TRACE_EXIT();
-			return m_ram;
-		}
-
 		uint8_t
-		joypad::read(
+		joypad::read_state(
 			__in int pad
 			)
 		{
@@ -162,9 +149,9 @@ namespace nescc {
 				update();
 			}
 
-			value = m_ram.read(pad);
+			value = m_state.read(pad);
 			result = (JOYPAD_DATA_BUS | (value & 1));
-			m_ram.write(pad, JOYPAD_DATA_FILL | (value >> 1));
+			m_state.write(pad, JOYPAD_DATA_FILL | (value >> 1));
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -183,13 +170,26 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad resetting...");
 
-			m_ram.set_size(JOYPAD_MAX + 1);
-			m_ram.set_readonly(false);
+			m_state.set_size(JOYPAD_MAX + 1);
+			m_state.set_readonly(false);
 			m_strobe = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad reset.");
 
 			TRACE_EXIT();
+		}
+
+		nescc::core::memory &
+		joypad::state(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_state;
 		}
 
 		std::string
@@ -209,12 +209,12 @@ namespace nescc {
 				if(m_initialized) {
 					int iter;
 
-					result << ", RAM=" << m_ram.to_string(verbose);
+					result << ", STATE=" << m_state.to_string(verbose);
 
 					for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
 
-						result << ", Pad" << (iter + 1) << "=" << m_ram.read(iter)
-								<< "(" << SCALAR_AS_HEX(uint8_t, m_ram.read(iter)) << ")";
+						result << ", Pad" << (iter + 1) << "=" << m_state.read(iter)
+								<< "(" << SCALAR_AS_HEX(uint8_t, m_state.read(iter)) << ")";
 					}
 
 					result << ", Strobe=" << m_strobe;
@@ -241,14 +241,14 @@ namespace nescc {
 				}
 			}
 
-			m_ram.write(JOYPAD_1, pad1);
-			m_ram.write(JOYPAD_2, pad2);
+			m_state.write(JOYPAD_1, pad1);
+			m_state.write(JOYPAD_2, pad2);
 
 			TRACE_EXIT();
 		}
 
 		void
-		joypad::write(
+		joypad::write_state(
 			__in uint8_t value
 			)
 		{

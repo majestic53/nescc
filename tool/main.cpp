@@ -18,7 +18,7 @@
 
 #include "../include/runtime.h"
 
-#define ROM_PATH "../rom/smb.nes"
+#define ROM_PATH "../rom/bkg.nes"
 
 int
 main(void)

@@ -64,14 +64,27 @@ namespace nescc {
 
 			// TODO
 
+			m_nametable.clear();
 			m_oam.clear();
+			m_palette.clear();
 			m_port.clear();
-			m_ram.clear();
-			m_ram_palette.clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu cleared.");
 
 			TRACE_EXIT();
+		}
+
+		nescc::core::memory &
+		ppu::nametable(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_nametable;
 		}
 
 		nescc::core::memory &
@@ -117,6 +130,19 @@ namespace nescc {
 		}
 
 		nescc::core::memory &
+		ppu::palette(void)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+
+			TRACE_EXIT();
+			return m_palette;
+		}
+
+		nescc::core::memory &
 		ppu::port(void)
 		{
 			TRACE_ENTRY();
@@ -129,30 +155,42 @@ namespace nescc {
 			return m_port;
 		}
 
-		nescc::core::memory &
-		ppu::ram(void)
+		uint8_t
+		ppu::read_nametable(
+			__in uint16_t address
+			)
 		{
-			TRACE_ENTRY();
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_EXIT();
-			return m_ram;
+			result = m_nametable.read(address);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
-		nescc::core::memory &
-		ppu::ram_palette(void)
+		uint8_t
+		ppu::read_palette(
+			__in uint16_t address
+			)
 		{
-			TRACE_ENTRY();
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_EXIT();
-			return m_ram_palette;
+			result = m_palette.read(address);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
 		uint8_t
@@ -232,44 +270,6 @@ namespace nescc {
 			return result;
 		}
 
-		uint8_t
-		ppu::read_ram(
-			__in uint16_t address
-			)
-		{
-			uint8_t result;
-
-			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
-			}
-
-			result = m_ram.read(address);
-
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
-			return result;
-		}
-
-		uint8_t
-		ppu::read_ram_palette(
-			__in uint16_t address
-			)
-		{
-			uint8_t result;
-
-			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
-			}
-
-			result = m_ram_palette.read(address);
-
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
-			return result;
-		}
-
 		void
 		ppu::reset(
 			nescc::console::interface::bus &bus
@@ -283,14 +283,14 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
+			m_nametable.set_size(PPU_NAMETABLE_LENGTH);
+			m_nametable.set_readonly(false);
 			m_oam.set_size(PPU_OAM_LENGTH);
 			m_oam.set_readonly(false);
+			m_palette.set_size(PPU_PALETTE_LENGTH);
+			m_palette.set_readonly(false);
 			m_port.set_size(PPU_PORT_MAX + 1);
 			m_port.set_readonly(false);
-			m_ram.set_size(PPU_RAM_LENGTH);
-			m_ram.set_readonly(false);
-			m_ram_palette.set_size(PPU_RAM_PALETTE_LENGTH);
-			m_ram_palette.set_readonly(false);
 
 			// TODO: set defaults
 
@@ -322,6 +322,40 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		void
+		ppu::write_nametable(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_nametable.write(address, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::write_palette(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_palette.write(address, value);
+
+			TRACE_EXIT();
 		}
 
 		void
@@ -460,40 +494,6 @@ namespace nescc {
 			// TODO
 			m_port.write(PPU_PORT_SCROLL, value);
 			// ---
-
-			TRACE_EXIT();
-		}
-
-		void
-		ppu::write_ram(
-			__in uint16_t address,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
-			}
-
-			m_ram.write(address, value);
-
-			TRACE_EXIT();
-		}
-
-		void
-		ppu::write_ram_palette(
-			__in uint16_t address,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
-
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
-			}
-
-			m_ram_palette.write(address, value);
 
 			TRACE_EXIT();
 		}

@@ -149,7 +149,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
-			result = m_cartridge.ram().at(m_ram_index).read(address);
+			result = m_cartridge.ram(m_ram_index).read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -164,7 +164,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
-			result = m_cartridge.rom_character().at(m_rom_character_index).read(address);
+			result = m_cartridge.rom_character(m_rom_character_index).read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -179,7 +179,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
-			result = m_cartridge.rom_program().at(m_rom_program_index_0).read(address);
+			result = m_cartridge.rom_program(m_rom_program_index_0).read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -194,7 +194,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
-			result = m_cartridge.rom_program().at(m_rom_program_index_1).read(address);
+			result = m_cartridge.rom_program(m_rom_program_index_1).read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -219,7 +219,7 @@ namespace nescc {
 					m_ram_index = 0;
 					m_rom_character_index = 0;
 					m_rom_program_index_0 = 0;
-					m_rom_program_index_1 = 1;
+					m_rom_program_index_1 = ((m_cartridge.rom_program_banks() > 1) ? 1 : 0);
 					break;
 
 				// TODO: add additional mappers
@@ -310,7 +310,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
-			m_cartridge.ram().at(m_ram_index).write(address, value);
+			m_cartridge.ram(m_ram_index).write(address, value);
 
 			TRACE_EXIT();
 		}

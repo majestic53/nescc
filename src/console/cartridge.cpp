@@ -259,8 +259,10 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		std::vector<nescc::core::memory> &
-		cartridge::ram(void)
+		nescc::core::memory &
+		cartridge::ram(
+			__in uint8_t bank
+			)
 		{
 			TRACE_ENTRY();
 
@@ -268,25 +270,36 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
+			if(bank >= m_ram.size()) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
+					"Bank=%u(%02x)", bank, bank);
+			}
+
 			TRACE_EXIT();
-			return m_ram;
+			return m_ram.at(bank);
 		}
 
-		std::vector<nescc::core::memory> &
-		cartridge::rom_character(void)
+		size_t
+		cartridge::ram_banks(void) const
 		{
+			size_t result;
+
 			TRACE_ENTRY();
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
-			TRACE_EXIT();
-			return m_rom_character;
+			result = m_ram.size();
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
-		std::vector<nescc::core::memory> &
-		cartridge::rom_program(void)
+		nescc::core::memory &
+		cartridge::rom_character(
+			__in uint8_t bank
+			)
 		{
 			TRACE_ENTRY();
 
@@ -294,8 +307,67 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
 
+			if(bank >= m_rom_character.size()) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
+					"Bank=%u(%02x)", bank, bank);
+			}
+
 			TRACE_EXIT();
-			return m_rom_program;
+			return m_rom_character.at(bank);
+		}
+
+		size_t
+		cartridge::rom_character_banks(void) const
+		{
+			size_t result;
+
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
+			result = m_rom_character.size();
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		nescc::core::memory &
+		cartridge::rom_program(
+			__in uint8_t bank
+			)
+		{
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
+			if(bank >= m_rom_program.size()) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
+					"Bank=%u(%02x)", bank, bank);
+			}
+
+			TRACE_EXIT();
+			return m_rom_program.at(bank);
+		}
+
+		size_t
+		cartridge::rom_program_banks(void) const
+		{
+			size_t result;
+
+			TRACE_ENTRY();
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
+			}
+
+			result = m_rom_program.size();
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
 		std::string
