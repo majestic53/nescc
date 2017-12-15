@@ -67,6 +67,8 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL initialized.");
 
+		m_display.initialize();
+		m_display.set_icon(RUNTIME_ICON_PATH);
 		m_bus.initialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime initialized.");
@@ -78,36 +80,49 @@ namespace nescc {
 	bool
 	runtime::on_run(void)
 	{
+		int32_t cycle = 0;
 		bool result = true;
+		uint32_t frame = 0, start;
 
 		TRACE_ENTRY();
 
+		m_display.set_title(m_path);
 		m_bus.load(m_path);
 		m_bus.reset();
-		m_display.initialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
 
+		start = SDL_GetTicks();
+
 		for(;;) {
-			uint32_t delta, start = SDL_GetTicks();
+			float rate;
+			uint32_t delta, end = SDL_GetTicks();
+
+			rate = (end - start);
+			if(rate >= RUNTIME_FRAME) {
+				rate = (frame - ((rate - RUNTIME_FRAME) / RUNTIME_FRAME_RATE));
+				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Runtime frame rate", "%.01f", rate);
+				m_display.set_frame_rate(rate);
+				start = end;
+				frame = 0;
+			}
 
 			result = poll_events();
 			if(!result) {
 				break;
 			}
 
-			m_bus.update();
+			m_bus.update(cycle);
 			m_display.update();
+			++frame;
 
-			delta = (SDL_GetTicks() - start);
-			if(delta < RUNTIME_DELTA) {
-				SDL_Delay(RUNTIME_DELTA - delta);
+			delta = (SDL_GetTicks() - end);
+			if(delta < RUNTIME_FRAME_DELTA) {
+				SDL_Delay(RUNTIME_FRAME_DELTA - delta);
 			}
 		}
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");
-
-		m_display.uninitialize();
 
 		TRACE_EXIT_FORMAT("Result=%x", result);
 		return result;
@@ -121,6 +136,7 @@ namespace nescc {
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitializing...");
 
 		m_bus.uninitialize();
+		m_display.uninitialize();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitializing...");
 

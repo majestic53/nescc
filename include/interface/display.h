@@ -41,6 +41,10 @@ namespace nescc {
 					__in uint16_t y
 					) const;
 
+				void set_frame_rate(
+					__in float rate
+					);
+
 				void set_icon(
 					__in const std::string &path
 					);
@@ -58,7 +62,7 @@ namespace nescc {
 				void write(
 					__in uint16_t x,
 					__in uint16_t y,
-					__in uint8_t value
+					__in uint32_t value
 					);
 
 			protected:
@@ -82,6 +86,8 @@ namespace nescc {
 				std::vector<uint32_t> m_pixel;
 
 				SDL_Renderer *m_renderer;
+
+				std::string m_title;
 
 				SDL_Texture *m_texture;
 

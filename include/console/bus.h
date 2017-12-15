@@ -24,6 +24,7 @@
 #include "./joypad.h"
 #include "./mapper.h"
 #include "./ppu.h"
+#include "../interface/display.h"
 
 namespace nescc {
 
@@ -56,6 +57,12 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				void display_write(
+					__in uint16_t x,
+					__in uint16_t y,
+					__in uint32_t value
+					);
+
 				void load(
 					__in const std::string &path
 					);
@@ -86,7 +93,9 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
-				void update(void);
+				void update(
+					__inout int32_t &cycle
+					);
 
 			protected:
 
@@ -109,6 +118,8 @@ namespace nescc {
 				nescc::console::apu &m_apu;
 
 				nescc::console::cpu &m_cpu;
+
+				nescc::interface::display &m_display;
 
 				nescc::console::joypad &m_joypad;
 

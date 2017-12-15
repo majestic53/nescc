@@ -20,7 +20,6 @@
 #define NESCC_RUNTIME_H_
 
 #include "./console/bus.h"
-#include "./interface/display.h"
 #include "./trace.h"
 
 namespace nescc {

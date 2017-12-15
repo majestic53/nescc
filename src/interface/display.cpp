@@ -50,6 +50,7 @@ namespace nescc {
 			}
 
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, 0);
+			m_title.clear();
 
 			TRACE_EXIT();
 		}
@@ -65,11 +66,12 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display initializing...");
 
 			title << NESCC << " " << nescc::runtime::version(true);
+			m_title = title.str();
 
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, 0);
 
-			m_window = SDL_CreateWindow(title.str().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-					DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_FLAG);
+			m_window = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+					DISPLAY_WIDTH * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE, DISPLAY_FLAG);
 
 			if(!m_window) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
@@ -166,6 +168,22 @@ namespace nescc {
 		}
 
 		void
+		display::set_frame_rate(
+			__in float rate
+			)
+		{
+			std::stringstream result;
+
+			TRACE_ENTRY_FORMAT("Rate=%.02f", rate);
+
+			result << NESCC << " -- " << m_title << " (" << FLOAT_PRECISION(DISPLAY_FRAME_RATE_PRECISION, rate)
+				<< " FPS)";
+			SDL_SetWindowTitle(m_window, result.str().c_str());
+
+			TRACE_EXIT();
+		}
+
+		void
 		display::set_icon(
 			__in const std::string &path
 			)
@@ -199,13 +217,17 @@ namespace nescc {
 			__in const std::string &title
 			)
 		{
+			std::stringstream result;
+
 			TRACE_ENTRY_FORMAT("Title[%u]=%s", title.size(), STRING_CHECK(title));
 
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
 
-			SDL_SetWindowTitle(m_window, title.c_str());
+			m_title = title;
+			result << NESCC << " -- " << m_title;
+			SDL_SetWindowTitle(m_window, result.str().c_str());
 
 			TRACE_EXIT();
 		}
@@ -228,6 +250,7 @@ namespace nescc {
 					result << ", Window=" << SCALAR_AS_HEX(uintptr_t, m_window)
 						<< ", Renderer=" << SCALAR_AS_HEX(uintptr_t, m_renderer)
 						<< ", Texture=" << SCALAR_AS_HEX(uintptr_t, m_texture)
+						<< ", Title[" << m_title.size() << "]=" << STRING_CHECK(m_title)
 						<< ", Pixel[" << m_pixel.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_pixel[0]);
 				}
 			}
@@ -269,16 +292,16 @@ namespace nescc {
 		display::write(
 			__in uint16_t x,
 			__in uint16_t y,
-			__in uint8_t value
+			__in uint32_t value
 			)
 		{
-			TRACE_ENTRY_FORMAT("Position={%u, %u}, Value=%02x", x, y, value);
+			TRACE_ENTRY_FORMAT("Position={%u, %u}, Value=%u(%08x)", x, y, value, value);
 
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
 
-			m_pixel.at((y * DISPLAY_WIDTH) + x) = DISPLAY_PALETTE_VALUE(value);
+			m_pixel.at((y * DISPLAY_WIDTH) + x) = value;
 
 			TRACE_EXIT();
 		}

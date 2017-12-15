@@ -85,6 +85,10 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				void update(
+					__in nescc::console::interface::bus &bus
+					);
+
 				void write_nametable(
 					__in uint16_t address,
 					__in uint8_t value

@@ -48,6 +48,12 @@ namespace nescc {
 						__in uint8_t value
 						) = 0;
 
+					virtual void display_write(
+						__in uint16_t x,
+						__in uint16_t y,
+						__in uint32_t value
+						) = 0;
+
 					virtual std::string ppu_as_string(
 						__in uint16_t address,
 						__in uint16_t offset,

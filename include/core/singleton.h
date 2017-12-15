@@ -134,7 +134,8 @@ namespace nescc {
 				{
 
 					if(m_initialized) {
-						uninitialize();
+						on_uninitialize();
+						m_initialized = 0;
 					}
 
 					on_destroy();

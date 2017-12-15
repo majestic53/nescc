@@ -27,6 +27,7 @@ namespace nescc {
 		bus::bus(void) :
 			m_apu(nescc::console::apu::acquire()),
 			m_cpu(nescc::console::cpu::acquire()),
+			m_display(nescc::interface::display::acquire()),
 			m_joypad(nescc::console::joypad::acquire()),
 			m_mapper(nescc::console::mapper::acquire()),
 			m_ppu(nescc::console::ppu::acquire())
@@ -41,6 +42,7 @@ namespace nescc {
 
 			m_apu.release();
 			m_cpu.release();
+			m_display.release();
 			m_joypad.release();
 			m_mapper.release();
 			m_ppu.release();
@@ -251,6 +253,24 @@ namespace nescc {
 						address, address, value, value);
 					break;
 			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		bus::display_write(
+			__in uint16_t x,
+			__in uint16_t y,
+			__in uint32_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Position={%u, %u}, Value=%u(%08x)", x, y, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_display.write(x, y, value);
 
 			TRACE_EXIT();
 		}
@@ -479,16 +499,33 @@ namespace nescc {
 		}
 
 		void
-		bus::update(void)
+		bus::update(
+			__inout int32_t &cycle
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Cycle=%i", cycle);
 
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
 
-			// TODO: run cpu/ppu/apu through an entire frame
-			// TODO: write pixels to display
+			cycle += CPU_CYCLES_PER_FRAME;
+
+			while(cycle > 0) {
+				uint8_t cycle_last, iter;
+
+				cycle_last = m_cpu.update(*this);
+
+				for(iter = 0; iter < (cycle_last * PPU_CYCLES_PER_CPU_CYCLE); ++iter) {
+					m_ppu.update(*this);
+				}
+
+				for(iter = 0; iter < cycle_last; ++iter) {
+					// TODO: step apu
+				}
+
+				cycle -= cycle_last;
+			}
 
 			TRACE_EXIT();
 		}
