@@ -4,7 +4,7 @@
 A NES emulator, written in C++
 
 Table of Contents
------------------
+=================
 
 1. [Build](https://github.com/majestic53/nescc#build) -- How-to build the project
 2. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
