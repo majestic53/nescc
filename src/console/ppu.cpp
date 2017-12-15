@@ -233,7 +233,7 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			// TODO
-			result = m_port.read(PPU_PORT_DATA);
+			result = 0;
 			// ---
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
@@ -247,9 +247,8 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-			// TODO
+			m_port.write(PPU_PORT_OAM_DATA, m_oam.read(m_port.read(PPU_PORT_OAM_ADDRESS)));
 			result = m_port.read(PPU_PORT_OAM_DATA);
-			// ---
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -263,7 +262,7 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			// TODO
-			result = m_port.read(PPU_PORT_STATUS);
+			result = 0;
 			// ---
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
@@ -342,6 +341,23 @@ namespace nescc {
 		}
 
 		void
+		ppu::write_oam(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+
+			m_oam.write(address, value);
+
+			TRACE_EXIT();
+		}
+
+		void
 		ppu::write_palette(
 			__in uint16_t address,
 			__in uint8_t value
@@ -408,8 +424,6 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			// TODO
-			m_port.write(PPU_PORT_ADDRESS, value);
-			// ---
 
 			TRACE_EXIT();
 		}
@@ -422,8 +436,6 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			// TODO
-			m_port.write(PPU_PORT_CONTROL, value);
-			// ---
 
 			TRACE_EXIT();
 		}
@@ -436,8 +448,6 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			// TODO
-			m_port.write(PPU_PORT_DATA, value);
-			// ---
 
 			TRACE_EXIT();
 		}
@@ -450,8 +460,6 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			// TODO
-			m_port.write(PPU_PORT_MASK, value);
-			// ---
 
 			TRACE_EXIT();
 		}
@@ -463,9 +471,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
-			// TODO
 			m_port.write(PPU_PORT_OAM_ADDRESS, value);
-			// ---
 
 			TRACE_EXIT();
 		}
@@ -475,11 +481,14 @@ namespace nescc {
 			__in uint8_t value
 			)
 		{
+			uint8_t address;
+
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
-			// TODO
 			m_port.write(PPU_PORT_OAM_DATA, value);
-			// ---
+			address = m_port.read(PPU_PORT_OAM_ADDRESS);
+			m_oam.write(address, value);
+			m_port.write(PPU_PORT_OAM_ADDRESS, ++address);
 
 			TRACE_EXIT();
 		}
@@ -492,8 +501,6 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			// TODO
-			m_port.write(PPU_PORT_SCROLL, value);
-			// ---
 
 			TRACE_EXIT();
 		}

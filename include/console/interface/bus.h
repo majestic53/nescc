@@ -62,6 +62,11 @@ namespace nescc {
 						__in uint16_t address,
 						__in uint8_t value
 						) = 0;
+
+					virtual void ppu_write_oam(
+						__in uint16_t address,
+						__in uint8_t value
+						) = 0;
 			};
 		};
 	}

@@ -66,6 +66,8 @@ namespace nescc {
 
 		#define PPU_NAMETABLE_END (PPU_NAMETABLE_START + 0x1eff)
 		#define PPU_NAMETABLE_START 0x2000
+		#define PPU_OAM_END (PPU_OAM_LENGTH - 1)
+		#define PPU_OAM_START 0
 		#define PPU_PALETTE_END (PPU_PALETTE_START + 0xff)
 		#define PPU_PALETTE_START 0x3f00
 		#define PPU_PORT_END (PPU_PORT_START + (((PPU_PORT_MAX + 1) * 1024) - 1))

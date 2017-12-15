@@ -406,6 +406,31 @@ namespace nescc {
 		}
 
 		void
+		bus::ppu_write_oam(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+
+			switch(address) {
+				case PPU_OAM_START ... PPU_OAM_END: // 0x00 - 0xff
+					m_ppu.write_oam(address, value);
+					break;
+				default:
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped ppu oam region", "Address=%u(%04x), Value=%u(%02x)",
+						address, address, value, value);
+					break;
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
 		bus::reset(void)
 		{
 			TRACE_ENTRY();

@@ -62,8 +62,6 @@ namespace nescc {
 		#define PPU_PORT_STRING(_TYPE_) \
 			(((_TYPE_) > PPU_PORT_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(PPU_PORT_STR[_TYPE_]))
-
-		#define PPU_OAM_LENGTH 0x100
 	}
 }
 

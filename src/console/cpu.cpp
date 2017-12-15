@@ -18,6 +18,7 @@
 
 #include <climits>
 #include "../../include/console/cpu.h"
+#include "../../include/console/ppu.h"
 #include "../../include/trace.h"
 #include "./cpu_type.h"
 
@@ -2110,9 +2111,7 @@ namespace nescc {
 			__in uint8_t bank
 			)
 		{
-			// TODO: PPU_OAM_DMA: How is this address determined?
-
-			/*uint8_t iter;
+			uint8_t iter;
 			uint16_t base;
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Bank=%u(%02x)", &bus, bank, bank);
@@ -2120,11 +2119,18 @@ namespace nescc {
 			m_oam_dma.write(0, bank);
 			base = (m_oam_dma.read(0) * (UINT8_MAX + 1));
 
-			for(iter = 0; iter <= UINT8_MAX; ++iter) {
-				bus.cpu_write(PPU_OAM_DMA, bus.cpu_read(base + iter));
+			if(m_cycle % 2) {
+				++m_cycle;
 			}
 
-			TRACE_EXIT();*/
+			++m_cycle;
+
+			for(iter = 0; iter <= (PPU_OAM_LENGTH - 1); ++iter) {
+				bus.ppu_write_oam(iter, bus.cpu_read(base + iter));
+				m_cycle += CPU_CYCLES_READ_WRITE;
+			}
+
+			TRACE_EXIT();
 		}
 
 		void

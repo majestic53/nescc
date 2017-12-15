@@ -75,6 +75,11 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				void ppu_write_oam(
+					__in uint16_t address,
+					__in uint8_t value
+					);
+
 				void reset(void);
 
 				std::string to_string(

@@ -41,6 +41,7 @@ namespace nescc {
 		#define PPU_PORT_MAX PPU_PORT_DATA
 
 		#define PPU_NAMETABLE_LENGTH 0x1000
+		#define PPU_OAM_LENGTH 0x100
 		#define PPU_PALETTE_LENGTH 0x20
 
 		class ppu :
@@ -85,6 +86,11 @@ namespace nescc {
 					) const;
 
 				void write_nametable(
+					__in uint16_t address,
+					__in uint8_t value
+					);
+
+				void write_oam(
 					__in uint16_t address,
 					__in uint8_t value
 					);
