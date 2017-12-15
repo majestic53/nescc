@@ -1,17 +1,17 @@
-Nescc
+![alt text](https://github.com/majestic53/nescc/asset/icon.bmp "Nescc") Nescc
 =====
 
 A NES emulator, written in C++
 
 Table of Contents
-=================
+-----------------
 
 1. [Build](https://github.com/majestic53/nescc#build) -- How-to build the project
 2. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
 3. [License](https://github.com/majestic53/nescc#license) -- Project license information
 
 Build
------
+=====
 
 __NOTE__: Tested with the Clang C++ compilers. Modification to the makefiles might be required to build with a different compiler.
 
