@@ -1,7 +1,7 @@
-![Nescc](https://github.com/majestic53/nescc/blob/master/asset/icon.bmp "Nescc") Nescc
+Nescc
 =====
 
-A NES emulator, written in C++
+![Nescc](https://github.com/majestic53/nescc/blob/master/asset/icon.bmp "Nescc") A NES emulator, written in C++
 
 Table of Contents
 -----------------
