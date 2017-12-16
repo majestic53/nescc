@@ -26,6 +26,7 @@ namespace nescc {
 
 		mapper::mapper(void) :
 			m_cartridge(nescc::console::cartridge::acquire()),
+			m_debug(false),
 			m_ram_index(0),
 			m_rom_character_index(0),
 			m_rom_program_index_0(0),
@@ -66,9 +67,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_cartridge;
@@ -79,9 +82,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper clearing...");
 
@@ -132,9 +137,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT_FORMAT("Result=%u", m_ram_index);
 			return m_ram_index;
@@ -201,15 +208,19 @@ namespace nescc {
 		}
 
 		void
-		mapper::reset(void)
+		mapper::reset(
+			__in_opt bool debug
+			)
 		{
 			uint8_t type;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Debug=%x", debug);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper resetting...");
 
@@ -233,6 +244,8 @@ namespace nescc {
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM Bank", "%u, %u", m_rom_program_index_0, m_rom_program_index_1);
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-CHR ROM Bank", "%u", m_rom_character_index);
 
+			m_debug = debug;
+
 			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper reset.");
 
 			TRACE_EXIT();
@@ -243,9 +256,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT_FORMAT("Result=%u", m_rom_character_index);
 			return m_rom_character_index;
@@ -256,9 +271,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT_FORMAT("Result=%u", m_rom_program_index_0);
 			return m_rom_program_index_0;
@@ -269,9 +286,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT_FORMAT("Result=%u", m_rom_program_index_1);
 			return m_rom_program_index_1;
@@ -292,7 +311,8 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::mapper>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", PRG RAM Bank=" << (int) m_ram_index
+					result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
+						<< ", PRG RAM Bank=" << (int) m_ram_index
 						<< ", PRG ROM Bank=" << (int) m_rom_program_index_0 << ", " << (int) m_rom_program_index_1
 						<< ", CHR ROM Bank=" << (int) m_rom_character_index;
 				}

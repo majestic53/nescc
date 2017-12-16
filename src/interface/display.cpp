@@ -45,9 +45,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, 0);
 			m_title.clear();
@@ -157,9 +159,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Position={%u, %u}", x, y);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			result = m_pixel.at((y * DISPLAY_WIDTH) + x);
 
@@ -175,6 +179,12 @@ namespace nescc {
 			std::stringstream result;
 
 			TRACE_ENTRY_FORMAT("Rate=%.02f", rate);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
 
 			result << NESCC << " -- " << m_title << " (" << FLOAT_PRECISION(DISPLAY_FRAME_RATE_PRECISION, rate)
 				<< " FPS)";
@@ -192,9 +202,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			surface = SDL_LoadBMP(path.c_str());
 			if(!surface) {
@@ -221,9 +233,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Title[%u]=%s", title.size(), STRING_CHECK(title));
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_title = title;
 			result << NESCC << " -- " << m_title;
@@ -264,9 +278,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(uint32_t))) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
@@ -297,9 +313,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Position={%u, %u}, Value=%u(%08x)", x, y, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_pixel.at((y * DISPLAY_WIDTH) + x) = value;
 

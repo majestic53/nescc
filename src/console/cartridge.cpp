@@ -69,9 +69,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cartridge clearing...");
 
@@ -99,9 +101,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(m_loaded) {
 				clear();
@@ -196,9 +200,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT_FORMAT("Result=%x", m_loaded);
 			return m_loaded;
@@ -209,9 +215,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT_FORMAT("Result=%u(%s)", m_mapper, CARTRIDGE_MAPPER_STRING(m_mapper));
 			return m_mapper;
@@ -222,9 +230,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT_FORMAT("Result=%u(%s)", m_mirroring, CARTRIDGE_MIRRORING_STRING(m_mirroring));
 			return m_mirroring;
@@ -266,9 +276,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(bank >= m_ram.size()) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
@@ -286,9 +298,11 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			result = m_ram.size();
 
@@ -303,9 +317,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(bank >= m_rom_character.size()) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
@@ -323,9 +339,11 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			result = m_rom_character.size();
 
@@ -340,9 +358,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(bank >= m_rom_program.size()) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION_FORMAT(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_BANK_INDEX,
@@ -360,9 +380,11 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CARTRIDGE_EXCEPTION(NESCC_CONSOLE_CARTRIDGE_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			result = m_rom_program.size();
 

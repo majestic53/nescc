@@ -24,7 +24,8 @@ namespace nescc {
 
 	namespace console {
 
-		ppu::ppu(void)
+		ppu::ppu(void) :
+			m_debug(false)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -79,9 +80,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_nametable;
@@ -92,9 +95,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_oam;
@@ -134,9 +139,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_palette;
@@ -147,9 +154,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_port;
@@ -164,9 +173,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			result = m_nametable.read(address);
 
@@ -183,9 +194,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			result = m_palette.read(address);
 
@@ -202,9 +215,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Port=%u(%s)", port, PPU_PORT_STRING(port));
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			switch(port) {
 				case PPU_PORT_STATUS:
@@ -272,17 +287,21 @@ namespace nescc {
 
 		void
 		ppu::reset(
-			nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
+			m_debug = debug;
 			m_nametable.set_size(PPU_NAMETABLE_LENGTH);
 			m_nametable.set_readonly(false);
 			m_oam.set_size(PPU_OAM_LENGTH);
@@ -314,9 +333,9 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::ppu>::to_string(verbose);
 
 				if(m_initialized) {
+					result << ", Mode=" << (!m_debug ? "Normal" : "Debug");
 
 					// TODO
-
 				}
 			}
 
@@ -331,6 +350,12 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
 			// TODO
 
 			TRACE_EXIT();
@@ -344,9 +369,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_nametable.write(address, value);
 
@@ -361,9 +388,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_oam.write(address, value);
 
@@ -378,9 +407,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_palette.write(address, value);
 
@@ -395,9 +426,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Port=%u(%s), Value=%u(%02x)", port, PPU_PORT_STRING(port), value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			switch(port) {
 				case PPU_PORT_CONTROL:

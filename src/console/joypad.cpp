@@ -26,6 +26,7 @@ namespace nescc {
 	namespace console {
 
 		joypad::joypad(void) :
+			m_debug(false),
 			m_strobe(false)
 		{
 			TRACE_ENTRY();
@@ -136,9 +137,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Pad=%u(%s)", pad, JOYPAD_STRING(pad));
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(pad > JOYPAD_MAX) {
 				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION_FORMAT(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNSUPPORTED,
@@ -159,17 +162,21 @@ namespace nescc {
 
 		void
 		joypad::reset(
-			nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad resetting...");
 
+			m_debug = debug;
 			m_state.set_size(JOYPAD_MAX + 1);
 			m_state.set_readonly(false);
 			m_strobe = false;
@@ -184,9 +191,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_state;
@@ -209,7 +218,8 @@ namespace nescc {
 				if(m_initialized) {
 					int iter;
 
-					result << ", STATE=" << m_state.to_string(verbose);
+					result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
+						<< ", State=" << m_state.to_string(verbose);
 
 					for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
 
@@ -254,9 +264,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(m_strobe && !value) {
 				update();

@@ -58,7 +58,9 @@ namespace nescc {
 					__in uint16_t address
 					);
 
-				void reset(void);
+				void reset(
+					__in_opt bool debug = false
+					);
 
 				uint8_t rom_character_index(void) const;
 
@@ -94,6 +96,8 @@ namespace nescc {
 				void on_uninitialize(void);
 
 				nescc::console::cartridge &m_cartridge;
+
+				bool m_debug;
 
 				uint8_t m_ram_index;
 

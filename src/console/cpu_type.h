@@ -142,8 +142,8 @@ namespace nescc {
 				CPU_MODE_CYC[_TYPE_])
 
 		static const std::string CPU_MODE_STR[] = {
-			"a", "a, x", "a, y", "A", "#", "", "(a)", "(zp, x)", "(zp), y",
-			"", "", "r", "", "", "zp", "zp, x", "zp, y",
+			"a", "a, x", "a, y", "A", "#", "imp", "(a)", "(zp, x)", "(zp), y",
+			"int", "intr", "r", "pull", "push", "zp", "zp, x", "zp, y",
 			};
 
 		#define CPU_MODE_STRING(_TYPE_) \

@@ -40,12 +40,17 @@ namespace nescc {
 				void clear(void);
 
 				void reset(
-					nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus,
+					__in_opt bool debug = false
 					);
 
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
+
+				void update(
+					__in nescc::console::interface::bus &bus
+					);
 
 			protected:
 
@@ -64,6 +69,8 @@ namespace nescc {
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
+
+				bool m_debug;
 		};
 	}
 }

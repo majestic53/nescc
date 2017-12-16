@@ -24,7 +24,8 @@ namespace nescc {
 
 	namespace console {
 
-		apu::apu(void)
+		apu::apu(void) :
+			m_debug(false)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -56,9 +57,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu clearing...");
 
@@ -104,16 +107,21 @@ namespace nescc {
 
 		void
 		apu::reset(
-			nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu resetting...");
+
+			m_debug = debug;
 
 			// TODO
 
@@ -137,6 +145,7 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::apu>::to_string(verbose);
 
 				if(m_initialized) {
+					result << ", Mode=" << (!m_debug ? "Normal" : "Debug");
 
 					// TODO
 
@@ -145,6 +154,24 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		void
+		apu::update(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			// TODO
+
+			TRACE_EXIT();
 		}
 	}
 }

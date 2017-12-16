@@ -54,7 +54,8 @@ namespace nescc {
 				nescc::core::memory &ram(void);
 
 				void reset(
-					__in nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus,
+					__in_opt bool debug = false
 					);
 
 				std::string to_string(
@@ -335,6 +336,8 @@ namespace nescc {
 				uint8_t m_accumulator;
 
 				uint32_t m_cycle;
+
+				bool m_debug;
 
 				uint8_t m_flags;
 

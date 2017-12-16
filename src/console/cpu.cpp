@@ -29,6 +29,7 @@ namespace nescc {
 		cpu::cpu(void) :
 			m_accumulator(0),
 			m_cycle(0),
+			m_debug(false),
 			m_flags(0),
 			m_index_x(0),
 			m_index_y(0),
@@ -294,9 +295,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu clearing...");
 
@@ -1601,9 +1604,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_signal_non_maskable = true;
 
@@ -1634,9 +1639,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_oam_dma;
@@ -1734,9 +1741,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_EXIT();
 			return m_ram;
@@ -1777,19 +1786,23 @@ namespace nescc {
 
 		void
 		cpu::reset(
-			__in nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu resetting...");
 
 			m_accumulator = 0;
 			m_cycle = CPU_MODE_CYCLES(CPU_MODE_INTERRUPT);
+			m_debug = debug;
 			m_flags = CPU_FLAG_RESET;
 			m_index_x = 0;
 			m_index_y = 0;
@@ -1891,7 +1904,15 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			command = CPU_COMMAND.at(read_byte(bus, m_program_counter++));
+			command = CPU_COMMAND.at(read_byte(bus, m_program_counter));
+
+			if(m_debug) {
+				TRACE_DEBUG_MESSAGE_FORMAT("Cpu", "[%04x] %s %s", m_program_counter, CPU_COMMAND_STRING(command.first),
+					CPU_MODE_STRING(command.second));
+			}
+
+			++m_program_counter;
+
 			switch(command.first) {
 				case CPU_COMMAND_ADC:
 					result = execute_command_add(bus, command);
@@ -2027,7 +2048,8 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::cpu>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", RAM=" << m_ram.to_string(verbose)
+					result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
+						<< ", RAM=" << m_ram.to_string(verbose)
 						<< ", OAM DMA=" << m_oam_dma.to_string(verbose)
 						<< ", Cycle=" << m_cycle
 						<< ", Signal={";
@@ -2068,9 +2090,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			if(m_signal_non_maskable) {
 				result += interrupt_non_maskable(bus);

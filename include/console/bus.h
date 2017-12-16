@@ -64,7 +64,8 @@ namespace nescc {
 					);
 
 				void load(
-					__in const std::string &path
+					__in const std::string &path,
+					__in_opt bool debug = false
 					);
 
 				std::string ppu_as_string(
@@ -87,7 +88,9 @@ namespace nescc {
 					__in uint8_t value
 					);
 
-				void reset(void);
+				void reset(
+					__in_opt bool debug = false
+					);
 
 				std::string to_string(
 					__in_opt bool verbose = false
@@ -118,6 +121,8 @@ namespace nescc {
 				nescc::console::apu &m_apu;
 
 				nescc::console::cpu &m_cpu;
+
+				bool m_debug;
 
 				nescc::interface::display &m_display;
 

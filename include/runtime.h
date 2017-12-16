@@ -33,7 +33,8 @@ namespace nescc {
 			~runtime(void);
 
 			void run(
-				__in const std::string &path
+				__in const std::string &path,
+				__in_opt bool debug = false
 				);
 
 			std::string to_string(
@@ -67,6 +68,8 @@ namespace nescc {
 			void on_uninitialize(void);
 
 			nescc::console::bus &m_bus;
+
+			bool m_debug;
 
 			nescc::interface::display &m_display;
 

@@ -59,8 +59,24 @@ namespace nescc {
 	#define TRACE_MESSAGE_FORMAT(_LEVEL_, _MESSAGE_, _FORMAT_, ...)
 #endif // NDEBUG
 
+	#define _TRACE_DEBUG(_PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
+		nescc::trace &instance = nescc::trace::acquire(); \
+		try { \
+			if(instance.initialized()) { \
+				instance.generate(TRACE_DEBUG, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, \
+					_LINE_, _FORMAT_, __VA_ARGS__); \
+			} \
+		} catch(...) { } \
+		instance.release(); \
+		}
+	#define TRACE_DEBUG_MESSAGE(_MESSAGE_) TRACE_DEBUG_MESSAGE_FORMAT(_MESSAGE_, "", "")
+	#define TRACE_DEBUG_MESSAGE_FORMAT(_MESSAGE_, _FORMAT_, ...) \
+		_TRACE_DEBUG(std::string(), _MESSAGE_, __FILE__, __FUNCTION__, __LINE__, \
+			_FORMAT_, __VA_ARGS__)
+
 	typedef enum {
-		TRACE_ERROR = 0,
+		TRACE_DEBUG = 0,
+		TRACE_ERROR,
 		TRACE_WARNING,
 		TRACE_INFORMATION,
 		TRACE_VERBOSE,

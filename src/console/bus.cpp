@@ -27,6 +27,7 @@ namespace nescc {
 		bus::bus(void) :
 			m_apu(nescc::console::apu::acquire()),
 			m_cpu(nescc::console::cpu::acquire()),
+			m_debug(false),
 			m_display(nescc::interface::display::acquire()),
 			m_joypad(nescc::console::joypad::acquire()),
 			m_mapper(nescc::console::mapper::acquire()),
@@ -111,9 +112,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_cpu.interrupt_maskable();
 
@@ -125,9 +128,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_cpu.interrupt_non_maskable();
 
@@ -143,9 +148,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			switch(address) {
 				case CPU_RAM_START ... CPU_RAM_END: // 0x0000 - 0x1fff
@@ -190,6 +197,10 @@ namespace nescc {
 					break;
 			}
 
+			if(m_debug) {
+				TRACE_DEBUG_MESSAGE_FORMAT("Cpu", "[%04x] -> %u(%02x)", address, result, result);
+			}
+
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
 		}
@@ -202,8 +213,14 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(m_debug) {
+				TRACE_DEBUG_MESSAGE_FORMAT("Cpu", "[%04x] <- %u(%02x)", address, value, value);
 			}
 
 			switch(address) {
@@ -266,8 +283,14 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Position={%u, %u}, Value=%u(%08x)", x, y, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(m_debug) {
+				TRACE_DEBUG_MESSAGE_FORMAT("Display", "[%u, %u] <- %u(%02x)", x, y, value, value);
 			}
 
 			m_display.write(x, y, value);
@@ -277,17 +300,21 @@ namespace nescc {
 
 		void
 		bus::load(
-			__in const std::string &path
+			__in const std::string &path,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
+			TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			m_mapper.cartridge().load(path);
-			m_mapper.reset();
+			m_mapper.reset(debug);
+			m_debug = debug;
 
 			TRACE_EXIT();
 		}
@@ -374,9 +401,11 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
@@ -393,6 +422,10 @@ namespace nescc {
 					break;
 			}
 
+			if(m_debug) {
+				TRACE_DEBUG_MESSAGE_FORMAT("Ppu", "[%04x] -> %u(%02x)", address, result, result);
+			}
+
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
 		}
@@ -405,8 +438,14 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(m_debug) {
+				TRACE_DEBUG_MESSAGE_FORMAT("Ppu", "[%04x] <- %u(%02x)", address, value, value);
 			}
 
 			switch(address) {
@@ -433,8 +472,14 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(m_debug) {
+				TRACE_DEBUG_MESSAGE_FORMAT("Ppu OAM", "[%04x] <- %u(%02x)", address, value, value);
 			}
 
 			switch(address) {
@@ -451,20 +496,25 @@ namespace nescc {
 		}
 
 		void
-		bus::reset(void)
+		bus::reset(
+			__in_opt bool debug
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Debug=%x", debug);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus resetting...");
 
-			m_joypad.reset(*this);
-			m_apu.reset(*this);
-			m_cpu.reset(*this);
-			m_ppu.reset(*this);
+			m_debug = debug;
+			m_joypad.reset(*this, debug);
+			m_apu.reset(*this, debug);
+			m_cpu.reset(*this, debug);
+			m_ppu.reset(*this, debug);
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus reset.");
 
@@ -486,7 +536,8 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::bus>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Mapper=" << m_mapper.to_string(verbose)
+					result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
+						<< ", Mapper=" << m_mapper.to_string(verbose)
 						<< ", Joypad=" << m_joypad.to_string(verbose)
 						<< ", Apu=" << m_apu.to_string(verbose)
 						<< ", Cpu=" << m_cpu.to_string(verbose)
@@ -505,9 +556,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Cycle=%i", cycle);
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			cycle += CPU_CYCLES_PER_FRAME;
 
@@ -521,7 +574,7 @@ namespace nescc {
 				}
 
 				for(iter = 0; iter < cycle_last; ++iter) {
-					// TODO: step apu
+					m_apu.update(*this);
 				}
 
 				cycle -= cycle_last;

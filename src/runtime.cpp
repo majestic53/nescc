@@ -23,6 +23,7 @@ namespace nescc {
 
 	runtime::runtime(void) :
 		m_bus(nescc::console::bus::acquire()),
+		m_debug(false),
 		m_display(nescc::interface::display::acquire()),
 		m_trace(nescc::trace::acquire())
 	{
@@ -87,8 +88,8 @@ namespace nescc {
 		TRACE_ENTRY();
 
 		m_display.set_title(m_path);
-		m_bus.load(m_path);
-		m_bus.reset();
+		m_bus.load(m_path, m_debug);
+		m_bus.reset(m_debug);
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
 
@@ -101,8 +102,9 @@ namespace nescc {
 			rate = (end - start);
 			if(rate >= RUNTIME_FRAME) {
 				rate = (frame - ((rate - RUNTIME_FRAME) / RUNTIME_FRAME_RATE));
-				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Runtime frame rate", "%.01f", rate);
-				m_display.set_frame_rate(rate);
+				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Runtime frame rate", "%.01f",
+					(rate > 0.f) ? rate : 0.f);
+				m_display.set_frame_rate((rate > 0.f) ? rate : 0.f);
 				start = end;
 				frame = 0;
 			}
@@ -175,15 +177,17 @@ namespace nescc {
 
 	void
 	runtime::run(
-		__in const std::string &path
+		__in const std::string &path,
+		__in_opt bool debug
 		)
 	{
-		TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
+		TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
 
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
 		}
 
+		m_debug = debug;
 		m_path = path;
 		nescc::core::thread::start(true);
 		nescc::core::thread::wait();
@@ -204,6 +208,11 @@ namespace nescc {
 
 		if(verbose) {
 			result << " Base=" << nescc::core::singleton<nescc::runtime>::to_string(verbose);
+
+			if(m_initialized) {
+				result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
+					<< ", Path[" << m_path.size() << "]=" << m_path;
+			}
 		}
 
 		TRACE_EXIT();

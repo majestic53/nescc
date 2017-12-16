@@ -78,7 +78,8 @@ namespace nescc {
 					);
 
 				void reset(
-					nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus,
+					__in_opt bool debug = false
 					);
 
 				std::string to_string(
@@ -160,6 +161,8 @@ namespace nescc {
 				void write_port_scroll(
 					__in uint8_t value
 					);
+
+				bool m_debug;
 
 				nescc::core::memory m_nametable;
 
