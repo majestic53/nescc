@@ -7,6 +7,7 @@ Table of Contents
 =================
 
 1. [Build](https://github.com/majestic53/nescc#build) -- How-to build the project
+1. [Usage](https://github.com/majestic53/nescc#usage) -- How-to use the project
 2. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
 3. [License](https://github.com/majestic53/nescc#license) -- Project license information
 
@@ -17,6 +18,17 @@ __NOTE__: Tested with the Clang C++ compilers. Modification to the makefiles mig
 
 ```
 make release
+```
+
+Usage
+=====
+
+```
+Nescc [-d|--debug] [-h|--help] [-v|--version] path
+
+-d | --debug       Display debug information
+-h | --help        Display help information
+-v | --version     Display version information
 ```
 
 Changelog
