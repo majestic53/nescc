@@ -319,6 +319,25 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		uint8_t
+		bus::mirroring(void) const
+		{
+			uint8_t result;
+
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			result = m_mapper.cartridge().mirroring();
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
 		bool
 		bus::on_initialize(void)
 		{

@@ -91,6 +91,7 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad clearing...");
 
+			m_debug = false;
 			m_state.clear();
 			m_strobe = false;
 

@@ -54,6 +54,8 @@ namespace nescc {
 						__in uint32_t value
 						) = 0;
 
+					virtual uint8_t mirroring(void) const = 0;
+
 					virtual std::string ppu_as_string(
 						__in uint16_t address,
 						__in uint16_t offset,

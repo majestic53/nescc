@@ -162,7 +162,13 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				uint32_t m_cycle;
+
 				bool m_debug;
+
+				bool m_frame_odd;
+
+				uint8_t m_mirroring;
 
 				nescc::core::memory m_nametable;
 
@@ -171,6 +177,8 @@ namespace nescc {
 				nescc::core::memory m_palette;
 
 				nescc::core::memory m_port;
+
+				uint32_t m_scanline;
 		};
 	}
 }

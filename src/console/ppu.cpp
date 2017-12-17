@@ -25,7 +25,11 @@ namespace nescc {
 	namespace console {
 
 		ppu::ppu(void) :
-			m_debug(false)
+			m_cycle(0),
+			m_debug(false),
+			m_frame_odd(false),
+			m_mirroring(0),
+			m_scanline(0)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -57,18 +61,25 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu clearing...");
 
 			// TODO
 
+			m_cycle = 0;
+			m_debug = false;
+			m_frame_odd = false;
+			m_mirroring = 0;
 			m_nametable.clear();
 			m_oam.clear();
 			m_palette.clear();
 			m_port.clear();
+			m_scanline = 0;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu cleared.");
 
@@ -301,7 +312,10 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
+			m_cycle = 0;
 			m_debug = debug;
+			m_frame_odd = false;
+			m_mirroring = bus.mirroring();
 			m_nametable.set_size(PPU_NAMETABLE_LENGTH);
 			m_nametable.set_readonly(false);
 			m_oam.set_size(PPU_OAM_LENGTH);
@@ -310,6 +324,7 @@ namespace nescc {
 			m_palette.set_readonly(false);
 			m_port.set_size(PPU_PORT_MAX + 1);
 			m_port.set_readonly(false);
+			m_scanline = 0;
 
 			// TODO: set defaults
 

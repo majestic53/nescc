@@ -198,7 +198,7 @@ namespace nescc {
 			__in const std::string &path
 			)
 		{
-			SDL_Surface *surface = nullptr;
+			SDL_Surface *surface;
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
 

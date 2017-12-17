@@ -305,6 +305,7 @@ namespace nescc {
 
 			m_accumulator = 0;
 			m_cycle = 0;
+			m_debug = false;
 			m_flags = 0;
 			m_index_x =0;
 			m_index_y = 0;

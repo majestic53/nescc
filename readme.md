@@ -24,6 +24,10 @@ Changelog
 
 Version 0.1.1750
 ----------------
+*Updated: 12/17/2017*
+
+* Added argument support
+
 *Updated: 12/13/2017*
 
 * Bug fixes and code cleanup
