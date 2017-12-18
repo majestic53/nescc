@@ -170,9 +170,11 @@ namespace nescc {
 	{
 		TRACE_ENTRY();
 
+#ifndef NDEBUG
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
 		}
+#endif // NDEBUG
 
 		nescc::core::thread::pause();
 
@@ -186,9 +188,11 @@ namespace nescc {
 
 		TRACE_ENTRY();
 
+#ifndef NDEBUG
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
 		}
+#endif // NDEBUG
 
 		result = nescc::core::thread::paused();
 
@@ -228,9 +232,11 @@ namespace nescc {
 	{
 		TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
 
+#ifndef NDEBUG
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
 		}
+#endif // NDEBUG
 
 		m_debug = debug;
 		m_path = path;
@@ -246,9 +252,11 @@ namespace nescc {
 
 		TRACE_ENTRY();
 
+#ifndef NDEBUG
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
 		}
+#endif // NDEBUG
 
 		result = nescc::core::thread::running();
 
@@ -261,9 +269,11 @@ namespace nescc {
 	{
 		TRACE_ENTRY();
 
+#ifndef NDEBUG
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
 		}
+#endif // NDEBUG
 
 		nescc::core::thread::stop();
 
@@ -299,9 +309,11 @@ namespace nescc {
 	{
 		TRACE_ENTRY();
 
+#ifndef NDEBUG
 		if(!m_initialized) {
 			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
 		}
+#endif // NDEBUG
 
 		nescc::core::thread::unpause();
 

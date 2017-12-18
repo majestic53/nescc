@@ -3,6 +3,8 @@
 
 A NES emulator, written in C++
 
+__NOTE__: This project is a work-in-progress. At the moment, I only plan to support mapper #0. So expect rom support is limited.
+
 Table of Contents
 =================
 

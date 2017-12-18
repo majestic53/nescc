@@ -167,7 +167,7 @@ namespace nescc {
 					entry = ARGUMENT_MAP.find(str);
 					if(entry == ARGUMENT_MAP.end()) {
 						THROW_NESCC_TOOL_RUNNER_EXCEPTION_FORMAT(NESCC_TOOL_RUNNER_EXCEPTION_ARGUMENT_MALFORMED,
-							"Arg[%u]=%s", index, (*iter).c_str());
+							"Argument[%u]=%s", index, (*iter).c_str());
 					}
 
 					switch(entry->second) {
@@ -185,7 +185,7 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_TOOL_RUNNER_EXCEPTION_FORMAT(NESCC_TOOL_RUNNER_EXCEPTION_ARGUMENT_UNSUPPORTED,
-								"Arg[%u]=%s", index, (*iter).c_str());
+								"Argument[%u]=%s", index, (*iter).c_str());
 					}
 				} else {
 
