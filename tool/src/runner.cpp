@@ -110,7 +110,7 @@ namespace nescc {
 					result << "Stopped";
 				}
 			} else {
-				result << "Uninitialized";
+				result << "Stopped";
 			}
 
 			return result.str();
