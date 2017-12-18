@@ -32,17 +32,31 @@ namespace nescc {
 
 			~runtime(void);
 
+			void pause(void);
+
+			bool paused(void) const;
+
 			void run(
 				__in const std::string &path,
 				__in_opt bool debug = false
 				);
 
+			bool running(void) const;
+
+			void terminate(void);
+
 			std::string to_string(
 				__in_opt bool verbose = false
 				) const;
 
+			void unpause(void);
+
 			static std::string version(
 				__in_opt bool verbose = false
+				);
+
+			void wait(
+				__in_opt uint32_t timeout = SIGNAL_NO_TIMEOUT
 				);
 
 		protected:

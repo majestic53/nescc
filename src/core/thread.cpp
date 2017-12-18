@@ -222,6 +222,12 @@ namespace nescc {
 			}
 		}
 
+		bool
+		thread::stopped(void) const
+		{
+			return (m_state == THREAD_STOP);
+		}
+
 		std::string
 		thread::to_string(
 			__in_opt bool verbose

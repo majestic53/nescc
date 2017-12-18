@@ -52,6 +52,8 @@ namespace nescc {
 
 				void stop(void);
 
+				bool stopped(void) const;
+
 				virtual std::string to_string(
 					__in_opt bool verbose = false
 					) const;

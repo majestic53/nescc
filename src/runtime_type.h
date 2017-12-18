@@ -58,6 +58,8 @@ namespace nescc {
 
 	#define RUNTIME_ICON_PATH "./asset/icon.bmp"
 
+	#define RUNTIME_PAUSE_DELAY 200
+
 	#define RUNTIME_SDL_FLAGS (SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO)
 }
 

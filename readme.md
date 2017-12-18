@@ -24,11 +24,26 @@ Usage
 =====
 
 ```
-Nescc [-d|--debug] [-h|--help] [-v|--version] path
+Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 
--d | --debug       Display debug information
--h | --help        Display help information
--v | --version     Display version information
+-d | --debug           Display debug information
+-h | --help            Display help information
+-i | --interactive     Run in interactive mode
+-v | --version         Display version information
+```
+
+Interactive mode
+----------------
+
+```
+exit            Exit interactive mode
+help            Display help information
+pause           Pause emulation
+restart         Restart emulation
+run             Run/Unpause emulation
+status          Display status information
+stop            Stop emulation
+version         Display version information
 ```
 
 Changelog
@@ -38,6 +53,7 @@ Version 0.1.1750
 ----------------
 *Updated: 12/17/2017*
 
+* Added interactive mode
 * Added argument support
 
 *Updated: 12/13/2017*

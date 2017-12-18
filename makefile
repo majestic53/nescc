@@ -22,6 +22,7 @@ DIR_BUILD=./build/
 DIR_LOG=./log/
 DIR_ROOT=./
 DIR_SRC=./src/
+DIR_SRC_TOOL=./tool/src/
 DIR_TOOL=./tool/
 DIR_TOOL_SRC=./tool/src/
 JOB_SLOTS=4
@@ -34,9 +35,9 @@ TRACE_FLAGS_REL=CC_TRACE_FLAGS=-DTRACE_COLOR\ -DTRACE=0
 
 all: debug
 
-debug: clean init lib_debug bin_debug
+debug: clean init lib_debug lib_debug_tool bin_debug
 
-release: clean init lib_release bin_release
+release: clean init lib_release lib_release_tool bin_release
 
 testing: debug test
 
@@ -76,6 +77,14 @@ lib_debug:
 	cd $(DIR_SRC) && make $(BUILD_FLAGS_DBG) $(TRACE_FLAGS_DBG)$(TRACE) build -j $(JOB_SLOTS)
 	cd $(DIR_SRC) && make archive
 
+lib_debug_tool:
+	@echo ''
+	@echo '============================================'
+	@echo 'BUILDING TOOL LIBRARIES (DEBUG)'
+	@echo '============================================'
+	cd $(DIR_SRC_TOOL) && make $(BUILD_FLAGS_DBG) $(TRACE_FLAGS_DBG)$(TRACE) build -j $(JOB_SLOTS)
+	cd $(DIR_SRC_TOOL) && make archive
+
 lib_release:
 	@echo ''
 	@echo '============================================'
@@ -83,6 +92,14 @@ lib_release:
 	@echo '============================================'
 	cd $(DIR_SRC) && make $(BUILD_FLAGS_REL) $(TRACE_FLAGS_REL) build -j $(JOB_SLOTS)
 	cd $(DIR_SRC) && make archive
+
+lib_release_tool:
+	@echo ''
+	@echo '============================================'
+	@echo 'BUILDING TOOL LIBRARIES (RELEASE)'
+	@echo '============================================'
+	cd $(DIR_SRC_TOOL) && make $(BUILD_FLAGS_REL) $(TRACE_FLAGS_REL) build -j $(JOB_SLOTS)
+	cd $(DIR_SRC_TOOL) && make archive
 
 ### TESTING ###
 
