@@ -51,6 +51,36 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		nescc::console::apu &
+		bus::apu(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_apu;
+		}
+
+		nescc::console::cpu &
+		bus::cpu(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_cpu;
+		}
+
 		std::string
 		bus::cpu_as_string(
 			__in uint16_t address,
@@ -86,16 +116,16 @@ namespace nescc {
 				// TODO: add additional cpu io mappings
 
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
-					result << m_mapper.cartridge().ram(m_mapper.ram_index()).as_string(
-							address - CARTRIDGE_RAM_PROGRAM_START, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
+					result << m_mapper.ram().as_string(address - CARTRIDGE_RAM_PROGRAM_START, offset,
+						CARTRIDGE_RAM_PROGRAM_START, verbose);
 					break;
 				case CARTRIDGE_ROM_PROGRAM_0_START ... CARTRIDGE_ROM_PROGRAM_0_END: // 0x8000 - 0xbfff
-					result << m_mapper.cartridge().rom_program(m_mapper.rom_program_0_index()).as_string(
-						address - CARTRIDGE_ROM_PROGRAM_0_START, offset, CARTRIDGE_ROM_PROGRAM_0_START, verbose);
+					result << m_mapper.rom_program_0().as_string(address - CARTRIDGE_ROM_PROGRAM_0_START, offset,
+						CARTRIDGE_ROM_PROGRAM_0_START, verbose);
 					break;
 				case CARTRIDGE_ROM_PROGRAM_1_START ... CARTRIDGE_ROM_PROGRAM_1_END: // 0xc000 - 0xffff
-					result << m_mapper.cartridge().rom_program(m_mapper.rom_program_1_index()).as_string(
-						address - CARTRIDGE_ROM_PROGRAM_1_START, offset, CARTRIDGE_ROM_PROGRAM_1_START, verbose);
+					result << m_mapper.rom_program_1().as_string(address - CARTRIDGE_ROM_PROGRAM_1_START, offset,
+						CARTRIDGE_ROM_PROGRAM_1_START, verbose);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Offset=%u(%04x)",
@@ -265,6 +295,12 @@ namespace nescc {
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
 					break;
+				case CARTRIDGE_ROM_PROGRAM_0_START ... CARTRIDGE_ROM_PROGRAM_0_END: // 0x8000 - 0xbfff
+					m_mapper.write_rom_program_0(address - CARTRIDGE_ROM_PROGRAM_0_START, value);
+					break;
+				case CARTRIDGE_ROM_PROGRAM_1_START ... CARTRIDGE_ROM_PROGRAM_1_END: // 0xc000 - 0xffff
+					m_mapper.write_rom_program_1(address - CARTRIDGE_ROM_PROGRAM_1_START, value);
+					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Value=%u(%02x)",
 						address, address, value, value);
@@ -298,6 +334,21 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		nescc::console::joypad &
+		bus::joypad(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_joypad;
+		}
+
 		void
 		bus::load(
 			__in const std::string &path,
@@ -317,6 +368,21 @@ namespace nescc {
 			m_debug = debug;
 
 			TRACE_EXIT();
+		}
+
+		nescc::console::mapper &
+		bus::mapper(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_mapper;
 		}
 
 		uint8_t
@@ -377,6 +443,21 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		nescc::console::ppu &
+		bus::ppu(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_ppu;
+		}
+
 		std::string
 		bus::ppu_as_string(
 			__in uint16_t address,
@@ -390,8 +471,7 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					result << m_mapper.cartridge().rom_character(m_mapper.rom_character_index()).as_string(
-						address, offset, 0, verbose);
+					result << m_mapper.rom_character().as_string(address, offset, 0, verbose);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					result << m_ppu.nametable().as_string((address - PPU_NAMETABLE_START) % PPU_NAMETABLE_LENGTH, offset,
@@ -428,7 +508,7 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					result = m_mapper.cartridge().rom_character(m_mapper.rom_character_index()).read(address);
+					result = m_mapper.read_rom_character(address);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					result = m_ppu.read_nametable((address - PPU_NAMETABLE_START) % PPU_NAMETABLE_LENGTH);
@@ -468,6 +548,9 @@ namespace nescc {
 			}
 
 			switch(address) {
+				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
+					m_mapper.write_rom_character(address, value);
+					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					m_ppu.write_nametable((address - PPU_NAMETABLE_START) % PPU_NAMETABLE_LENGTH, value);
 					break;

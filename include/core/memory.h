@@ -61,12 +61,6 @@ namespace nescc {
 					__in uint16_t address
 					) const;
 
-				bool readonly(void) const;
-
-				void set_readonly(
-					__in bool readonly
-					);
-
 				void set_size(
 					__in uint16_t size,
 					__in_opt uint8_t fill = MEMORY_FILL
@@ -84,8 +78,6 @@ namespace nescc {
 					);
 
 			protected:
-
-				bool m_readonly;
 
 				std::vector<uint8_t> m_vector;
 		};

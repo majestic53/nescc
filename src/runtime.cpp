@@ -50,6 +50,36 @@ namespace nescc {
 		m_trace.release();
 	}
 
+	nescc::console::bus &
+	runtime::bus(void)
+	{
+		TRACE_ENTRY();
+
+#ifndef NDEBUG
+		if(!m_initialized) {
+			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
+		}
+#endif // NDEBUG
+
+		TRACE_EXIT();
+		return m_bus;
+	}
+
+	nescc::interface::display &
+	runtime::display(void)
+	{
+		TRACE_ENTRY();
+
+#ifndef NDEBUG
+		if(!m_initialized) {
+			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
+		}
+#endif // NDEBUG
+
+		TRACE_EXIT();
+		return m_display;
+	}
+
 	bool
 	runtime::on_initialize(void)
 	{

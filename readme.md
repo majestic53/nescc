@@ -38,9 +38,14 @@ Interactive mode
 ----------------
 
 ```
+apu             Display apu status
+cpu             Display cpu status
 exit            Exit interactive mode
 help            Display help information
+joypad          Display joypad status
+mapper          Display mapper status
 pause           Pause emulation
+ppu             Display ppu status
 restart         Restart emulation
 run             Run/Unpause emulation
 status          Display status information
@@ -53,6 +58,11 @@ Changelog
 
 Version 0.1.1750
 ----------------
+*Updated: 12/18/2017*
+
+* Added ppu state machine
+* Added additional interactive commands
+
 *Updated: 12/17/2017*
 
 * Added interactive mode

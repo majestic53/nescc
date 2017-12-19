@@ -1808,10 +1808,8 @@ namespace nescc {
 			m_index_x = 0;
 			m_index_y = 0;
 			m_oam_dma.set_size(CPU_OAM_DMA_LENGTH);
-			m_oam_dma.set_readonly(false);
 			m_program_counter = read_word(bus, CPU_INTERRUPT_RESET_ADDRESS);
 			m_ram.set_size(CPU_RAM_LENGTH);
-			m_ram.set_readonly(false);
 			m_signal_maskable = false;
 			m_signal_non_maskable = false;
 			m_stack_pointer = CPU_STACK_POINTER_ADDRESS_INIT;

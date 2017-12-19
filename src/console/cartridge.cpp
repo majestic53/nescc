@@ -150,20 +150,17 @@ namespace nescc {
 			for(iter = 0; iter <= header.ram_program; ++iter) {
 				m_ram.push_back(nescc::core::memory());
 				m_ram.back().set_size(CARTRIDGE_RAM_PROGRAM_LENGTH);
-				m_ram.back().set_readonly(false);
 			}
 
 			for(iter = 0; iter < header.rom_program; ++iter) {
 				m_rom_program.push_back(nescc::core::memory());
 				m_rom_program.back().set_size(CARTRIDGE_ROM_PROGRAM_LENGTH);
-				m_rom_program.back().set_readonly(true);
 				file.read((char *) m_rom_program.back().raw(), m_rom_program.back().size());
 			}
 
 			for(iter = 0; iter < header.rom_character; ++iter) {
 				m_rom_character.push_back(nescc::core::memory());
 				m_rom_character.back().set_size(CARTRIDGE_ROM_CHARACTER_LENGTH);
-				m_rom_character.back().set_readonly(true);
 				file.read((char *) m_rom_character.back().raw(), m_rom_character.back().size());
 			}
 

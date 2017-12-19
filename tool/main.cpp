@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../include/runner.h"
+#include "./include/runner.h"
 
 int
 main(

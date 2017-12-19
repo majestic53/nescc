@@ -55,8 +55,8 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
 			result << "PRG RAM Bank  | " << (int) m_ram_index
-				<< "PRG ROM Bank  | " << (int) m_rom_program_index_0 << ", " << (int) m_rom_program_index_1
-				<< "CHR ROM Bank  | " << (int) m_rom_character_index;
+				<< std::endl << "PRG ROM Bank  | " << (int) m_rom_program_index_0 << ", " << (int) m_rom_program_index_1
+				<< std::endl << "CHR ROM Bank  | " << (int) m_rom_character_index;
 
 			TRACE_EXIT();
 			return result.str();
@@ -132,8 +132,8 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		uint8_t
-		mapper::ram_index(void) const
+		nescc::core::memory &
+		mapper::ram(void)
 		{
 			TRACE_ENTRY();
 
@@ -143,8 +143,8 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			TRACE_EXIT_FORMAT("Result=%u", m_ram_index);
-			return m_ram_index;
+			TRACE_EXIT();
+			return m_cartridge.ram(m_ram_index);
 		}
 
 		uint8_t
@@ -155,6 +155,12 @@ namespace nescc {
 			uint8_t result = 0;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
 
 			result = m_cartridge.ram(m_ram_index).read(address);
 
@@ -171,6 +177,12 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
 			result = m_cartridge.rom_character(m_rom_character_index).read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
@@ -186,6 +198,12 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
 			result = m_cartridge.rom_program(m_rom_program_index_0).read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
@@ -200,6 +218,12 @@ namespace nescc {
 			uint8_t result = 0;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
 
 			result = m_cartridge.rom_program(m_rom_program_index_1).read(address);
 
@@ -251,8 +275,8 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		uint8_t
-		mapper::rom_character_index(void) const
+		nescc::core::memory &
+		mapper::rom_character(void)
 		{
 			TRACE_ENTRY();
 
@@ -262,12 +286,12 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			TRACE_EXIT_FORMAT("Result=%u", m_rom_character_index);
-			return m_rom_character_index;
+			TRACE_EXIT();
+			return m_cartridge.rom_character(m_rom_character_index);
 		}
 
-		uint8_t
-		mapper::rom_program_0_index(void) const
+		nescc::core::memory &
+		mapper::rom_program_0(void)
 		{
 			TRACE_ENTRY();
 
@@ -277,12 +301,12 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			TRACE_EXIT_FORMAT("Result=%u", m_rom_program_index_0);
-			return m_rom_program_index_0;
+			TRACE_EXIT();
+			return m_cartridge.rom_program(m_rom_program_index_0);
 		}
 
-		uint8_t
-		mapper::rom_program_1_index(void) const
+		nescc::core::memory &
+		mapper::rom_program_1(void)
 		{
 			TRACE_ENTRY();
 
@@ -292,8 +316,8 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			TRACE_EXIT_FORMAT("Result=%u", m_rom_program_index_1);
-			return m_rom_program_index_1;
+			TRACE_EXIT();
+			return m_cartridge.rom_program(m_rom_program_index_1);
 		}
 
 		std::string
@@ -330,7 +354,70 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
 			m_cartridge.ram(m_ram_index).write(address, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		mapper::write_rom_character(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_cartridge.rom_character(m_rom_character_index).write(address, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		mapper::write_rom_program_0(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_cartridge.rom_program(m_rom_program_index_0).write(address, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		mapper::write_rom_program_1(
+			__in uint16_t address,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_cartridge.rom_program(m_rom_program_index_1).write(address, value);
 
 			TRACE_EXIT();
 		}

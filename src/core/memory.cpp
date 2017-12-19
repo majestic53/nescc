@@ -24,8 +24,7 @@ namespace nescc {
 
 	namespace core {
 
-		memory::memory(void) :
-			m_readonly(false)
+		memory::memory(void)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -34,7 +33,6 @@ namespace nescc {
 		memory::memory(
 			__in const memory &other
 			) :
-				m_readonly(other.m_readonly),
 				m_vector(other.m_vector)
 		{
 			TRACE_ENTRY();
@@ -55,7 +53,6 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			if(this != &other) {
-				m_readonly = other.m_readonly;
 				m_vector = other.m_vector;
 			}
 
@@ -165,7 +162,6 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			m_readonly = false;
 			m_vector.clear();
 
 			TRACE_EXIT();
@@ -206,26 +202,6 @@ namespace nescc {
 			return result;
 		}
 
-		bool
-		memory::readonly(void) const
-		{
-			TRACE_ENTRY();
-			TRACE_EXIT_FORMAT("Result=%x", m_readonly);
-			return m_readonly;
-		}
-
-		void
-		memory::set_readonly(
-			__in bool readonly
-			)
-		{
-			TRACE_ENTRY_FORMAT("Readonly=%x", readonly);
-
-			m_readonly = readonly;
-
-			TRACE_EXIT();
-		}
-
 		void
 		memory::set_size(
 			__in uint16_t size,
@@ -264,8 +240,7 @@ namespace nescc {
 			result << NESCC_CORE_MEMORY_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 			if(verbose) {
-				result << " Vector[" << m_vector.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_vector[0])
-					<< ", Mode=" << (m_readonly ? "Readonly" : "Read/Write");
+				result << " Vector[" << m_vector.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_vector[0]);
 			}
 
 			TRACE_EXIT();
@@ -281,11 +256,6 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
 #ifndef NDEBUG
-			if(m_readonly) {
-				THROW_NESCC_CORE_MEMORY_EXCEPTION_FORMAT(NESCC_CORE_MEMORY_EXCEPTION_READONLY,
-					"Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
-			}
-
 			if(address >= m_vector.size()) {
 				THROW_NESCC_CORE_MEMORY_EXCEPTION_FORMAT(NESCC_CORE_MEMORY_EXCEPTION_ADDRESS,
 					"Address=%u(%04x), Value=%u(%02x)", address, address, value, value);

@@ -40,7 +40,7 @@ namespace nescc {
 
 				void clear(void);
 
-				uint8_t ram_index(void) const;
+				nescc::core::memory &ram(void);
 
 				uint8_t read_ram(
 					__in uint16_t address
@@ -62,17 +62,32 @@ namespace nescc {
 					__in_opt bool debug = false
 					);
 
-				uint8_t rom_character_index(void) const;
+				nescc::core::memory &rom_character(void);
 
-				uint8_t rom_program_0_index(void) const;
+				nescc::core::memory &rom_program_0(void);
 
-				uint8_t rom_program_1_index(void) const;
+				nescc::core::memory &rom_program_1(void);
 
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
 
 				void write_ram(
+					__in uint16_t address,
+					__in uint8_t value
+					);
+
+				void write_rom_character(
+					__in uint16_t address,
+					__in uint8_t value
+					);
+
+				void write_rom_program_0(
+					__in uint16_t address,
+					__in uint8_t value
+					);
+
+				void write_rom_program_1(
 					__in uint16_t address,
 					__in uint8_t value
 					);

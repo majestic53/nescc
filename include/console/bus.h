@@ -38,6 +38,10 @@ namespace nescc {
 
 				~bus(void);
 
+				nescc::console::apu &apu(void);
+
+				nescc::console::cpu &cpu(void);
+
 				std::string cpu_as_string(
 					__in uint16_t address,
 					__in uint16_t offset,
@@ -63,12 +67,18 @@ namespace nescc {
 					__in uint32_t value
 					);
 
+				nescc::console::joypad &joypad(void);
+
 				void load(
 					__in const std::string &path,
 					__in_opt bool debug = false
 					);
 
+				nescc::console::mapper &mapper(void);
+
 				uint8_t mirroring(void) const;
+
+				nescc::console::ppu &ppu(void);
 
 				std::string ppu_as_string(
 					__in uint16_t address,

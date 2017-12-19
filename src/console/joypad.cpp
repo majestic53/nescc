@@ -179,7 +179,6 @@ namespace nescc {
 
 			m_debug = debug;
 			m_state.set_size(JOYPAD_MAX + 1);
-			m_state.set_readonly(false);
 			m_strobe = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad reset.");

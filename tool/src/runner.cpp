@@ -37,6 +37,62 @@ namespace nescc {
 		}
 
 		std::string
+		runner::emulation_apu(void)
+		{
+			std::stringstream result;
+
+			if(m_runtime.initialized()) {
+				result << m_runtime.bus().apu().as_string(true);
+			} else {
+				result << "Emulation is not running";
+			}
+
+			return result.str();
+		}
+
+		std::string
+		runner::emulation_cpu(void)
+		{
+			std::stringstream result;
+
+			if(m_runtime.initialized()) {
+				result << m_runtime.bus().cpu().as_string(true);
+			} else {
+				result << "Emulation is not running";
+			}
+
+			return result.str();
+		}
+
+		std::string
+		runner::emulation_joypad(void)
+		{
+			std::stringstream result;
+
+			if(m_runtime.initialized()) {
+				result << m_runtime.bus().joypad().as_string(true);
+			} else {
+				result << "Emulation is not running";
+			}
+
+			return result.str();
+		}
+
+		std::string
+		runner::emulation_mapper(void)
+		{
+			std::stringstream result;
+
+			if(m_runtime.initialized()) {
+				result << m_runtime.bus().mapper().as_string(true);
+			} else {
+				result << "Emulation is not running";
+			}
+
+			return result.str();
+		}
+
+		std::string
 		runner::emulation_pause(void)
 		{
 			std::stringstream result;
@@ -48,6 +104,20 @@ namespace nescc {
 				} else {
 					result << "Emulation is already paused";
 				}
+			} else {
+				result << "Emulation is not running";
+			}
+
+			return result.str();
+		}
+
+		std::string
+		runner::emulation_ppu(void)
+		{
+			std::stringstream result;
+
+			if(m_runtime.initialized()) {
+				result << m_runtime.bus().ppu().as_string(true);
 			} else {
 				result << "Emulation is not running";
 			}
@@ -255,6 +325,12 @@ namespace nescc {
 						std::string response;
 
 						switch(entry->second) {
+							case ARGUMENT_INTERACTIVE_APU:
+								response = emulation_apu();
+								break;
+							case ARGUMENT_INTERACTIVE_CPU:
+								response = emulation_cpu();
+								break;
 							case ARGUMENT_INTERACTIVE_EXIT:
 								running = false;
 								result = false;
@@ -262,8 +338,17 @@ namespace nescc {
 							case ARGUMENT_INTERACTIVE_HELP:
 								response = string_help_interactive();
 								break;
+							case ARGUMENT_INTERACTIVE_JOYPAD:
+								response = emulation_joypad();
+								break;
+							case ARGUMENT_INTERACTIVE_MAPPER:
+								response = emulation_mapper();
+								break;
 							case ARGUMENT_INTERACTIVE_PAUSE:
 								response = emulation_pause();
+								break;
+							case ARGUMENT_INTERACTIVE_PPU:
+								response = emulation_ppu();
 								break;
 							case ARGUMENT_INTERACTIVE_RESTART:
 								response = emulation_restart();

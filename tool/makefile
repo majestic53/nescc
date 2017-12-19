@@ -20,7 +20,7 @@ CC_FLAGS=-march=native -std=gnu++11 -Wall -Werror
 CC_FLAGS_EXT=-pthread -lSDL2 -lSDL2main
 DIR_BIN=./../bin/
 DIR_BUILD=./../build/
-DIR_SRC=./src/
+DIR_SRC=./
 LIB=libnescc.a
 LIB_TOOL=libnescc_tool.a
 

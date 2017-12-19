@@ -25,7 +25,7 @@ namespace nescc {
 	namespace console {
 
 		ppu::ppu(void) :
-			m_cycle(0),
+			m_column(0),
 			m_debug(false),
 			m_frame_odd(false),
 			m_mirroring(0),
@@ -71,7 +71,7 @@ namespace nescc {
 
 			// TODO
 
-			m_cycle = 0;
+			m_column = 0;
 			m_debug = false;
 			m_frame_odd = false;
 			m_mirroring = 0;
@@ -82,6 +82,46 @@ namespace nescc {
 			m_scanline = 0;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu cleared.");
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::execute_post_render(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::execute_pre_render(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::execute_vblank(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::execute_visible(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
 
 			TRACE_EXIT();
 		}
@@ -233,13 +273,13 @@ namespace nescc {
 #endif // NDEBUG
 
 			switch(port) {
-				case PPU_PORT_STATUS:
+				case PPU_PORT_STATUS: // 0x2002
 					result = read_port_status();
 					break;
-				case PPU_PORT_OAM_DATA:
+				case PPU_PORT_OAM_DATA: // 0x2004
 					result = read_port_oam_data();
 					break;
-				case PPU_PORT_DATA:
+				case PPU_PORT_DATA: // 0x2007
 					result = read_port_data();
 					break;
 				default:
@@ -312,18 +352,14 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
-			m_cycle = 0;
+			m_column = 0;
 			m_debug = debug;
 			m_frame_odd = false;
 			m_mirroring = bus.mirroring();
 			m_nametable.set_size(PPU_NAMETABLE_LENGTH);
-			m_nametable.set_readonly(false);
 			m_oam.set_size(PPU_OAM_LENGTH);
-			m_oam.set_readonly(false);
 			m_palette.set_size(PPU_PALETTE_LENGTH);
-			m_palette.set_readonly(false);
 			m_port.set_size(PPU_PORT_MAX + 1);
-			m_port.set_readonly(false);
 			m_scanline = 0;
 
 			// TODO: set defaults
@@ -371,7 +407,31 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			// TODO
+			switch(m_scanline) {
+				case PPU_SCANLINE_VISIBLE_START ... PPU_SCANLINE_VISIBLE_END: // 0 - 239
+					execute_visible();
+					break;
+				case PPU_SCANLINE_POST_RENDER: // 240
+					execute_post_render();
+					break;
+				case PPU_SCANLINE_VBLANK_START ... PPU_SCANLINE_VBLANK_END: // 241 - 260
+					execute_vblank();
+					break;
+				case PPU_SCANLINE_PRE_RENDER: // 261
+					execute_pre_render();
+					break;
+				default:
+					break;
+			}
+
+			if(++m_column > PPU_COLUMN_MAX) {
+				m_column = 0;
+
+				if(++m_scanline > PPU_SCANLINE_MAX) {
+					m_scanline = 0;
+					m_frame_odd = !m_frame_odd;
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -448,25 +508,25 @@ namespace nescc {
 #endif // NDEBUG
 
 			switch(port) {
-				case PPU_PORT_CONTROL:
+				case PPU_PORT_CONTROL: // 0x2000
 					write_port_control(value);
 					break;
-				case PPU_PORT_MASK:
+				case PPU_PORT_MASK: // 0x2001
 					write_port_mask(value);
 					break;
-				case PPU_PORT_OAM_ADDRESS:
+				case PPU_PORT_OAM_ADDRESS: // 0x2003
 					write_port_oam_address(value);
 					break;
-				case PPU_PORT_OAM_DATA:
+				case PPU_PORT_OAM_DATA: // 0x2004
 					write_port_oam_data(value);
 					break;
-				case PPU_PORT_SCROLL:
+				case PPU_PORT_SCROLL: // 0x2005
 					write_port_scroll(value);
 					break;
-				case PPU_PORT_ADDRESS:
+				case PPU_PORT_ADDRESS: // 0x2006
 					write_port_address(value);
 					break;
-				case PPU_PORT_DATA:
+				case PPU_PORT_DATA: // 0x2007
 					write_port_data(value);
 					break;
 				default:

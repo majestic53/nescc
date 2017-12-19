@@ -28,14 +28,14 @@ namespace nescc {
 	namespace console {
 
 		enum {
-			PPU_PORT_CONTROL = 0,
-			PPU_PORT_MASK,
-			PPU_PORT_STATUS,
-			PPU_PORT_OAM_ADDRESS,
-			PPU_PORT_OAM_DATA,
-			PPU_PORT_SCROLL,
-			PPU_PORT_ADDRESS,
-			PPU_PORT_DATA,
+			PPU_PORT_CONTROL = 0, // 0x2000
+			PPU_PORT_MASK, // 0x2001
+			PPU_PORT_STATUS, // 0x2002
+			PPU_PORT_OAM_ADDRESS, // 0x2003
+			PPU_PORT_OAM_DATA, // 0x2004
+			PPU_PORT_SCROLL, // 0x2005
+			PPU_PORT_ADDRESS, // 0x2006
+			PPU_PORT_DATA, // 0x2007
 		};
 
 		#define PPU_PORT_MAX PPU_PORT_DATA
@@ -124,6 +124,14 @@ namespace nescc {
 					__in const ppu &other
 					) = delete;
 
+				void execute_post_render(void);
+
+				void execute_pre_render(void);
+
+				void execute_vblank(void);
+
+				void execute_visible(void);
+
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
@@ -162,7 +170,7 @@ namespace nescc {
 					__in uint8_t value
 					);
 
-				uint32_t m_cycle;
+				uint32_t m_column;
 
 				bool m_debug;
 

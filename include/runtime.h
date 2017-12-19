@@ -32,6 +32,10 @@ namespace nescc {
 
 			~runtime(void);
 
+			nescc::console::bus &bus(void);
+
+			nescc::interface::display &display(void);
+
 			void pause(void);
 
 			bool paused(void) const;

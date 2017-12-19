@@ -55,7 +55,17 @@ namespace nescc {
 					__in const runner &other
 					) = delete;
 
+				std::string emulation_apu(void);
+
+				std::string emulation_cpu(void);
+
+				std::string emulation_joypad(void);
+
+				std::string emulation_mapper(void);
+
 				std::string emulation_pause(void);
+
+				std::string emulation_ppu(void);
 
 				std::string emulation_restart(void);
 
