@@ -56,13 +56,15 @@ version         Display version information
 Changelog
 =========
 
-Version 0.1.1750
+Version 0.1.1751
 ----------------
 *Updated: 12/18/2017*
 
 * Added ppu state machine
 * Added additional interactive commands
 
+Version 0.1.1750
+----------------
 *Updated: 12/17/2017*
 
 * Added interactive mode
@@ -76,22 +78,6 @@ Version 0.1.1750
 
 * Added console ppu ports/memory
 * Integrated ppu into bus
-
-Version 0.1.1749
-----------------
-*Updated: 12/10/2017*
-
-* Implemented console joypad class
-
-*Updated: 12/6-8/2017*
-
-* Added cpu command routines
-
-*Updated: 12/4-5/2017*
-
-* Added cpu address mode routines
-* Added cpu opcodes
-* Added cpu commands/modes
 
 *Changelog truncated (see file history for full log)*
 
