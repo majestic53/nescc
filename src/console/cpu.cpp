@@ -29,7 +29,6 @@ namespace nescc {
 		cpu::cpu(void) :
 			m_accumulator(0),
 			m_cycle(0),
-			m_debug(false),
 			m_flags(0),
 			m_index_x(0),
 			m_index_y(0),
@@ -46,6 +45,21 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
+		}
+
+		uint8_t
+		cpu::accumulator(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", m_accumulator, m_accumulator);
+			return m_accumulator;
 		}
 
 		uint8_t
@@ -305,7 +319,6 @@ namespace nescc {
 
 			m_accumulator = 0;
 			m_cycle = 0;
-			m_debug = false;
 			m_flags = 0;
 			m_index_x =0;
 			m_index_y = 0;
@@ -1567,6 +1580,51 @@ namespace nescc {
 			return result;
 		}
 
+		uint8_t
+		cpu::flags(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", m_flags, m_flags);
+			return m_flags;
+		}
+
+		uint8_t
+		cpu::index_x(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", m_index_x, m_index_x);
+			return m_index_x;
+		}
+
+		uint8_t
+		cpu::index_y(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", m_index_y, m_index_y);
+			return m_index_y;
+		}
+
 		void
 		cpu::interrupt_maskable(void)
 		{
@@ -1679,6 +1737,21 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		uint16_t
+		cpu::program_counter(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", m_program_counter, m_program_counter);
+			return m_program_counter;
+		}
+
 		uint8_t
 		cpu::pull_byte(
 			__in nescc::console::interface::bus &bus
@@ -1787,11 +1860,10 @@ namespace nescc {
 
 		void
 		cpu::reset(
-			__in nescc::console::interface::bus &bus,
-			__in_opt bool debug
+			__in nescc::console::interface::bus &bus
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -1803,7 +1875,6 @@ namespace nescc {
 
 			m_accumulator = 0;
 			m_cycle = CPU_MODE_CYCLES(CPU_MODE_INTERRUPT);
-			m_debug = debug;
 			m_flags = CPU_FLAG_RESET;
 			m_index_x = 0;
 			m_index_y = 0;
@@ -1861,6 +1932,114 @@ namespace nescc {
 			return result;
 		}
 
+		void
+		cpu::set_accumulator(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_accumulator = value;
+
+			TRACE_EXIT();
+		}
+
+		void
+		cpu::set_flags(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_flags = value;
+
+			TRACE_EXIT();
+		}
+
+		void
+		cpu::set_index_x(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_index_x = value;
+
+			TRACE_EXIT();
+		}
+
+		void
+		cpu::set_index_y(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_index_y = value;
+
+			TRACE_EXIT();
+		}
+
+		void
+		cpu::set_program_counter(
+			__in uint16_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%04x)", value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_program_counter = value;
+
+			TRACE_EXIT();
+		}
+
+		void
+		cpu::set_stack_pointer(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_stack_pointer = value;
+
+			TRACE_EXIT();
+		}
+
 		uint8_t
 		cpu::shift_left(
 			__in uint8_t value
@@ -1894,6 +2073,21 @@ namespace nescc {
 		}
 
 		uint8_t
+		cpu::stack_pointer(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", m_stack_pointer, m_stack_pointer);
+			return m_stack_pointer;
+		}
+
+		uint8_t
 		cpu::step(
 			__in nescc::console::interface::bus &bus
 			)
@@ -1904,11 +2098,6 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			command = CPU_COMMAND.at(read_byte(bus, m_program_counter));
-
-			if(m_debug) {
-				TRACE_DEBUG_MESSAGE_FORMAT("Cpu", "[%04x] %s %s", m_program_counter, CPU_COMMAND_STRING(command.first),
-					CPU_MODE_STRING(command.second));
-			}
 
 			++m_program_counter;
 
@@ -2047,8 +2236,7 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::cpu>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
-						<< ", RAM=" << m_ram.to_string(verbose)
+					result << ", RAM=" << m_ram.to_string(verbose)
 						<< ", OAM DMA=" << m_oam_dma.to_string(verbose)
 						<< ", Cycle=" << m_cycle
 						<< ", Signal={";

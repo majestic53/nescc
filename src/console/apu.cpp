@@ -24,8 +24,7 @@ namespace nescc {
 
 	namespace console {
 
-		apu::apu(void) :
-			m_debug(false)
+		apu::apu(void)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -107,11 +106,10 @@ namespace nescc {
 
 		void
 		apu::reset(
-			__in nescc::console::interface::bus &bus,
-			__in_opt bool debug
+			__in nescc::console::interface::bus &bus
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -120,8 +118,6 @@ namespace nescc {
 #endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu resetting...");
-
-			m_debug = debug;
 
 			// TODO
 
@@ -145,7 +141,6 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::apu>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Mode=" << (!m_debug ? "Normal" : "Debug");
 
 					// TODO
 

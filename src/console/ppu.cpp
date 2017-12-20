@@ -26,7 +26,6 @@ namespace nescc {
 
 		ppu::ppu(void) :
 			m_column(0),
-			m_debug(false),
 			m_frame_odd(false),
 			m_mirroring(0),
 			m_scanline(0)
@@ -72,7 +71,6 @@ namespace nescc {
 			// TODO
 
 			m_column = 0;
-			m_debug = false;
 			m_frame_odd = false;
 			m_mirroring = 0;
 			m_nametable.clear();
@@ -338,11 +336,10 @@ namespace nescc {
 
 		void
 		ppu::reset(
-			__in nescc::console::interface::bus &bus,
-			__in_opt bool debug
+			__in nescc::console::interface::bus &bus
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -353,7 +350,6 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
 			m_column = 0;
-			m_debug = debug;
 			m_frame_odd = false;
 			m_mirroring = bus.mirroring();
 			m_nametable.set_size(PPU_NAMETABLE_LENGTH);
@@ -384,7 +380,6 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::ppu>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Mode=" << (!m_debug ? "Normal" : "Debug");
 
 					// TODO
 				}

@@ -24,7 +24,6 @@ namespace nescc {
 	namespace tool {
 
 		runner::runner(void) :
-			m_debug(false),
 			m_interactive(false),
 			m_runtime(nescc::runtime::acquire())
 		{
@@ -37,12 +36,34 @@ namespace nescc {
 		}
 
 		std::string
-		runner::emulation_apu(void)
+		runner::command_apu(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
+			std::vector<std::string> sub_arguments = arguments;
+			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
+
+			if(!arguments.empty()) {
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_APU);
+				sub_arguments.erase(sub_arguments.begin());
+			}
 
 			if(m_runtime.initialized()) {
-				result << m_runtime.bus().apu().as_string(true);
+
+				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().apu().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					default:
+						result << "Unsupported command argument: " << arguments.front();
+						break;
+				}
 			} else {
 				result << "Emulation is not running";
 			}
@@ -51,12 +72,161 @@ namespace nescc {
 		}
 
 		std::string
-		runner::emulation_cpu(void)
+		runner::command_cpu(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
+			uint16_t address = 0, value = 1;
+			std::vector<std::string> sub_arguments = arguments;
+			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
+
+			if(!arguments.empty()) {
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_CPU);
+				sub_arguments.erase(sub_arguments.begin());
+			}
 
 			if(m_runtime.initialized()) {
-				result << m_runtime.bus().cpu().as_string(true);
+
+				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_GET:
+
+						if(parse_subcommand_values(sub_arguments, address, value)) {
+
+							if(value > 1) {
+								result << m_runtime.bus().cpu_as_string(address, value, true);
+							} else {
+								result << "CPU[" << SCALAR_AS_HEX(uint16_t, address) << "] = "
+									<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().cpu_read(address));
+							}
+						} else {
+							result << "Invalid command arguments: <address> <offset>";
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ:
+
+						if(sub_arguments.empty()) {
+							m_runtime.bus().cpu().interrupt_maskable();
+							result << m_runtime.bus().cpu().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI:
+
+						if(sub_arguments.empty()) {
+							m_runtime.bus().cpu().interrupt_non_maskable();
+							result << m_runtime.bus().cpu().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_REGISTER:
+
+						if(parse_subcommand_register_values(sub_arguments, address, value)) {
+
+							if(sub_arguments.size() == (SUBCOMMAND_ARGUMENT_MAX + 1)) {
+
+								switch(address) {
+									case SUBCOMMAND_ARGUMENT_REGISTER_ACCUMULATOR:
+										m_runtime.bus().cpu().set_accumulator(value);
+										result << "A <- " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().accumulator());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS:
+										m_runtime.bus().cpu().set_flags(value);
+										result << "FLG <- " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().flags());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_X:
+										m_runtime.bus().cpu().set_index_x(value);
+										result << "X <- " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().index_x());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_Y:
+										m_runtime.bus().cpu().set_index_y(value);
+										result << "Y <- " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().index_y());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_PROGRAM_COUNTER:
+										m_runtime.bus().cpu().set_program_counter(value);
+										result << "PC <- " << SCALAR_AS_HEX(uint16_t,
+											m_runtime.bus().cpu().program_counter());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_STACK_POINTER:
+										m_runtime.bus().cpu().set_stack_pointer(value);
+										result << "SP <- " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().stack_pointer());
+										break;
+									default:
+										break;
+								}
+							} else {
+
+								switch(address) {
+									case SUBCOMMAND_ARGUMENT_REGISTER_ACCUMULATOR:
+										result << "A = " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().accumulator());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS:
+										result << "FLG = " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().flags());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_X:
+										result << "X = " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().index_x());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_Y:
+										result << "Y = " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().index_y());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_PROGRAM_COUNTER:
+										result << "PC = " << SCALAR_AS_HEX(uint16_t,
+											m_runtime.bus().cpu().program_counter());
+										break;
+									case SUBCOMMAND_ARGUMENT_REGISTER_STACK_POINTER:
+										result << "SP = " << SCALAR_AS_HEX(uint8_t,
+											m_runtime.bus().cpu().stack_pointer());
+										break;
+									default:
+										break;
+								}
+							}
+						} else {
+							result << "Invalid command arguments: <register> <value>";
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_RESET:
+
+						if(sub_arguments.empty()) {
+							m_runtime.bus().cpu().reset(m_runtime.bus());
+							result << m_runtime.bus().cpu().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SET:
+
+						if(parse_subcommand_values(sub_arguments, address, value)) {
+							m_runtime.bus().cpu_write(address, value);
+							result << "CPU[" << SCALAR_AS_HEX(uint16_t, address) << "] <- "
+								<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().cpu_read(address));
+						} else {
+							result << "Invalid command arguments: <address> <value>";
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().cpu().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					default:
+						result << "Unsupported command argument: " << arguments.front();
+						break;
+				}
 			} else {
 				result << "Emulation is not running";
 			}
@@ -65,12 +235,34 @@ namespace nescc {
 		}
 
 		std::string
-		runner::emulation_joypad(void)
+		runner::command_joypad(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
+			std::vector<std::string> sub_arguments = arguments;
+			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
+
+			if(!arguments.empty()) {
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_JOYPAD);
+				sub_arguments.erase(sub_arguments.begin());
+			}
 
 			if(m_runtime.initialized()) {
-				result << m_runtime.bus().joypad().as_string(true);
+
+				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().joypad().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					default:
+						result << "Unsupported command argument: " << arguments.front();
+						break;
+				}
 			} else {
 				result << "Emulation is not running";
 			}
@@ -79,12 +271,34 @@ namespace nescc {
 		}
 
 		std::string
-		runner::emulation_mapper(void)
+		runner::command_mapper(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
+			std::vector<std::string> sub_arguments = arguments;
+			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
+
+			if(!arguments.empty()) {
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_MAPPER);
+				sub_arguments.erase(sub_arguments.begin());
+			}
 
 			if(m_runtime.initialized()) {
-				result << m_runtime.bus().mapper().as_string(true);
+
+				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().mapper().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					default:
+						result << "Unsupported command argument: " << arguments.front();
+						break;
+				}
 			} else {
 				result << "Emulation is not running";
 			}
@@ -93,16 +307,84 @@ namespace nescc {
 		}
 
 		std::string
-		runner::emulation_pause(void)
+		runner::command_pause(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
 
-			if(m_runtime.initialized() && m_runtime.running()) {
+			if(arguments.empty()) {
 
-				if(!m_runtime.paused()) {
-					m_runtime.pause();
+				if(m_runtime.initialized() && m_runtime.running()) {
+
+					if(!m_runtime.paused()) {
+						m_runtime.pause();
+					} else {
+						result << "Emulation is already paused";
+					}
 				} else {
-					result << "Emulation is already paused";
+					result << "Emulation is not running";
+				}
+			} else {
+				result << "Unexpected command argument: " << arguments.front();
+			}
+
+			return result.str();
+		}
+
+		std::string
+		runner::command_ppu(
+			__in_opt const std::vector<std::string> &arguments
+			)
+		{
+			std::stringstream result;
+			uint16_t address = 0, value = 0;
+			std::vector<std::string> sub_arguments = arguments;
+			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
+
+			if(!arguments.empty()) {
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_PPU);
+				sub_arguments.erase(sub_arguments.begin());
+			}
+
+			if(m_runtime.initialized()) {
+
+				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_GET:
+
+						if(parse_subcommand_values(sub_arguments, address, value)) {
+
+							if(value > 1) {
+								result << m_runtime.bus().ppu_as_string(address, value, true);
+							} else {
+								result << "PPU[" << SCALAR_AS_HEX(uint16_t, address) << "] = "
+									<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu_read(address));
+							}
+						} else {
+							result << "Invalid command arguments: <address> <offset>";
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SET:
+
+						if(parse_subcommand_values(sub_arguments, address, value)) {
+							m_runtime.bus().ppu_write(address, value);
+							result << "PPU[" << SCALAR_AS_HEX(uint16_t, address) << "] <- "
+								<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu_read(address));
+						} else {
+							result << "Invalid command arguments: <address> <value>";
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().ppu().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					default:
+						result << "Unsupported command argument: " << arguments.front();
+						break;
 				}
 			} else {
 				result << "Emulation is not running";
@@ -112,94 +394,108 @@ namespace nescc {
 		}
 
 		std::string
-		runner::emulation_ppu(void)
+		runner::command_restart(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
 
-			if(m_runtime.initialized()) {
-				result << m_runtime.bus().ppu().as_string(true);
-			} else {
-				result << "Emulation is not running";
-			}
+			if(arguments.empty()) {
 
-			return result.str();
-		}
+				if(m_runtime.initialized()) {
 
-		std::string
-		runner::emulation_restart(void)
-		{
-			std::stringstream result;
+					if(m_runtime.paused() || m_runtime.running()) {
+						m_runtime.terminate();
+					}
 
-			if(m_runtime.initialized()) {
-
-				if(m_runtime.paused() || m_runtime.running()) {
-					m_runtime.terminate();
+					m_runtime.uninitialize();
 				}
 
-				m_runtime.uninitialize();
-			}
-
-			m_runtime.initialize();
-			m_runtime.run(m_path, m_debug);
-
-			return result.str();
-		}
-
-		std::string
-		runner::emulation_run(void)
-		{
-			std::stringstream result;
-
-			if(m_runtime.initialized()) {
-
-				if(m_runtime.paused()) {
-					m_runtime.unpause();
-				} else {
-					result << "Emulation is already running";
-				}
-			} else {
 				m_runtime.initialize();
-				m_runtime.run(m_path, m_debug);
+				m_runtime.run(m_path);
+			} else {
+				result << "Unexpected command argument: " << arguments.front();
 			}
 
 			return result.str();
 		}
 
 		std::string
-		runner::emulation_status(void)
+		runner::command_run(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
 
-			if(m_runtime.initialized()) {
+			if(arguments.empty()) {
 
-				if(m_runtime.paused()) {
-					result << "Paused";
-				} else if(m_runtime.running()) {
-					result << "Running";
+				if(m_runtime.initialized()) {
+
+					if(m_runtime.paused()) {
+						m_runtime.unpause();
+					} else {
+						result << "Emulation is already running";
+					}
+				} else {
+					m_runtime.initialize();
+					m_runtime.run(m_path);
+				}
+			} else {
+				result << "Unexpected command argument: " << arguments.front();
+			}
+
+			return result.str();
+		}
+
+		std::string
+		runner::command_status(
+			__in_opt const std::vector<std::string> &arguments
+			)
+		{
+			std::stringstream result;
+
+			if(arguments.empty()) {
+
+				if(m_runtime.initialized()) {
+
+					if(m_runtime.paused()) {
+						result << "Paused";
+					} else if(m_runtime.running()) {
+						result << "Running";
+					} else {
+						result << "Stopped";
+					}
 				} else {
 					result << "Stopped";
 				}
 			} else {
-				result << "Stopped";
+				result << "Unexpected command argument: " << arguments.front();
 			}
 
 			return result.str();
 		}
 
 		std::string
-		runner::emulation_stop(void)
+		runner::command_stop(
+			__in_opt const std::vector<std::string> &arguments
+			)
 		{
 			std::stringstream result;
 
-			if(m_runtime.initialized()) {
+			if(arguments.empty()) {
 
-				if(m_runtime.paused() || m_runtime.running()) {
-					m_runtime.terminate();
+				if(m_runtime.initialized()) {
+
+					if(m_runtime.paused() || m_runtime.running()) {
+						m_runtime.terminate();
+					}
+
+					m_runtime.uninitialize();
+				} else {
+					result << "Emulation is not running";
 				}
-
-				m_runtime.uninitialize();
 			} else {
-				result << "Emulation is not running";
+				result << "Unexpected command argument: " << arguments.front();
 			}
 
 			return result.str();
@@ -207,7 +503,7 @@ namespace nescc {
 
 		int
 		runner::invoke(
-			__in const std::vector<std::string> &arguments
+			__in_opt const std::vector<std::string> &arguments
 			)
 		{
 			bool help = false, version = false;
@@ -241,9 +537,6 @@ namespace nescc {
 					}
 
 					switch(entry->second) {
-						case ARGUMENT_DEBUG:
-							m_debug = true;
-							break;
 						case ARGUMENT_HELP:
 							help = true;
 							break;
@@ -294,7 +587,7 @@ namespace nescc {
 #ifdef TRACE_COLOR
 				std::cout << PROMPT_COLOR_START;
 #endif // TRACE_COLOR
-				std::cout << "[" << emulation_status() << "] " << NESCC << "> ";
+				std::cout << "[" << command_status() << "] " << NESCC << "> ";
 #ifdef TRACE_COLOR
 				std::cout << PROMPT_COLOR_STOP;
 #endif // TRACE_COLOR
@@ -319,17 +612,19 @@ namespace nescc {
 				}
 
 				if(!arguments.empty()) {
+					argument = arguments.front();
+					arguments.erase(arguments.begin());
 
-					entry = ARGUMENT_INTERACTIVE_MAP.find(arguments.front());
+					entry = ARGUMENT_INTERACTIVE_MAP.find(argument);
 					if(entry != ARGUMENT_INTERACTIVE_MAP.end()) {
 						std::string response;
 
 						switch(entry->second) {
 							case ARGUMENT_INTERACTIVE_APU:
-								response = emulation_apu();
+								response = command_apu(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_CPU:
-								response = emulation_cpu();
+								response = command_cpu(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_EXIT:
 								running = false;
@@ -339,28 +634,28 @@ namespace nescc {
 								response = string_help_interactive();
 								break;
 							case ARGUMENT_INTERACTIVE_JOYPAD:
-								response = emulation_joypad();
+								response = command_joypad(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_MAPPER:
-								response = emulation_mapper();
+								response = command_mapper(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_PAUSE:
-								response = emulation_pause();
+								response = command_pause(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_PPU:
-								response = emulation_ppu();
+								response = command_ppu(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_RESTART:
-								response = emulation_restart();
+								response = command_restart(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_RUN:
-								response = emulation_run();
+								response = command_run(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_STATUS:
-								response = emulation_status();
+								response = command_status(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_STOP:
-								response = emulation_stop();
+								response = command_stop(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_VERSION:
 								response = string_version();
@@ -371,7 +666,7 @@ namespace nescc {
 							std::cout << response << std::endl;
 						}
 					} else {
-						std::cerr << "Unsupported command: " << arguments.front() << std::endl;
+						std::cerr << "Unsupported command: " << argument << std::endl;
 					}
 				}
 
@@ -394,9 +689,106 @@ namespace nescc {
 				m_runtime.uninitialize();
 			}
 
-			m_debug = false;
 			m_interactive = false;
 			m_path.clear();
+		}
+
+		uint32_t
+		runner::parse_subcommand(
+			__in const std::vector<std::string> &arguments,
+			__in uint32_t command
+			)
+		{
+			uint32_t result = ARGUMENT_INTERACTIVE_SUBCOMMAND_UNKNOWN;
+
+			if(!arguments.empty()) {
+				std::map<std::string, std::pair<uint32_t, std::set<uint32_t>>>::const_iterator entry;
+
+				entry = ARGUMENT_INTERACTIVE_SUBCOMMAND_MAP.find(arguments.front());
+				if((entry != ARGUMENT_INTERACTIVE_SUBCOMMAND_MAP.end())
+						&& (entry->second.second.find(command) != entry->second.second.end())) {
+					result = entry->second.first;
+				}
+			}
+
+			return result;
+		}
+
+		bool
+		runner::parse_subcommand_register_values(
+			__in const std::vector<std::string> &arguments,
+			__inout uint16_t &address,
+			__inout uint16_t &value
+			)
+		{
+			bool result = ((arguments.size() == SUBCOMMAND_ARGUMENT_MAX)
+					|| (arguments.size() == (SUBCOMMAND_ARGUMENT_MAX + 1)));
+
+			if(result) {
+				address = 0;
+				value = 0;
+
+				for(uint32_t iter = 0; result && (iter < arguments.size()); ++iter) {
+					std::stringstream stream;
+					std::map<std::string, uint32_t>::const_iterator entry;
+
+					switch(iter) {
+						case SUBCOMMAND_ARGUMENT_ADDRESS:
+
+							entry = SUBCOMMAND_ARGUMENT_REGISTER_MAP.find(arguments.at(iter));
+							if(entry != SUBCOMMAND_ARGUMENT_REGISTER_MAP.end()) {
+								address = entry->second;
+							} else {
+								result = false;
+							}
+							break;
+						case SUBCOMMAND_ARGUMENT_VALUE:
+							stream << std::hex << arguments.at(iter);
+							stream >> value;
+							break;
+						default:
+							result = false;
+							break;
+					}
+				}
+			}
+
+			return result;
+		}
+
+		bool
+		runner::parse_subcommand_values(
+			__in const std::vector<std::string> &arguments,
+			__inout uint16_t &address,
+			__inout uint16_t &value
+			)
+		{
+			bool result = (arguments.size() == (SUBCOMMAND_ARGUMENT_MAX + 1));
+
+			if(result) {
+				address = 0;
+				value = 0;
+
+				for(uint32_t iter = 0; result && (iter <= SUBCOMMAND_ARGUMENT_MAX); ++iter) {
+					std::stringstream stream;
+
+					stream << std::hex << arguments.at(iter);
+
+					switch(iter) {
+						case SUBCOMMAND_ARGUMENT_ADDRESS:
+							stream >> address;
+							break;
+						case SUBCOMMAND_ARGUMENT_VALUE:
+							stream >> value;
+							break;
+						default:
+							result = false;
+							break;
+					}
+				}
+			}
+
+			return result;
 		}
 
 		int
@@ -416,7 +808,7 @@ namespace nescc {
 					nescc::core::thread::wait();
 				} else {
 					m_runtime.initialize();
-					m_runtime.run(m_path, m_debug);
+					m_runtime.run(m_path);
 					m_runtime.wait();
 					m_runtime.uninitialize();
 				}
@@ -463,13 +855,32 @@ namespace nescc {
 			result << string_version(true);
 
 			for(; iter <= ARGUMENT_INTERACTIVE_MAX; ++iter) {
+				std::stringstream stream;
+				std::map<uint32_t, std::vector<uint32_t>>::const_iterator entries;
 
 				if(!iter) {
 					result << std::endl;
 				}
 
-				result << std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << ARGUMENT_INTERACTIVE_STRING(iter)
-					<< ARGUMENT_INTERACTIVE_STRING_DESCRIPTION(iter);
+				result << std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << ARGUMENT_INTERACTIVE_STRING(iter);
+
+				entries = ARGUMENT_INTERACTIVE_SUB_MAP.find(iter);
+				if(entries != ARGUMENT_INTERACTIVE_SUB_MAP.end()) {
+					uint32_t entry = 0;
+
+					for(; entry < entries->second.size(); ++entry) {
+
+						if(entry) {
+							stream << ", ";
+						}
+
+						stream << ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(entries->second.at(entry));
+					}
+
+					result << std::left << std::setw(ARGUMENT_COLUMN_WIDTH_SUB) << stream.str();
+				}
+
+				result << ARGUMENT_INTERACTIVE_STRING_DESCRIPTION(iter);
 			}
 
 			return result.str();
@@ -531,8 +942,7 @@ namespace nescc {
 					result << ", Thread=" << nescc::core::thread::to_string(verbose)
 						<< ", Runtime=" << SCALAR_AS_HEX(uintptr_t, &m_runtime)
 						<< ", Path[" << m_path.size() << "]=" << m_path
-						<< ", Mode=" << (m_interactive ? "Interactive" : "Normal")
-						<< ", Debug=" << m_debug;
+						<< ", Mode=" << (m_interactive ? "Interactive" : "Normal");
 				}
 			}
 

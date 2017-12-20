@@ -189,12 +189,10 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
-#ifndef NDEBUG
 			if(address >= m_vector.size()) {
 				THROW_NESCC_CORE_MEMORY_EXCEPTION_FORMAT(NESCC_CORE_MEMORY_EXCEPTION_ADDRESS,
 					"Address=%u(%04x)", address, address);
 			}
-#endif // NDEBUG
 
 			result = m_vector.at(address);
 
@@ -255,12 +253,10 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
-#ifndef NDEBUG
 			if(address >= m_vector.size()) {
 				THROW_NESCC_CORE_MEMORY_EXCEPTION_FORMAT(NESCC_CORE_MEMORY_EXCEPTION_ADDRESS,
 					"Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 			}
-#endif // NDEBUG
 
 			m_vector.at(address) = value;
 

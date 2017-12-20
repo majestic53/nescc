@@ -26,7 +26,6 @@ namespace nescc {
 	namespace console {
 
 		joypad::joypad(void) :
-			m_debug(false),
 			m_strobe(false)
 		{
 			TRACE_ENTRY();
@@ -91,7 +90,6 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad clearing...");
 
-			m_debug = false;
 			m_state.clear();
 			m_strobe = false;
 
@@ -163,11 +161,10 @@ namespace nescc {
 
 		void
 		joypad::reset(
-			__in nescc::console::interface::bus &bus,
-			__in_opt bool debug
+			__in nescc::console::interface::bus &bus
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -177,7 +174,6 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad resetting...");
 
-			m_debug = debug;
 			m_state.set_size(JOYPAD_MAX + 1);
 			m_strobe = false;
 
@@ -218,8 +214,7 @@ namespace nescc {
 				if(m_initialized) {
 					int iter;
 
-					result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
-						<< ", State=" << m_state.to_string(verbose);
+					result << ", State=" << m_state.to_string(verbose);
 
 					for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
 

@@ -41,8 +41,7 @@ namespace nescc {
 			bool paused(void) const;
 
 			void run(
-				__in const std::string &path,
-				__in_opt bool debug = false
+				__in const std::string &path
 				);
 
 			bool running(void) const;
@@ -86,8 +85,6 @@ namespace nescc {
 			void on_uninitialize(void);
 
 			nescc::console::bus &m_bus;
-
-			bool m_debug;
 
 			nescc::interface::display &m_display;
 

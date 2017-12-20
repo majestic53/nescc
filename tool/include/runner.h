@@ -55,29 +55,66 @@ namespace nescc {
 					__in const runner &other
 					) = delete;
 
-				std::string emulation_apu(void);
+				std::string command_apu(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_cpu(void);
+				std::string command_cpu(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_joypad(void);
+				std::string command_joypad(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_mapper(void);
+				std::string command_mapper(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_pause(void);
+				std::string command_pause(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_ppu(void);
+				std::string command_ppu(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_restart(void);
+				std::string command_restart(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_run(void);
+				std::string command_run(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_status(void);
+				std::string command_status(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
-				std::string emulation_stop(void);
+				std::string command_stop(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
 
 				bool on_run(void);
 
 				void on_uninitialize(void);
+
+				uint32_t parse_subcommand(
+					__in const std::vector<std::string> &arguments,
+					__in uint32_t command
+					);
+
+				bool parse_subcommand_register_values(
+					__in const std::vector<std::string> &arguments,
+					__inout uint16_t &address,
+					__inout uint16_t &value
+					);
+
+				bool parse_subcommand_values(
+					__in const std::vector<std::string> &arguments,
+					__inout uint16_t &address,
+					__inout uint16_t &value
+					);
 
 				int start(void);
 
@@ -90,8 +127,6 @@ namespace nescc {
 				std::string string_version(
 					__in_opt bool verbose = false
 					) const;
-
-				bool m_debug;
 
 				bool m_interactive;
 

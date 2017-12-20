@@ -78,8 +78,7 @@ namespace nescc {
 					);
 
 				void reset(
-					__in nescc::console::interface::bus &bus,
-					__in_opt bool debug = false
+					__in nescc::console::interface::bus &bus
 					);
 
 				std::string to_string(
@@ -171,8 +170,6 @@ namespace nescc {
 					);
 
 				uint32_t m_column;
-
-				bool m_debug;
 
 				bool m_frame_odd;
 

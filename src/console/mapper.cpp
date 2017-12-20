@@ -26,7 +26,6 @@ namespace nescc {
 
 		mapper::mapper(void) :
 			m_cartridge(nescc::console::cartridge::acquire()),
-			m_debug(false),
 			m_ram_index(0),
 			m_rom_character_index(0),
 			m_rom_program_index_0(0),
@@ -232,13 +231,11 @@ namespace nescc {
 		}
 
 		void
-		mapper::reset(
-			__in_opt bool debug
-			)
+		mapper::reset(void)
 		{
 			uint8_t type;
 
-			TRACE_ENTRY_FORMAT("Debug=%x", debug);
+			TRACE_ENTRY();
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -267,8 +264,6 @@ namespace nescc {
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG RAM Bank", "%u", m_ram_index);
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM Bank", "%u, %u", m_rom_program_index_0, m_rom_program_index_1);
 			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-CHR ROM Bank", "%u", m_rom_character_index);
-
-			m_debug = debug;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper reset.");
 
@@ -335,8 +330,7 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::mapper>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Mode=" << (!m_debug ? "Normal" : "Debug")
-						<< ", PRG RAM Bank=" << (int) m_ram_index
+					result << ", PRG RAM Bank=" << (int) m_ram_index
 						<< ", PRG ROM Bank=" << (int) m_rom_program_index_0 << ", " << (int) m_rom_program_index_1
 						<< ", CHR ROM Bank=" << (int) m_rom_character_index;
 				}

@@ -165,6 +165,11 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			if((x > DISPLAY_WIDTH) || (y > DISPLAY_HEIGHT)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_POSITION,
+					"Position={%u, %u}", x, y);
+			}
+
 			result = m_pixel.at((y * DISPLAY_WIDTH) + x);
 
 			TRACE_EXIT_FORMAT("Result=%08x", result);
@@ -318,6 +323,11 @@ namespace nescc {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
 			}
 #endif // NDEBUG
+
+			if((x > DISPLAY_WIDTH) || (y > DISPLAY_HEIGHT)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_POSITION,
+					"Position={%u, %u}", x, y);
+			}
 
 			m_pixel.at((y * DISPLAY_WIDTH) + x) = value;
 

@@ -39,11 +39,19 @@ namespace nescc {
 
 				~cpu(void);
 
+				uint8_t accumulator(void) const;
+
 				std::string as_string(
 					__in_opt bool verbose = false
 					) const;
 
 				void clear(void);
+
+				uint8_t flags(void) const;
+
+				uint8_t index_x(void) const;
+
+				uint8_t index_y(void) const;
 
 				void interrupt_maskable(void);
 
@@ -51,12 +59,39 @@ namespace nescc {
 
 				nescc::core::memory &oam_dma(void);
 
+				uint16_t program_counter(void) const;
+
 				nescc::core::memory &ram(void);
 
 				void reset(
-					__in nescc::console::interface::bus &bus,
-					__in_opt bool debug = false
+					__in nescc::console::interface::bus &bus
 					);
+
+				void set_accumulator(
+					__in uint8_t value
+					);
+
+				void set_flags(
+					__in uint8_t value
+					);
+
+				void set_index_x(
+					__in uint8_t value
+					);
+
+				void set_index_y(
+					__in uint8_t value
+					);
+
+				void set_program_counter(
+					__in uint16_t value
+					);
+
+				void set_stack_pointer(
+					__in uint8_t value
+					);
+
+				uint8_t stack_pointer(void) const;
 
 				std::string to_string(
 					__in_opt bool verbose = false
@@ -336,8 +371,6 @@ namespace nescc {
 				uint8_t m_accumulator;
 
 				uint32_t m_cycle;
-
-				bool m_debug;
 
 				uint8_t m_flags;
 

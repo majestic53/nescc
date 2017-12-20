@@ -26,9 +26,8 @@ Usage
 =====
 
 ```
-Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
+Nescc [-h|--help] [-i|--interactive] [-v|--version] path
 
--d | --debug           Display debug information
 -h | --help            Display help information
 -i | --interactive     Run in interactive mode
 -v | --version         Display version information
@@ -38,19 +37,19 @@ Interactive mode
 ----------------
 
 ```
-apu             Display apu status
-cpu             Display cpu status
-exit            Exit interactive mode
-help            Display help information
-joypad          Display joypad status
-mapper          Display mapper status
-pause           Pause emulation
-ppu             Display ppu status
-restart         Restart emulation
-run             Run/Unpause emulation
-status          Display status information
-stop            Stop emulation
-version         Display version information
+apu             status                                          Display apu status
+cpu             get, irq, nmi, reg, reset, set, status          Display cpu status
+exit                                                            Exit interactive mode
+help                                                            Display help information
+joypad          status                                          Display joypad status
+mapper          status                                          Display mapper status
+pause                                                           Pause emulation
+ppu             get, set, status                                Display ppu status
+restart                                                         Restart emulation
+run                                                             Run/Unpause emulation
+status                                                          Display status information
+stop                                                            Stop emulation
+version                                                         Display version information
 ```
 
 Changelog
@@ -58,6 +57,11 @@ Changelog
 
 Version 0.1.1751
 ----------------
+*Updated: 12/19/2017*
+
+* Added interactive sub-commands
+* Removed debug argument
+
 *Updated: 12/18/2017*
 
 * Added ppu state machine

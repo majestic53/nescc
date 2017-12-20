@@ -70,7 +70,7 @@ namespace nescc {
 	#define TRACE_MAX TRACE_VERBOSE
 
 	static const std::string TRACE_STR[] = {
-		"Dbg", "Err", "Warn", "Info", "Verb",
+		"Err", "Warn", "Info", "Verb",
 		};
 
 	#define TRACE_STRING(_TYPE_) \
@@ -78,7 +78,7 @@ namespace nescc {
 			STRING_CHECK(TRACE_STR[_TYPE_]))
 
 	static const std::string TRACE_COLOR_STR[] = {
-		"\x1b[92m", "\x1b[91m", "\x1b[93m", "\x1b[94m", "\x1b[90m", "\x1b[0m",
+		"\x1b[91m", "\x1b[93m", "\x1b[94m", "\x1b[90m", "\x1b[0m",
 		};
 
 	#define TRACE_COLOR_STRING(_TYPE_) \

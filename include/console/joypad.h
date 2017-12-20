@@ -48,8 +48,7 @@ namespace nescc {
 					);
 
 				void reset(
-					__in nescc::console::interface::bus &bus,
-					__in_opt bool debug = false
+					__in nescc::console::interface::bus &bus
 					);
 
 				nescc::core::memory &state(void);
@@ -81,8 +80,6 @@ namespace nescc {
 				void on_uninitialize(void);
 
 				void update(void);
-
-				bool m_debug;
 
 				nescc::core::memory m_state;
 
