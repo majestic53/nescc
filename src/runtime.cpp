@@ -125,10 +125,11 @@ namespace nescc {
 		start = SDL_GetTicks();
 
 		for(; !nescc::core::thread::stopped();) {
-			float rate;
-			uint32_t delta, end = SDL_GetTicks();
+			uint32_t end = SDL_GetTicks();
 
 			if(!nescc::core::thread::paused()) {
+				float rate;
+				uint32_t delta;
 
 				rate = (end - start);
 				if(rate >= RUNTIME_FRAME) {

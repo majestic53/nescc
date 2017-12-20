@@ -37,17 +37,17 @@ Interactive mode
 ----------------
 
 ```
-apu             status                                          Display apu status
-cpu             get, irq, nmi, reg, reset, set, status          Display cpu status
+apu             status                                          Display apu state
+cpu             get, irq, nmi, reg, reset, set, status          Display/Set cpu state
 exit                                                            Exit interactive mode
 help                                                            Display help information
-joypad          status                                          Display joypad status
-mapper          status                                          Display mapper status
+joypad          status                                          Display joypad state
+mapper          status                                          Display mapper state
 pause                                                           Pause emulation
-ppu             get, set, status                                Display ppu status
+ppu             get, set, status                                Display/Set ppu state
 restart                                                         Restart emulation
 run                                                             Run/Unpause emulation
-status                                                          Display status information
+status                                                          Display emulation status
 stop                                                            Stop emulation
 version                                                         Display version information
 ```

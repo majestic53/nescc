@@ -141,17 +141,17 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_INTERACTIVE_STR[_TYPE_]))
 
 		static const std::string ARGUMENT_INTERACTIVE_STR_DESC[] = {
-			"Display apu status",
-			"Display cpu status",
+			"Display apu state",
+			"Display/Set cpu state",
 			"Exit interactive mode",
 			"Display help information",
-			"Display joypad status",
-			"Display mapper status",
+			"Display joypad state",
+			"Display mapper state",
 			"Pause emulation",
-			"Display ppu status",
+			"Display/Set ppu state",
 			"Restart emulation",
 			"Run/Unpause emulation",
-			"Display status information",
+			"Display emulation status",
 			"Stop emulation",
 			"Display version information",
 			};
