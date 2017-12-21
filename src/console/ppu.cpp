@@ -17,6 +17,7 @@
  */
 
 #include "../../include/console/ppu.h"
+#include "../../include/console/cartridge.h"
 #include "../../include/trace.h"
 #include "./ppu_type.h"
 
@@ -26,6 +27,7 @@ namespace nescc {
 
 		ppu::ppu(void) :
 			m_column(0),
+			m_fine_x(0),
 			m_frame_odd(false),
 			m_mirroring(0),
 			m_scanline(0)
@@ -70,7 +72,10 @@ namespace nescc {
 
 			// TODO
 
+			m_address_t.raw = 0;
+			m_address_v.raw = 0;
 			m_column = 0;
+			m_fine_x = 0;
 			m_frame_odd = false;
 			m_mirroring = 0;
 			m_nametable.clear();
@@ -78,6 +83,8 @@ namespace nescc {
 			m_palette.clear();
 			m_port.clear();
 			m_scanline = 0;
+			m_sprite.clear();
+			m_sprite_secondary.clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu cleared.");
 
@@ -228,6 +235,17 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			switch(m_mirroring) {
+				case CARTRIDGE_MIRRORING_HORIZONTAL:
+					address = (((address / 2) & PPU_NAMETABLE_LENGTH) + (address % PPU_NAMETABLE_LENGTH));
+					break;
+				case CARTRIDGE_MIRRORING_VERTICAL:
+					address %= (PPU_NAMETABLE_LENGTH * 2);
+					break;
+				default:
+					break;
+			}
+
 			result = m_nametable.read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
@@ -248,6 +266,18 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
 #endif // NDEBUG
+
+			address %= PPU_PALETTE_LENGTH;
+			switch(address) {
+				case 0x10: // mirrored addresses
+				case 0x14:
+				case 0x18:
+				case 0x1c:
+					address -= 0x10;
+					break;
+				default:
+					break;
+			}
 
 			result = m_palette.read(address);
 
@@ -349,14 +379,19 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
+			m_address_t.raw = 0;
+			m_address_v.raw = 0;
 			m_column = 0;
+			m_fine_x = 0;
 			m_frame_odd = false;
 			m_mirroring = bus.mirroring();
-			m_nametable.set_size(PPU_NAMETABLE_LENGTH);
+			m_nametable.set_size(PPU_NAMETABLE_LENGTH * 2);
 			m_oam.set_size(PPU_OAM_LENGTH);
 			m_palette.set_size(PPU_PALETTE_LENGTH);
 			m_port.set_size(PPU_PORT_MAX + 1);
 			m_scanline = 0;
+			m_sprite.resize(PPU_SPRITE_LENGTH, PPU_SPRITE_INIT);
+			m_sprite_secondary.resize(PPU_SPRITE_LENGTH, PPU_SPRITE_INIT);
 
 			// TODO: set defaults
 
@@ -445,6 +480,17 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			switch(m_mirroring) {
+				case CARTRIDGE_MIRRORING_HORIZONTAL:
+					address = (((address / 2) & PPU_NAMETABLE_LENGTH) + (address % PPU_NAMETABLE_LENGTH));
+					break;
+				case CARTRIDGE_MIRRORING_VERTICAL:
+					address %= (PPU_NAMETABLE_LENGTH * 2);
+					break;
+				default:
+					break;
+			}
+
 			m_nametable.write(address, value);
 
 			TRACE_EXIT();
@@ -482,6 +528,18 @@ namespace nescc {
 				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
 			}
 #endif // NDEBUG
+
+			address %= PPU_PALETTE_LENGTH;
+			switch(address) {
+				case 0x10: // mirrored addresses
+				case 0x14:
+				case 0x18:
+				case 0x1c:
+					address -= 0x10;
+					break;
+				default:
+					break;
+			}
 
 			m_palette.write(address, value);
 

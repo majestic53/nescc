@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <climits>
 #include "../include/runner.h"
 #include "./runner_type.h"
 
@@ -169,8 +170,13 @@ namespace nescc {
 											m_runtime.bus().cpu().accumulator());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS:
-										result << "FLG = " << SCALAR_AS_HEX(uint8_t,
-											m_runtime.bus().cpu().flags());
+										value = m_runtime.bus().cpu().flags();
+										result << "FLG = " << SCALAR_AS_HEX(uint8_t, value)
+											<< "   NV-BDIZC" << std::endl << "           ";
+
+										for(int8_t iter = (CHAR_BIT - 1); iter >= 0; iter--) {
+											result << ((value & (1 << iter)) ? "1" : "0");
+										}
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_X:
 										result << "X = " << SCALAR_AS_HEX(uint8_t,
@@ -239,6 +245,7 @@ namespace nescc {
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
+			uint16_t value = 0;
 			std::stringstream result;
 			std::vector<std::string> sub_arguments = arguments;
 			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
@@ -257,6 +264,15 @@ namespace nescc {
 							result << m_runtime.bus().joypad().as_string(true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STROBE:
+
+						if(parse_subcommand_value(sub_arguments, value)) {
+							m_runtime.bus().joypad().write_port(value);
+							result << m_runtime.bus().joypad().as_string(true);
+						} else {
+							result << "Invalid command arguments: <value>";
 						}
 						break;
 					default:
@@ -751,6 +767,25 @@ namespace nescc {
 							break;
 					}
 				}
+			}
+
+			return result;
+		}
+
+		bool
+		runner::parse_subcommand_value(
+			__in const std::vector<std::string> &arguments,
+			__inout uint16_t &value
+			)
+		{
+			bool result = (arguments.size() == SUBCOMMAND_ARGUMENT_MAX);
+
+			if(result) {
+				value = 0;
+				std::stringstream stream;
+
+				stream << std::hex << arguments.front();
+				stream >> value;
 			}
 
 			return result;

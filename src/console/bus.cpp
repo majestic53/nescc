@@ -108,8 +108,8 @@ namespace nescc {
 
 				// TODO: add additional cpu io mappings
 
-				case JOYPAD_STATE_1 ... JOYPAD_STATE_2: // 0x4016 - 0x4017
-					result << m_joypad.state().as_string(address - JOYPAD_STATE_1, offset, JOYPAD_STATE_1, verbose);
+				case JOYPAD_PORT_1 ... JOYPAD_PORT_2: // 0x4016 - 0x4017
+					result << m_joypad.port().as_string(address - JOYPAD_PORT_1, offset, JOYPAD_PORT_1, verbose);
 					break;
 
 				// TODO: add additional cpu io mappings
@@ -206,8 +206,8 @@ namespace nescc {
 
 				// TODO: add additional cpu io mappings
 
-				case JOYPAD_STATE_1 ... JOYPAD_STATE_2: // 0x4016 - 0x4017
-					result = m_joypad.read_state(address - JOYPAD_STATE_1);
+				case JOYPAD_PORT_1 ... JOYPAD_PORT_2: // 0x4016 - 0x4017
+					result = m_joypad.read_port(address - JOYPAD_PORT_1);
 					break;
 
 				// TODO: add additional cpu io mappings
@@ -277,8 +277,8 @@ namespace nescc {
 
 				// TODO: add additional cpu io mappings
 
-				case JOYPAD_STATE_1: // 0x4016
-					m_joypad.write_state(value);
+				case JOYPAD_PORT_1: // 0x4016
+					m_joypad.write_port(value);
 					break;
 
 				// TODO: add additional cpu io mappings
@@ -459,8 +459,8 @@ namespace nescc {
 					result << m_mapper.rom_character().as_string(address, offset, 0, verbose);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
-					result << m_ppu.nametable().as_string((address - PPU_NAMETABLE_START) % PPU_NAMETABLE_LENGTH, offset,
-						PPU_NAMETABLE_START, verbose);
+					result << m_ppu.nametable().as_string((address - PPU_NAMETABLE_START) % (PPU_NAMETABLE_LENGTH * 2),
+						offset, PPU_NAMETABLE_START, verbose);
 					break;
 				case PPU_PALETTE_START ... PPU_PALETTE_END: // 0x3f00 - 0x3fff
 					result << m_ppu.palette().as_string((address - PPU_PALETTE_START) % PPU_PALETTE_LENGTH,
@@ -496,10 +496,10 @@ namespace nescc {
 					result = m_mapper.read_rom_character(address);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
-					result = m_ppu.read_nametable((address - PPU_NAMETABLE_START) % PPU_NAMETABLE_LENGTH);
+					result = m_ppu.read_nametable(address - PPU_NAMETABLE_START);
 					break;
 				case PPU_PALETTE_START ... PPU_PALETTE_END: // 0x3f00 - 0x3fff
-					result = m_ppu.read_palette((address - PPU_PALETTE_START) % PPU_PALETTE_LENGTH);
+					result = m_ppu.read_palette(address - PPU_PALETTE_START);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped ppu region", "Address=%u(%04x)", address, address);
@@ -529,10 +529,10 @@ namespace nescc {
 					m_mapper.write_rom_character(address, value);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
-					m_ppu.write_nametable((address - PPU_NAMETABLE_START) % PPU_NAMETABLE_LENGTH, value);
+					m_ppu.write_nametable(address - PPU_NAMETABLE_START, value);
 					break;
 				case PPU_PALETTE_START ... PPU_PALETTE_END: // 0x3f00 - 0x3fff
-					m_ppu.write_palette((address - PPU_PALETTE_START) % PPU_PALETTE_LENGTH, value);
+					m_ppu.write_palette(address - PPU_PALETTE_START, value);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped ppu region", "Address=%u(%04x), Value=%u(%02x)",

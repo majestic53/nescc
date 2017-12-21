@@ -37,6 +37,11 @@ namespace nescc {
 			CARTRIDGE_MAPPER_NONE = 0,
 		};
 
+		enum {
+			CARTRIDGE_MIRRORING_HORIZONTAL = 0,
+			CARTRIDGE_MIRRORING_VERTICAL,
+		};
+
 		class cartridge :
 				public nescc::core::singleton<nescc::console::cartridge> {
 

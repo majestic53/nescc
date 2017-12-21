@@ -110,6 +110,11 @@ namespace nescc {
 					__inout uint16_t &value
 					);
 
+				bool parse_subcommand_value(
+					__in const std::vector<std::string> &arguments,
+					__inout uint16_t &value
+					);
+
 				bool parse_subcommand_values(
 					__in const std::vector<std::string> &arguments,
 					__inout uint16_t &address,

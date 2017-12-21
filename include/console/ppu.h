@@ -40,9 +40,33 @@ namespace nescc {
 
 		#define PPU_PORT_MAX PPU_PORT_DATA
 
-		#define PPU_NAMETABLE_LENGTH 0x1000
+		#define PPU_NAMETABLE_LENGTH 0x400
 		#define PPU_OAM_LENGTH 0x100
 		#define PPU_PALETTE_LENGTH 0x20
+
+		union address_t {
+			struct {
+				uint16_t coarse_x : 5; // coarse x scroll
+				uint16_t coarse_y : 5; // coarse y scroll
+				uint16_t nametable : 2; // nametable select
+				uint16_t fine_y : 3; // fine y scroll
+			};
+			struct {
+				uint16_t low : 8;
+				uint16_t high : 7;
+			};
+			uint16_t raw : 15;
+		};
+
+		typedef struct {
+			uint8_t id; // sprite index in OAM
+			uint8_t position_x; // sprite x (left) position
+			uint8_t position_y; // sprite y (top) position
+			uint8_t tile; // sprite tile index
+			uint8_t attributes; // sprite attributes
+			uint8_t data_low; // sprite tile data (low)
+			uint8_t data_high; // sprite tile data (high)
+		} sprite_t;
 
 		class ppu :
 				public nescc::core::singleton<nescc::console::ppu> {
@@ -169,7 +193,13 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				nescc::console::address_t m_address_t;
+
+				nescc::console::address_t m_address_v;
+
 				uint32_t m_column;
+
+				uint8_t m_fine_x;
 
 				bool m_frame_odd;
 
@@ -184,6 +214,10 @@ namespace nescc {
 				nescc::core::memory m_port;
 
 				uint32_t m_scanline;
+
+				std::vector<nescc::console::sprite_t> m_sprite;
+
+				std::vector<nescc::console::sprite_t> m_sprite_secondary;
 		};
 	}
 }

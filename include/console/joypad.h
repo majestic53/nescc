@@ -27,8 +27,8 @@ namespace nescc {
 
 	namespace console {
 
-		#define JOYPAD_STATE_1 0x4016
-		#define JOYPAD_STATE_2 0x4017
+		#define JOYPAD_PORT_1 0x4016
+		#define JOYPAD_PORT_2 0x4017
 
 		class joypad :
 				public nescc::core::singleton<nescc::console::joypad> {
@@ -43,21 +43,21 @@ namespace nescc {
 
 				void clear(void);
 
-				uint8_t read_state(
-					__in int pad
+				nescc::core::memory &port(void);
+
+				uint8_t read_port(
+					__in uint16_t pad
 					);
 
 				void reset(
 					__in nescc::console::interface::bus &bus
 					);
 
-				nescc::core::memory &state(void);
-
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
 
-				void write_state(
+				void write_port(
 					__in uint8_t value
 					);
 
@@ -81,7 +81,7 @@ namespace nescc {
 
 				void update(void);
 
-				nescc::core::memory m_state;
+				nescc::core::memory m_port;
 
 				bool m_strobe;
 		};

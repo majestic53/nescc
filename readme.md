@@ -41,7 +41,7 @@ apu             status                                          Display apu stat
 cpu             get, irq, nmi, reg, reset, set, status          Display/Set cpu state
 exit                                                            Exit interactive mode
 help                                                            Display help information
-joypad          status                                          Display joypad state
+joypad          status, strobe                                  Display joypad state
 mapper          status                                          Display mapper state
 pause                                                           Pause emulation
 ppu             get, set, status                                Display/Set ppu state
@@ -57,6 +57,12 @@ Changelog
 
 Version 0.1.1751
 ----------------
+*Updated: 12/20/2017*
+
+* Added ppu sprite shift/address registers
+* Fixed ppu nametable/pallette read/write
+* Added joypad strobe sub-command
+
 *Updated: 12/19/2017*
 
 * Added interactive sub-commands
