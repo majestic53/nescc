@@ -93,27 +93,18 @@ namespace nescc {
 
 			switch(address) {
 				case CPU_RAM_START ... CPU_RAM_END: // 0x0000 - 0x1fff
-					result << m_cpu.ram().as_string(address % CPU_RAM_LENGTH, offset, 0, verbose);
+					result << m_cpu.ram().as_string((address - CPU_RAM_START) % CPU_RAM_LENGTH, offset, 0, verbose);
 					break;
 				case PPU_PORT_START ... PPU_PORT_END: // 0x2000 - 0x3fff
 					result << m_ppu.port().as_string((address - PPU_PORT_START) % (PPU_PORT_MAX + 1), offset,
 						PPU_PORT_START, verbose);
-
-				// TODO: add additional cpu io mappings
-
 					break;
 				case CPU_OAM_DMA: // 0x4014
 					result << m_cpu.oam_dma().as_string(address - CPU_OAM_DMA, offset, CPU_OAM_DMA, verbose);
 					break;
-
-				// TODO: add additional cpu io mappings
-
 				case JOYPAD_PORT_1 ... JOYPAD_PORT_2: // 0x4016 - 0x4017
 					result << m_joypad.port().as_string(address - JOYPAD_PORT_1, offset, JOYPAD_PORT_1, verbose);
 					break;
-
-				// TODO: add additional cpu io mappings
-
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					result << m_mapper.ram().as_string(address - CARTRIDGE_RAM_PROGRAM_START, offset,
 						CARTRIDGE_RAM_PROGRAM_START, verbose);
@@ -185,7 +176,7 @@ namespace nescc {
 
 			switch(address) {
 				case CPU_RAM_START ... CPU_RAM_END: // 0x0000 - 0x1fff
-					result = m_cpu.ram().read(address % CPU_RAM_LENGTH);
+					result = m_cpu.ram().read((address - CPU_RAM_START) % CPU_RAM_LENGTH);
 					break;
 				case PPU_PORT_START ... PPU_PORT_END: { // 0x2000 - 0x3fff
 
@@ -194,7 +185,7 @@ namespace nescc {
 							case PPU_PORT_STATUS: // 0x2002
 							case PPU_PORT_OAM_DATA: // 0x2004
 							case PPU_PORT_DATA: // 0x2007
-								result = m_ppu.read_port(port);
+								result = m_ppu.read_port(*this, port);
 								break;
 							default:
 								TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region",
@@ -203,15 +194,9 @@ namespace nescc {
 								break;
 						}
 					} break;
-
-				// TODO: add additional cpu io mappings
-
 				case JOYPAD_PORT_1 ... JOYPAD_PORT_2: // 0x4016 - 0x4017
 					result = m_joypad.read_port(address - JOYPAD_PORT_1);
 					break;
-
-				// TODO: add additional cpu io mappings
-
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					result = m_mapper.read_ram(address - CARTRIDGE_RAM_PROGRAM_START);
 					break;
@@ -246,7 +231,7 @@ namespace nescc {
 
 			switch(address) {
 				case CPU_RAM_START ... CPU_RAM_END: // 0x0000 - 0x1fff
-					m_cpu.ram().write(address % CPU_RAM_LENGTH, value);
+					m_cpu.ram().write((address - CPU_RAM_START) % CPU_RAM_LENGTH, value);
 					break;
 				case PPU_PORT_START ... PPU_PORT_END: { // 0x2000 - 0x3fff
 
@@ -259,7 +244,7 @@ namespace nescc {
 							case PPU_PORT_SCROLL: // 0x2005
 							case PPU_PORT_ADDRESS: // 0x2006
 							case PPU_PORT_DATA: // 0x2007
-								m_ppu.write_port(port, value);
+								m_ppu.write_port(*this, port, value);
 								break;
 							default:
 								TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region",
@@ -268,21 +253,12 @@ namespace nescc {
 								break;
 						}
 					} break;
-
-				// TODO: add additional cpu io mappings
-
 				case CPU_OAM_DMA: // 0x4014
 					m_cpu.write_oam_dma(*this, value);
 					break;
-
-				// TODO: add additional cpu io mappings
-
 				case JOYPAD_PORT_1: // 0x4016
 					m_joypad.write_port(value);
 					break;
-
-				// TODO: add additional cpu io mappings
-
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
 					break;
@@ -456,7 +432,8 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					result << m_mapper.rom_character().as_string(address, offset, 0, verbose);
+					result << m_mapper.rom_character().as_string(address - CARTRIDGE_ROM_CHARACTER_0_START,
+						offset, 0, verbose);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					result << m_ppu.nametable().as_string((address - PPU_NAMETABLE_START) % (PPU_NAMETABLE_LENGTH * 2),
@@ -493,7 +470,7 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					result = m_mapper.read_rom_character(address);
+					result = m_mapper.read_rom_character(address - CARTRIDGE_ROM_CHARACTER_0_START);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					result = m_ppu.read_nametable(address - PPU_NAMETABLE_START);
@@ -526,7 +503,7 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					m_mapper.write_rom_character(address, value);
+					m_mapper.write_rom_character(address - CARTRIDGE_ROM_CHARACTER_0_START, value);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					m_ppu.write_nametable(address - PPU_NAMETABLE_START, value);
@@ -559,7 +536,7 @@ namespace nescc {
 
 			switch(address) {
 				case PPU_OAM_START ... PPU_OAM_END: // 0x00 - 0xff
-					m_ppu.write_oam(address, value);
+					m_ppu.write_oam(address - PPU_OAM_START, value);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped ppu oam region", "Address=%u(%04x), Value=%u(%02x)",

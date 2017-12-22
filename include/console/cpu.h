@@ -47,6 +47,8 @@ namespace nescc {
 
 				void clear(void);
 
+				uint32_t cycle(void) const;
+
 				uint8_t flags(void) const;
 
 				uint8_t index_x(void) const;

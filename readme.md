@@ -38,13 +38,14 @@ Interactive mode
 
 ```
 apu             status                                          Display apu state
-cpu             get, irq, nmi, reg, reset, set, status          Display/Set cpu state
+cpu             cycle, get, irq, nmi, reg, reset, set, status   Display/Set cpu state
 exit                                                            Exit interactive mode
+frame                                                           Display frame count
 help                                                            Display help information
 joypad          status, strobe                                  Display joypad state
 mapper          status                                          Display mapper state
 pause                                                           Pause emulation
-ppu             get, set, status                                Display/Set ppu state
+ppu             cycle, get, set, status                         Display/Set ppu state
 restart                                                         Restart emulation
 run                                                             Run/Unpause emulation
 status                                                          Display emulation status
@@ -57,6 +58,11 @@ Changelog
 
 Version 0.1.1751
 ----------------
+*Updated: 12/21/2017*
+
+* Added ppu port registers
+* Added interactive cycle/frame commands
+
 *Updated: 12/20/2017*
 
 * Added ppu sprite shift/address registers

@@ -334,6 +334,21 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		uint32_t
+		cpu::cycle(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u", m_cycle);
+			return m_cycle;
+		}
+
 		uint8_t
 		cpu::execute_command_add(
 			__in nescc::console::interface::bus &bus,

@@ -253,9 +253,6 @@ namespace nescc {
 					m_rom_program_index_0 = 0;
 					m_rom_program_index_1 = ((m_cartridge.rom_program_banks() > 1) ? 1 : 0);
 					break;
-
-				// TODO: add additional mappers
-
 				default:
 					THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED,
 						"Type=%u", type);

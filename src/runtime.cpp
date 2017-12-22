@@ -24,6 +24,7 @@ namespace nescc {
 	runtime::runtime(void) :
 		m_bus(nescc::console::bus::acquire()),
 		m_display(nescc::interface::display::acquire()),
+		m_frame(0),
 		m_trace(nescc::trace::acquire())
 	{
 		m_trace.initialize();
@@ -77,6 +78,21 @@ namespace nescc {
 
 		TRACE_EXIT();
 		return m_display;
+	}
+
+	uint32_t
+	runtime::frame(void) const
+	{
+		TRACE_ENTRY();
+
+#ifndef NDEBUG
+		if(!m_initialized) {
+			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
+		}
+#endif // NDEBUG
+
+		TRACE_EXIT_FORMAT("Result=%u", m_frame);
+		return m_frame;
 	}
 
 	bool
@@ -148,6 +164,7 @@ namespace nescc {
 
 				m_bus.update(cycle);
 				m_display.update();
+				++m_frame;
 				++frame;
 
 				delta = (SDL_GetTicks() - end);
@@ -267,6 +284,7 @@ namespace nescc {
 		}
 #endif // NDEBUG
 
+		m_frame = 0;
 		m_path = path;
 		nescc::core::thread::start(true);
 
@@ -323,7 +341,8 @@ namespace nescc {
 			result << " Base=" << nescc::core::singleton<nescc::runtime>::to_string(verbose);
 
 			if(m_initialized) {
-				result << ", Path[" << m_path.size() << "]=" << m_path;
+				result << ", Path[" << m_path.size() << "]=" << m_path
+					<< ", Frame=" << m_frame;
 			}
 		}
 

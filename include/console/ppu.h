@@ -44,7 +44,7 @@ namespace nescc {
 		#define PPU_OAM_LENGTH 0x100
 		#define PPU_PALETTE_LENGTH 0x20
 
-		union address_t {
+		union port_address_t {
 			struct {
 				uint16_t coarse_x : 5; // coarse x scroll
 				uint16_t coarse_y : 5; // coarse y scroll
@@ -55,7 +55,45 @@ namespace nescc {
 				uint16_t low : 8;
 				uint16_t high : 7;
 			};
+			uint16_t address : 14;
 			uint16_t raw : 15;
+		};
+
+		union port_control_t {
+			struct {
+				uint8_t nametable : 2; // 0 = 0x2000, 1 = 0x2400, 2 = 0x2800, 3 = 0x2c00
+				uint8_t increment : 1; // 0 = add 1 across, 1 = add 32 down
+				uint8_t sprite_pattern_table : 1; // 0 = 0x0000, 1 = 0x1000
+				uint8_t background_pattern_table : 1; // 0 = 0x0000, 1 = 0x1000
+				uint8_t sprite_size : 1; // 0 = 8x8, 1 = 8x16
+				uint8_t slave : 1; // 0 = read ext pins, 1 = write ext pin
+				uint8_t nmi : 1; // 0 = off, 1 = on
+			};
+			uint8_t raw;
+		};
+
+		union port_mask_t {
+			struct {
+				uint8_t greyscale : 1; // 0 = color, 1 = grayscale
+				uint8_t background_left : 1; // 0 = hide, 1 = show background in leftmost 8 pixels
+				uint8_t sprite_left : 1; // 0 = hide, 1 = show sprite in leftmost 8 pixels
+				uint8_t background : 1; // 0 = hide, 1 = show background
+				uint8_t sprite : 1; // 0 = hide, 1 = show sprite
+				uint8_t red : 1; // 0 = normal, 1 = emphasize red
+				uint8_t green : 1; // 0 = normal, 1 = emphasize green
+				uint8_t blue : 1; // 0 = normal, 1 = emphasize blue
+			};
+			uint8_t raw;
+		};
+
+		union port_status_t {
+			struct {
+				uint8_t previous : 5; // previous least significant bits written to the bus
+				uint8_t sprite_overflow : 1; // 0 = cleared, 1 = possible sprite overflow (more than 8 on scanline)
+				uint8_t sprite_0_hit : 1; // 0 = cleared, 1 = sprite 0 overlap
+				uint8_t vertical_blank : 1; // 0 = not vertical blank, 1 = veritcal blank
+			};
+			uint8_t raw;
 		};
 
 		typedef struct {
@@ -81,6 +119,8 @@ namespace nescc {
 
 				void clear(void);
 
+				uint32_t cycle(void) const;
+
 				nescc::core::memory &nametable(void);
 
 				nescc::core::memory &oam(void);
@@ -98,6 +138,7 @@ namespace nescc {
 					);
 
 				uint8_t read_port(
+					__in nescc::console::interface::bus &bus,
 					__in uint8_t port
 					);
 
@@ -129,6 +170,7 @@ namespace nescc {
 					);
 
 				void write_port(
+					__in nescc::console::interface::bus &bus,
 					__in uint8_t port,
 					__in uint8_t value
 					);
@@ -159,7 +201,9 @@ namespace nescc {
 
 				void on_uninitialize(void);
 
-				uint8_t read_port_data(void);
+				uint8_t read_port_data(
+					__in nescc::console::interface::bus &bus
+					);
 
 				uint8_t read_port_oam_data(void);
 
@@ -174,6 +218,7 @@ namespace nescc {
 					);
 
 				void write_port_data(
+					__in nescc::console::interface::bus &bus,
 					__in uint8_t value
 					);
 
@@ -193,15 +238,21 @@ namespace nescc {
 					__in uint8_t value
 					);
 
-				nescc::console::address_t m_address_t;
+				nescc::console::port_address_t m_address_t;
 
-				nescc::console::address_t m_address_v;
+				nescc::console::port_address_t m_address_v;
 
 				uint32_t m_column;
+
+				nescc::console::port_control_t m_control;
+
+				uint32_t m_cycle;
 
 				uint8_t m_fine_x;
 
 				bool m_frame_odd;
+
+				nescc::console::port_mask_t m_mask;
 
 				uint8_t m_mirroring;
 
@@ -213,11 +264,19 @@ namespace nescc {
 
 				nescc::core::memory m_port;
 
+				bool m_port_latch;
+
+				uint8_t m_port_value;
+
+				uint8_t m_port_value_buffer;
+
 				uint32_t m_scanline;
 
 				std::vector<nescc::console::sprite_t> m_sprite;
 
 				std::vector<nescc::console::sprite_t> m_sprite_secondary;
+
+				nescc::console::port_status_t m_status;
 		};
 	}
 }

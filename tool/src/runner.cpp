@@ -90,6 +90,14 @@ namespace nescc {
 			if(m_runtime.initialized()) {
 
 				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().cpu().cycle();
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_GET:
 
 						if(parse_subcommand_values(sub_arguments, address, value)) {
@@ -241,6 +249,27 @@ namespace nescc {
 		}
 
 		std::string
+		runner::command_frame(
+			__in_opt const std::vector<std::string> &arguments
+			)
+		{
+			std::stringstream result;
+
+			if(arguments.empty()) {
+
+				if(m_runtime.initialized()) {
+					result << m_runtime.frame();
+				} else {
+					result << "Emulation is not running";
+				}
+			} else {
+				result << "Unexpected command argument: " << arguments.front();
+			}
+
+			return result.str();
+		}
+
+		std::string
 		runner::command_joypad(
 			__in_opt const std::vector<std::string> &arguments
 			)
@@ -366,6 +395,14 @@ namespace nescc {
 			if(m_runtime.initialized()) {
 
 				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().ppu().cycle();
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_GET:
 
 						if(parse_subcommand_values(sub_arguments, address, value)) {
@@ -603,7 +640,13 @@ namespace nescc {
 #ifdef TRACE_COLOR
 				std::cout << PROMPT_COLOR_START;
 #endif // TRACE_COLOR
-				std::cout << "[" << command_status() << "] " << NESCC << "> ";
+				std::cout << "[" << command_status();
+
+				if(m_runtime.initialized()) {
+					std::cout << ":" << command_frame();
+				}
+
+				std::cout << "] " << NESCC << "> ";
 #ifdef TRACE_COLOR
 				std::cout << PROMPT_COLOR_STOP;
 #endif // TRACE_COLOR
@@ -645,6 +688,9 @@ namespace nescc {
 							case ARGUMENT_INTERACTIVE_EXIT:
 								running = false;
 								result = false;
+								break;
+							case ARGUMENT_INTERACTIVE_FRAME:
+								response = command_frame(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_HELP:
 								response = string_help_interactive();

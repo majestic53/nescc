@@ -214,7 +214,7 @@ namespace nescc {
 				if(m_initialized) {
 					int iter;
 
-					result << ", State=" << m_port.to_string(verbose);
+					result << ", Port=" << m_port.to_string(verbose);
 
 					for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
 

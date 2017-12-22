@@ -54,8 +54,14 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_CONSOLE_PPU_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
+		#define PPU_ADDRESS_HIGH_MASK 0x3f
+		#define PPU_BUS_PREVIOUS_MASK 0x1f
 		#define PPU_COLUMN_MAX 340
+		#define PPU_CONTROL_INCREMENT 0x20
+		#define PPU_NAMETABLE_ADDRESS_MAX 0x3eff
 		#define PPU_SCANLINE_MAX 261
+		#define PPU_SCROLL_COARSE_SCALE 3
+		#define PPU_SCROLL_FINE_MASK 7
 
 		#define PPU_SCANLINE_PRE_RENDER 261
 		#define PPU_SCANLINE_POST_RENDER 240
@@ -74,43 +80,6 @@ namespace nescc {
 		#define PPU_PORT_STRING(_TYPE_) \
 			(((_TYPE_) > PPU_PORT_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(PPU_PORT_STR[_TYPE_]))
-
-		union port_control_t {
-			struct {
-				uint8_t nametable : 2; // 0 = 0x2000, 1 = 0x2400, 2 = 0x2800, 3 = 0x2c00
-				uint8_t increment : 1; // 0 = add 1 across, 1 = add 32 down
-				uint8_t sprite_pattern_table : 1; // 0 = 0x0000, 1 = 0x1000
-				uint8_t background_pattern_table : 1; // 0 = 0x0000, 1 = 0x1000
-				uint8_t sprite_size : 1; // 0 = 8x8, 1 = 8x16
-				uint8_t slave : 1; // 0 = read ext pins, 1 = write ext pin
-				uint8_t nmi : 1; // 0 = off, 1 = on
-			};
-			uint8_t raw;
-		};
-
-		union port_mask_t {
-			struct {
-				uint8_t greyscale : 1; // 0 = color, 1 = grayscale
-				uint8_t background_left : 1; // 0 = hide, 1 = show background in leftmost 8 pixels
-				uint8_t sprite_left : 1; // 0 = hide, 1 = show sprite in leftmost 8 pixels
-				uint8_t background : 1; // 0 = hide, 1 = show background
-				uint8_t sprite : 1; // 0 = hide, 1 = show sprite
-				uint8_t red : 1; // 0 = normal, 1 = emphasize red
-				uint8_t green : 1; // 0 = normal, 1 = emphasize green
-				uint8_t blue : 1; // 0 = normal, 1 = emphasize blue
-			};
-			uint8_t raw;
-		};
-
-		union port_status_t {
-			struct {
-				uint8_t previous : 5; // previous least significant bits written to the bus
-				uint8_t sprite_overflow : 1; // 0 = cleared, 1 = possible sprite overflow (more than 8 on scanline)
-				uint8_t sprite_0_hit : 1; // 0 = cleared, 1 = sprite 0 overlap
-				uint8_t vertical_blank : 1; // 0 = not vertical blank, 1 = veritcal blank
-			};
-			uint8_t raw;
-		};
 
 		static const sprite_t PPU_SPRITE_INIT = {
 			.id = 64,
