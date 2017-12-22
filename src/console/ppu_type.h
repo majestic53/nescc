@@ -56,13 +56,19 @@ namespace nescc {
 
 		#define PPU_ADDRESS_HIGH_MASK 0x3f
 		#define PPU_BUS_PREVIOUS_MASK 0x1f
-		#define PPU_COLUMN_MAX 340
 		#define PPU_CONTROL_INCREMENT 0x20
 		#define PPU_NAMETABLE_ADDRESS_MAX 0x3eff
-		#define PPU_SCANLINE_MAX 261
 		#define PPU_SCROLL_COARSE_SCALE 3
 		#define PPU_SCROLL_FINE_MASK 7
 
+		#define PPU_DOT_MAX 340
+		#define PPU_DOT_CLEAR_OAM 1 // 261, 1
+		#define PPU_DOT_POST_BEGIN 0 // 240, 0
+		#define PPU_DOT_SPRITE_EVALUATE 257 // 261, 257
+		#define PPU_DOT_SPRITE_LOAD 321 // 261, 321
+		#define PPU_DOT_VBLANK 1 // 241, 1
+
+		#define PPU_SCANLINE_MAX 261
 		#define PPU_SCANLINE_PRE_RENDER 261
 		#define PPU_SCANLINE_POST_RENDER 240
 		#define PPU_SCANLINE_VBLANK_END 260
@@ -80,6 +86,23 @@ namespace nescc {
 		#define PPU_PORT_STRING(_TYPE_) \
 			(((_TYPE_) > PPU_PORT_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(PPU_PORT_STR[_TYPE_]))
+
+		enum {
+			PPU_RENDER_POST_RENDER = 0,
+			PPU_RENDER_PRE_RENDER,
+			PPU_RENDER_VBLANK,
+			PPU_RENDER_VISIBLE,
+		};
+
+		#define PPU_RENDER_MAX PPU_RENDER_POST_RENDER
+
+		static const std::string PPU_RENDER_STR[] = {
+			"Post-render", "Pre-render", "Vblank", "Visible",
+			};
+
+		#define PPU_RENDER_STRING(_TYPE_) \
+			(((_TYPE_) > PPU_RENDER_MAX) ? STRING_UNKNOWN : \
+				STRING_CHECK(PPU_RENDER_STR[_TYPE_]))
 
 		static const sprite_t PPU_SPRITE_INIT = {
 			.id = 64,

@@ -58,6 +58,10 @@ Changelog
 
 Version 0.1.1751
 ----------------
+*Updated: 12/22/2017*
+
+* Implemented ppu post-render/vblank steps
+
 *Updated: 12/21/2017*
 
 * Added ppu port registers

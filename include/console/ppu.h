@@ -189,13 +189,20 @@ namespace nescc {
 					__in const ppu &other
 					) = delete;
 
-				void execute_post_render(void);
+				void clear_oam_secondary(void);
 
-				void execute_pre_render(void);
+				void execute_post_render(
+					__in nescc::console::interface::bus &bus
+					);
 
-				void execute_vblank(void);
+				void execute_render(
+					__in nescc::console::interface::bus &bus,
+					__in int type
+					);
 
-				void execute_visible(void);
+				void execute_vblank(
+					__in nescc::console::interface::bus &bus
+					);
 
 				bool on_initialize(void);
 
@@ -208,6 +215,12 @@ namespace nescc {
 				uint8_t read_port_oam_data(void);
 
 				uint8_t read_port_status(void);
+
+				void sprite_evaluate(void);
+
+				void sprite_load(
+					__in nescc::console::interface::bus &bus
+					);
 
 				void write_port_address(
 					__in uint8_t value
@@ -242,11 +255,11 @@ namespace nescc {
 
 				nescc::console::port_address_t m_address_v;
 
-				uint32_t m_column;
-
 				nescc::console::port_control_t m_control;
 
 				uint32_t m_cycle;
+
+				uint32_t m_dot;
 
 				uint8_t m_fine_x;
 

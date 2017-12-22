@@ -61,6 +61,8 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				void display_update(void);
+
 				void display_write(
 					__in uint16_t x,
 					__in uint16_t y,

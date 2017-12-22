@@ -278,6 +278,22 @@ namespace nescc {
 		}
 
 		void
+		bus::display_update(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_display.update();
+
+			TRACE_EXIT();
+		}
+
+		void
 		bus::display_write(
 			__in uint16_t x,
 			__in uint16_t y,
