@@ -94,7 +94,7 @@ namespace nescc {
 			PPU_RENDER_VISIBLE,
 		};
 
-		#define PPU_RENDER_MAX PPU_RENDER_POST_RENDER
+		#define PPU_RENDER_MAX PPU_RENDER_VISIBLE
 
 		static const std::string PPU_RENDER_STR[] = {
 			"Post-render", "Pre-render", "Vblank", "Visible",
