@@ -26,8 +26,9 @@ Usage
 =====
 
 ```
-Nescc [-h|--help] [-i|--interactive] [-v|--version] path
+Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 
+-d | --debug           Run in debug mode
 -h | --help            Display help information
 -i | --interactive     Run in interactive mode
 -v | --version         Display version information
@@ -39,13 +40,14 @@ Interactive mode
 ```
 apu             status                                          Display apu state
 cpu             cycle, get, irq, nmi, reg, reset, set, status   Display/Set cpu state
+debug           set, status                                     Enable/Disable debug mode
 exit                                                            Exit interactive mode
 frame                                                           Display frame count
 help                                                            Display help information
 joypad          status, strobe                                  Display joypad state
 mapper          status                                          Display mapper state
 pause                                                           Pause emulation
-ppu             cycle, get, set, status                         Display/Set ppu state
+ppu             cycle, dot, get, scanline, set, status          Display/Set ppu state
 restart                                                         Restart emulation
 run                                                             Run/Unpause emulation
 status                                                          Display emulation status

@@ -40,7 +40,8 @@ namespace nescc {
 				void clear(void);
 
 				void reset(
-					__in nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus,
+					__in_opt bool debug = false
 					);
 
 				std::string to_string(
@@ -68,6 +69,8 @@ namespace nescc {
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
+
+				bool m_debug;
 		};
 	}
 }

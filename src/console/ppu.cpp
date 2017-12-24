@@ -27,6 +27,7 @@ namespace nescc {
 
 		ppu::ppu(void) :
 			m_cycle(0),
+			m_debug(false),
 			m_dot(0),
 			m_fine_x(0),
 			m_frame_odd(false),
@@ -94,8 +95,7 @@ namespace nescc {
 				<< std::endl << "ADDR        | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_ADDRESS))
 				<< std::endl << "DATA        | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_DATA))
 				<< std::endl << std::endl << "CYC         | " << m_cycle
-				<< std::endl << "SCAN/DOT    | " << SCALAR_AS_HEX(uint32_t, m_scanline)
-					<< ", " << SCALAR_AS_HEX(uint32_t, m_dot)
+				<< std::endl << "SCAN/DOT    | " << m_scanline << ", " << m_dot
 				<< std::endl << "COARSE      | " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_x)
 					<< ", " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_y)
 				<< std::endl << "FINE        | " << SCALAR_AS_HEX(uint8_t, m_fine_x)
@@ -124,6 +124,7 @@ namespace nescc {
 			m_address_v.raw = 0;
 			m_control.raw = 0;
 			m_cycle = 0;
+			m_debug = false;
 			m_dot = 0;
 			m_fine_x = 0;
 			m_frame_odd = false;
@@ -172,6 +173,21 @@ namespace nescc {
 
 			TRACE_EXIT_FORMAT("Result=%u", m_cycle);
 			return m_cycle;
+		}
+
+		uint32_t
+		ppu::dot(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u", m_dot);
+			return m_dot;
 		}
 
 		void
@@ -489,10 +505,11 @@ namespace nescc {
 
 		void
 		ppu::reset(
-			__in nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -506,6 +523,7 @@ namespace nescc {
 			m_address_v.raw = 0;
 			m_control.raw = 0;
 			m_cycle = 0;
+			m_debug = debug;
 			m_dot = 0;
 			m_fine_x = 0;
 			m_frame_odd = false;
@@ -528,6 +546,21 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu reset.");
 
 			TRACE_EXIT();
+		}
+
+		uint32_t
+		ppu::scanline(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_PPU_EXCEPTION(NESCC_CONSOLE_PPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u", m_scanline);
+			return m_scanline;
 		}
 
 		void
@@ -567,7 +600,8 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::ppu>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Port=" << m_port.to_string(verbose)
+					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< ", Port=" << m_port.to_string(verbose)
 						<< ", OAM=" << m_oam.to_string(verbose)
 						<< ", Nametable=" << m_nametable.to_string(verbose)
 						<< ", Palette=" << m_palette.to_string(verbose)
@@ -586,12 +620,11 @@ namespace nescc {
 							<< ", OAM Data=" << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_OAM_DATA))
 							<< ", Scroll=" << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_SCROLL))
 							<< ", Address=" << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_ADDRESS))
-							<< ", Data" << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_DATA)) << "}"
+							<< ", Data=" << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_DATA)) << "}"
 						<< ", Fine X=" << SCALAR_AS_HEX(uint8_t, m_fine_x)
 						<< ", Frame=" << (m_frame_odd ? "Odd" : "Even")
 						<< ", Mirroring=" << SCALAR_AS_HEX(uint8_t, m_mirroring)
-						<< ", Position={Scanline=" << SCALAR_AS_HEX(uint32_t, m_scanline)
-							<< ", Dot=" << SCALAR_AS_HEX(uint32_t, m_dot) << "}";
+						<< ", Position={Scanline=" << m_scanline << ", Dot=" << m_dot << "}";
 				}
 			}
 

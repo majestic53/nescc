@@ -27,6 +27,7 @@ namespace nescc {
 		bus::bus(void) :
 			m_apu(nescc::console::apu::acquire()),
 			m_cpu(nescc::console::cpu::acquire()),
+			m_debug(false),
 			m_display(nescc::interface::display::acquire()),
 			m_joypad(nescc::console::joypad::acquire()),
 			m_mapper(nescc::console::mapper::acquire()),
@@ -330,10 +331,11 @@ namespace nescc {
 
 		void
 		bus::load(
-			__in const std::string &path
+			__in const std::string &path,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
+			TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -342,7 +344,7 @@ namespace nescc {
 #endif // NDEBUG
 
 			m_mapper.cartridge().load(path);
-			m_mapper.reset();
+			m_mapper.reset(debug);
 
 			TRACE_EXIT();
 		}
@@ -414,6 +416,7 @@ namespace nescc {
 			m_apu.uninitialize();
 			m_joypad.uninitialize();
 			m_mapper.uninitialize();
+			m_debug = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus uninitialized.");
 
@@ -564,9 +567,11 @@ namespace nescc {
 		}
 
 		void
-		bus::reset(void)
+		bus::reset(
+			__in_opt bool debug
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Debug=%x", debug);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -576,10 +581,11 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus resetting...");
 
-			m_joypad.reset(*this);
-			m_apu.reset(*this);
-			m_cpu.reset(*this);
-			m_ppu.reset(*this);
+			m_joypad.reset(*this, debug);
+			m_apu.reset(*this, debug);
+			m_cpu.reset(*this, debug);
+			m_ppu.reset(*this, debug);
+			m_debug = debug;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus reset.");
 
@@ -601,7 +607,8 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::bus>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Mapper=" << m_mapper.to_string(verbose)
+					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< ", Mapper=" << m_mapper.to_string(verbose)
 						<< ", Joypad=" << m_joypad.to_string(verbose)
 						<< ", Apu=" << m_apu.to_string(verbose)
 						<< ", Cpu=" << m_cpu.to_string(verbose)

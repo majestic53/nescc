@@ -63,6 +63,10 @@ namespace nescc {
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);
 
+				std::string command_debug(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
+
 				std::string command_frame(
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);
@@ -136,6 +140,8 @@ namespace nescc {
 				std::string string_version(
 					__in_opt bool verbose = false
 					) const;
+
+				bool m_debug;
 
 				bool m_interactive;
 

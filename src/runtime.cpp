@@ -23,6 +23,7 @@ namespace nescc {
 
 	runtime::runtime(void) :
 		m_bus(nescc::console::bus::acquire()),
+		m_debug(false),
 		m_display(nescc::interface::display::acquire()),
 		m_frame(0),
 		m_trace(nescc::trace::acquire())
@@ -130,8 +131,8 @@ namespace nescc {
 
 		TRACE_ENTRY();
 
-		m_bus.load(m_path);
-		m_bus.reset();
+		m_bus.load(m_path, m_debug);
+		m_bus.reset(m_debug);
 		m_display.initialize();
 		m_display.set_icon(RUNTIME_ICON_PATH);
 		m_display.set_title(m_path);
@@ -163,7 +164,6 @@ namespace nescc {
 				}
 
 				m_bus.update(cycle);
-				m_display.update();
 				++m_frame;
 				++frame;
 
@@ -273,10 +273,11 @@ namespace nescc {
 
 	void
 	runtime::run(
-		__in const std::string &path
+		__in const std::string &path,
+		__in_opt bool debug
 		)
 	{
-		TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
+		TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
 
 #ifndef NDEBUG
 		if(!m_initialized) {
@@ -286,6 +287,7 @@ namespace nescc {
 
 		m_frame = 0;
 		m_path = path;
+		set_debug(debug);
 		nescc::core::thread::start(true);
 
 		TRACE_EXIT();
@@ -308,6 +310,24 @@ namespace nescc {
 
 		TRACE_EXIT_FORMAT("Result=%x", result);
 		return result;
+	}
+
+	void
+	runtime::set_debug(
+		__in bool debug
+		)
+	{
+		TRACE_ENTRY_FORMAT("Debug=%x", debug);
+
+#ifndef NDEBUG
+		if(!m_initialized) {
+			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
+		}
+#endif // NDEBUG
+
+		m_debug = debug;
+
+		TRACE_EXIT();
 	}
 
 	void
@@ -341,7 +361,8 @@ namespace nescc {
 			result << " Base=" << nescc::core::singleton<nescc::runtime>::to_string(verbose);
 
 			if(m_initialized) {
-				result << ", Path[" << m_path.size() << "]=" << m_path
+				result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+					<< ", Path[" << m_path.size() << "]=" << m_path
 					<< ", Frame=" << m_frame;
 			}
 		}

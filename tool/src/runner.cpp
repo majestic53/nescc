@@ -25,6 +25,7 @@ namespace nescc {
 	namespace tool {
 
 		runner::runner(void) :
+			m_debug(false),
 			m_interactive(false),
 			m_runtime(nescc::runtime::acquire())
 		{
@@ -249,6 +250,50 @@ namespace nescc {
 		}
 
 		std::string
+		runner::command_debug(
+			__in_opt const std::vector<std::string> &arguments
+			)
+		{
+			uint16_t value = 0;
+			std::stringstream result;
+			std::vector<std::string> sub_arguments = arguments;
+			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
+
+			if(!arguments.empty()) {
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_DEBUG);
+				sub_arguments.erase(sub_arguments.begin());
+			}
+
+			switch(type) {
+				case ARGUMENT_INTERACTIVE_SUBCOMMAND_SET:
+
+					if(parse_subcommand_value(sub_arguments, value)) {
+						m_debug = value;
+						result << "Debug = " << m_debug << "(" << (m_debug ? "true" : "false")
+							<< ")";
+					} else {
+						result << "Invalid command arguments: <value>";
+					}
+
+					break;
+				case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
+
+					if(sub_arguments.empty()) {
+						result << "Debug = " << m_debug << "(" << (m_debug ? "true" : "false")
+							<< ")";
+					} else {
+						result << "Unexpected command argument: " << sub_arguments.front();
+					}
+					break;
+				default:
+					result << "Unsupported command argument: " << arguments.front();
+					break;
+			}
+
+			return result.str();
+		}
+
+		std::string
 		runner::command_frame(
 			__in_opt const std::vector<std::string> &arguments
 			)
@@ -403,6 +448,14 @@ namespace nescc {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
 						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_DOT:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().ppu().dot();
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_GET:
 
 						if(parse_subcommand_values(sub_arguments, address, value)) {
@@ -415,6 +468,14 @@ namespace nescc {
 							}
 						} else {
 							result << "Invalid command arguments: <address> <offset>";
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SCANLINE:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().ppu().scanline();
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
 						}
 						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SET:
@@ -491,7 +552,7 @@ namespace nescc {
 					}
 				} else {
 					m_runtime.initialize();
-					m_runtime.run(m_path);
+					m_runtime.run(m_path, m_debug);
 				}
 			} else {
 				result << "Unexpected command argument: " << arguments.front();
@@ -590,6 +651,9 @@ namespace nescc {
 					}
 
 					switch(entry->second) {
+						case ARGUMENT_DEBUG:
+							m_debug = true;
+							break;
 						case ARGUMENT_HELP:
 							help = true;
 							break;
@@ -685,6 +749,9 @@ namespace nescc {
 							case ARGUMENT_INTERACTIVE_CPU:
 								response = command_cpu(arguments);
 								break;
+							case ARGUMENT_INTERACTIVE_DEBUG:
+								response = command_debug(arguments);
+								break;
 							case ARGUMENT_INTERACTIVE_EXIT:
 								running = false;
 								result = false;
@@ -751,6 +818,7 @@ namespace nescc {
 				m_runtime.uninitialize();
 			}
 
+			m_debug = false;
 			m_interactive = false;
 			m_path.clear();
 		}
@@ -889,7 +957,7 @@ namespace nescc {
 					nescc::core::thread::wait();
 				} else {
 					m_runtime.initialize();
-					m_runtime.run(m_path);
+					m_runtime.run(m_path, m_debug);
 					m_runtime.wait();
 					m_runtime.uninitialize();
 				}
@@ -1023,7 +1091,8 @@ namespace nescc {
 					result << ", Thread=" << nescc::core::thread::to_string(verbose)
 						<< ", Runtime=" << SCALAR_AS_HEX(uintptr_t, &m_runtime)
 						<< ", Path[" << m_path.size() << "]=" << m_path
-						<< ", Mode=" << (m_interactive ? "Interactive" : "Normal");
+						<< ", Mode=" << (m_interactive ? "Interactive" : "Normal")
+							<< "/" << (m_debug ? "Debug" : "Non-debug");
 				}
 			}
 

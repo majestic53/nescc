@@ -29,6 +29,7 @@ namespace nescc {
 		cpu::cpu(void) :
 			m_accumulator(0),
 			m_cycle(0),
+			m_debug(false),
 			m_flags(0),
 			m_index_x(0),
 			m_index_y(0),
@@ -319,6 +320,7 @@ namespace nescc {
 
 			m_accumulator = 0;
 			m_cycle = 0;
+			m_debug = false;
 			m_flags = 0;
 			m_index_x =0;
 			m_index_y = 0;
@@ -1875,10 +1877,11 @@ namespace nescc {
 
 		void
 		cpu::reset(
-			__in nescc::console::interface::bus &bus
+			__in nescc::console::interface::bus &bus,
+			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -1890,6 +1893,7 @@ namespace nescc {
 
 			m_accumulator = 0;
 			m_cycle = CPU_MODE_CYCLES(CPU_MODE_INTERRUPT);
+			m_debug = debug;
 			m_flags = CPU_FLAG_RESET;
 			m_index_x = 0;
 			m_index_y = 0;
@@ -2251,7 +2255,8 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::console::cpu>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", RAM=" << m_ram.to_string(verbose)
+					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< ", RAM=" << m_ram.to_string(verbose)
 						<< ", OAM DMA=" << m_oam_dma.to_string(verbose)
 						<< ", Cycle=" << m_cycle
 						<< ", Signal={";

@@ -121,6 +121,8 @@ namespace nescc {
 
 				uint32_t cycle(void) const;
 
+				uint32_t dot(void) const;
+
 				nescc::core::memory &nametable(void);
 
 				nescc::core::memory &oam(void);
@@ -143,8 +145,11 @@ namespace nescc {
 					);
 
 				void reset(
-					__in nescc::console::interface::bus &bus
+					__in nescc::console::interface::bus &bus,
+					__in_opt bool debug = false
 					);
+
+				uint32_t scanline(void) const;
 
 				std::string to_string(
 					__in_opt bool verbose = false
@@ -258,6 +263,8 @@ namespace nescc {
 				nescc::console::port_control_t m_control;
 
 				uint32_t m_cycle;
+
+				bool m_debug;
 
 				uint32_t m_dot;
 
