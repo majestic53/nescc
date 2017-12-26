@@ -382,6 +382,8 @@ namespace nescc {
 
 			result = m_nametable.read(address);
 
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu nametable read", "[%04x] -> %u(%02x)", address, result, result);
+
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
 		}
@@ -414,6 +416,8 @@ namespace nescc {
 			}
 
 			result = m_palette.read(address);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu palette read", "[%04x] -> %u(%02x)", address, result, result);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -449,6 +453,9 @@ namespace nescc {
 					THROW_NESCC_CONSOLE_PPU_EXCEPTION_FORMAT(NESCC_CONSOLE_PPU_EXCEPTION_UNSUPPORTED,
 						"Port=%u(%s)", port, PPU_PORT_STRING(port));
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu port read", "[%s] -> %u(%02x)", PPU_PORT_STRING(port),
+				result, result);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -645,6 +652,9 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu update", "%u, %u (%s)", m_scanline, m_dot,
+				m_frame_odd ? "Odd" : "Even");
+
 			switch(m_scanline) {
 				case PPU_SCANLINE_VISIBLE_START ... PPU_SCANLINE_VISIBLE_END: // 0 - 239
 					execute_render(bus, PPU_RENDER_VISIBLE);
@@ -672,6 +682,8 @@ namespace nescc {
 			}
 
 			++m_cycle;
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu", "|- CYC <- %u", m_cycle);
 
 			TRACE_EXIT();
 		}
@@ -703,6 +715,8 @@ namespace nescc {
 
 			m_nametable.write(address, value);
 
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu nametable write", "[%04x] <- %u(%02x)", address, value, value);
+
 			TRACE_EXIT();
 		}
 
@@ -721,6 +735,8 @@ namespace nescc {
 #endif // NDEBUG
 
 			m_oam.write(address, value);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu oam write", "[%04x] <- %u(%02x)", address, value, value);
 
 			TRACE_EXIT();
 		}
@@ -752,6 +768,8 @@ namespace nescc {
 			}
 
 			m_palette.write(address, value);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu palette write", "[%04x] <- %u(%02x)", address, value, value);
 
 			TRACE_EXIT();
 		}
@@ -799,6 +817,9 @@ namespace nescc {
 					THROW_NESCC_CONSOLE_PPU_EXCEPTION_FORMAT(NESCC_CONSOLE_PPU_EXCEPTION_UNSUPPORTED,
 						"Port=%u(%s)", port, PPU_PORT_STRING(port));
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu port write", "[%s] <- %u(%02x)", PPU_PORT_STRING(port),
+				value, value);
 
 			TRACE_EXIT();
 		}

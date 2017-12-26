@@ -172,6 +172,8 @@ namespace nescc {
 			result = (JOYPAD_DATA_BUS | (value & 1));
 			m_port.write(pad, JOYPAD_DATA_FILL | (value >> 1));
 
+			TRACE_DEBUG_FORMAT(m_debug, "Joypad read", "[%04x] -> %u(%02x)", pad, result, result);
+
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
 		}
@@ -275,6 +277,9 @@ namespace nescc {
 			}
 
 			m_strobe = (value ? true : false);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Joypad strobe", "%u(%02x) -> %s", value, value,
+				m_strobe ? "on" : "off");
 
 			TRACE_EXIT();
 		}

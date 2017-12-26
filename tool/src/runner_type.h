@@ -70,7 +70,9 @@ namespace nescc {
 		#define ARGUMENT_DELIMITER '-'
 
 		enum {
+#ifndef NDEBUG
 			ARGUMENT_DEBUG = 0,
+#endif // NDEBUG
 			ARGUMENT_HELP,
 			ARGUMENT_INTERACTIVE,
 			ARGUMENT_VERSION,
@@ -80,7 +82,10 @@ namespace nescc {
 		#define ARGUMENT_MIN 2
 
 		static const std::string ARGUMENT_STR[] = {
-			"d", "h", "i", "v",
+#ifndef NDEBUG
+			"d",
+#endif // NDEBUG
+			"h", "i", "v",
 			};
 
 		#define ARGUMENT_STRING(_TYPE_) \
@@ -88,7 +93,10 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR[_TYPE_]))
 
 		static const std::string ARGUMENT_STR_LONG[] = {
-			"debug", "help", "interactive", "version",
+#ifndef NDEBUG
+			"debug",
+#endif // NDEBUG
+			"help", "interactive", "version",
 			};
 
 		#define ARGUMENT_STRING_LONG(_TYPE_) \
@@ -96,7 +104,9 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR_LONG[_TYPE_]))
 
 		static const std::string ARGUMENT_STR_DESC[] = {
+#ifndef NDEBUG
 			"Run in debug mode",
+#endif // NDEBUG
 			"Display help information",
 			"Run in interactive mode",
 			"Display version information",
@@ -107,8 +117,10 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR_DESC[_TYPE_]))
 
 		static const std::map<std::string, uint32_t> ARGUMENT_MAP = {
+#ifndef NDEBUG
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_DEBUG), ARGUMENT_DEBUG),
 			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_DEBUG), ARGUMENT_DEBUG),
+#endif // NDEBUG
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_HELP), ARGUMENT_HELP),
 			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_HELP), ARGUMENT_HELP),
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_INTERACTIVE), ARGUMENT_INTERACTIVE),

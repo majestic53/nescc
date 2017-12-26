@@ -249,6 +249,7 @@ namespace nescc {
 			return result.str();
 		}
 
+#ifndef NDEBUG
 		std::string
 		runner::command_debug(
 			__in_opt const std::vector<std::string> &arguments
@@ -292,6 +293,7 @@ namespace nescc {
 
 			return result.str();
 		}
+#endif // NDEBUG
 
 		std::string
 		runner::command_frame(
@@ -651,9 +653,11 @@ namespace nescc {
 					}
 
 					switch(entry->second) {
+#ifndef NDEBUG
 						case ARGUMENT_DEBUG:
 							m_debug = true;
 							break;
+#endif // NDEBUG
 						case ARGUMENT_HELP:
 							help = true;
 							break;
@@ -749,9 +753,11 @@ namespace nescc {
 							case ARGUMENT_INTERACTIVE_CPU:
 								response = command_cpu(arguments);
 								break;
+#ifndef NDEBUG
 							case ARGUMENT_INTERACTIVE_DEBUG:
 								response = command_debug(arguments);
 								break;
+#endif // NDEBUG
 							case ARGUMENT_INTERACTIVE_EXIT:
 								running = false;
 								result = false;

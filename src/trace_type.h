@@ -54,7 +54,7 @@ namespace nescc {
 
 	#define TRACE_MALFORMED "Malformed trace"
 
-	#define TRACE_QUEUE_MAX 1024
+	#define TRACE_QUEUE_MAX 4096
 	#define TRACE_TIMESTAMP_FORMAT "%Y-%m-%d %H:%M:%S"
 	#define TRACE_TIMESTAMP_LEN 32
 
@@ -70,7 +70,7 @@ namespace nescc {
 	#define TRACE_MAX TRACE_VERBOSE
 
 	static const std::string TRACE_STR[] = {
-		"Err", "Warn", "Info", "Verb",
+		"Dbg", "Err", "Warn", "Info", "Verb",
 		};
 
 	#define TRACE_STRING(_TYPE_) \
@@ -78,7 +78,7 @@ namespace nescc {
 			STRING_CHECK(TRACE_STR[_TYPE_]))
 
 	static const std::string TRACE_COLOR_STR[] = {
-		"\x1b[91m", "\x1b[93m", "\x1b[94m", "\x1b[90m", "\x1b[0m",
+		"\x1b[0m", "\x1b[91m", "\x1b[93m", "\x1b[94m", "\x1b[90m", "\x1b[0m",
 		};
 
 	#define TRACE_COLOR_STRING(_TYPE_) \

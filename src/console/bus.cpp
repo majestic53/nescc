@@ -212,6 +212,8 @@ namespace nescc {
 					break;
 			}
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu bus read", "[%04x] -> %u(%02x)", address, result, result);
+
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
 		}
@@ -274,6 +276,8 @@ namespace nescc {
 						address, address, value, value);
 					break;
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu bus write", "[%04x] <- %u(%02x)", address, value, value);
 
 			TRACE_EXIT();
 		}
@@ -502,6 +506,8 @@ namespace nescc {
 					break;
 			}
 
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu bus read", "[%04x] -> %u(%02x)", address, result, result);
+
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
 		}
@@ -536,6 +542,8 @@ namespace nescc {
 					break;
 			}
 
+			TRACE_DEBUG_FORMAT(m_debug, "CPU bus write", "[%04x] <- %u(%02x)", address, value, value);
+
 			TRACE_EXIT();
 		}
 
@@ -562,6 +570,8 @@ namespace nescc {
 						address, address, value, value);
 					break;
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu bus oam write", "[%04x] <- %u(%02x)", address, value, value);
 
 			TRACE_EXIT();
 		}

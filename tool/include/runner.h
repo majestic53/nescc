@@ -63,9 +63,11 @@ namespace nescc {
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);
 
+#ifndef NDEBUG
 				std::string command_debug(
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);
+#endif // NDEBUG
 
 				std::string command_frame(
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()

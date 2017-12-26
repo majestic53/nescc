@@ -400,6 +400,9 @@ namespace nescc {
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- A   <- %u(%02x)", m_accumulator, m_accumulator);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -453,6 +456,9 @@ namespace nescc {
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- A   <- %u(%02x)", m_accumulator, m_accumulator);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -484,6 +490,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_OVERFLOW) ? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= ~CPU_FLAG_OVERFLOW;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -538,10 +547,14 @@ namespace nescc {
 				result += CPU_CYCLES_PAGE_BOUNDARY;
 			}
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- BRN <- %s", branch ? "Taken" : "Not taken");
+
 			if(branch) {
 				m_program_counter = address;
 				result += CPU_CYCLES_BRANCH;
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -562,6 +575,10 @@ namespace nescc {
 			push_byte(bus, m_flags | CPU_FLAG_BREAK);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -667,6 +684,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -727,6 +747,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -767,6 +790,8 @@ namespace nescc {
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_FLAG,
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -828,6 +853,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -854,6 +882,9 @@ namespace nescc {
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -968,6 +999,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1035,6 +1069,9 @@ namespace nescc {
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- A   <- %u(%02x)", m_accumulator, m_accumulator);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1087,6 +1124,9 @@ namespace nescc {
 
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- A   <- %u(%02x)", m_accumulator, m_accumulator);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1141,6 +1181,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1194,6 +1237,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1210,6 +1256,9 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			m_program_counter = pull_word(bus);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1228,6 +1277,9 @@ namespace nescc {
 
 			m_flags = pull_byte(bus);
 			m_program_counter = pull_word(bus);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1282,6 +1334,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1335,6 +1390,9 @@ namespace nescc {
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1355,14 +1413,18 @@ namespace nescc {
 					m_accumulator = pull_byte(bus);
 					!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 					(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+					TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- A   <- %u(%02x)", m_accumulator, m_accumulator);
 					break;
 				case CPU_COMMAND_PLP:
 					m_flags = pull_byte(bus);
+					TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STACK_PULL,
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1390,6 +1452,8 @@ namespace nescc {
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STACK_PUSH,
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
 			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1499,6 +1563,9 @@ namespace nescc {
 			push_word(bus, m_program_counter);
 			m_program_counter = address;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1552,6 +1619,9 @@ namespace nescc {
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- A   <- %u(%02x)", m_accumulator, m_accumulator);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
+
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
 		}
@@ -1592,6 +1662,9 @@ namespace nescc {
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- VAL <- %u(%02x)", value, value);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1652,6 +1725,7 @@ namespace nescc {
 			}
 
 			m_signal_maskable = true;
+			TRACE_DEBUG(m_debug, "Cpu maskable interrupt signalled");
 
 			TRACE_EXIT();
 		}
@@ -1665,11 +1739,17 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
+			TRACE_DEBUG(m_debug, "Cpu maskable interrupt");
+
 			m_flags &= ~CPU_FLAG_BREAK;
 			push_word(bus, m_program_counter);
 			push_byte(bus, m_flags);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -1687,6 +1767,7 @@ namespace nescc {
 #endif // NDEBUG
 
 			m_signal_non_maskable = true;
+			TRACE_DEBUG(m_debug, "Cpu non-maskable interrupt signalled");
 
 			TRACE_EXIT();
 		}
@@ -1700,11 +1781,17 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
+			TRACE_DEBUG(m_debug, "Cpu non-maskable interrupt");
+
 			m_flags &= ~CPU_FLAG_BREAK;
 			push_word(bus, m_program_counter);
 			push_byte(bus, m_flags);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_NON_MASKABLE_ADDRESS);
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -1891,6 +1978,8 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu resetting...");
 
+			TRACE_DEBUG(m_debug, "Cpu reset");
+
 			m_accumulator = 0;
 			m_cycle = CPU_MODE_CYCLES(CPU_MODE_INTERRUPT);
 			m_debug = debug;
@@ -1903,6 +1992,10 @@ namespace nescc {
 			m_signal_maskable = false;
 			m_signal_non_maskable = false;
 			m_stack_pointer = CPU_STACK_POINTER_ADDRESS_INIT;
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- PC  <- %u(%04x)", m_program_counter, m_program_counter);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- SP  <- %u(%02x)", m_stack_pointer, m_stack_pointer);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- FLG <- %u(%02x)", m_flags, m_flags);
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu reset.");
 
@@ -2118,6 +2211,9 @@ namespace nescc {
 
 			command = CPU_COMMAND.at(read_byte(bus, m_program_counter));
 
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu command", "[%04x] %s %s", m_program_counter,
+				CPU_COMMAND_STRING(command.first), CPU_MODE_STRING(command.second));
+
 			++m_program_counter;
 
 			switch(command.first) {
@@ -2303,6 +2399,8 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			TRACE_DEBUG(m_debug, "Cpu update");
+
 			if(m_signal_non_maskable) {
 				result += interrupt_non_maskable(bus);
 				m_signal_non_maskable = false;
@@ -2317,6 +2415,9 @@ namespace nescc {
 
 			result += step(bus);
 			m_cycle += result;
+
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- CYL <- %u", result);
+			TRACE_DEBUG_FORMAT(m_debug, "Cpu", "|- CYC <- %u", m_cycle);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;

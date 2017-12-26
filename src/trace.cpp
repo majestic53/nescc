@@ -53,10 +53,13 @@ namespace nescc {
 		__in const trace_entry &entry
 		)
 	{
+		trace_entry entry_old;
 		std::lock_guard<std::mutex> lock(m_queue_mutex);
 
 		while(m_queue.size() >= TRACE_QUEUE_MAX) {
+			entry_old = m_queue.front();
 			m_queue.pop();
+			process(entry_old);
 		}
 
 		m_queue.push(entry);
@@ -218,10 +221,14 @@ namespace nescc {
 		{
 			std::lock_guard<std::mutex> lock(m_process_mutex);
 
-			if(level <= TRACE_WARNING) {
-				std::cerr << result.str() << std::endl;
-			} else {
-				std::cout << result.str() << std::endl;
+			switch(level) {
+				case TRACE_ERROR:
+				case TRACE_WARNING:
+					break;
+					std::cerr << result.str() << std::endl;
+				default:
+					std::cout << result.str() << std::endl;
+					break;
 			}
 		}
 	}

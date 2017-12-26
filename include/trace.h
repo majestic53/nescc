@@ -37,6 +37,22 @@ namespace nescc {
 		} catch(...) { } \
 		instance.release(); \
 		}
+	#define _TRACE_DEBUG(_ENABLE_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
+		if(_ENABLE_) { \
+			nescc::trace &instance = nescc::trace::acquire(); \
+			try { \
+				if(instance.initialized()) { \
+					instance.generate(nescc::TRACE_DEBUG, std::string(), _MESSAGE_, _FILE_, _FUNCTION_, \
+						_LINE_, _FORMAT_, __VA_ARGS__); \
+				} \
+			} catch(...) { } \
+			instance.release(); \
+			} \
+		}
+	#define TRACE_DEBUG(_ENABLE_, _MESSAGE_) TRACE_DEBUG_FORMAT(_ENABLE_, _MESSAGE_, "", "")
+	#define TRACE_DEBUG_FORMAT(_ENABLE_, _MESSAGE_, _FORMAT_, ...) \
+		_TRACE_DEBUG(_ENABLE_, _MESSAGE_, __FILE__, __FUNCTION__, __LINE__, \
+			_FORMAT_, __VA_ARGS__)
 	#define TRACE_ENTRY() TRACE_ENTRY_FORMAT("", "")
 	#define TRACE_ENTRY_FORMAT(_FORMAT_, ...) \
 		_TRACE(nescc::TRACE_VERBOSE, "+", __FUNCTION__, __FILE__, __FUNCTION__, __LINE__, \
@@ -51,6 +67,8 @@ namespace nescc {
 			_FORMAT_, __VA_ARGS__)
 #else
 	#define _TRACE(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...)
+	#define TRACE_DEBUG(_ENABLE_, _MESSAGE_)
+	#define TRACE_DEBUG_FORMAT(_ENABLE_, _MESSAGE_, _FORMAT_, ...)
 	#define TRACE_ENTRY()
 	#define TRACE_ENTRY_FORMAT(_FORMAT_, ...)
 	#define TRACE_EXIT()
@@ -60,7 +78,8 @@ namespace nescc {
 #endif // NDEBUG
 
 	typedef enum {
-		TRACE_ERROR = 0,
+		TRACE_DEBUG = 0,
+		TRACE_ERROR,
 		TRACE_WARNING,
 		TRACE_INFORMATION,
 		TRACE_VERBOSE,
