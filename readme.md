@@ -41,10 +41,11 @@ Interactive mode
 apu             status                                          Display apu state
 cpu             cycle, get, irq, nmi, reg, reset, set, status   Display/Set cpu state
 debug           set, status                                     Enable/Disable debug mode
+display         hide, present, show, status                     Display/Set display state
 exit                                                            Exit interactive mode
 frame                                                           Display frame count
 help                                                            Display help information
-joypad          status, strobe                                  Display joypad state
+joypad          status, strobe                                  Display/Set joypad state
 mapper          status                                          Display mapper state
 pause                                                           Pause emulation
 ppu             cycle, dot, get, scanline, set, status          Display/Set ppu state
@@ -61,9 +62,10 @@ Changelog
 
 Version 0.1.1752
 ----------------
-*Updated: 12/26/2017*
+*Updated: 12/26-27/2017*
 
 * Added step command
+* Added display commands
 
 Version 0.1.1751
 ----------------

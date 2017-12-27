@@ -26,7 +26,9 @@ namespace nescc {
 	namespace interface {
 
 		display::display(void) :
+			m_debug(false),
 			m_renderer(nullptr),
+			m_shown(false),
 			m_texture(nullptr),
 			m_window(nullptr)
 		{
@@ -38,6 +40,26 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
+		}
+
+		std::string
+		display::as_string(
+			__in_opt bool verbose
+			) const
+		{
+			std::stringstream result;
+			int height = 0, width = 0;
+
+			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
+
+			SDL_GetWindowSize(m_window, &width, &height);
+
+			result << "DIM  | " << width << ", " << height
+				<< std::endl << "STAT | " << (m_shown ? "Shown" : "Hidden")
+				<< std::endl << "TITL | " << STRING_CHECK(m_title);
+
+			TRACE_EXIT();
+			return result.str();
 		}
 
 		void
@@ -115,6 +137,7 @@ namespace nescc {
 			}
 
 			SDL_RenderPresent(m_renderer);
+			m_shown = true;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display initialized.");
 
@@ -143,6 +166,9 @@ namespace nescc {
 				SDL_DestroyWindow(m_window);
 				m_window = nullptr;
 			}
+
+			m_debug = false;
+			m_shown = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display uninitialized.");
 
@@ -174,6 +200,25 @@ namespace nescc {
 
 			TRACE_EXIT_FORMAT("Result=%08x", result);
 			return result;
+		}
+
+		void
+		display::reset(
+			__in_opt bool debug
+			)
+		{
+			TRACE_ENTRY_FORMAT("Debug=%x", debug);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			clear();
+			m_debug = debug;
+
+			TRACE_EXIT();
 		}
 
 		void
@@ -251,6 +296,49 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		void
+		display::show(
+			__in bool shown
+			)
+		{
+			TRACE_ENTRY_FORMAT("Shown=%x", shown);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(shown != m_shown) {
+
+				m_shown = shown;
+				if(m_shown) {
+					SDL_ShowWindow(m_window);
+					TRACE_DEBUG(m_debug, "Display shown");
+				} else {
+					SDL_HideWindow(m_window);
+					TRACE_DEBUG(m_debug, "Display hidden");
+				}
+			}
+
+			TRACE_EXIT();
+		}
+
+		bool
+		display::shown(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%x", m_shown);
+			return m_shown;
+		}
+
 		std::string
 		display::to_string(
 			__in_opt bool verbose
@@ -266,7 +354,9 @@ namespace nescc {
 				result << " Base=" << nescc::core::singleton<nescc::interface::display>::to_string(verbose);
 
 				if(m_initialized) {
-					result << ", Window=" << SCALAR_AS_HEX(uintptr_t, m_window)
+					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< ", Window=" << SCALAR_AS_HEX(uintptr_t, m_window)
+							<< "(" << (m_shown ? "Shown" : "Hidden") << ")"
 						<< ", Renderer=" << SCALAR_AS_HEX(uintptr_t, m_renderer)
 						<< ", Texture=" << SCALAR_AS_HEX(uintptr_t, m_texture)
 						<< ", Title[" << m_title.size() << "]=" << STRING_CHECK(m_title)
@@ -305,6 +395,8 @@ namespace nescc {
 			}
 
 			SDL_RenderPresent(m_renderer);
+
+			TRACE_DEBUG(m_debug, "Display update");
 
 			TRACE_EXIT();
 		}

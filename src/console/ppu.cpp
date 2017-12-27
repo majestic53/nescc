@@ -95,7 +95,7 @@ namespace nescc {
 				<< std::endl << "ADDR        | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_ADDRESS))
 				<< std::endl << "DATA        | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_DATA))
 				<< std::endl << std::endl << "CYC         | " << m_cycle
-				<< std::endl << "SCAN/DOT    | " << m_scanline << ", " << m_dot
+				<< std::endl << std::endl << "SCAN/DOT    | " << m_scanline << ", " << m_dot
 				<< std::endl << "COARSE      | " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_x)
 					<< ", " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_y)
 				<< std::endl << "FINE        | " << SCALAR_AS_HEX(uint8_t, m_fine_x)
@@ -655,7 +655,7 @@ namespace nescc {
 			TRACE_DEBUG_FORMAT(m_debug, "Ppu update", "%u, %u (%s)", m_scanline, m_dot,
 				m_frame_odd ? "Odd" : "Even");
 
-			/*switch(m_scanline) {
+			switch(m_scanline) {
 				case PPU_SCANLINE_VISIBLE_START ... PPU_SCANLINE_VISIBLE_END: // 0 - 239
 					execute_render(bus, PPU_RENDER_VISIBLE);
 					break;
@@ -679,11 +679,11 @@ namespace nescc {
 					m_scanline = 0;
 					m_frame_odd = !m_frame_odd;
 				}
-			}*/
+			}
 
 			++m_cycle;
 
-			TRACE_DEBUG_FORMAT(m_debug, "Ppu", "|- CYC <- %u", m_cycle);
+			//TRACE_DEBUG_FORMAT(m_debug, "Ppu state", "\n%s", STRING_CHECK(as_string(true)));
 
 			TRACE_EXIT();
 		}

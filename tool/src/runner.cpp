@@ -298,6 +298,72 @@ namespace nescc {
 #endif // NDEBUG
 
 		std::string
+		runner::command_display(
+			__in_opt const std::vector<std::string> &arguments
+			)
+		{
+			std::stringstream result;
+			std::vector<std::string> sub_arguments = arguments;
+			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
+
+			if(!arguments.empty()) {
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_DISPLAY);
+				sub_arguments.erase(sub_arguments.begin());
+			}
+
+			if(m_runtime.initialized()) {
+
+				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HIDE:
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW:
+
+						if(sub_arguments.empty()) {
+							m_runtime.display().show(
+								type == ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW);
+
+							if(type == ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW) {
+								m_runtime.display().update();
+							}
+
+							result << m_runtime.display().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_PRESENT:
+
+						if(sub_arguments.empty()) {
+
+							if(m_runtime.display().shown()) {
+								m_runtime.display().update();
+								result << m_runtime.display().as_string(true);
+							} else {
+								result << "Display is hidden";
+							}
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.display().as_string(true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					default:
+						result << "Unsupported command argument: " << arguments.front();
+						break;
+				}
+			} else {
+				result << "Emulation is not running";
+			}
+
+			return result.str();
+		}
+
+		std::string
 		runner::command_frame(
 			__in_opt const std::vector<std::string> &arguments
 			)
@@ -798,6 +864,9 @@ namespace nescc {
 								response = command_debug(arguments);
 								break;
 #endif // NDEBUG
+							case ARGUMENT_INTERACTIVE_DISPLAY:
+								response = command_display(arguments);
+								break;
 							case ARGUMENT_INTERACTIVE_EXIT:
 								running = false;
 								result = false;
@@ -837,6 +906,8 @@ namespace nescc {
 								break;
 							case ARGUMENT_INTERACTIVE_VERSION:
 								response = string_version();
+								break;
+							default:
 								break;
 						}
 

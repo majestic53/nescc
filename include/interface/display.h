@@ -34,12 +34,20 @@ namespace nescc {
 
 				~display(void);
 
+				std::string as_string(
+					__in_opt bool verbose = false
+					) const;
+
 				void clear(void);
 
 				uint32_t read(
 					__in uint16_t x,
 					__in uint16_t y
 					) const;
+
+				void reset(
+					__in_opt bool debug = false
+					);
 
 				void set_frame_rate(
 					__in float rate
@@ -52,6 +60,12 @@ namespace nescc {
 				void set_title(
 					__in const std::string &title
 					);
+
+				void show(
+					__in bool shown
+					);
+
+				bool shown(void) const;
 
 				virtual std::string to_string(
 					__in_opt bool verbose = false
@@ -83,9 +97,13 @@ namespace nescc {
 
 				void on_uninitialize(void);
 
+				bool m_debug;
+
 				std::vector<uint32_t> m_pixel;
 
 				SDL_Renderer *m_renderer;
+
+				bool m_shown;
 
 				std::string m_title;
 
