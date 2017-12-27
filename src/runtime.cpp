@@ -26,6 +26,7 @@ namespace nescc {
 		m_debug(false),
 		m_display(nescc::interface::display::acquire()),
 		m_frame(0),
+		m_step(false),
 		m_trace(nescc::trace::acquire())
 	{
 		m_trace.initialize();
@@ -127,9 +128,78 @@ namespace nescc {
 	{
 		int32_t cycle = 0;
 		bool result = true;
-		uint32_t frame = 0, start;
 
 		TRACE_ENTRY();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
+
+		if(!m_step) {
+			uint32_t frame = 0, start = SDL_GetTicks();
+
+			for(; !nescc::core::thread::stopped();) {
+				uint32_t end = SDL_GetTicks();
+
+				if(!nescc::core::thread::paused()) {
+					float rate;
+					uint32_t delta;
+
+					rate = (end - start);
+					if(rate >= RUNTIME_FRAME) {
+						rate = (frame - ((rate - RUNTIME_FRAME) / RUNTIME_FRAME_RATE));
+						TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Runtime frame rate", "%.01f",
+							(rate > 0.f) ? rate : 0.f);
+						m_display.set_frame_rate((rate > 0.f) ? rate : 0.f);
+						start = end;
+						frame = 0;
+					}
+
+					result = poll_events();
+					if(!result) {
+						break;
+					}
+
+					m_bus.update(cycle);
+					++m_frame;
+					++frame;
+
+					delta = (SDL_GetTicks() - end);
+					if(delta < RUNTIME_FRAME_DELTA) {
+						SDL_Delay(RUNTIME_FRAME_DELTA - delta);
+					}
+				} else {
+
+					result = poll_events();
+					if(!result) {
+						break;
+					}
+
+					m_display.update();
+					SDL_Delay(RUNTIME_PAUSE_DELAY);
+					start = SDL_GetTicks();
+				}
+			}
+		} else {
+
+			result = poll_events();
+			if(result) {
+				m_bus.step(cycle);
+			}
+		}
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");
+
+		TRACE_EXIT_FORMAT("Result=%x", result);
+		return result;
+	}
+
+	bool
+	runtime::on_start(void)
+	{
+		bool result = true;
+
+		TRACE_ENTRY();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime starting...");
 
 		m_bus.load(m_path, m_debug);
 		m_bus.reset(m_debug);
@@ -137,59 +207,25 @@ namespace nescc {
 		m_display.set_icon(RUNTIME_ICON_PATH);
 		m_display.set_title(m_path);
 
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
-
-		start = SDL_GetTicks();
-
-		for(; !nescc::core::thread::stopped();) {
-			uint32_t end = SDL_GetTicks();
-
-			if(!nescc::core::thread::paused()) {
-				float rate;
-				uint32_t delta;
-
-				rate = (end - start);
-				if(rate >= RUNTIME_FRAME) {
-					rate = (frame - ((rate - RUNTIME_FRAME) / RUNTIME_FRAME_RATE));
-					TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Runtime frame rate", "%.01f",
-						(rate > 0.f) ? rate : 0.f);
-					m_display.set_frame_rate((rate > 0.f) ? rate : 0.f);
-					start = end;
-					frame = 0;
-				}
-
-				result = poll_events();
-				if(!result) {
-					break;
-				}
-
-				m_bus.update(cycle);
-				++m_frame;
-				++frame;
-
-				delta = (SDL_GetTicks() - end);
-				if(delta < RUNTIME_FRAME_DELTA) {
-					SDL_Delay(RUNTIME_FRAME_DELTA - delta);
-				}
-			} else {
-
-				result = poll_events();
-				if(!result) {
-					break;
-				}
-
-				m_display.update();
-				SDL_Delay(RUNTIME_PAUSE_DELAY);
-				start = SDL_GetTicks();
-			}
-		}
-
-		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");
-
-		m_display.uninitialize();
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime started.");
 
 		TRACE_EXIT_FORMAT("Result=%x", result);
 		return result;
+	}
+
+	void
+	runtime::on_stop(void)
+	{
+		TRACE_ENTRY();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime stopping...");
+
+		m_display.uninitialize();
+		m_bus.uninitialize();
+
+		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime stopped.");
+
+		TRACE_EXIT();
 	}
 
 	void
@@ -199,13 +235,15 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitializing...");
 
-		m_bus.uninitialize();
-
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitializing...");
 
 		SDL_Quit();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitialized.");
+
+		m_debug = false;
+		m_frame = 0;
+		m_step = false;
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitialized.");
 
@@ -274,7 +312,8 @@ namespace nescc {
 	void
 	runtime::run(
 		__in const std::string &path,
-		__in_opt bool debug
+		__in_opt bool debug,
+		__in_opt bool step
 		)
 	{
 		TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
@@ -287,8 +326,9 @@ namespace nescc {
 
 		m_frame = 0;
 		m_path = path;
-		set_debug(debug);
-		nescc::core::thread::start(true);
+		m_debug = debug;
+		m_step = step;
+		nescc::core::thread::start(!step);
 
 		TRACE_EXIT();
 	}
@@ -313,11 +353,9 @@ namespace nescc {
 	}
 
 	void
-	runtime::set_debug(
-		__in bool debug
-		)
+	runtime::step(void)
 	{
-		TRACE_ENTRY_FORMAT("Debug=%x", debug);
+		TRACE_ENTRY();
 
 #ifndef NDEBUG
 		if(!m_initialized) {
@@ -325,9 +363,28 @@ namespace nescc {
 		}
 #endif // NDEBUG
 
-		m_debug = debug;
+		nescc::core::thread::notify();
 
 		TRACE_EXIT();
+	}
+
+	bool
+	runtime::stepping(void) const
+	{
+		bool result;
+
+		TRACE_ENTRY();
+
+#ifndef NDEBUG
+		if(!m_initialized) {
+			THROW_NESCC_RUNTIME_EXCEPTION(NESCC_RUNTIME_EXCEPTION_UNINITIALIZED);
+		}
+#endif // NDEBUG
+
+		result = !nescc::core::thread::freerunning();
+
+		TRACE_EXIT_FORMAT("Result=%x", result);
+		return result;
 	}
 
 	void
@@ -362,6 +419,7 @@ namespace nescc {
 
 			if(m_initialized) {
 				result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< "/" << (m_step ? "Stepped" : "Freerunning")
 					<< ", Path[" << m_path.size() << "]=" << m_path
 					<< ", Frame=" << m_frame;
 			}

@@ -224,8 +224,8 @@ namespace nescc {
 			switch(level) {
 				case TRACE_ERROR:
 				case TRACE_WARNING:
-					break;
 					std::cerr << result.str() << std::endl;
+					break;
 				default:
 					std::cout << result.str() << std::endl;
 					break;

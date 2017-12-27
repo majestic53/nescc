@@ -37,6 +37,8 @@ namespace nescc {
 
 				virtual ~thread(void);
 
+				bool freerunning(void) const;
+
 				void notify(void);
 
 				void pause(void);

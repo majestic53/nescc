@@ -44,10 +44,15 @@ namespace nescc {
 
 			void run(
 				__in const std::string &path,
-				__in_opt bool debug = false
+				__in_opt bool debug = false,
+				__in_opt bool step = false
 				);
 
 			bool running(void) const;
+
+			void step(void);
+
+			bool stepping(void) const;
 
 			void terminate(void);
 
@@ -85,11 +90,11 @@ namespace nescc {
 
 			bool on_run(void);
 
-			void on_uninitialize(void);
+			bool on_start(void);
 
-			void set_debug(
-				__in bool debug
-				);
+			void on_stop(void);
+
+			void on_uninitialize(void);
 
 			nescc::console::bus &m_bus;
 
@@ -100,6 +105,8 @@ namespace nescc {
 			uint32_t m_frame;
 
 			std::string m_path;
+
+			bool m_step;
 
 			nescc::trace &m_trace;
 	};

@@ -101,6 +101,10 @@ namespace nescc {
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);
 
+				std::string command_step(
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					);
+
 				std::string command_stop(
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);
@@ -150,6 +154,10 @@ namespace nescc {
 				std::string m_path;
 
 				nescc::runtime &m_runtime;
+
+				bool m_step;
+
+				uint32_t m_step_count;
 		};
 	}
 }

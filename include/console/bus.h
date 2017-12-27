@@ -106,6 +106,10 @@ namespace nescc {
 					__in_opt bool debug = false
 					);
 
+				void step(
+					__inout int32_t &cycle
+					);
+
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;

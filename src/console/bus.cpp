@@ -602,6 +602,36 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		void
+		bus::step(
+			__inout int32_t &cycle
+			)
+		{
+			uint8_t cycle_last, iter;
+
+			TRACE_ENTRY_FORMAT("Cycle=%i", cycle);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			cycle_last = m_cpu.update(*this);
+
+			for(iter = 0; iter < (cycle_last * PPU_CYCLES_PER_CPU_CYCLE); ++iter) {
+				m_ppu.update(*this);
+			}
+
+			for(iter = 0; iter < cycle_last; ++iter) {
+				m_apu.update(*this);
+			}
+
+			cycle -= cycle_last;
+
+			TRACE_EXIT();
+		}
+
 		std::string
 		bus::to_string(
 			__in_opt bool verbose

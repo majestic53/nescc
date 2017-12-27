@@ -27,7 +27,9 @@ namespace nescc {
 		runner::runner(void) :
 			m_debug(false),
 			m_interactive(false),
-			m_runtime(nescc::runtime::acquire())
+			m_runtime(nescc::runtime::acquire()),
+			m_step(false),
+			m_step_count(0)
 		{
 			return;
 		}
@@ -592,6 +594,36 @@ namespace nescc {
 		}
 
 		std::string
+		runner::command_step(
+			__in_opt const std::vector<std::string> &arguments
+			)
+		{
+			std::stringstream result;
+
+			if(arguments.empty()) {
+
+				if(m_runtime.initialized()) {
+
+					if(m_runtime.stepping()) {
+						m_runtime.step();
+						++m_step_count;
+					} else {
+						result << "Emulation is freerunning";
+					}
+				} else {
+					m_step = true;
+					m_step_count = 0;
+					m_runtime.initialize();
+					m_runtime.run(m_path, m_debug, true);
+				}
+			} else {
+				result << "Unexpected command argument: " << arguments.front();
+			}
+
+			return result.str();
+		}
+
+		std::string
 		runner::command_stop(
 			__in_opt const std::vector<std::string> &arguments
 			)
@@ -701,23 +733,31 @@ namespace nescc {
 			std::cout << string_version(true) << std::endl << std::endl;
 
 			for(; !nescc::core::thread::stopped() && running;) {
+				std::stringstream stream;
 				std::string argument, input;
 				std::vector<std::string> arguments;
 				std::map<std::string, uint32_t>::const_iterator entry;
 
 #ifdef TRACE_COLOR
-				std::cout << PROMPT_COLOR_START;
+				stream << PROMPT_COLOR_START;
 #endif // TRACE_COLOR
-				std::cout << "[" << command_status();
+				stream << "[" << command_status();
 
 				if(m_runtime.initialized()) {
-					std::cout << ":" << command_frame();
+					stream << ":";
+
+					if(!m_step) {
+						stream << command_frame();
+					} else {
+						stream << m_step_count;
+					}
 				}
 
-				std::cout << "] " << NESCC << "> ";
+				stream << "] " << NESCC << "> ";
 #ifdef TRACE_COLOR
-				std::cout << PROMPT_COLOR_STOP;
+				stream << PROMPT_COLOR_STOP;
 #endif // TRACE_COLOR
+				std::cout << stream.str();
 				std::getline(std::cin, input);
 
 				for(std::string::iterator iter = input.begin(); iter != input.end(); ++iter) {
@@ -789,6 +829,9 @@ namespace nescc {
 							case ARGUMENT_INTERACTIVE_STATUS:
 								response = command_status(arguments);
 								break;
+							case ARGUMENT_INTERACTIVE_STEP:
+								response = command_step(arguments);
+								break;
 							case ARGUMENT_INTERACTIVE_STOP:
 								response = command_stop(arguments);
 								break;
@@ -827,6 +870,8 @@ namespace nescc {
 			m_debug = false;
 			m_interactive = false;
 			m_path.clear();
+			m_step = false;
+			m_step_count = 0;
 		}
 
 		uint32_t
@@ -1098,7 +1143,8 @@ namespace nescc {
 						<< ", Runtime=" << SCALAR_AS_HEX(uintptr_t, &m_runtime)
 						<< ", Path[" << m_path.size() << "]=" << m_path
 						<< ", Mode=" << (m_interactive ? "Interactive" : "Normal")
-							<< "/" << (m_debug ? "Debug" : "Non-debug");
+							<< "/" << (m_debug ? "Debug" : "Non-debug")
+							<< "/" << (m_step ? "Step" : "Freerunning");
 				}
 			}
 

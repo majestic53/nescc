@@ -132,7 +132,9 @@ namespace nescc {
 		enum {
 			ARGUMENT_INTERACTIVE_APU = 0,
 			ARGUMENT_INTERACTIVE_CPU,
+#ifndef NDEBUG
 			ARGUMENT_INTERACTIVE_DEBUG,
+#endif // NDEBUG
 			ARGUMENT_INTERACTIVE_EXIT,
 			ARGUMENT_INTERACTIVE_FRAME,
 			ARGUMENT_INTERACTIVE_HELP,
@@ -143,6 +145,7 @@ namespace nescc {
 			ARGUMENT_INTERACTIVE_RESTART,
 			ARGUMENT_INTERACTIVE_RUN,
 			ARGUMENT_INTERACTIVE_STATUS,
+			ARGUMENT_INTERACTIVE_STEP,
 			ARGUMENT_INTERACTIVE_STOP,
 			ARGUMENT_INTERACTIVE_VERSION,
 		};
@@ -150,8 +153,12 @@ namespace nescc {
 		#define ARGUMENT_INTERACTIVE_MAX ARGUMENT_INTERACTIVE_VERSION
 
 		static const std::string ARGUMENT_INTERACTIVE_STR[] = {
-			"apu", "cpu", "debug", "exit", "frame", "help", "joypad", "mapper",
-			"pause", "ppu", "restart", "run", "status", "stop", "version",
+			"apu", "cpu",
+#ifndef NDEBUG
+			"debug",
+#endif // NDEBUG
+			"exit", "frame", "help", "joypad", "mapper", "pause", "ppu",
+			"restart", "run", "status", "step", "stop", "version",
 			};
 
 		#define ARGUMENT_INTERACTIVE_STRING(_TYPE_) \
@@ -161,7 +168,9 @@ namespace nescc {
 		static const std::string ARGUMENT_INTERACTIVE_STR_DESC[] = {
 			"Display apu state",
 			"Display/Set cpu state",
+#ifndef NDEBUG
 			"Enable/Disable debug mode",
+#endif // NDEBUG
 			"Exit interactive mode",
 			"Display frame count",
 			"Display help information",
@@ -172,6 +181,7 @@ namespace nescc {
 			"Restart emulation",
 			"Run/Unpause emulation",
 			"Display emulation status",
+			"Step emulation through a command",
 			"Stop emulation",
 			"Display version information",
 			};
@@ -183,7 +193,9 @@ namespace nescc {
 		static const std::map<std::string, uint32_t> ARGUMENT_INTERACTIVE_MAP = {
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_APU), ARGUMENT_INTERACTIVE_APU),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_CPU), ARGUMENT_INTERACTIVE_CPU),
+#ifndef NDEBUG
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_DEBUG), ARGUMENT_INTERACTIVE_DEBUG),
+#endif // NDEBUG
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_EXIT), ARGUMENT_INTERACTIVE_EXIT),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_FRAME), ARGUMENT_INTERACTIVE_FRAME),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_HELP), ARGUMENT_INTERACTIVE_HELP),
@@ -194,6 +206,7 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_RESTART), ARGUMENT_INTERACTIVE_RESTART),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_RUN), ARGUMENT_INTERACTIVE_RUN),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_STATUS), ARGUMENT_INTERACTIVE_STATUS),
+			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_STEP), ARGUMENT_INTERACTIVE_STEP),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_STOP), ARGUMENT_INTERACTIVE_STOP),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_VERSION), ARGUMENT_INTERACTIVE_VERSION),
 			};
@@ -231,8 +244,10 @@ namespace nescc {
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI, ARGUMENT_INTERACTIVE_SUBCOMMAND_REGISTER,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_RESET, ARGUMENT_INTERACTIVE_SUBCOMMAND_SET,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, })),
+#ifndef NDEBUG
 			std::make_pair(ARGUMENT_INTERACTIVE_DEBUG, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_SET,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, })),
+#endif // NDEBUG
 			std::make_pair(ARGUMENT_INTERACTIVE_EXIT, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_FRAME, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_HELP, std::vector<uint32_t>()),
@@ -247,6 +262,7 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_RESTART, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_RUN, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_STATUS, std::vector<uint32_t>()),
+			std::make_pair(ARGUMENT_INTERACTIVE_STEP, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_STOP, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_VERSION, std::vector<uint32_t>()),
 			};
@@ -284,11 +300,18 @@ namespace nescc {
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_SET_SUPPORT[] = {
-			ARGUMENT_INTERACTIVE_CPU, ARGUMENT_INTERACTIVE_DEBUG, ARGUMENT_INTERACTIVE_PPU,
+			ARGUMENT_INTERACTIVE_CPU,
+#ifndef NDEBUG
+			ARGUMENT_INTERACTIVE_DEBUG,
+#endif // NDEBUG
+			ARGUMENT_INTERACTIVE_PPU,
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS_SUPPORT[] = {
-			ARGUMENT_INTERACTIVE_APU, ARGUMENT_INTERACTIVE_CPU, ARGUMENT_INTERACTIVE_DEBUG,
+			ARGUMENT_INTERACTIVE_APU, ARGUMENT_INTERACTIVE_CPU,
+#ifndef NDEBUG
+			ARGUMENT_INTERACTIVE_DEBUG,
+#endif // NDEBUG
 			ARGUMENT_INTERACTIVE_JOYPAD, ARGUMENT_INTERACTIVE_MAPPER, ARGUMENT_INTERACTIVE_PPU,
 			};
 

@@ -51,12 +51,19 @@ ppu             cycle, dot, get, scanline, set, status          Display/Set ppu 
 restart                                                         Restart emulation
 run                                                             Run/Unpause emulation
 status                                                          Display emulation status
+step                                                            Step emulation through a command
 stop                                                            Stop emulation
 version                                                         Display version information
 ```
 
 Changelog
 =========
+
+Version 0.1.1752
+----------------
+*Updated: 12/26/2017*
+
+* Added step command
 
 Version 0.1.1751
 ----------------
@@ -84,22 +91,6 @@ Version 0.1.1751
 
 * Added ppu state machine
 * Added additional interactive commands
-
-Version 0.1.1750
-----------------
-*Updated: 12/17/2017*
-
-* Added interactive mode
-* Added argument support
-
-*Updated: 12/13/2017*
-
-* Bug fixes and code cleanup
-
-*Updated: 12/12/2017*
-
-* Added console ppu ports/memory
-* Integrated ppu into bus
 
 *Changelog truncated (see file history for full log)*
 

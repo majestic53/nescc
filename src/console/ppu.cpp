@@ -655,7 +655,7 @@ namespace nescc {
 			TRACE_DEBUG_FORMAT(m_debug, "Ppu update", "%u, %u (%s)", m_scanline, m_dot,
 				m_frame_odd ? "Odd" : "Even");
 
-			switch(m_scanline) {
+			/*switch(m_scanline) {
 				case PPU_SCANLINE_VISIBLE_START ... PPU_SCANLINE_VISIBLE_END: // 0 - 239
 					execute_render(bus, PPU_RENDER_VISIBLE);
 					break;
@@ -679,7 +679,7 @@ namespace nescc {
 					m_scanline = 0;
 					m_frame_odd = !m_frame_odd;
 				}
-			}
+			}*/
 
 			++m_cycle;
 

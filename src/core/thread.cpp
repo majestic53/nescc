@@ -36,6 +36,12 @@ namespace nescc {
 			stop();
 		}
 
+		bool
+		thread::freerunning(void) const
+		{
+			return m_freerunning;
+		}
+
 		void
 		thread::notify(void)
 		{
