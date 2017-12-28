@@ -70,6 +70,10 @@ namespace nescc {
 				__in_opt uint32_t timeout = SIGNAL_NO_TIMEOUT
 				);
 
+			void wait_step(
+				__in_opt uint32_t timeout = SIGNAL_NO_TIMEOUT
+				);
+
 		protected:
 
 			friend class nescc::core::singleton<nescc::runtime>;
@@ -107,6 +111,8 @@ namespace nescc {
 			std::string m_path;
 
 			bool m_step;
+
+			nescc::core::signal m_step_complete;
 
 			nescc::trace &m_trace;
 	};

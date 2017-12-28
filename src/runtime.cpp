@@ -184,6 +184,8 @@ namespace nescc {
 			if(result) {
 				m_bus.step(cycle);
 			}
+
+			m_step_complete.notify();
 		}
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");
@@ -207,6 +209,7 @@ namespace nescc {
 		m_display.reset(m_debug);
 		m_display.set_icon(RUNTIME_ICON_PATH);
 		m_display.set_title(m_path);
+		m_step_complete.clear();
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime started.");
 
@@ -474,6 +477,18 @@ namespace nescc {
 		TRACE_ENTRY_FORMAT("Timeout=%u", timeout);
 
 		nescc::core::thread::wait(timeout);
+
+		TRACE_EXIT();
+	}
+
+	void
+	runtime::wait_step(
+		__in_opt uint32_t timeout
+		)
+	{
+		TRACE_ENTRY_FORMAT("Timeout=%u", timeout);
+
+		m_step_complete.wait(timeout);
 
 		TRACE_EXIT();
 	}

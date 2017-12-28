@@ -664,6 +664,7 @@ namespace nescc {
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
+			uint16_t value = 0;
 			std::stringstream result;
 
 			if(arguments.empty()) {
@@ -672,15 +673,40 @@ namespace nescc {
 
 					if(m_runtime.stepping()) {
 						m_runtime.step();
+						m_runtime.wait_step();
 						++m_step_count;
 					} else {
 						result << "Emulation is freerunning";
 					}
 				} else {
 					m_step = true;
-					m_step_count = 0;
+					m_step_count = 1;
 					m_runtime.initialize();
 					m_runtime.run(m_path, m_debug, true);
+				}
+			} else if(parse_subcommand_value(arguments, value)) {
+
+				if(!m_runtime.initialized()) {
+					m_step = true;
+					m_step_count = 1;
+					m_runtime.initialize();
+					m_runtime.run(m_path, m_debug, true);
+				}
+
+				if(m_runtime.stepping()) {
+
+					for(;;) {
+
+						if(m_runtime.bus().cpu().program_counter() == value) {
+							break;
+						}
+
+						m_runtime.step();
+						m_runtime.wait_step();
+						++m_step_count;
+					}
+				} else {
+					result << "Emulation is freerunning";
 				}
 			} else {
 				result << "Unexpected command argument: " << arguments.front();

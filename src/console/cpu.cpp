@@ -2360,8 +2360,7 @@ namespace nescc {
 			__in uint8_t bank
 			)
 		{
-			uint8_t iter;
-			uint16_t base;
+			uint16_t base, iter;
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Bank=%u(%02x)", &bus, bank, bank);
 
