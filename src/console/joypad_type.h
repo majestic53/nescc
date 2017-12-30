@@ -86,7 +86,7 @@ namespace nescc {
 		#define JOYPAD_BUTTON_MAX JOYPAD_BUTTON_RIGHT
 
 		static const std::string JOYPAD_BUTTON_STR[] = {
-			"   A", "   B", " SEL", "  ST", "   U", "   D", "   L", "   R",
+			"A   ", "B   ", "SEL ", "ST  ", "U   ", "D   ", "L   ", "R   ",
 			};
 
 		#define JOYPAD_BUTTON_STRING(_TYPE_) \

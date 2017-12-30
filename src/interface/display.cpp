@@ -53,10 +53,9 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
 			SDL_GetWindowSize(m_window, &width, &height);
-
-			result << "DIM  | " << width << ", " << height
-				<< std::endl << "STAT | " << (m_shown ? "Shown" : "Hidden")
-				<< std::endl << "TITL | " << STRING_CHECK(m_title);
+			result << std::left << std::setw(COLUMN_WIDTH) << "Dimensions" << width << ", " << height
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "State" << (m_shown ? "Shown" : "Hidden")
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "Title" << STRING_CHECK(m_title);
 
 			TRACE_EXIT();
 			return result.str();

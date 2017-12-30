@@ -324,8 +324,6 @@ namespace nescc {
 							if(type == ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW) {
 								m_runtime.display().update();
 							}
-
-							result << m_runtime.display().as_string(true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}

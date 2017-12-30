@@ -273,33 +273,37 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << "PC  | " << SCALAR_AS_HEX(uint16_t, m_program_counter)
-				<< std::endl << "SP  | "
+			result << std::left << std::setw(COLUMN_WIDTH) << "A" << SCALAR_AS_HEX(uint8_t, m_accumulator)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "X" << SCALAR_AS_HEX(uint8_t, m_index_x)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "Y" << SCALAR_AS_HEX(uint8_t, m_index_y) << std::endl
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "PC" << SCALAR_AS_HEX(uint16_t, m_program_counter)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "SP"
 					<< SCALAR_AS_HEX(uint16_t, (m_stack_pointer + CPU_STACK_POINTER_ADDRESS_BASE)) << std::endl
-				<< std::endl << "FLG | " << SCALAR_AS_HEX(uint8_t, m_flags);
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "P" << SCALAR_AS_HEX(uint8_t, m_flags);
 
 			if(verbose) {
 				int iter;
-
-				result << "   ";
-
-				for(iter = CPU_FLAG_MAX; iter >= 0; iter--) {
-					result << CPU_FLAG_STRING(iter);
-				}
-
-				result << std::endl << "           ";
+				std::stringstream stream;
 
 				for(iter = CPU_FLAG_MAX; iter >= 0; iter--) {
-					result << ((m_flags & (1 << iter)) ? "1" : "0");
+					stream << CPU_FLAG_STRING(iter);
 				}
+
+				result << std::left << std::setw(COLUMN_WIDTH) << " " << stream.str();
+				stream.clear();
+				stream.str(std::string());
+
+				for(iter = CPU_FLAG_MAX; iter >= 0; iter--) {
+					stream << ((m_flags & (1 << iter)) ? "1" : "0");
+				}
+
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH) << " " << "  "
+					<< std::left << std::setw(COLUMN_WIDTH) << " " << stream.str();
 			}
 
-			result << std::endl << std::endl << "A   | " << SCALAR_AS_HEX(uint8_t, m_accumulator)
-				<< std::endl << "X   | " << SCALAR_AS_HEX(uint8_t, m_index_x)
-				<< std::endl << "Y   | " << SCALAR_AS_HEX(uint8_t, m_index_y) << std::endl
-				<< std::endl << "CYC | " << m_cycle << std::endl
-				<< std::endl << "IRQ | " << (m_signal_maskable ? "1" : "0")
-				<< std::endl << "NMI | " << (m_signal_non_maskable ? "1" : "0");
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH) << "Cycle" << m_cycle << std::endl
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "IRQ" << (m_signal_maskable ? "1" : "0")
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "NMI" << (m_signal_non_maskable ? "1" : "0");
 
 			TRACE_EXIT();
 			return result.str();

@@ -54,9 +54,18 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << "PRG RAM Bank  | " << (int) m_ram_index
-				<< std::endl << "PRG ROM Bank  | " << (int) m_rom_program_index_0 << ", " << (int) m_rom_program_index_1
-				<< std::endl << "CHR ROM Bank  | " << (int) m_rom_character_index;
+			result << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM banks" << m_cartridge.ram_banks()
+					<< " (" << FLOAT_PRECISION(1, m_cartridge.ram_banks() * (CARTRIDGE_RAM_PROGRAM_LENGTH / KILOBYTE)) << " KB)"
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG ROM banks" << m_cartridge.rom_program_banks()
+					<< " (" << FLOAT_PRECISION(1, m_cartridge.rom_program_banks() * (CARTRIDGE_ROM_PROGRAM_LENGTH / KILOBYTE))
+					<< " KB)"
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "CHR ROM banks" << m_cartridge.rom_character_banks()
+					<< " (" << FLOAT_PRECISION(1, m_cartridge.rom_character_banks() * (CARTRIDGE_ROM_CHARACTER_LENGTH / KILOBYTE))
+					<< " KB)"
+				<< std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM bank selected" << (int) m_ram_index
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG ROM bank 0 selected" << (int) m_rom_program_index_0
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG ROM bank 1 selected" << (int) m_rom_program_index_1
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "CHR ROM bank selected" << (int) m_rom_character_index;
 
 			TRACE_EXIT();
 			return result.str();

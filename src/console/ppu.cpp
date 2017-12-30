@@ -56,52 +56,79 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << "CTRL        | " << SCALAR_AS_HEX(uint8_t, m_control.raw);
+			result << std::left << std::setw(COLUMN_WIDTH_LONG) << "Control" << SCALAR_AS_HEX(uint8_t, m_control.raw);
 
 			if(verbose) {
-				result << std::endl << "|- NAMETBL  | " << SCALAR_AS_HEX(uint8_t, m_control.nametable)
-					<< std::endl << "|- INCR     | " << SCALAR_AS_HEX(uint8_t, m_control.increment)
-					<< std::endl << "|- SPRPTBL  | " << SCALAR_AS_HEX(uint8_t, m_control.sprite_pattern_table)
-					<< std::endl << "|- BCKPTBL  | " << SCALAR_AS_HEX(uint8_t, m_control.background_pattern_table)
-					<< std::endl << "|- SIZE     | " << SCALAR_AS_HEX(uint8_t, m_control.sprite_size)
-					<< std::endl << "|- SLAVE    | " << SCALAR_AS_HEX(uint8_t, m_control.slave)
-					<< std::endl << "|- NMI      | " << SCALAR_AS_HEX(uint8_t, m_control.nmi);
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Nametable"
+						<< SCALAR_AS_HEX(uint8_t, m_control.nametable)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Increment"
+						<< SCALAR_AS_HEX(uint8_t, m_control.increment)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Sprite table"
+						<< SCALAR_AS_HEX(uint8_t, m_control.sprite_pattern_table)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Background table"
+						<< SCALAR_AS_HEX(uint8_t, m_control.background_pattern_table)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Sprite size"
+						<< SCALAR_AS_HEX(uint8_t, m_control.sprite_size)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Slave mode"
+						<< SCALAR_AS_HEX(uint8_t, m_control.slave)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- NMI enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_control.nmi);
 			}
 
-			result << std::endl << "MASK        | " << SCALAR_AS_HEX(uint8_t, m_mask.raw);
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Mask" << SCALAR_AS_HEX(uint8_t, m_mask.raw);
 
 			if(verbose) {
-				result << std::endl << "|- GREYSCL  | " << SCALAR_AS_HEX(uint8_t, m_mask.greyscale)
-					<< std::endl << "|- BCKLFT   | " << SCALAR_AS_HEX(uint8_t, m_mask.background_left)
-					<< std::endl << "|- SPRLFT   | " << SCALAR_AS_HEX(uint8_t, m_mask.sprite_left)
-					<< std::endl << "|- BACKENB  | " << SCALAR_AS_HEX(uint8_t, m_mask.background)
-					<< std::endl << "|- SPRENB   | " << SCALAR_AS_HEX(uint8_t, m_mask.sprite)
-					<< std::endl << "|- RED      | " << SCALAR_AS_HEX(uint8_t, m_mask.red)
-					<< std::endl << "|- GREEN    | " << SCALAR_AS_HEX(uint8_t, m_mask.green)
-					<< std::endl << "|- BLUE     | " << SCALAR_AS_HEX(uint8_t, m_mask.blue);
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Greyscale"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.greyscale)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Background left"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.background_left)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Sprite left"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.sprite_left)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Background enable"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.background)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Sprite enable"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.sprite)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Red"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.red)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Green"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.green)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Blue"
+						<< SCALAR_AS_HEX(uint8_t, m_mask.blue);
 			}
 
-			result << std::endl << "STAT        | " << SCALAR_AS_HEX(uint8_t, m_status.raw);
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Status" << SCALAR_AS_HEX(uint8_t, m_status.raw);
 
 			if(verbose) {
-				result << std::endl << "|- SPROVFLW | " << SCALAR_AS_HEX(uint8_t, m_status.sprite_overflow)
-					<< std::endl << "|- SPR0HIT  | " << SCALAR_AS_HEX(uint8_t, m_status.sprite_0_hit)
-					<< std::endl << "|- VBLNK    | " << SCALAR_AS_HEX(uint8_t, m_status.vertical_blank);
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Sprite overflow"
+						<< SCALAR_AS_HEX(uint8_t, m_status.sprite_overflow)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Sprite 0 hit"
+						<< SCALAR_AS_HEX(uint8_t, m_status.sprite_0_hit)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- VBlank"
+						<< SCALAR_AS_HEX(uint8_t, m_status.vertical_blank);
 			}
 
-			result << std::endl << "OAM ADDR    | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_OAM_ADDRESS))
-				<< std::endl << "OAM DATA    | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_OAM_DATA))
-				<< std::endl << "SCROLL      | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_SCROLL))
-				<< std::endl << "ADDR        | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_ADDRESS))
-				<< std::endl << "DATA        | " << SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_DATA))
-				<< std::endl << std::endl << "CYC         | " << m_cycle
-				<< std::endl << std::endl << "SCAN/DOT    | " << m_scanline << ", " << m_dot
-				<< std::endl << "COARSE      | " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_x)
-					<< ", " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_y)
-				<< std::endl << "FINE        | " << SCALAR_AS_HEX(uint8_t, m_fine_x)
-					<< ", " << SCALAR_AS_HEX(uint8_t, m_address_t.fine_y)
-				<< std::endl << "NAMETBL     | " << SCALAR_AS_HEX(uint8_t, m_address_t.nametable)
-				<< std::endl << "FRAME       | " << (m_frame_odd ? "Odd" : "Even");
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "OAM address"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_OAM_ADDRESS))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "OAM data"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_OAM_DATA))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Scroll"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_SCROLL))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Address"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_ADDRESS))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Data"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_DATA))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << std::endl << "Cycle"
+					<< m_cycle
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << std::endl << "Scanline/Dot"
+					<< m_scanline << ", " << m_dot
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Coarse X/Y"
+					<< SCALAR_AS_HEX(uint8_t, m_address_t.coarse_x) << ", " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_y)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Fine X/Y"
+					<< SCALAR_AS_HEX(uint8_t, m_fine_x) << ", " << SCALAR_AS_HEX(uint8_t, m_address_t.fine_y)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Nametable"
+					<< SCALAR_AS_HEX(uint8_t, m_address_t.nametable)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frame"
+					<< (m_frame_odd ? "Odd" : "Even");
 
 			TRACE_EXIT();
 			return result.str();

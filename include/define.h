@@ -41,6 +41,9 @@ namespace nescc {
 	#define __inout_opt
 #endif // __inout_opt
 
+	#define COLUMN_WIDTH 16
+	#define COLUMN_WIDTH_LONG 32
+
 	#define KILOBYTE 1024.f
 
 	#define NIBBLE 4
@@ -50,7 +53,7 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 3
+	#define NESCC_VERSION_REVISION 4
 	#define NESCC_VERSION_WEEK 1752
 
 	#define STRING_EMPTY "Empty"
@@ -62,7 +65,7 @@ namespace nescc {
 
 	#define SCALAR_AS_HEX(_TYPE_, _VAL_) \
 		std::setw(sizeof(_TYPE_) * 2) << std::setfill('0') << std::hex \
-			<< (uintmax_t) ((_TYPE_) (_VAL_)) << std::dec
+			<< (uintmax_t) ((_TYPE_) (_VAL_)) << std::dec << std::setfill(' ')
 
 	#define STRING_CHECK(_STR_) \
 		(_STR_.empty() ? STRING_EMPTY : _STR_.c_str())

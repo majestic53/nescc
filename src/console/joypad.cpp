@@ -50,31 +50,42 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
 			for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
-				result << "PAD" << (iter + 1) << "  | " << SCALAR_AS_HEX(uint8_t, m_port.read(iter));
+				std::stringstream stream;
+
+				stream << "Pad" << (iter + 1);
+				result << std::left << std::setw(COLUMN_WIDTH) << stream.str() << SCALAR_AS_HEX(uint8_t, m_port.read(iter));
 
 				if(verbose) {
 					int button;
 
+					stream.clear();
+					stream.str(std::string());
+
 					for(button = 0; button <= JOYPAD_BUTTON_MAX; ++button) {
-						result << JOYPAD_BUTTON_STRING(button);
+						stream << JOYPAD_BUTTON_STRING(button);
 					}
 
-					result << std::endl << "             ";
+					result << std::left << std::setw(COLUMN_WIDTH) << " " << stream.str();
+					stream.clear();
+					stream.str(std::string());
 
 					for(button = 0; button <= JOYPAD_BUTTON_MAX; ++button) {
 
 						if(button) {
-							result << "   ";
+							stream << "   ";
 						}
 
-						result << ((m_port.read(iter) & (1 << button)) ? "1" : "0");
+						stream << ((m_port.read(iter) & (1 << button)) ? "1" : "0");
 					}
+
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH) << "    " << "  "
+						<< std::left << std::setw(COLUMN_WIDTH) << " " << stream.str();
 				}
 
 				result << std::endl << std::endl;
 			}
 
-			result << "STRB  | " << (m_strobe ? "1" : "0");
+			result << std::left << std::setw(COLUMN_WIDTH) << "Strobe" << (m_strobe ? "1" : "0");
 
 			TRACE_EXIT();
 			return result.str();

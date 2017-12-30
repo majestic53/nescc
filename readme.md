@@ -62,6 +62,11 @@ Changelog
 
 Version 0.1.1752
 ----------------
+*Updated: 12/30/2017*
+
+* Cleaned up interactive mode output
+* Fixed oam dma bug
+
 *Updated: 12/26-27/2017*
 
 * Added step command
