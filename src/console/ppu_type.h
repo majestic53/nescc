@@ -1,6 +1,6 @@
 /**
  * Nescc
- * Copyright (C) 2017 David Jolly
+ * Copyright (C) 2017-2018 David Jolly
  *
  * Nescc is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,10 +63,23 @@ namespace nescc {
 
 		#define PPU_DOT_MAX 340
 		#define PPU_DOT_CLEAR_OAM 1 // 261, 1
+		#define PPU_DOT_NAMETABLE_READ_HIGH 340
+		#define PPU_DOT_NAMETABLE_READ_LOW 338
+		#define PPU_DOT_NAMETABLE_UPDATE_HIGH 339
+		#define PPU_DOT_NAMETABLE_UPDATE_LOW 321
+		#define PPU_DOT_POSITION_UPDATE_HORIZONTAL 257
+		#define PPU_DOT_POSITION_UPDATE_VERTICAL_MAX 304
+		#define PPU_DOT_POSITION_UPDATE_VERTICAL_MIN 280
 		#define PPU_DOT_POST_BEGIN 0 // 240, 0
+		#define PPU_DOT_RENDER_PIXEL_HIGH_MAX 337
+		#define PPU_DOT_RENDER_PIXEL_HIGH_MIN 322
+		#define PPU_DOT_RENDER_PIXEL_LOW_MAX 255
+		#define PPU_DOT_RENDER_PIXEL_LOW_MIN 2
+		#define PPU_DOT_SCROLL_VERTICAL 256
 		#define PPU_DOT_SPRITE_EVALUATE 257 // 261, 257
 		#define PPU_DOT_SPRITE_LOAD 321 // 261, 321
 		#define PPU_DOT_VBLANK 1 // 241, 1
+		#define PPU_DOT_VBLANK_CLEAR 1 // 261, 1
 
 		#define PPU_SCANLINE_MAX 261
 		#define PPU_SCANLINE_PRE_RENDER 261

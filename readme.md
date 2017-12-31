@@ -8,10 +8,11 @@ __NOTE__: This project is a work-in-progress. At the moment, I only plan to supp
 Table of Contents
 =================
 
-1. [Build](https://github.com/majestic53/nescc#build) -- How-to build the project
-1. [Usage](https://github.com/majestic53/nescc#usage) -- How-to use the project
-2. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
-3. [License](https://github.com/majestic53/nescc#license) -- Project license information
+1. [Build](https://github.com/majestic53/nescc#build) -- How to build the project
+2. [Usage](https://github.com/majestic53/nescc#usage) -- How to use the project
+3. [Interactive Mode](https://github.com/majestic53/nescc#interactive-mode) -- How to use the projects interactive mode
+4. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
+5. [License](https://github.com/majestic53/nescc#license) -- Project license information
 
 Build
 =====
@@ -35,26 +36,99 @@ Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 ```
 
 Interactive mode
-----------------
+================
 
 ```
-apu             status                                          Display apu state
-cpu             cycle, get, irq, nmi, reg, reset, set, status   Display/Set cpu state
-debug           set, status                                     Enable/Disable debug mode
-display         hide, present, show, status                     Display/Set display state
-exit                                                            Exit interactive mode
-frame                                                           Display frame count
-help                                                            Display help information
-joypad          status, strobe                                  Display/Set joypad state
-mapper          status                                          Display mapper state
-pause                                                           Pause emulation
-ppu             cycle, dot, get, scanline, set, status          Display/Set ppu state
-restart                                                         Restart emulation
-run                                                             Run/Unpause emulation
-status                                                          Display emulation status
-step                                                            Step emulation through a command
-stop                                                            Stop emulation
-version                                                         Display version information
+apu             [help, status]                                          Display apu state
+cpu             [cycle, get, help, irq, nmi, reg, reset, set, status]   Display/Set cpu state
+debug           [help, set, status]                                     Enable/Disable debug mode
+display         [help, hide, present, show, status]                     Display/Set display state
+exit                                                                    Exit interactive mode
+frame                                                                   Display frame count
+help                                                                    Display help information
+joypad          [help, status, strobe]                                  Display/Set joypad state
+mapper          [help, status]                                          Display mapper state
+pause                                                                   Pause emulation
+ppu             [cycle, dot, get, help, scanline, set, status]          Display/Set ppu state
+restart                                                                 Restart emulation
+run                                                                     Run/Unpause emulation
+status                                                                  Display emulation status
+step                                                                    Step emulation through a command
+stop                                                                    Stop emulation
+version                                                                 Display version information
+```
+
+APU
+---
+
+```
+help                                                                    Display help information
+status                                                                  Display status information
+```
+
+CPU
+---
+
+```
+cycle                                                                   Display current cycle count
+get             <address> <offset>                                      Display memory value
+help                                                                    Display help information
+irq                                                                     Signal maskable interrupt
+nmi                                                                     Signal non-maskable interrupt
+reg             <register> [<value>]                                    Display/Set register value
+reset                                                                   Signal reset
+set             [<address>] <value>                                     Set memory value
+status                                                                  Display status information
+```
+
+Debug
+-----
+
+```
+help                                                                    Display help information
+set             [<address>] <value>                                     Set memory value
+status                                                                  Display status information
+```
+
+Display
+-------
+
+```
+help                                                                    Display help information
+hide                                                                    Hide display window
+present                                                                 Refresh display window
+show                                                                    Show display window
+status                                                                  Display status information
+```
+
+Joypad
+------
+
+```
+help                                                                    Display help information
+status                                                                  Display status information
+strobe          <value>                                                 Set/Clear strobe
+```
+
+Mapper
+------
+
+```
+help                                                                    Display help information
+status                                                                  Display status information
+```
+
+PPU
+---
+
+```
+cycle                                                                   Display current cycle count
+dot                                                                     Display current dot
+get             <address> <offset>                                      Display memory value
+help                                                                    Display help information
+scanline                                                                Display current scanline
+set             [<address>] <value>                                     Set memory value
+status                                                                  Display status information
 ```
 
 Changelog
@@ -104,7 +178,7 @@ Version 0.1.1751
 License
 =======
 
-Copyright(C) 2017 David Jolly <majestic53@gmail.com>
+Copyright(C) 2017-2018 David Jolly <majestic53@gmail.com>
 
 Nescc is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

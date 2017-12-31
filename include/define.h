@@ -1,6 +1,6 @@
 /**
  * Nescc
- * Copyright (C) 2017 David Jolly
+ * Copyright (C) 2017-2018 David Jolly
  *
  * Nescc is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,11 +49,11 @@ namespace nescc {
 	#define NIBBLE 4
 
 	#define NESCC "Nescc"
-	#define NESCC_COPYRIGHT "Copyright (C) 2017 David Jolly"
+	#define NESCC_COPYRIGHT "Copyright (C) 2017-2018 David Jolly"
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 4
+	#define NESCC_VERSION_REVISION 5
 	#define NESCC_VERSION_WEEK 1752
 
 	#define STRING_EMPTY "Empty"

@@ -1,6 +1,6 @@
 /**
  * Nescc
- * Copyright (C) 2017 David Jolly
+ * Copyright (C) 2017-2018 David Jolly
  *
  * Nescc is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,23 @@ namespace nescc {
 	namespace console {
 
 		ppu::ppu(void) :
+			m_address(0),
+			m_attribute_table_current(0),
+			m_attribute_table_latch_high(false),
+			m_attribute_table_latch_low(false),
+			m_attribute_table_shift_high(0),
+			m_attribute_table_shift_low(0),
+			m_background_high(0),
+			m_background_low(0),
+			m_background_shift_high(0),
+			m_background_shift_low(0),
 			m_cycle(0),
 			m_debug(false),
 			m_dot(0),
 			m_fine_x(0),
 			m_frame_odd(false),
 			m_mirroring(0),
+			m_nametable_current(0),
 			m_port_latch(false),
 			m_port_value(0),
 			m_port_value_buffer(0),
@@ -128,7 +139,13 @@ namespace nescc {
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Nametable"
 					<< SCALAR_AS_HEX(uint8_t, m_address_t.nametable)
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frame"
-					<< (m_frame_odd ? "Odd" : "Even");
+					<< (m_frame_odd ? "Odd" : "Even") << std::endl
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Current address"
+					<< SCALAR_AS_HEX(uint16_t, m_address)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Current attribute table"
+					<< SCALAR_AS_HEX(uint8_t, m_attribute_table_current)
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Current nametable"
+					<< SCALAR_AS_HEX(uint8_t, m_nametable_current);
 
 			TRACE_EXIT();
 			return result.str();
@@ -147,8 +164,18 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu clearing...");
 
+			m_address = 0;
 			m_address_t.raw = 0;
 			m_address_v.raw = 0;
+			m_attribute_table_current = 0;
+			m_attribute_table_latch_high = false;
+			m_attribute_table_latch_low = false;
+			m_attribute_table_shift_high = 0;
+			m_attribute_table_shift_low = 0;
+			m_background_high = 0;
+			m_background_low = 0;
+			m_background_shift_high = 0;
+			m_background_shift_low = 0;
 			m_control.raw = 0;
 			m_cycle = 0;
 			m_debug = false;
@@ -158,6 +185,7 @@ namespace nescc {
 			m_mask.raw = 0;
 			m_mirroring = 0;
 			m_nametable.clear();
+			m_nametable_current = 0;
 			m_oam.clear();
 			m_palette.clear();
 			m_port.clear();
@@ -168,8 +196,6 @@ namespace nescc {
 			m_sprite.clear();
 			m_sprite_secondary.clear();
 			m_status.raw = 0;
-
-			// TODO
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu cleared.");
 
@@ -262,10 +288,54 @@ namespace nescc {
 							break;
 					}
 
-					// TODO: background
+					switch(m_dot) { // background
+						case PPU_DOT_VBLANK_CLEAR: // 1
+							// TODO
 
-					// TODO: notify mapper of scanline
+							if(type == PPU_RENDER_PRE_RENDER) {
+								m_status.vertical_blank = false;
+							}
+							break;
+						case PPU_DOT_RENDER_PIXEL_LOW_MIN ... PPU_DOT_RENDER_PIXEL_LOW_MAX: // 2 - 255
+						case PPU_DOT_RENDER_PIXEL_HIGH_MIN ... PPU_DOT_RENDER_PIXEL_HIGH_MAX: // 322 - 337
+							generate_pixel(bus);
 
+							// TODO
+							break;
+						case PPU_DOT_SCROLL_VERTICAL: // 256
+							generate_pixel(bus);
+
+							// TODO
+							break;
+						case PPU_DOT_POSITION_UPDATE_HORIZONTAL: // 257
+							generate_pixel(bus);
+
+							// TODO
+							break;
+						case PPU_DOT_POSITION_UPDATE_VERTICAL_MIN ... PPU_DOT_POSITION_UPDATE_VERTICAL_MAX: // 280 - 304
+
+							if(type == PPU_RENDER_PRE_RENDER) {
+								// TODO
+							}
+							break;
+						case PPU_DOT_NAMETABLE_UPDATE_LOW: // 321
+						case PPU_DOT_NAMETABLE_UPDATE_HIGH: // 339
+							// TODO
+							break;
+						case PPU_DOT_NAMETABLE_READ_LOW: // 338
+							// TODO
+							break;
+						case PPU_DOT_NAMETABLE_READ_HIGH: // 340
+							// TODO
+
+							if(m_frame_odd && (type == PPU_RENDER_PRE_RENDER)
+									&& (m_mask.background || m_mask.sprite)) {
+								++m_dot;
+							}
+							break;
+						default:
+							break;
+					}
 					break;
 				default:
 					break;
@@ -288,6 +358,18 @@ namespace nescc {
 					bus.cpu_interrupt_non_maskable();
 				}
 			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::generate_pixel(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			// TODO
 
 			TRACE_EXIT();
 		}
@@ -553,8 +635,18 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
+			m_address = 0;
 			m_address_t.raw = 0;
 			m_address_v.raw = 0;
+			m_attribute_table_current = 0;
+			m_attribute_table_latch_high = false;
+			m_attribute_table_latch_low = false;
+			m_attribute_table_shift_high = 0;
+			m_attribute_table_shift_low = 0;
+			m_background_high = 0;
+			m_background_low = 0;
+			m_background_shift_high = 0;
+			m_background_shift_low = 0;
 			m_control.raw = 0;
 			m_cycle = 0;
 			m_debug = debug;
@@ -564,6 +656,7 @@ namespace nescc {
 			m_mask.raw = 0;
 			m_mirroring = bus.mirroring();
 			m_nametable.set_size(PPU_NAMETABLE_LENGTH * 2);
+			m_nametable_current = 0;
 			m_oam.set_size(PPU_OAM_LENGTH);
 			m_palette.set_size(PPU_PALETTE_LENGTH);
 			m_port.set_size(PPU_PORT_MAX + 1);
@@ -574,8 +667,6 @@ namespace nescc {
 			m_sprite.resize(PPU_SPRITE_LENGTH, PPU_SPRITE_INIT);
 			m_sprite_secondary.resize(PPU_SPRITE_LENGTH, PPU_SPRITE_INIT);
 			m_status.raw = 0;
-
-			// TODO
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu reset.");
 
@@ -658,7 +749,10 @@ namespace nescc {
 						<< ", Fine X=" << SCALAR_AS_HEX(uint8_t, m_fine_x)
 						<< ", Frame=" << (m_frame_odd ? "Odd" : "Even")
 						<< ", Mirroring=" << SCALAR_AS_HEX(uint8_t, m_mirroring)
-						<< ", Position={Scanline=" << m_scanline << ", Dot=" << m_dot << "}";
+						<< ", Position={Scanline=" << m_scanline << ", Dot=" << m_dot << "}"
+						<< ", Current address=" << SCALAR_AS_HEX(uint16_t, m_address)
+						<< ", Current attribute table=" << SCALAR_AS_HEX(uint8_t, m_attribute_table_current)
+						<< ", Current nametable=" << SCALAR_AS_HEX(uint8_t, m_nametable_current);
 				}
 			}
 
@@ -710,7 +804,7 @@ namespace nescc {
 
 			++m_cycle;
 
-			//TRACE_DEBUG_FORMAT(m_debug, "Ppu state", "\n%s", STRING_CHECK(as_string(true)));
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu state", "\n%s", STRING_CHECK(as_string(true)));
 
 			TRACE_EXIT();
 		}

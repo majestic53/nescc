@@ -1,6 +1,6 @@
 /**
  * Nescc
- * Copyright (C) 2017 David Jolly
+ * Copyright (C) 2017-2018 David Jolly
  *
  * Nescc is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,14 @@ namespace nescc {
 			if(m_runtime.initialized()) {
 
 				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
+
+						if(sub_arguments.empty()) {
+							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_APU);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
 
 						if(sub_arguments.empty()) {
@@ -115,11 +123,18 @@ namespace nescc {
 							result << "Invalid command arguments: <address> <offset>";
 						}
 						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
+
+						if(sub_arguments.empty()) {
+							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_CPU);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ:
 
 						if(sub_arguments.empty()) {
 							m_runtime.bus().cpu().interrupt_maskable();
-							result << m_runtime.bus().cpu().as_string(true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
@@ -128,7 +143,6 @@ namespace nescc {
 
 						if(sub_arguments.empty()) {
 							m_runtime.bus().cpu().interrupt_non_maskable();
-							result << m_runtime.bus().cpu().as_string(true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
@@ -217,7 +231,6 @@ namespace nescc {
 
 						if(sub_arguments.empty()) {
 							m_runtime.bus().cpu().reset(m_runtime.bus());
-							result << m_runtime.bus().cpu().as_string(true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
@@ -268,6 +281,14 @@ namespace nescc {
 			}
 
 			switch(type) {
+				case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
+
+					if(sub_arguments.empty()) {
+						result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_DEBUG);
+					} else {
+						result << "Unexpected command argument: " << sub_arguments.front();
+					}
+					break;
 				case ARGUMENT_INTERACTIVE_SUBCOMMAND_SET:
 
 					if(parse_subcommand_value(sub_arguments, value)) {
@@ -314,12 +335,19 @@ namespace nescc {
 			if(m_runtime.initialized()) {
 
 				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
+
+						if(sub_arguments.empty()) {
+							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_DISPLAY);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HIDE:
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW:
 
 						if(sub_arguments.empty()) {
-							m_runtime.display().show(
-								type == ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW);
+							m_runtime.display().show(type == ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW);
 
 							if(type == ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW) {
 								m_runtime.display().update();
@@ -334,7 +362,6 @@ namespace nescc {
 
 							if(m_runtime.display().shown()) {
 								m_runtime.display().update();
-								result << m_runtime.display().as_string(true);
 							} else {
 								result << "Display is hidden";
 							}
@@ -400,6 +427,14 @@ namespace nescc {
 			if(m_runtime.initialized()) {
 
 				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
+
+						if(sub_arguments.empty()) {
+							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_JOYPAD);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
 
 						if(sub_arguments.empty()) {
@@ -412,7 +447,6 @@ namespace nescc {
 
 						if(parse_subcommand_value(sub_arguments, value)) {
 							m_runtime.bus().joypad().write_port(value);
-							result << m_runtime.bus().joypad().as_string(true);
 						} else {
 							result << "Invalid command arguments: <value>";
 						}
@@ -445,6 +479,14 @@ namespace nescc {
 			if(m_runtime.initialized()) {
 
 				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
+
+						if(sub_arguments.empty()) {
+							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_MAPPER);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
 
 						if(sub_arguments.empty()) {
@@ -536,6 +578,14 @@ namespace nescc {
 							}
 						} else {
 							result << "Invalid command arguments: <address> <offset>";
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
+
+						if(sub_arguments.empty()) {
+							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_PPU);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
 						}
 						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SCANLINE:
@@ -670,6 +720,11 @@ namespace nescc {
 				if(m_runtime.initialized()) {
 
 					if(m_runtime.stepping()) {
+
+						if(m_runtime.paused()) {
+							m_runtime.unpause();
+						}
+
 						m_runtime.step();
 						m_runtime.wait_step();
 						++m_step_count;
@@ -692,6 +747,10 @@ namespace nescc {
 				}
 
 				if(m_runtime.stepping()) {
+
+					if(m_runtime.paused()) {
+						m_runtime.unpause();
+					}
 
 					for(;;) {
 
@@ -1165,11 +1224,17 @@ namespace nescc {
 
 					for(; entry < entries->second.size(); ++entry) {
 
-						if(entry) {
+						if(!entry) {
+							stream << "[";
+						} else if(entry) {
 							stream << ", ";
 						}
 
 						stream << ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(entries->second.at(entry));
+
+						if((entry + 1) >= entries->second.size()) {
+							stream << "]";
+						}
 					}
 
 					result << std::left << std::setw(ARGUMENT_COLUMN_WIDTH_SUB) << stream.str();
@@ -1178,6 +1243,38 @@ namespace nescc {
 				result << ARGUMENT_INTERACTIVE_STRING_DESCRIPTION(iter);
 			}
 
+			return result.str();
+		}
+
+		std::string
+		runner::string_help_interactive_subcommand(
+			__in int command
+			) const
+		{
+			std::stringstream result;
+			std::map<uint32_t, std::vector<uint32_t>>::const_iterator entry;
+
+			TRACE_ENTRY_FORMAT("Commmand=%u(%s)", command, ARGUMENT_INTERACTIVE_STRING(command));
+
+			entry = ARGUMENT_INTERACTIVE_SUB_MAP.find(command);
+			if(entry != ARGUMENT_INTERACTIVE_SUB_MAP.end()) {
+
+				for(std::vector<uint32_t>::const_iterator iter = entry->second.begin();
+						iter != entry->second.end(); ++iter) {
+
+					if(iter != entry->second.begin()) {
+						result << std::endl;
+					}
+
+					result << std::left << std::setw(ARGUMENT_COLUMN_WIDTH)
+							<< ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(*iter)
+						<< std::left << std::setw(ARGUMENT_COLUMN_WIDTH_SUB)
+							<< ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING_FORMAT(*iter)
+						<< ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING_DESCRIPTION(*iter);
+				}
+			}
+
+			TRACE_EXIT();
 			return result.str();
 		}
 

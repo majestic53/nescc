@@ -1,6 +1,6 @@
 /**
  * Nescc
- * Copyright (C) 2017 David Jolly
+ * Copyright (C) 2017-2018 David Jolly
  *
  * Nescc is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -209,6 +209,10 @@ namespace nescc {
 					__in nescc::console::interface::bus &bus
 					);
 
+				void generate_pixel(
+					__in nescc::console::interface::bus &bus
+					);
+
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
@@ -256,9 +260,29 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				uint16_t m_address;
+
 				nescc::console::port_address_t m_address_t;
 
 				nescc::console::port_address_t m_address_v;
+
+				uint8_t m_attribute_table_current;
+
+				bool m_attribute_table_latch_high;
+
+				bool m_attribute_table_latch_low;
+
+				uint8_t m_attribute_table_shift_high;
+
+				uint8_t m_attribute_table_shift_low;
+
+				uint8_t m_background_high;
+
+				uint8_t m_background_low;
+
+				uint8_t m_background_shift_high;
+
+				uint8_t m_background_shift_low;
 
 				nescc::console::port_control_t m_control;
 
@@ -277,6 +301,8 @@ namespace nescc {
 				uint8_t m_mirroring;
 
 				nescc::core::memory m_nametable;
+
+				uint8_t m_nametable_current;
 
 				nescc::core::memory m_oam;
 
