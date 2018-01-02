@@ -277,8 +277,7 @@ namespace nescc {
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "X" << SCALAR_AS_HEX(uint8_t, m_index_x)
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "Y" << SCALAR_AS_HEX(uint8_t, m_index_y) << std::endl
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "PC" << SCALAR_AS_HEX(uint16_t, m_program_counter)
-				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "SP"
-					<< SCALAR_AS_HEX(uint16_t, (m_stack_pointer + CPU_STACK_POINTER_ADDRESS_BASE)) << std::endl
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "SP" << SCALAR_AS_HEX(uint8_t, m_stack_pointer) << std::endl
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "P" << SCALAR_AS_HEX(uint8_t, m_flags);
 
 			if(verbose) {
@@ -2293,7 +2292,7 @@ namespace nescc {
 
 					result << "}" << ", PC=" << m_program_counter << "(" << SCALAR_AS_HEX(uint16_t, m_program_counter) << ")"
 						<< ", SP=" << (int) m_stack_pointer << "(" << SCALAR_AS_HEX(uint8_t, m_stack_pointer) << ")"
-						<< ", F=" << (int) m_flags << "(" << SCALAR_AS_HEX(uint8_t, m_flags) << ") {";
+						<< ", P=" << (int) m_flags << "(" << SCALAR_AS_HEX(uint8_t, m_flags) << ") {";
 
 					for(int iter = CPU_FLAG_MAX; iter >= 0; iter--) {
 						result << " " << CPU_FLAG_STRING(iter) << "=" << ((m_flags & (1 << iter)) ? "1" : "0");

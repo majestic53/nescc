@@ -203,13 +203,21 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime starting...");
 
-		m_bus.load(m_path, m_debug);
-		m_bus.reset(m_debug);
-		m_display.initialize();
-		m_display.reset(m_debug);
-		m_display.set_icon(RUNTIME_ICON_PATH);
-		m_display.set_title(m_path);
-		m_step_complete.clear();
+		try {
+			m_bus.load(m_path, m_debug);
+			m_bus.reset(m_debug);
+			m_display.initialize();
+			m_display.reset(m_debug);
+			m_display.set_icon(RUNTIME_ICON_PATH);
+			m_display.set_title(m_path);
+			m_step_complete.clear();
+		} catch(nescc::exception &exc) {
+			m_exception = exc;
+			result = false;
+		} catch(std::exception &exc) {
+			m_exception = nescc::exception(exc.what(), __FILE__, __FUNCTION__, __LINE__);
+			result = false;
+		}
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime started.");
 

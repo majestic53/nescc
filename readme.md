@@ -134,6 +134,12 @@ status                                                                  Display 
 Changelog
 =========
 
+Version 0.1.1801
+----------------
+*Updated: 1/1/2017*
+
+* Added ppu render routines
+
 Version 0.1.1752
 ----------------
 *Updated: 12/30/2017*
@@ -145,33 +151,6 @@ Version 0.1.1752
 
 * Added step command
 * Added display commands
-
-Version 0.1.1751
-----------------
-*Updated: 12/22/2017*
-
-* Implemented ppu post-render/vblank steps
-
-*Updated: 12/21/2017*
-
-* Added ppu port registers
-* Added interactive cycle/frame commands
-
-*Updated: 12/20/2017*
-
-* Added ppu sprite shift/address registers
-* Fixed ppu nametable/pallette read/write
-* Added joypad strobe sub-command
-
-*Updated: 12/19/2017*
-
-* Added interactive sub-commands
-* Removed debug argument
-
-*Updated: 12/18/2017*
-
-* Added ppu state machine
-* Added additional interactive commands
 
 *Changelog truncated (see file history for full log)*
 

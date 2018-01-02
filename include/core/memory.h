@@ -26,7 +26,7 @@ namespace nescc {
 
 	namespace core {
 
-		#define MEMORY_FILL 0xff
+		#define MEMORY_FILL 0x00
 
 		#define MEMORY_WORD_LENGTH 2
 

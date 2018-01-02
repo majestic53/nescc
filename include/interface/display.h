@@ -27,6 +27,9 @@ namespace nescc {
 
 	namespace interface {
 
+		#define DISPLAY_HEIGHT 240
+		#define DISPLAY_WIDTH 256
+
 		class display :
 				public nescc::core::singleton<nescc::interface::display> {
 

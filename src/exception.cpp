@@ -153,6 +153,7 @@ namespace nescc {
 
 		result << what();
 
+#ifndef NDEBUG
 		if(!result.str().empty()) {
 			result << " ";
 		}
@@ -168,6 +169,7 @@ namespace nescc {
 		}
 
 		result << m_line << ")";
+#endif // NDEBUG
 
 		return result.str();
 	}

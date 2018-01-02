@@ -133,11 +133,11 @@ namespace nescc {
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << std::endl << "Scanline/Dot"
 					<< m_scanline << ", " << m_dot
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Coarse X/Y"
-					<< SCALAR_AS_HEX(uint8_t, m_address_t.coarse_x) << ", " << SCALAR_AS_HEX(uint8_t, m_address_t.coarse_y)
+					<< SCALAR_AS_HEX(uint8_t, m_address_temp.coarse_x) << ", " << SCALAR_AS_HEX(uint8_t, m_address_temp.coarse_y)
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Fine X/Y"
-					<< SCALAR_AS_HEX(uint8_t, m_fine_x) << ", " << SCALAR_AS_HEX(uint8_t, m_address_t.fine_y)
+					<< SCALAR_AS_HEX(uint8_t, m_fine_x) << ", " << SCALAR_AS_HEX(uint8_t, m_address_temp.fine_y)
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Nametable"
-					<< SCALAR_AS_HEX(uint8_t, m_address_t.nametable)
+					<< SCALAR_AS_HEX(uint8_t, m_address_temp.nametable)
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frame"
 					<< (m_frame_odd ? "Odd" : "Even") << std::endl
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Current address"
@@ -149,6 +149,52 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		uint16_t
+		ppu::calculate_attribute_table_address(void)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY();
+
+// TODO
+			result = (0x23c0 | (m_address_vram.nametable << 10) | ((m_address_vram.coarse_y / 4) << 3)
+					| (m_address_vram.coarse_x / 4));
+// ---
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result);
+			return result;
+		}
+
+		uint16_t
+		ppu::calculate_background_address(void)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY();
+
+// TODO
+			result = ((m_control.background_pattern_table * 0x1000) + (m_nametable_current * 16) + m_address_vram.fine_y);
+// ---
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result);
+			return result;
+		}
+
+		uint16_t
+		ppu::calculate_nametable_address(void)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY();
+
+// TODO
+			result = (0x2000 | (m_address_vram.raw & 0xfff));
+// ---
+
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", result);
+			return result;
 		}
 
 		void
@@ -165,8 +211,8 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu clearing...");
 
 			m_address = 0;
-			m_address_t.raw = 0;
-			m_address_v.raw = 0;
+			m_address_temp.raw = 0;
+			m_address_vram.raw = 0;
 			m_attribute_table_current = 0;
 			m_attribute_table_latch_high = false;
 			m_attribute_table_latch_low = false;
@@ -268,74 +314,139 @@ namespace nescc {
 			switch(type) {
 				case PPU_RENDER_PRE_RENDER:
 				case PPU_RENDER_VISIBLE:
+					execute_render_sprite(bus, type);
+					execute_render_background(bus, type);
+					break;
+				default:
+					break;
+			}
 
-					switch(m_dot) { // sprites
-						case PPU_DOT_CLEAR_OAM: // 1
-							clear_oam_secondary();
+			TRACE_EXIT();
+		}
 
-							if(type == PPU_RENDER_PRE_RENDER) {
-								m_status.sprite_overflow = false;
-								m_status.sprite_0_hit = false;
+		void
+		ppu::execute_render_background(
+			__in nescc::console::interface::bus &bus,
+			__in int type
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p, Type=%u(%s)", &bus, type, PPU_RENDER_STRING(type));
+
+			switch(m_dot) {
+				case PPU_DOT_VBLANK_CLEAR: // 1
+					m_address = calculate_nametable_address();
+
+					if(type == PPU_RENDER_PRE_RENDER) {
+						m_status.vertical_blank = 0;
+					}
+					break;
+				case PPU_DOT_RENDER_PIXEL_LOW_MIN ... PPU_DOT_RENDER_PIXEL_LOW_MAX: // 2 - 255
+				case PPU_DOT_RENDER_PIXEL_HIGH_MIN ... PPU_DOT_RENDER_PIXEL_HIGH_MAX: // 322 - 337
+					generate_pixel(bus);
+
+					switch(m_dot % (PPU_RENDER_PIXEL_MAX + 1)) {
+						case PPU_RENDER_PIXEL_NAMETABLE_CALCULATE:
+							m_address = calculate_nametable_address();
+							update_shift();
+							break;
+						case PPU_RENDER_PIXEL_NAMETABLE_READ:
+							m_nametable_current = bus.ppu_read(m_address);
+							break;
+						case PPU_RENDER_PIXEL_ATTRIBUTE_TABLE_CALCULATE:
+							m_address = calculate_attribute_table_address();
+							break;
+						case PPU_RENDER_PIXEL_ATTRIBUTE_TABLE_READ:
+							m_attribute_table_current = bus.ppu_read(m_address);
+
+// TODO
+							if(m_address_vram.coarse_y & 2) {
+								m_attribute_table_current >>= 4;
 							}
+
+							if(m_address_vram.coarse_x & 2) {
+								m_attribute_table_current >>= 2;
+							}
+// ---
 							break;
-						case PPU_DOT_SPRITE_EVALUATE: // 257
-							sprite_evaluate();
+						case PPU_RENDER_PIXEL_BACKGROUND_LOW_CALCULATE:
+							m_address = calculate_background_address();
 							break;
-						case PPU_DOT_SPRITE_LOAD: // 321
-							sprite_load(bus);
+						case PPU_RENDER_PIXEL_BACKGROUND_LOW_READ:
+							m_background_low = bus.ppu_read(m_address);
+							break;
+						case PPU_RENDER_PIXEL_BACKGROUND_HIGH_CALCULATE:
+// TODO
+							m_address += 8;
+// ---
+							break;
+						case PPU_RENDER_PIXEL_BACKGROUND_HIGH_READ:
+							m_background_high = bus.ppu_read(m_address);
+							update_scroll_horizontal();
 							break;
 						default:
 							break;
 					}
+					break;
+				case PPU_DOT_SCROLL_VERTICAL: // 256
+					generate_pixel(bus);
+					m_background_high = bus.ppu_read(m_address);
+					update_scroll_vertical();
+					break;
+				case PPU_DOT_POSITION_UPDATE_HORIZONTAL: // 257
+					generate_pixel(bus);
+					update_shift();
+					update_position_horizontal();
+					break;
+				case PPU_DOT_POSITION_UPDATE_VERTICAL_MIN ... PPU_DOT_POSITION_UPDATE_VERTICAL_MAX: // 280 - 304
 
-					switch(m_dot) { // background
-						case PPU_DOT_VBLANK_CLEAR: // 1
-							// TODO
-
-							if(type == PPU_RENDER_PRE_RENDER) {
-								m_status.vertical_blank = false;
-							}
-							break;
-						case PPU_DOT_RENDER_PIXEL_LOW_MIN ... PPU_DOT_RENDER_PIXEL_LOW_MAX: // 2 - 255
-						case PPU_DOT_RENDER_PIXEL_HIGH_MIN ... PPU_DOT_RENDER_PIXEL_HIGH_MAX: // 322 - 337
-							generate_pixel(bus);
-
-							// TODO
-							break;
-						case PPU_DOT_SCROLL_VERTICAL: // 256
-							generate_pixel(bus);
-
-							// TODO
-							break;
-						case PPU_DOT_POSITION_UPDATE_HORIZONTAL: // 257
-							generate_pixel(bus);
-
-							// TODO
-							break;
-						case PPU_DOT_POSITION_UPDATE_VERTICAL_MIN ... PPU_DOT_POSITION_UPDATE_VERTICAL_MAX: // 280 - 304
-
-							if(type == PPU_RENDER_PRE_RENDER) {
-								// TODO
-							}
-							break;
-						case PPU_DOT_NAMETABLE_UPDATE_LOW: // 321
-						case PPU_DOT_NAMETABLE_UPDATE_HIGH: // 339
-							// TODO
-							break;
-						case PPU_DOT_NAMETABLE_READ_LOW: // 338
-							// TODO
-							break;
-						case PPU_DOT_NAMETABLE_READ_HIGH: // 340
-							// TODO
-
-							if(m_frame_odd && (type == PPU_RENDER_PRE_RENDER)
-									&& (m_mask.background || m_mask.sprite)) {
-								++m_dot;
-							}
-							break;
-						default:
-							break;
+					if(type == PPU_RENDER_PRE_RENDER) {
+						update_position_vertical();
 					}
+					break;
+				case PPU_DOT_NAMETABLE_UPDATE_LOW: // 321
+				case PPU_DOT_NAMETABLE_UPDATE_HIGH: // 339
+					m_address = calculate_nametable_address();
+					break;
+				case PPU_DOT_NAMETABLE_READ_LOW: // 338
+					m_nametable_current = bus.ppu_read(m_address);
+					break;
+				case PPU_DOT_NAMETABLE_READ_HIGH: // 340
+					m_nametable_current = bus.ppu_read(m_address);
+
+					if(m_frame_odd && (type == PPU_RENDER_PRE_RENDER)
+							&& (m_mask.background || m_mask.sprite)) {
+						++m_dot;
+					}
+					break;
+				default:
+					break;
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::execute_render_sprite(
+			__in nescc::console::interface::bus &bus,
+			__in int type
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p, Type=%u(%s)", &bus, type, PPU_RENDER_STRING(type));
+
+			switch(m_dot) {
+				case PPU_DOT_CLEAR_OAM: // 1
+					clear_oam_secondary();
+
+					if(type == PPU_RENDER_PRE_RENDER) {
+						m_status.sprite_overflow = 0;
+						m_status.sprite_0_hit = 0;
+					}
+					break;
+				case PPU_DOT_SPRITE_EVALUATE: // 257
+					sprite_evaluate();
+					break;
+				case PPU_DOT_SPRITE_LOAD: // 321
+					sprite_load(bus);
 					break;
 				default:
 					break;
@@ -352,7 +463,7 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			if(m_dot == PPU_DOT_VBLANK) {
-				m_status.vertical_blank = true;
+				m_status.vertical_blank = 1;
 
 				if(m_control.nmi) {
 					bus.cpu_interrupt_non_maskable();
@@ -367,9 +478,105 @@ namespace nescc {
 			__in nescc::console::interface::bus &bus
 			)
 		{
+			int dot = (m_dot - 2);
+			bool priority = false;
+			uint8_t palette = 0, palette_object = 0;
+
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			// TODO
+// TODO
+			if((m_scanline < 240) && (dot >= 0) && (dot < 256)) {
+				generate_pixel_background(dot, palette);
+				generate_pixel_sprite(dot, palette, palette_object, priority);
+
+				if(palette_object && (!palette || !priority)) {
+					palette = palette_object;
+				}
+
+				if(!m_mask.background && !m_mask.sprite) {
+					palette = 0;
+				}
+
+				bus.display_write(dot, m_scanline, PPU_PALETTE_COLOR(bus.ppu_read(0x3f00 + palette)));
+			}
+
+			m_background_shift_low <<= 1;
+			m_background_shift_high <<= 1;
+			m_attribute_table_shift_low = ((m_attribute_table_shift_low << 1) | m_attribute_table_latch_low);
+			m_attribute_table_shift_high = ((m_attribute_table_shift_high << 1) | m_attribute_table_latch_high);
+// ---
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::generate_pixel_background(
+			__in int dot,
+			__inout uint8_t &palette
+			)
+		{
+			TRACE_ENTRY_FORMAT("Dot=%u, Palette=%p", dot, &palette);
+
+// TODO
+			if(m_mask.background && !(!m_mask.background_left && (dot < 8))) {
+
+				palette = ((((m_background_shift_high >> (15 - m_fine_x)) & 1) << 1)
+							| ((m_background_shift_low >> (15 - m_fine_x)) & 1));
+				if(palette) {
+					palette |= (((((m_attribute_table_shift_high >> (7 - m_fine_x)) & 1) << 1)
+							| ((m_attribute_table_shift_low >> (7 - m_fine_x)) & 1)) << 2);
+				}
+			}
+// ---
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::generate_pixel_sprite(
+			__in int dot,
+			__in uint8_t palette,
+			__inout uint8_t &palette_object,
+			__inout bool &priority
+			)
+		{
+			TRACE_ENTRY_FORMAT("Dot=%u, Palette=%u, Palette Object=%p, Priority=%p", dot, palette, &palette_object, &priority);
+
+// TODO
+			if(m_mask.sprite && !(!m_mask.sprite_left && (dot < 8))) {
+
+				for(int iter = 7; iter >= 0; iter--) {
+					int sprite_x;
+					nescc::console::sprite_t &entry = m_sprite.at(iter);
+
+					if((entry.id == 64) || (entry.position_x > dot)) {
+						continue;
+					}
+
+					sprite_x = (dot - entry.position_x);
+					if(sprite_x < 8) {
+						uint8_t palette_sprite;
+
+						if(entry.attributes & 0x40) {
+							sprite_x ^= 7;
+						}
+
+						palette_sprite = ((((entry.data_high >> (7 - sprite_x)) & 1) << 1)
+									| ((entry.data_low >> (7 - sprite_x)) & 1));
+
+						if(palette_sprite) {
+
+							if(!entry.id && palette && (dot != 255)) {
+								m_status.sprite_0_hit = 1;
+							}
+
+							palette_object = ((palette_sprite | ((entry.attributes & 0x3) << 2)) + 16);
+							priority = ((entry.attributes & 0x20) ? true : false);
+						}
+					}
+				}
+			}
+// ---
 
 			TRACE_EXIT();
 		}
@@ -525,6 +732,9 @@ namespace nescc {
 			}
 
 			result = m_palette.read(address);
+			if(m_mask.greyscale) {
+				result &= 0x30;
+			}
 
 			TRACE_DEBUG_FORMAT(m_debug, "Ppu palette read", "[%04x] -> %u(%02x)", address, result, result);
 
@@ -577,15 +787,15 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			if(m_address_v.address <= PPU_NAMETABLE_ADDRESS_MAX) {
+			if(m_address_vram.address <= 0x3eff) {
 				m_port_value = m_port_value_buffer;
-				m_port_value_buffer = bus.ppu_read(m_address_v.address);
+				m_port_value_buffer = bus.ppu_read(m_address_vram.address);
 			} else {
-				m_port_value = bus.ppu_read(m_address_v.address);
+				m_port_value = bus.ppu_read(m_address_vram.address);
 				m_port_value_buffer = m_port_value;
 			}
 
-			m_address_v.address += (m_control.increment ? PPU_CONTROL_INCREMENT : 1);
+			m_address_vram.address += (m_control.increment ? 32 : 1);
 			m_port.write(PPU_PORT_DATA, m_port_value);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", m_port_value, m_port_value);
@@ -609,8 +819,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			m_port_value &= PPU_BUS_PREVIOUS_MASK;
-			m_port_value |= m_status.raw;
+			m_port_value = ((m_port_value & 0x1f) | m_status.raw);
 			m_port.write(PPU_PORT_STATUS, m_port_value);
 			m_status.vertical_blank = 0;
 			m_port_latch = false;
@@ -636,8 +845,8 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu resetting...");
 
 			m_address = 0;
-			m_address_t.raw = 0;
-			m_address_v.raw = 0;
+			m_address_temp.raw = 0;
+			m_address_vram.raw = 0;
 			m_attribute_table_current = 0;
 			m_attribute_table_latch_high = false;
 			m_attribute_table_latch_low = false;
@@ -691,9 +900,30 @@ namespace nescc {
 		void
 		ppu::sprite_evaluate(void)
 		{
+			uint8_t count = 0, iter = 0;
+
 			TRACE_ENTRY();
 
-			// TODO
+// TODO
+			for(; iter < 0x40; ++iter) {
+
+				int row = (((m_scanline == 261) ? -1 : m_scanline) - m_oam.read(iter * 4));
+				if(((row >= 0) && (row < (m_control.sprite_size ? 16: 8)))) {
+					nescc::console::sprite_t &entry = m_sprite_secondary.at(count);
+
+					entry.attributes = m_oam.read((iter * 4) + 2);
+					entry.id = iter;
+					entry.position_x = m_oam.read((iter * 4) + 3);
+					entry.position_y = m_oam.read(iter * 4);
+					entry.tile = m_oam.read((iter * 4) + 1);
+
+					if(++count >= 8) {
+						m_status.sprite_overflow = 1;
+						break;
+					}
+				}
+			}
+// ---
 
 			TRACE_EXIT();
 		}
@@ -703,9 +933,36 @@ namespace nescc {
 			__in nescc::console::interface::bus &bus
 			)
 		{
+			uint8_t iter = 0;
+			uint16_t address;
+
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			// TODO
+// TODO
+			for(; iter < 8; ++iter) {
+				uint8_t sprite_y;
+
+				m_sprite.at(iter) = m_sprite_secondary.at(iter);
+
+				nescc::console::sprite_t &entry = m_sprite.at(iter);
+
+				if(m_control.sprite_size) {
+					address = (((entry.tile & 1) * 0x1000) + ((entry.tile & ~1) * 16));
+				} else {
+					address = ((m_control.sprite_pattern_table * 0x1000) + (entry.tile * 16));
+				}
+
+				sprite_y = ((m_scanline - entry.position_y) % (m_control.sprite_size ? 16: 8));
+
+				if(entry.attributes & 0x80) {
+					sprite_y ^= ((m_control.sprite_size ? 16: 8) - 1);
+				}
+
+				address += ((sprite_y & 8) + sprite_y);
+				entry.data_low = bus.ppu_read(address);
+				entry.data_high = bus.ppu_read(address + 8);
+			}
+// ---
 
 			TRACE_EXIT();
 		}
@@ -733,8 +990,8 @@ namespace nescc {
 						<< ", Sprite={First=" << SCALAR_AS_HEX(uintptr_t, &m_sprite)
 							<< ", Secondary=" << SCALAR_AS_HEX(uintptr_t, &m_sprite_secondary) << "}"
 						<< ", Cycle=" << m_cycle
-						<< ", Address={T=" << SCALAR_AS_HEX(uint16_t, m_address_t.raw)
-							<< ", V=" << SCALAR_AS_HEX(uint16_t, m_address_v.raw) << "}"
+						<< ", Address={T=" << SCALAR_AS_HEX(uint16_t, m_address_temp.raw)
+							<< ", V=" << SCALAR_AS_HEX(uint16_t, m_address_vram.raw) << "}"
 						<< ", Port={Buffer={" << SCALAR_AS_HEX(uint8_t, m_port_value)
 								<< ", " << SCALAR_AS_HEX(uint8_t, m_port_value_buffer) << "}"
 							<< ", State=" << (m_port_latch ? "Latched" : "Unlatched")
@@ -805,6 +1062,96 @@ namespace nescc {
 			++m_cycle;
 
 			TRACE_DEBUG_FORMAT(m_debug, "Ppu state", "\n%s", STRING_CHECK(as_string(true)));
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::update_position_horizontal(void)
+		{
+			TRACE_ENTRY();
+
+// TODO
+			if(m_mask.background || m_mask.sprite) {
+				m_address_vram.raw = ((m_address_vram.raw & ~0x41f) | (m_address_temp.raw & 0x41f));
+			}
+// ---
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::update_position_vertical(void)
+		{
+			TRACE_ENTRY();
+
+// TODO
+			if(m_mask.background || m_mask.sprite) {
+				m_address_vram.raw = ((m_address_vram.raw & ~0x7be0) | (m_address_temp.raw & 0x7be0));
+			}
+// ---
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::update_scroll_horizontal(void)
+		{
+			TRACE_ENTRY();
+
+// TODO
+			if(m_mask.background || m_mask.sprite) {
+
+				if(m_address_vram.coarse_x == 31) {
+					m_address_vram.raw ^= 0x41f;
+				} else {
+					++m_address_vram.coarse_x;
+				}
+			}
+// ---
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::update_scroll_vertical(void)
+		{
+			TRACE_ENTRY();
+
+// TODO
+			if(m_mask.background || m_mask.sprite) {
+
+				if(m_address_vram.fine_y >= 7) {
+					m_address_vram.fine_y = 0;
+
+					if(m_address_vram.coarse_y == 29) {
+						m_address_vram.coarse_y = 0;
+						m_address_vram.nametable ^= 2;
+					} else if(m_address_vram.coarse_y == 31) {
+						m_address_vram.coarse_y = 0;
+					} else {
+						++m_address_vram.coarse_y;
+					}
+				} else {
+					++m_address_vram.fine_y;
+				}
+			}
+// ---
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::update_shift(void)
+		{
+			TRACE_ENTRY();
+
+// TODO
+			m_background_shift_low = ((m_background_shift_low & 0xff00) | m_background_low);
+			m_background_shift_high = ((m_background_shift_high & 0xff00) | m_background_high);
+			m_attribute_table_latch_low = (m_attribute_table_current & 0x1);
+			m_attribute_table_latch_high = (m_attribute_table_current & 0x2);
+// ---
 
 			TRACE_EXIT();
 		}
@@ -953,11 +1300,11 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			if(!m_port_latch) {
-				m_address_t.high = (value & PPU_ADDRESS_HIGH_MASK);
+				m_address_temp.high = (value & 0x3f);
 				m_port.write(PPU_PORT_ADDRESS, value);
 			} else {
-				m_address_t.low = value;
-				m_address_v.raw = m_address_t.raw;
+				m_address_temp.low = value;
+				m_address_vram.raw = m_address_temp.raw;
 				m_port.write(PPU_PORT_ADDRESS, value);
 			}
 
@@ -974,7 +1321,7 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			m_control.raw = value;
-			m_address_t.nametable = m_control.nametable;
+			m_address_temp.nametable = m_control.nametable;
 			m_port.write(PPU_PORT_CONTROL, value);
 
 			TRACE_EXIT();
@@ -988,8 +1335,8 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p, Value=%u(%02x)", &bus, value, value);
 
-			bus.ppu_write(m_address_v.address, value);
-			m_address_v.address += (m_control.increment ? PPU_CONTROL_INCREMENT : 1);
+			bus.ppu_write(m_address_vram.address, value);
+			m_address_vram.address += (m_control.increment ? 32 : 1);
 			m_port.write(PPU_PORT_DATA, value);
 
 			TRACE_EXIT();
@@ -1045,12 +1392,12 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
 
 			if(!m_port_latch) {
-				m_fine_x = (value & PPU_SCROLL_FINE_MASK);
-				m_address_t.coarse_x = (value >> PPU_SCROLL_COARSE_SCALE);
+				m_fine_x = (value & 7);
+				m_address_temp.coarse_x = (value >> 3);
 				m_port.write(PPU_PORT_SCROLL, value);
 			} else {
-				m_address_t.fine_y = (value & PPU_SCROLL_FINE_MASK);
-				m_address_t.coarse_y = (value >> PPU_SCROLL_COARSE_SCALE);
+				m_address_temp.fine_y = (value & 7);
+				m_address_temp.coarse_y = (value >> 3);
 				m_port.write(PPU_PORT_SCROLL, value);
 			}
 

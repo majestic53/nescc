@@ -54,13 +54,6 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_CONSOLE_PPU_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
-		#define PPU_ADDRESS_HIGH_MASK 0x3f
-		#define PPU_BUS_PREVIOUS_MASK 0x1f
-		#define PPU_CONTROL_INCREMENT 0x20
-		#define PPU_NAMETABLE_ADDRESS_MAX 0x3eff
-		#define PPU_SCROLL_COARSE_SCALE 3
-		#define PPU_SCROLL_FINE_MASK 7
-
 		#define PPU_DOT_MAX 340
 		#define PPU_DOT_CLEAR_OAM 1 // 261, 1
 		#define PPU_DOT_NAMETABLE_READ_HIGH 340
@@ -91,6 +84,23 @@ namespace nescc {
 
 		#define PPU_SPRITE_LENGTH 8
 
+		static const uint32_t PPU_PALETTE_COL[] = {
+			0xff7c7c7c, 0xff0000fc, 0xff0000bc, 0xff4428bc, 0xff940084, 0xffa80020, 0xffa81000, 0xff881400,
+			0xff503000, 0xff007800, 0xff006800, 0xff005800, 0xff004058, 0xff000000, 0xff000000, 0xff000000,
+			0xffbcbcbc, 0xff0078f8, 0xff0058f8, 0xff6844fc, 0xffd800cc, 0xffe40058, 0xfff83800, 0xffe45c10,
+			0xffac7c00, 0xff00b800, 0xff00a800, 0xff00a844, 0xff008888, 0xff000000, 0xff000000, 0xff000000,
+			0xfff8f8f8, 0xff3cbcfc, 0xff6888fc, 0xff9878f8, 0xfff878f8, 0xfff85898, 0xfff87858, 0xfffca044,
+			0xfff8b800, 0xffb8f818, 0xff58d854, 0xff58f898, 0xff00e8d8, 0xff787878, 0xff000000, 0xff000000,
+			0xfffcfcfc, 0xffa4e4fc, 0xffb8b8f8, 0xffd8b8f8, 0xfff8b8f8, 0xfff8a4c0, 0xfff0d0b0, 0xfffce0a8,
+			0xfff8d878, 0xffd8f878, 0xffb8f8b8, 0xffb8f8d8, 0xff00fcfc, 0xfff8d8f8, 0xff000000, 0xff000000,
+			};
+
+		#define PPU_PALETTE_COL_MAX 0x64
+
+		#define PPU_PALETTE_COLOR(_IDX_) \
+			(((_IDX_) > PPU_PALETTE_COL_MAX) ? 0 : \
+				PPU_PALETTE_COL[_IDX_])
+
 		static const std::string PPU_PORT_STR[] = {
 			"Control", "Mask", "Status", "OAM Address", "OAM Data", "Scroll",
 			"Address", "Data",
@@ -117,8 +127,21 @@ namespace nescc {
 			(((_TYPE_) > PPU_RENDER_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(PPU_RENDER_STR[_TYPE_]))
 
+		enum {
+			PPU_RENDER_PIXEL_NAMETABLE_CALCULATE = 1,
+			PPU_RENDER_PIXEL_NAMETABLE_READ,
+			PPU_RENDER_PIXEL_ATTRIBUTE_TABLE_CALCULATE,
+			PPU_RENDER_PIXEL_ATTRIBUTE_TABLE_READ,
+			PPU_RENDER_PIXEL_BACKGROUND_LOW_CALCULATE,
+			PPU_RENDER_PIXEL_BACKGROUND_LOW_READ,
+			PPU_RENDER_PIXEL_BACKGROUND_HIGH_CALCULATE,
+			PPU_RENDER_PIXEL_BACKGROUND_HIGH_READ = 0,
+		};
+
+		#define PPU_RENDER_PIXEL_MAX PPU_RENDER_PIXEL_BACKGROUND_HIGH_CALCULATE
+
 		static const sprite_t PPU_SPRITE_INIT = {
-			.id = 64,
+			.id = 0x40,
 			.position_x = 0xff,
 			.position_y = 0xff,
 			.tile = 0xff,

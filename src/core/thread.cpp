@@ -176,7 +176,8 @@ namespace nescc {
 
 				if(!on_start()) {
 					m_state = THREAD_STOP;
-					THROW_NESCC_CORE_THREAD_EXCEPTION(NESCC_CORE_THREAD_EXCEPTION_START);
+					THROW_NESCC_CORE_THREAD_EXCEPTION_FORMAT(NESCC_CORE_THREAD_EXCEPTION_START, "%s",
+						STRING_CHECK(m_exception.to_string(true)));
 				}
 
 				m_exception.clear();

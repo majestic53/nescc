@@ -29,11 +29,11 @@ main(
 	try {
 		nescc::tool::runner &instance = nescc::tool::runner::acquire();
 		instance.initialize();
-		instance.invoke(std::vector<std::string>(argv, argv + argc));
+		result = instance.invoke(std::vector<std::string>(argv, argv + argc));
 		instance.uninitialize();
 		instance.release();
 	} catch(std::exception &exc) {
-		std::cerr << exc.what() << std::endl;
+		std::cerr << "Error: " << exc.what() << std::endl;
 		result = EXIT_FAILURE;
 	}
 

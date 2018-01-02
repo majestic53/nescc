@@ -116,8 +116,9 @@ namespace nescc {
 							if(value > 1) {
 								result << m_runtime.bus().cpu_as_string(address, value, true);
 							} else {
-								result << "CPU[" << SCALAR_AS_HEX(uint16_t, address) << "] = "
-									<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().cpu_read(address));
+								uint8_t value = m_runtime.bus().cpu_read(address);
+								result << "[" << SCALAR_AS_HEX(uint16_t, address) << "] " << (int) value
+									<< "(" << SCALAR_AS_HEX(uint8_t, value) << ")";
 							}
 						} else {
 							result << "Invalid command arguments: <address> <offset>";
@@ -156,33 +157,21 @@ namespace nescc {
 								switch(address) {
 									case SUBCOMMAND_ARGUMENT_REGISTER_ACCUMULATOR:
 										m_runtime.bus().cpu().set_accumulator(value);
-										result << "A <- " << SCALAR_AS_HEX(uint8_t,
-											m_runtime.bus().cpu().accumulator());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS:
 										m_runtime.bus().cpu().set_flags(value);
-										result << "FLG <- " << SCALAR_AS_HEX(uint8_t,
-											m_runtime.bus().cpu().flags());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_X:
 										m_runtime.bus().cpu().set_index_x(value);
-										result << "X <- " << SCALAR_AS_HEX(uint8_t,
-											m_runtime.bus().cpu().index_x());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_Y:
 										m_runtime.bus().cpu().set_index_y(value);
-										result << "Y <- " << SCALAR_AS_HEX(uint8_t,
-											m_runtime.bus().cpu().index_y());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_PROGRAM_COUNTER:
 										m_runtime.bus().cpu().set_program_counter(value);
-										result << "PC <- " << SCALAR_AS_HEX(uint16_t,
-											m_runtime.bus().cpu().program_counter());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_STACK_POINTER:
 										m_runtime.bus().cpu().set_stack_pointer(value);
-										result << "SP <- " << SCALAR_AS_HEX(uint8_t,
-											m_runtime.bus().cpu().stack_pointer());
 										break;
 									default:
 										break;
@@ -191,32 +180,38 @@ namespace nescc {
 
 								switch(address) {
 									case SUBCOMMAND_ARGUMENT_REGISTER_ACCUMULATOR:
-										result << "A = " << SCALAR_AS_HEX(uint8_t,
+										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().accumulator());
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS:
-										value = m_runtime.bus().cpu().flags();
-										result << "FLG = " << SCALAR_AS_HEX(uint8_t, value)
-											<< "   NV-BDIZC" << std::endl << "           ";
+									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS: {
+											std::stringstream stream;
 
-										for(int8_t iter = (CHAR_BIT - 1); iter >= 0; iter--) {
-											result << ((value & (1 << iter)) ? "1" : "0");
-										}
-										break;
+											value = m_runtime.bus().cpu().flags();
+											result << SCALAR_AS_HEX(uint8_t, value)
+												<< std::left << std::setw(COLUMN_WIDTH)
+												<< "" << "NV-BDIZC" << std::endl << "  ";
+
+											for(int8_t iter = (CHAR_BIT - 1); iter >= 0; iter--) {
+												stream << ((value & (1 << iter)) ? "1" : "0");
+											}
+
+											result << std::left << std::setw(COLUMN_WIDTH)
+												<< "" << stream.str();
+										} break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_X:
-										result << "X = " << SCALAR_AS_HEX(uint8_t,
+										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().index_x());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_Y:
-										result << "Y = " << SCALAR_AS_HEX(uint8_t,
+										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().index_y());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_PROGRAM_COUNTER:
-										result << "PC = " << SCALAR_AS_HEX(uint16_t,
+										result << SCALAR_AS_HEX(uint16_t,
 											m_runtime.bus().cpu().program_counter());
 										break;
 									case SUBCOMMAND_ARGUMENT_REGISTER_STACK_POINTER:
-										result << "SP = " << SCALAR_AS_HEX(uint8_t,
+										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().stack_pointer());
 										break;
 									default:
@@ -239,8 +234,6 @@ namespace nescc {
 
 						if(parse_subcommand_values(sub_arguments, address, value)) {
 							m_runtime.bus().cpu_write(address, value);
-							result << "CPU[" << SCALAR_AS_HEX(uint16_t, address) << "] <- "
-								<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().cpu_read(address));
 						} else {
 							result << "Invalid command arguments: <address> <value>";
 						}
@@ -293,8 +286,6 @@ namespace nescc {
 
 					if(parse_subcommand_value(sub_arguments, value)) {
 						m_debug = value;
-						result << "Debug = " << m_debug << "(" << (m_debug ? "true" : "false")
-							<< ")";
 					} else {
 						result << "Invalid command arguments: <value>";
 					}
@@ -303,8 +294,7 @@ namespace nescc {
 				case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
 
 					if(sub_arguments.empty()) {
-						result << "Debug = " << m_debug << "(" << (m_debug ? "true" : "false")
-							<< ")";
+						result << (m_debug ? "true" : "false");
 					} else {
 						result << "Unexpected command argument: " << sub_arguments.front();
 					}
@@ -573,8 +563,9 @@ namespace nescc {
 							if(value > 1) {
 								result << m_runtime.bus().ppu_as_string(address, value, true);
 							} else {
-								result << "PPU[" << SCALAR_AS_HEX(uint16_t, address) << "] = "
-									<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu_read(address));
+								uint8_t value = m_runtime.bus().ppu_read(address);
+								result << "[" << SCALAR_AS_HEX(uint16_t, address) << "] " << (int) value
+									<< "(" << SCALAR_AS_HEX(uint8_t, value) << ")";
 							}
 						} else {
 							result << "Invalid command arguments: <address> <offset>";
@@ -600,8 +591,6 @@ namespace nescc {
 
 						if(parse_subcommand_values(sub_arguments, address, value)) {
 							m_runtime.bus().ppu_write(address, value);
-							result << "PPU[" << SCALAR_AS_HEX(uint16_t, address) << "] <- "
-								<< SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu_read(address));
 						} else {
 							result << "Invalid command arguments: <address> <value>";
 						}
@@ -1167,10 +1156,10 @@ namespace nescc {
 					m_runtime.uninitialize();
 				}
 			} catch(nescc::exception &exc) {
-				std::cerr << exc.to_string(true) << std::endl;
+				std::cerr << "Error: " << exc.to_string(true) << std::endl;
 				result = EXIT_FAILURE;
 			} catch(std::exception &exc) {
-				std::cerr << exc.what() << std::endl;
+				std::cerr << "Error: " << exc.what() << std::endl;
 				result = EXIT_FAILURE;
 			}
 

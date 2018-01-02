@@ -53,8 +53,8 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 5
-	#define NESCC_VERSION_WEEK 1752
+	#define NESCC_VERSION_REVISION 1
+	#define NESCC_VERSION_WEEK 1801
 
 	#define STRING_EMPTY "Empty"
 	#define STRING_INVALID "Invalid"
@@ -64,7 +64,7 @@ namespace nescc {
 		std::setprecision(_PREC_) << std::fixed << (_VAL_) << std::defaultfloat
 
 	#define SCALAR_AS_HEX(_TYPE_, _VAL_) \
-		std::setw(sizeof(_TYPE_) * 2) << std::setfill('0') << std::hex \
+		std::setw(sizeof(_TYPE_) * 2) << std::setfill('0') << std::right << std::hex \
 			<< (uintmax_t) ((_TYPE_) (_VAL_)) << std::dec << std::setfill(' ')
 
 	#define STRING_CHECK(_STR_) \

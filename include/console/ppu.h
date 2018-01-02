@@ -194,6 +194,12 @@ namespace nescc {
 					__in const ppu &other
 					) = delete;
 
+				uint16_t calculate_attribute_table_address(void);
+
+				uint16_t calculate_background_address(void);
+
+				uint16_t calculate_nametable_address(void);
+
 				void clear_oam_secondary(void);
 
 				void execute_post_render(
@@ -205,12 +211,34 @@ namespace nescc {
 					__in int type
 					);
 
+				void execute_render_background(
+					__in nescc::console::interface::bus &bus,
+					__in int type
+					);
+
+				void execute_render_sprite(
+					__in nescc::console::interface::bus &bus,
+					__in int type
+					);
+
 				void execute_vblank(
 					__in nescc::console::interface::bus &bus
 					);
 
 				void generate_pixel(
 					__in nescc::console::interface::bus &bus
+					);
+
+				void generate_pixel_background(
+					__in int dot,
+					__inout uint8_t &palette
+					);
+
+				void generate_pixel_sprite(
+					__in int dot,
+					__in uint8_t palette,
+					__inout uint8_t &palette_object,
+					__inout bool &priority
 					);
 
 				bool on_initialize(void);
@@ -230,6 +258,16 @@ namespace nescc {
 				void sprite_load(
 					__in nescc::console::interface::bus &bus
 					);
+
+				void update_position_horizontal(void);
+
+				void update_position_vertical(void);
+
+				void update_scroll_horizontal(void);
+
+				void update_scroll_vertical(void);
+
+				void update_shift(void);
 
 				void write_port_address(
 					__in uint8_t value
@@ -262,9 +300,9 @@ namespace nescc {
 
 				uint16_t m_address;
 
-				nescc::console::port_address_t m_address_t;
+				nescc::console::port_address_t m_address_temp;
 
-				nescc::console::port_address_t m_address_v;
+				nescc::console::port_address_t m_address_vram;
 
 				uint8_t m_attribute_table_current;
 
