@@ -122,7 +122,13 @@ namespace nescc {
 					__in uint32_t command
 					);
 
-				bool parse_subcommand_register_values(
+				bool parse_subcommand_port_ppu_values(
+					__in const std::vector<std::string> &arguments,
+					__inout uint16_t &address,
+					__inout uint16_t &value
+					);
+
+				bool parse_subcommand_register_cpu_values(
 					__in const std::vector<std::string> &arguments,
 					__inout uint16_t &address,
 					__inout uint16_t &value

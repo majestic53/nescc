@@ -49,7 +49,7 @@ help                                                                    Display 
 joypad          [help, status, strobe]                                  Display/Set joypad state
 mapper          [help, status]                                          Display mapper state
 pause                                                                   Pause emulation
-ppu             [cycle, dot, get, help, scanline, set, status]          Display/Set ppu state
+ppu             [cycle, dot, get, help, port, scanline, set, status]    Display/Set ppu state
 restart                                                                 Restart emulation
 run                                                                     Run/Unpause emulation
 status                                                                  Display emulation status
@@ -126,6 +126,7 @@ cycle                                                                   Display 
 dot                                                                     Display current dot
 get             <address> <offset>                                      Display memory value
 help                                                                    Display help information
+port            <port> [<value>]                                        Display/Set port value
 scanline                                                                Display current scanline
 set             [<address>] <value>                                     Set memory value
 status                                                                  Display status information
@@ -136,7 +137,12 @@ Changelog
 
 Version 0.1.1801
 ----------------
-*Updated: 1/1/2017*
+*Updated: 1/2/2018*
+
+* Added ppu port command
+* Added better greyscale colors
+
+*Updated: 1/1/2018*
 
 * Added ppu render routines
 

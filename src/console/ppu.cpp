@@ -58,6 +58,19 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		uint8_t
+		ppu::address(void) const
+		{
+			uint8_t result;
+
+			TRACE_ENTRY();
+
+			result = m_port.read(PPU_PORT_ADDRESS);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
 		std::string
 		ppu::as_string(
 			__in_opt bool verbose
@@ -259,6 +272,19 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		nescc::console::port_control_t
+		ppu::control(void) const
+		{
+			nescc::console::port_control_t result;
+
+			TRACE_ENTRY();
+
+			result = m_control;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result.raw, result.raw);
+			return result;
+		}
+
 		uint32_t
 		ppu::cycle(void) const
 		{
@@ -272,6 +298,19 @@ namespace nescc {
 
 			TRACE_EXIT_FORMAT("Result=%u", m_cycle);
 			return m_cycle;
+		}
+
+		uint8_t
+		ppu::data(void) const
+		{
+			uint8_t result;
+
+			TRACE_ENTRY();
+
+			result = m_port.read(PPU_PORT_DATA);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
 		uint32_t
@@ -479,13 +518,15 @@ namespace nescc {
 			)
 		{
 			int dot = (m_dot - 2);
-			bool priority = false;
-			uint8_t palette = 0, palette_object = 0;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 // TODO
 			if((m_scanline < 240) && (dot >= 0) && (dot < 256)) {
+				ppu_color_t color;
+				bool priority = false;
+				uint8_t palette = 0, palette_object = 0;
+
 				generate_pixel_background(dot, palette);
 				generate_pixel_sprite(dot, palette, palette_object, priority);
 
@@ -497,13 +538,21 @@ namespace nescc {
 					palette = 0;
 				}
 
-				bus.display_write(dot, m_scanline, PPU_PALETTE_COLOR(bus.ppu_read(0x3f00 + palette)));
+				color.raw = PPU_PALETTE_COLOR(bus.ppu_read(0x3f00 + palette));
+				if(m_mask.greyscale) {
+					uint8_t average = ((color.blue + color.green + color.red) / 3);
+					color.blue = average;
+					color.green = average;
+					color.red = average;
+				}
+
+				bus.display_write(dot, m_scanline, color.raw);
 			}
 
 			m_background_shift_low <<= 1;
 			m_background_shift_high <<= 1;
-			m_attribute_table_shift_low = ((m_attribute_table_shift_low << 1) | m_attribute_table_latch_low);
-			m_attribute_table_shift_high = ((m_attribute_table_shift_high << 1) | m_attribute_table_latch_high);
+			m_attribute_table_shift_low = ((m_attribute_table_shift_low << 1) | (m_attribute_table_latch_low));
+			m_attribute_table_shift_high = ((m_attribute_table_shift_high << 1) | (m_attribute_table_latch_high));
 // ---
 
 			TRACE_EXIT();
@@ -557,7 +606,7 @@ namespace nescc {
 					if(sprite_x < 8) {
 						uint8_t palette_sprite;
 
-						if(entry.attributes & 0x40) {
+						if(entry.attributes & 64) {
 							sprite_x ^= 7;
 						}
 
@@ -579,6 +628,19 @@ namespace nescc {
 // ---
 
 			TRACE_EXIT();
+		}
+
+		nescc::console::port_mask_t
+		ppu::mask(void) const
+		{
+			nescc::console::port_mask_t result;
+
+			TRACE_ENTRY();
+
+			result = m_mask;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result.raw, result.raw);
+			return result;
 		}
 
 		nescc::core::memory &
@@ -609,6 +671,32 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return m_oam;
+		}
+
+		uint8_t
+		ppu::oam_address(void) const
+		{
+			uint8_t result;
+
+			TRACE_ENTRY();
+
+			result = m_port.read(PPU_PORT_OAM_ADDRESS);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		uint8_t
+		ppu::oam_data(void) const
+		{
+			uint8_t result;
+
+			TRACE_ENTRY();
+
+			result = m_port.read(PPU_PORT_OAM_DATA);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
 		bool
@@ -732,9 +820,6 @@ namespace nescc {
 			}
 
 			result = m_palette.read(address);
-			if(m_mask.greyscale) {
-				result &= 0x30;
-			}
 
 			TRACE_DEBUG_FORMAT(m_debug, "Ppu palette read", "[%04x] -> %u(%02x)", address, result, result);
 
@@ -897,6 +982,115 @@ namespace nescc {
 			return m_scanline;
 		}
 
+		uint8_t
+		ppu::scroll(void) const
+		{
+			uint8_t result;
+
+			TRACE_ENTRY();
+
+			result = m_port.read(PPU_PORT_SCROLL);
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
+		}
+
+		void
+		ppu::set_address(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_port.write(PPU_PORT_ADDRESS, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::set_control(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_control = *((nescc::console::port_control_t *) &value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::set_data(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_port.write(PPU_PORT_DATA, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::set_mask(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_mask = *((nescc::console::port_mask_t *) &value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::set_oam_address(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_port.write(PPU_PORT_OAM_ADDRESS, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::set_oam_data(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_port.write(PPU_PORT_OAM_DATA, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::set_scroll(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_port.write(PPU_PORT_SCROLL, value);
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::set_status(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_status = *((nescc::console::port_status_t *) &value);
+
+			TRACE_EXIT();
+		}
+
 		void
 		ppu::sprite_evaluate(void)
 		{
@@ -965,6 +1159,19 @@ namespace nescc {
 // ---
 
 			TRACE_EXIT();
+		}
+
+		nescc::console::port_status_t
+		ppu::status(void) const
+		{
+			nescc::console::port_status_t result;
+
+			TRACE_ENTRY();
+
+			result = m_status;
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result.raw, result.raw);
+			return result;
 		}
 
 		std::string

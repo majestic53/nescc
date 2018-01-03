@@ -150,27 +150,27 @@ namespace nescc {
 						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_REGISTER:
 
-						if(parse_subcommand_register_values(sub_arguments, address, value)) {
+						if(parse_subcommand_register_cpu_values(sub_arguments, address, value)) {
 
 							if(sub_arguments.size() == (SUBCOMMAND_ARGUMENT_MAX + 1)) {
 
 								switch(address) {
-									case SUBCOMMAND_ARGUMENT_REGISTER_ACCUMULATOR:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_ACCUMULATOR:
 										m_runtime.bus().cpu().set_accumulator(value);
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_FLAGS:
 										m_runtime.bus().cpu().set_flags(value);
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_X:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_INDEX_X:
 										m_runtime.bus().cpu().set_index_x(value);
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_Y:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_INDEX_Y:
 										m_runtime.bus().cpu().set_index_y(value);
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_PROGRAM_COUNTER:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_PROGRAM_COUNTER:
 										m_runtime.bus().cpu().set_program_counter(value);
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_STACK_POINTER:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_STACK_POINTER:
 										m_runtime.bus().cpu().set_stack_pointer(value);
 										break;
 									default:
@@ -179,11 +179,11 @@ namespace nescc {
 							} else {
 
 								switch(address) {
-									case SUBCOMMAND_ARGUMENT_REGISTER_ACCUMULATOR:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_ACCUMULATOR:
 										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().accumulator());
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_FLAGS: {
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_FLAGS: {
 											std::stringstream stream;
 
 											value = m_runtime.bus().cpu().flags();
@@ -198,19 +198,19 @@ namespace nescc {
 											result << std::left << std::setw(COLUMN_WIDTH)
 												<< "" << stream.str();
 										} break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_X:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_INDEX_X:
 										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().index_x());
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_INDEX_Y:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_INDEX_Y:
 										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().index_y());
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_PROGRAM_COUNTER:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_PROGRAM_COUNTER:
 										result << SCALAR_AS_HEX(uint16_t,
 											m_runtime.bus().cpu().program_counter());
 										break;
-									case SUBCOMMAND_ARGUMENT_REGISTER_STACK_POINTER:
+									case SUBCOMMAND_ARGUMENT_REGISTER_CPU_STACK_POINTER:
 										result << SCALAR_AS_HEX(uint8_t,
 											m_runtime.bus().cpu().stack_pointer());
 										break;
@@ -577,6 +577,129 @@ namespace nescc {
 							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_PPU);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_PORT:
+
+						if(parse_subcommand_port_ppu_values(sub_arguments, address, value)) {
+
+							if(sub_arguments.size() == (SUBCOMMAND_ARGUMENT_MAX + 1)) {
+
+								switch(address) {
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_ADDRESS:
+										m_runtime.bus().ppu().set_address(value);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_CONTROL:
+										m_runtime.bus().ppu().set_control(value);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_DATA:
+										m_runtime.bus().ppu().set_data(value);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_MASK:
+										m_runtime.bus().ppu().set_mask(value);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_OAM_ADDRESS:
+										m_runtime.bus().ppu().set_oam_address(value);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_OAM_DATA:
+										m_runtime.bus().ppu().set_oam_data(value);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_SCROLL:
+										m_runtime.bus().ppu().set_scroll(value);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_STATUS:
+										m_runtime.bus().ppu().set_status(value);
+										break;
+									default:
+										break;
+								}
+							} else {
+								nescc::console::port_mask_t mask;
+								nescc::console::port_status_t status;
+								nescc::console::port_control_t control;
+
+								switch(address) {
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_ADDRESS:
+										result << SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu().address());
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_CONTROL:
+										control = m_runtime.bus().ppu().control();
+										result << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< SCALAR_AS_HEX(uint8_t, control.raw)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Nametable" << SCALAR_AS_HEX(uint8_t, control.nametable)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Increment" << SCALAR_AS_HEX(uint8_t, control.increment)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Sprite table" << SCALAR_AS_HEX(uint8_t,
+												control.sprite_pattern_table)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Background table" << SCALAR_AS_HEX(uint8_t,
+												control.background_pattern_table)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Sprite size" << SCALAR_AS_HEX(uint8_t,
+												control.sprite_size)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Slave mode" << SCALAR_AS_HEX(uint8_t, control.slave)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- NMI enabled" << SCALAR_AS_HEX(uint8_t, control.nmi);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_DATA:
+										result << SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu().data());
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_MASK:
+										mask = m_runtime.bus().ppu().mask();
+										result << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< SCALAR_AS_HEX(uint8_t, mask.raw)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Greyscale" << SCALAR_AS_HEX(uint8_t, mask.greyscale)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Background left" << SCALAR_AS_HEX(uint8_t,
+												mask.background_left)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Sprite left" << SCALAR_AS_HEX(uint8_t,
+												mask.sprite_left)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Background enable" << SCALAR_AS_HEX(uint8_t,
+												mask.background)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Sprite enable" << SCALAR_AS_HEX(uint8_t, mask.sprite)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Red" << SCALAR_AS_HEX(uint8_t, mask.red)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Green" << SCALAR_AS_HEX(uint8_t, mask.green)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Blue" << SCALAR_AS_HEX(uint8_t, mask.blue);
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_OAM_ADDRESS:
+										result << SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu().oam_address());
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_OAM_DATA:
+										result << SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu().oam_data());
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_SCROLL:
+										result << SCALAR_AS_HEX(uint8_t, m_runtime.bus().ppu().scroll());
+										break;
+									case SUBCOMMAND_ARGUMENT_PORT_PPU_STATUS:
+										status = m_runtime.bus().ppu().status();
+										result << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< SCALAR_AS_HEX(uint8_t, status.raw)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Sprite overflow" << SCALAR_AS_HEX(uint8_t,
+												status.sprite_overflow)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- Sprite 0 hit" << SCALAR_AS_HEX(uint8_t,
+												status.sprite_0_hit)
+											<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+											<< "|- VBlank" << SCALAR_AS_HEX(uint8_t,
+												status.vertical_blank);
+										break;
+									default:
+										break;
+								}
+							}
+						} else {
+							result << "Invalid command arguments: <port> <value>";
 						}
 						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_SCANLINE:
@@ -1039,7 +1162,7 @@ namespace nescc {
 		}
 
 		bool
-		runner::parse_subcommand_register_values(
+		runner::parse_subcommand_port_ppu_values(
 			__in const std::vector<std::string> &arguments,
 			__inout uint16_t &address,
 			__inout uint16_t &value
@@ -1059,8 +1182,50 @@ namespace nescc {
 					switch(iter) {
 						case SUBCOMMAND_ARGUMENT_ADDRESS:
 
-							entry = SUBCOMMAND_ARGUMENT_REGISTER_MAP.find(arguments.at(iter));
-							if(entry != SUBCOMMAND_ARGUMENT_REGISTER_MAP.end()) {
+							entry = SUBCOMMAND_ARGUMENT_PORT_PPU_MAP.find(arguments.at(iter));
+							if(entry != SUBCOMMAND_ARGUMENT_PORT_PPU_MAP.end()) {
+								address = entry->second;
+							} else {
+								result = false;
+							}
+							break;
+						case SUBCOMMAND_ARGUMENT_VALUE:
+							stream << std::hex << arguments.at(iter);
+							stream >> value;
+							break;
+						default:
+							result = false;
+							break;
+					}
+				}
+			}
+
+			return result;
+		}
+
+		bool
+		runner::parse_subcommand_register_cpu_values(
+			__in const std::vector<std::string> &arguments,
+			__inout uint16_t &address,
+			__inout uint16_t &value
+			)
+		{
+			bool result = ((arguments.size() == SUBCOMMAND_ARGUMENT_MAX)
+					|| (arguments.size() == (SUBCOMMAND_ARGUMENT_MAX + 1)));
+
+			if(result) {
+				address = 0;
+				value = 0;
+
+				for(uint32_t iter = 0; result && (iter < arguments.size()); ++iter) {
+					std::stringstream stream;
+					std::map<std::string, uint32_t>::const_iterator entry;
+
+					switch(iter) {
+						case SUBCOMMAND_ARGUMENT_ADDRESS:
+
+							entry = SUBCOMMAND_ARGUMENT_REGISTER_CPU_MAP.find(arguments.at(iter));
+							if(entry != SUBCOMMAND_ARGUMENT_REGISTER_CPU_MAP.end()) {
 								address = entry->second;
 							} else {
 								result = false;

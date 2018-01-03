@@ -113,19 +113,31 @@ namespace nescc {
 
 				~ppu(void);
 
+				uint8_t address(void) const;
+
 				std::string as_string(
 					__in_opt bool verbose = false
 					) const;
 
 				void clear(void);
 
+				nescc::console::port_control_t control(void) const;
+
 				uint32_t cycle(void) const;
 
+				uint8_t data(void) const;
+
 				uint32_t dot(void) const;
+
+				nescc::console::port_mask_t mask(void) const;
 
 				nescc::core::memory &nametable(void);
 
 				nescc::core::memory &oam(void);
+
+				uint8_t oam_address(void) const;
+
+				uint8_t oam_data(void) const;
 
 				nescc::core::memory &palette(void);
 
@@ -150,6 +162,42 @@ namespace nescc {
 					);
 
 				uint32_t scanline(void) const;
+
+				uint8_t scroll(void) const;
+
+				void set_address(
+					__in uint8_t value
+					);
+
+				void set_control(
+					__in uint8_t value
+					);
+
+				void set_data(
+					__in uint8_t value
+					);
+
+				void set_mask(
+					__in uint8_t value
+					);
+
+				void set_oam_address(
+					__in uint8_t value
+					);
+
+				void set_oam_data(
+					__in uint8_t value
+					);
+
+				void set_scroll(
+					__in uint8_t value
+					);
+
+				void set_status(
+					__in uint8_t value
+					);
+
+				nescc::console::port_status_t status(void) const;
 
 				std::string to_string(
 					__in_opt bool verbose = false
