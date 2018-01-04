@@ -218,6 +218,57 @@ namespace nescc {
 			return result;
 		}
 
+		std::set<uint16_t>
+		bus::cpu_watch(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_watch_cpu;
+		}
+
+		void
+		bus::cpu_watch_add(
+			__in uint16_t address
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(m_watch_cpu.find(address) == m_watch_cpu.end()) {
+				m_watch_cpu.insert(address);
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		bus::cpu_watch_clear(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_watch_cpu.clear();
+
+			TRACE_EXIT();
+		}
+
 		void
 		bus::cpu_write(
 			__in uint16_t address,
@@ -275,6 +326,10 @@ namespace nescc {
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Value=%u(%02x)",
 						address, address, value, value);
 					break;
+			}
+
+			if(m_watch_cpu.find(address) != m_watch_cpu.end()) {
+				TRACE_WATCH_FORMAT("Cpu", "[%04x] <- %u(%02x)", address, value, value);
 			}
 
 			TRACE_DEBUG_FORMAT(m_debug, "Cpu bus write", "[%04x] <- %u(%02x)", address, value, value);
@@ -421,6 +476,8 @@ namespace nescc {
 			m_joypad.uninitialize();
 			m_mapper.uninitialize();
 			m_debug = false;
+			m_watch_cpu.clear();
+			m_watch_ppu.clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus uninitialized.");
 
@@ -512,6 +569,57 @@ namespace nescc {
 			return result;
 		}
 
+		std::set<uint16_t>
+		bus::ppu_watch(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_watch_ppu;
+		}
+
+		void
+		bus::ppu_watch_add(
+			__in uint16_t address
+			)
+		{
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(m_watch_ppu.find(address) == m_watch_ppu.end()) {
+				m_watch_ppu.insert(address);
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		bus::ppu_watch_clear(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_watch_ppu.clear();
+
+			TRACE_EXIT();
+		}
+
 		void
 		bus::ppu_write(
 			__in uint16_t address,
@@ -542,7 +650,11 @@ namespace nescc {
 					break;
 			}
 
-			TRACE_DEBUG_FORMAT(m_debug, "CPU bus write", "[%04x] <- %u(%02x)", address, value, value);
+			if(m_watch_ppu.find(address) != m_watch_ppu.end()) {
+				TRACE_WATCH_FORMAT("Ppu", "[%04x] <- %u(%02x)", address, value, value);
+			}
+
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu bus write", "[%04x] <- %u(%02x)", address, value, value);
 
 			TRACE_EXIT();
 		}
@@ -651,8 +763,41 @@ namespace nescc {
 						<< ", Mapper=" << m_mapper.to_string(verbose)
 						<< ", Joypad=" << m_joypad.to_string(verbose)
 						<< ", Apu=" << m_apu.to_string(verbose)
-						<< ", Cpu=" << m_cpu.to_string(verbose)
-						<< ", Ppu=" << m_ppu.to_string(verbose);
+						<< ", Cpu=" << m_cpu.to_string(verbose);
+
+					if(!m_watch_cpu.empty()) {
+						result << " {";
+
+						for(std::set<uint16_t>::iterator iter = m_watch_cpu.begin(); iter != m_watch_cpu.end();
+								++iter) {
+
+							if(iter != m_watch_cpu.begin()) {
+								result << ", ";
+							}
+
+							result << SCALAR_AS_HEX(uint16_t, *iter);
+						}
+
+						result << "}";
+					}
+
+					result << ", Ppu=" << m_ppu.to_string(verbose);
+
+					if(!m_watch_ppu.empty()) {
+						result << " {";
+
+						for(std::set<uint16_t>::iterator iter = m_watch_ppu.begin(); iter != m_watch_ppu.end();
+								++iter) {
+
+							if(iter != m_watch_ppu.begin()) {
+								result << ", ";
+							}
+
+							result << SCALAR_AS_HEX(uint16_t, *iter);
+						}
+
+						result << "}";
+					}
 				}
 			}
 

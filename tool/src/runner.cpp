@@ -246,6 +246,34 @@ namespace nescc {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
 						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_WATCH:
+
+						if(sub_arguments.empty()) {
+							uint32_t count = 0;
+
+							std::set<uint16_t> watch = m_runtime.bus().cpu_watch();
+							for(std::set<uint16_t>::iterator iter = watch.begin(); iter != watch.end();
+									++count, ++iter) {
+
+								if(iter != watch.begin()) {
+									result << std::endl;
+								}
+
+								result << "[" << count << "] " << SCALAR_AS_HEX(uint16_t, *iter);
+							}
+						} else if(sub_arguments.size() == 1) {
+
+							if(sub_arguments.front() == ARGUMENT_CLEAR) {
+								m_runtime.bus().cpu_watch_clear();
+							} else if(parse_subcommand_value(sub_arguments, value)) {
+								m_runtime.bus().cpu_watch_add(value);
+							} else {
+								result << "Invalid command arguments: <address>";
+							}
+						} else {
+							result << "Invalid command arguments: [<address> | clear]";
+						}
+						break;
 					default:
 						result << "Unsupported command argument: " << arguments.front();
 						break;
@@ -724,6 +752,34 @@ namespace nescc {
 							result << m_runtime.bus().ppu().as_string(true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_WATCH:
+
+						if(sub_arguments.empty()) {
+							uint32_t count = 0;
+
+							std::set<uint16_t> watch = m_runtime.bus().ppu_watch();
+							for(std::set<uint16_t>::iterator iter = watch.begin(); iter != watch.end();
+									++count, ++iter) {
+
+								if(iter != watch.begin()) {
+									result << std::endl;
+								}
+
+								result << "[" << count << "] " << SCALAR_AS_HEX(uint16_t, *iter);
+							}
+						} else if(sub_arguments.size() == 1) {
+
+							if(sub_arguments.front() == ARGUMENT_CLEAR) {
+								m_runtime.bus().ppu_watch_clear();
+							} else if(parse_subcommand_value(sub_arguments, value)) {
+								m_runtime.bus().ppu_watch_add(value);
+							} else {
+								result << "Invalid command arguments: <address>";
+							}
+						} else {
+							result << "Invalid command arguments: [<address> | clear]";
 						}
 						break;
 					default:

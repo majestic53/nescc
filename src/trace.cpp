@@ -183,37 +183,48 @@ namespace nescc {
 #ifdef TRACE_COLOR
 		result << TRACE_COLOR_STRING(level);
 #endif // TRACE_COLOR
-		buffer.resize(TRACE_TIMESTAMP_LEN);
-		time = std::get<TRACE_ENTRY_TIME>(entry);
-		length = std::strftime(&buffer[0], TRACE_TIMESTAMP_LEN, TRACE_TIMESTAMP_FORMAT,
-			std::localtime(&time));
 
-		if(length) {
-			buffer = buffer.substr(0, length);
-		} else {
-			buffer = STRING_INVALID;
+		if(level != TRACE_WATCH) {
+			buffer.resize(TRACE_TIMESTAMP_LEN);
+			time = std::get<TRACE_ENTRY_TIME>(entry);
+			length = std::strftime(&buffer[0], TRACE_TIMESTAMP_LEN, TRACE_TIMESTAMP_FORMAT,
+				std::localtime(&time));
+
+			if(length) {
+				buffer = buffer.substr(0, length);
+			} else {
+				buffer = STRING_INVALID;
+			}
+
+			result << "[" << buffer << "] {" << TRACE_STRING(level) << "}";
 		}
-
-		result << "[" << buffer << "] {" << TRACE_STRING(level) << "}";
 
 		buffer = std::get<TRACE_ENTRY_MESSAGE>(entry);
 		if(!buffer.empty()) {
-			result << " " << buffer;
+
+			if(level != TRACE_WATCH) {
+				result << " ";
+			}
+
+			result << buffer;
 		}
 
-		result << " (";
+		if(level != TRACE_WATCH) {
+			result << " (";
 
-		buffer = std::get<TRACE_ENTRY_FUNCTION>(entry);
-		if(!buffer.empty()) {
-			result << buffer << ":";
+			buffer = std::get<TRACE_ENTRY_FUNCTION>(entry);
+			if(!buffer.empty()) {
+				result << buffer << ":";
+			}
+
+			buffer = std::get<TRACE_ENTRY_FILE>(entry);
+			if(!buffer.empty()) {
+				result << buffer << ":";
+			}
+
+			result << std::get<TRACE_ENTRY_LINE>(entry) << ")";
 		}
 
-		buffer = std::get<TRACE_ENTRY_FILE>(entry);
-		if(!buffer.empty()) {
-			result << buffer << ":";
-		}
-
-		result << std::get<TRACE_ENTRY_LINE>(entry) << ")";
 #ifdef TRACE_COLOR
 		result << TRACE_COLOR_STRING(TRACE_MAX + 1);
 #endif // TRACE_COLOR

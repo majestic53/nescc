@@ -26,11 +26,25 @@
 
 namespace nescc {
 
+	#define _TRACE_WATCH(_MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
+		nescc::trace &instance = nescc::trace::acquire(); \
+		try { \
+			if(instance.initialized()) { \
+				instance.generate(nescc::TRACE_WATCH, std::string(), _MESSAGE_, _FILE_, _FUNCTION_, \
+					_LINE_, _FORMAT_, __VA_ARGS__); \
+			} \
+		} catch(...) { } \
+		instance.release(); \
+		}
+	#define TRACE_WATCH(_MESSAGE_) TRACE_WATCH_FORMAT(_MESSAGE_, "", "")
+	#define TRACE_WATCH_FORMAT(_MESSAGE_, _FORMAT_, ...) \
+		_TRACE_WATCH(_MESSAGE_, __FILE__, __FUNCTION__, __LINE__, \
+			_FORMAT_, __VA_ARGS__)
 #ifndef NDEBUG
 	#define _TRACE(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
 		nescc::trace &instance = nescc::trace::acquire(); \
 		try { \
-			if(((_LEVEL_) <= TRACE) && instance.initialized()) { \
+			if(((_LEVEL_) <= (TRACE + TRACE_ERROR)) && instance.initialized()) { \
 				instance.generate(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, \
 					_LINE_, _FORMAT_, __VA_ARGS__); \
 			} \
@@ -79,6 +93,7 @@ namespace nescc {
 
 	typedef enum {
 		TRACE_DEBUG = 0,
+		TRACE_WATCH,
 		TRACE_ERROR,
 		TRACE_WARNING,
 		TRACE_INFORMATION,

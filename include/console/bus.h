@@ -19,6 +19,7 @@
 #ifndef NESCC_CONSOLE_BUS_H_
 #define NESCC_CONSOLE_BUS_H_
 
+#include <set>
 #include "./apu.h"
 #include "./cpu.h"
 #include "./joypad.h"
@@ -56,6 +57,14 @@ namespace nescc {
 					__in uint16_t address
 					);
 
+				std::set<uint16_t> cpu_watch(void);
+
+				void cpu_watch_add(
+					__in uint16_t address
+					);
+
+				void cpu_watch_clear(void);
+
 				void cpu_write(
 					__in uint16_t address,
 					__in uint8_t value
@@ -91,6 +100,14 @@ namespace nescc {
 				uint8_t ppu_read(
 					__in uint16_t address
 					);
+
+				std::set<uint16_t> ppu_watch(void);
+
+				void ppu_watch_add(
+					__in uint16_t address
+					);
+
+				void ppu_watch_clear(void);
 
 				void ppu_write(
 					__in uint16_t address,
@@ -149,6 +166,10 @@ namespace nescc {
 				nescc::console::mapper &m_mapper;
 
 				nescc::console::ppu &m_ppu;
+
+				std::set<uint16_t> m_watch_cpu;
+
+				std::set<uint16_t> m_watch_ppu;
 		};
 	}
 }
