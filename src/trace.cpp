@@ -174,7 +174,6 @@ namespace nescc {
 		)
 	{
 		time_t time;
-		size_t length;
 		std::string buffer;
 		trace_level_t level;
 		std::stringstream result;
@@ -185,6 +184,8 @@ namespace nescc {
 #endif // TRACE_COLOR
 
 		if(level != TRACE_WATCH) {
+			size_t length;
+
 			buffer.resize(TRACE_TIMESTAMP_LEN);
 			time = std::get<TRACE_ENTRY_TIME>(entry);
 			length = std::strftime(&buffer[0], TRACE_TIMESTAMP_LEN, TRACE_TIMESTAMP_FORMAT,
