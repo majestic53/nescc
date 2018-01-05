@@ -139,6 +139,10 @@ Changelog
 
 Version 0.1.1801
 ----------------
+*Updated: 1/4/2018*
+
+* Cpu bug fixes
+
 *Updated: 1/2-3/2018*
 
 * Added cpu/ppu watch command

@@ -144,15 +144,14 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			if((m_program_counter & UINT8_MAX) == UINT8_MAX) {
-				indirect = ((read_byte(bus, m_program_counter - UINT8_MAX) << CHAR_BIT)
-					| read_byte(bus, m_program_counter));
-			} else {
-				indirect = read_word(bus, m_program_counter);
-			}
-
+			indirect = read_word(bus, m_program_counter);
 			m_program_counter += MEMORY_WORD_LENGTH;
-			result = read_word(bus, indirect);
+
+			if((indirect & UINT8_MAX) == UINT8_MAX) {
+				result = ((read_byte(bus, indirect - UINT8_MAX) << CHAR_BIT) | read_byte(bus, indirect));
+			} else {
+				result = read_word(bus, indirect);
+			}
 
 			TRACE_EXIT_FORMAT("Result=%u(%04x)", result, result);
 			return result;
@@ -483,10 +482,10 @@ namespace nescc {
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
 			}
 
-			value &= m_accumulator;
-			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(value & CPU_FLAG_OVERFLOW) ? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= ~CPU_FLAG_OVERFLOW;
 			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+			value &= m_accumulator;
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1212,7 +1211,7 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			m_program_counter = pull_word(bus);
+			m_program_counter = (pull_word(bus) + 1);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1229,7 +1228,7 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			m_flags = pull_byte(bus);
+			m_flags = ((pull_byte(bus) | CPU_FLAG_UNUSED) & ~CPU_FLAG_BREAK);
 			m_program_counter = pull_word(bus);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1360,7 +1359,7 @@ namespace nescc {
 					(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 					break;
 				case CPU_COMMAND_PLP:
-					m_flags = pull_byte(bus);
+					m_flags = ((pull_byte(bus) | CPU_FLAG_UNUSED) & ~CPU_FLAG_BREAK);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STACK_PULL,
@@ -1499,7 +1498,7 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			address = address_absolute(bus);
-			push_word(bus, m_program_counter);
+			push_word(bus, (m_program_counter - 1));
 			m_program_counter = address;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1593,8 +1592,10 @@ namespace nescc {
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
 			}
 
-			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
-			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+			if(command.first != CPU_COMMAND_TXS) {
+				!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+				(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -1671,9 +1672,8 @@ namespace nescc {
 
 			TRACE_DEBUG(m_debug, "Cpu maskable interrupt");
 
-			m_flags &= ~CPU_FLAG_BREAK;
 			push_word(bus, m_program_counter);
-			push_byte(bus, m_flags);
+			push_byte(bus, m_flags & ~CPU_FLAG_BREAK);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
 
@@ -1711,9 +1711,8 @@ namespace nescc {
 
 			TRACE_DEBUG(m_debug, "Cpu non-maskable interrupt");
 
-			m_flags &= ~CPU_FLAG_BREAK;
 			push_word(bus, m_program_counter);
-			push_byte(bus, m_flags);
+			push_byte(bus, m_flags & ~CPU_FLAG_BREAK);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_NON_MASKABLE_ADDRESS);
 
