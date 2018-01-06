@@ -789,7 +789,7 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			switch(command.first) {
-				case CPU_COMAMND_ILLEGAL_KIL:
+				case CPU_COMMAND_ILLEGAL_KIL:
 					result = execute_command_illegal_halt(bus, command);
 					break;
 				case CPU_COMMAND_ILLEGAL_LAX:
