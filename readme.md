@@ -40,7 +40,7 @@ Interactive mode
 
 ```
 apu             [help, status]                                                          Display apu state
-cpu             [cycle, get, help, irq, nmi, reg, reset, set, status, watch]            Display/Set cpu state
+cpu             [cycle, get, halt, help, irq, nmi, reg, reset, set, status, watch]      Display/Set cpu state
 debug           [help, set, status]                                                     Enable/Disable debug mode
 display         [help, hide, present, show, status]                                     Display/Set display state
 exit                                                                                    Exit interactive mode
