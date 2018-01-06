@@ -165,6 +165,8 @@ namespace nescc {
 			CPU_COMMAND_SEC, CPU_COMMAND_SED, CPU_COMMAND_SEI, CPU_COMMAND_STA,
 			CPU_COMMAND_STX, CPU_COMMAND_STY, CPU_COMMAND_TAX, CPU_COMMAND_TAY,
 			CPU_COMMAND_TSX, CPU_COMMAND_TXA, CPU_COMMAND_TXS, CPU_COMMAND_TYA,
+
+			CPU_COMAMND_KIL, // illegal instructions
 		};
 
 		#define CPU_COMMAND_MAX CPU_COMMAND_TYA
@@ -176,6 +178,8 @@ namespace nescc {
 			"ldx", "ldy", "lsr", "nop", "ora", "pha", "php", "pla", "plp", "rol",
 			"ror", "rti", "rts", "sbc", "sec", "sed", "sei", "sta", "stx", "sty",
 			"tax", "tay", "tsx", "txa", "txs", "tya",
+
+			"kil",
 			};
 
 		#define CPU_COMMAND_STRING(_TYPE_) \
@@ -183,9 +187,9 @@ namespace nescc {
 				STRING_CHECK(CPU_COMMAND_STR[_TYPE_]))
 
 		static const std::vector<std::pair<uint8_t, uint8_t>> CPU_COMMAND = {
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BRK, CPU_MODE_INTERRUPT),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BRK, CPU_MODE_INTERRUPT), // 0x00
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_INDIRECT_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ZERO_PAGE),
@@ -199,9 +203,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ASL, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BPL, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BPL, CPU_MODE_RELATIVE), // 0x10
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ZERO_PAGE_X),
@@ -215,9 +219,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ASL, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_JSR, CPU_MODE_ABSOLUTE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_JSR, CPU_MODE_ABSOLUTE), // 0x20
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_INDIRECT_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BIT, CPU_MODE_ZERO_PAGE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ZERO_PAGE),
@@ -231,9 +235,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROL, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BMI, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BMI, CPU_MODE_RELATIVE), // 0x30
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ZERO_PAGE_X),
@@ -247,9 +251,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_AND, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROL, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_RTI, CPU_MODE_INTERRUPT_RETURN),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_RTI, CPU_MODE_INTERRUPT_RETURN), // 0x40
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_INDIRECT_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ZERO_PAGE),
@@ -263,9 +267,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LSR, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BVC, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BVC, CPU_MODE_RELATIVE), // 0x50
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ZERO_PAGE_X),
@@ -279,9 +283,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_EOR, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LSR, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_RTS, CPU_MODE_INTERRUPT_RETURN),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_RTS, CPU_MODE_INTERRUPT_RETURN), // 0x60
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_INDIRECT_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ZERO_PAGE),
@@ -295,9 +299,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROR, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BVS, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BVS, CPU_MODE_RELATIVE), // 0x70
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ZERO_PAGE_X),
@@ -311,7 +315,7 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ADC, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ROR, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED), // 0x80
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
@@ -327,9 +331,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STX, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BCC, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BCC, CPU_MODE_RELATIVE), // 0x90
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STY, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ZERO_PAGE_X),
@@ -343,7 +347,7 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_STA, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_IMMEDIATE), // 0xa0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_IMMEDIATE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
@@ -359,9 +363,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BCS, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BCS, CPU_MODE_RELATIVE), // 0xb0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDY, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ZERO_PAGE_X),
@@ -375,7 +379,7 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDA, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_LDX, CPU_MODE_ABSOLUTE_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_IMMEDIATE), // 0xc0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
@@ -391,9 +395,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BNE, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BNE, CPU_MODE_RELATIVE), // 0xd0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ZERO_PAGE_X),
@@ -407,7 +411,7 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_IMMEDIATE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_IMMEDIATE), // 0xe0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
@@ -423,9 +427,9 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BEQ, CPU_MODE_RELATIVE),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BEQ, CPU_MODE_RELATIVE), // 0xf0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_INDIRECT_Y),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMAMND_KIL, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ZERO_PAGE_X),

@@ -31,6 +31,7 @@ namespace nescc {
 			m_cycle(0),
 			m_debug(false),
 			m_flags(0),
+			m_halt(false),
 			m_index_x(0),
 			m_index_y(0),
 			m_program_counter(0),
@@ -299,7 +300,8 @@ namespace nescc {
 					<< std::left << std::setw(COLUMN_WIDTH) << " " << stream.str();
 			}
 
-			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH) << "Cycle" << m_cycle << std::endl
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH) << "Cycle" << m_cycle
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "Halt" << (m_halt ? "1" : "0") << std::endl
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "IRQ" << (m_signal_maskable ? "1" : "0")
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "NMI" << (m_signal_non_maskable ? "1" : "0");
 
@@ -324,6 +326,7 @@ namespace nescc {
 			m_cycle = 0;
 			m_debug = false;
 			m_flags = 0;
+			m_halt = false;
 			m_index_x =0;
 			m_index_y = 0;
 			m_oam_dma.clear();
@@ -768,6 +771,32 @@ namespace nescc {
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_FLAG,
 						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.first) {
+				case CPU_COMAMND_KIL:
+					m_halt = true;
+					break;
+
+				// TODO: add more illegal commands
+
+				default:
+					break;
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1616,6 +1645,21 @@ namespace nescc {
 			return m_flags;
 		}
 
+		bool
+		cpu::halted(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%x", m_halt);
+			return m_halt;
+		}
+
 		uint8_t
 		cpu::index_x(void) const
 		{
@@ -1887,6 +1931,10 @@ namespace nescc {
 			return result;
 		}
 
+// TODO
+//static uint32_t count = 0;
+// ---
+
 		void
 		cpu::reset(
 			__in nescc::console::interface::bus &bus,
@@ -1907,6 +1955,7 @@ namespace nescc {
 			m_cycle = CPU_MODE_CYCLES(CPU_MODE_INTERRUPT);
 			m_debug = debug;
 			m_flags = CPU_FLAG_RESET;
+			m_halt = false;
 			m_index_x = 0;
 			m_index_y = 0;
 			m_oam_dma.set_size(CPU_OAM_DMA_LENGTH);
@@ -1920,6 +1969,16 @@ namespace nescc {
 			TRACE_DEBUG_FORMAT(m_debug, "Cpu state", "\n%s", STRING_CHECK(as_string(true)));
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu reset.");
+
+// TODO
+//std::cout << SCALAR_AS_HEX(uint16_t, m_program_counter) << "\t"
+//	<< "A:" << SCALAR_AS_HEX(uint8_t, m_accumulator)
+//	<< " X:" << SCALAR_AS_HEX(uint8_t, m_index_x)
+//	<< " Y:" << SCALAR_AS_HEX(uint8_t, m_index_y)
+//	<< " P:" << SCALAR_AS_HEX(uint8_t, m_flags)
+//	<< " SP:" << SCALAR_AS_HEX(uint8_t, m_stack_pointer)
+//	<< std::endl;
+// ---
 
 			TRACE_EXIT();
 		}
@@ -1998,6 +2057,24 @@ namespace nescc {
 #endif // NDEBUG
 
 			m_flags = value;
+
+			TRACE_EXIT();
+		}
+
+		void
+		cpu::set_halt(
+			__in bool halt
+			)
+		{
+			TRACE_ENTRY_FORMAT("Halted=%x", halted);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_halt = halt;
 
 			TRACE_EXIT();
 		}
@@ -2248,9 +2325,9 @@ namespace nescc {
 					result = execute_command_transfer(command);
 					break;
 				default:
-					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unsupported command", "Command=%u(%02x), Mode=%u",
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Illegal command", "Command=%u(%02x), Mode=%u",
 						command.first, command.first, command.second);
-					result = execute_command_nop(bus, command);
+					result = execute_command_illegal(bus, command);
 					break;
 			}
 
@@ -2276,6 +2353,7 @@ namespace nescc {
 
 				if(m_initialized) {
 					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< ", State=" << (m_halt ? "Halted" : "Running")
 						<< ", RAM=" << m_ram.to_string(verbose)
 						<< ", OAM DMA=" << m_oam_dma.to_string(verbose)
 						<< ", Cycle=" << m_cycle
@@ -2323,20 +2401,37 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			if(m_signal_non_maskable) {
-				result += interrupt_non_maskable(bus);
-				m_signal_non_maskable = false;
-			} else if(m_signal_maskable) {
+			if(!m_halt) {
 
-				if(!(m_flags & CPU_FLAG_INTERRUPT_DISABLE)) {
-					result += interrupt_maskable(bus);
+				if(m_signal_non_maskable) {
+					result += interrupt_non_maskable(bus);
+					m_signal_non_maskable = false;
+				} else if(m_signal_maskable) {
+
+					if(!(m_flags & CPU_FLAG_INTERRUPT_DISABLE)) {
+						result += interrupt_maskable(bus);
+					}
+
+					m_signal_maskable = false;
 				}
 
-				m_signal_maskable = false;
-			}
+				result += step(bus);
+				m_cycle += result;
 
-			result += step(bus);
-			m_cycle += result;
+// TODO
+//std::cout << SCALAR_AS_HEX(uint16_t, m_program_counter) << "\t"
+//	<< "A:" << SCALAR_AS_HEX(uint8_t, m_accumulator)
+//	<< " X:" << SCALAR_AS_HEX(uint8_t, m_index_x)
+//	<< " Y:" << SCALAR_AS_HEX(uint8_t, m_index_y)
+//	<< " P:" << SCALAR_AS_HEX(uint8_t, m_flags)
+//	<< " SP:" << SCALAR_AS_HEX(uint8_t, m_stack_pointer)
+//	<< std::endl;
+
+//if(++count >= 8991) {
+//	exit(0);
+//}
+// ---
+			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;

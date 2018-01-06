@@ -124,6 +124,14 @@ namespace nescc {
 							result << "Invalid command arguments: <address> <offset>";
 						}
 						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HALT:
+
+						if(parse_subcommand_value(sub_arguments, value)) {
+							m_runtime.bus().cpu().set_halt(value ? true : false);
+						} else {
+							result << "Invalid command arguments: <value>";
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
 
 						if(sub_arguments.empty()) {

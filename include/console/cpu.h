@@ -51,6 +51,8 @@ namespace nescc {
 
 				uint8_t flags(void) const;
 
+				bool halted(void) const;
+
 				uint8_t index_x(void) const;
 
 				uint8_t index_y(void) const;
@@ -76,6 +78,10 @@ namespace nescc {
 
 				void set_flags(
 					__in uint8_t value
+					);
+
+				void set_halt(
+					__in bool halt
 					);
 
 				void set_index_x(
@@ -207,6 +213,11 @@ namespace nescc {
 					);
 
 				uint8_t execute_command_flag(
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_illegal(
+					__in nescc::console::interface::bus &bus,
 					__in const std::pair<uint8_t, uint8_t> &command
 					);
 
@@ -378,6 +389,8 @@ namespace nescc {
 				bool m_debug;
 
 				uint8_t m_flags;
+
+				bool m_halt;
 
 				uint8_t m_index_x;
 

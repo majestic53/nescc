@@ -72,6 +72,7 @@ CPU
 ```
 cycle                                                                                   Display current cycle count
 get             <address> <offset>                                                      Display memory value
+halt                                                                                    Set/Clear halt value
 help                                                                                    Display help information
 irq                                                                                     Signal maskable interrupt
 nmi                                                                                     Signal non-maskable interrupt
@@ -139,6 +140,11 @@ Changelog
 
 Version 0.1.1801
 ----------------
+*Updated: 1/5/2018*
+
+* Added illegal command support
+* Added cpu halt command
+
 *Updated: 1/4/2018*
 
 * Cpu bug fixes
