@@ -789,8 +789,20 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			switch(command.first) {
-				case CPU_COMAMND_KIL:
-					m_halt = true;
+				case CPU_COMAMND_ILLEGAL_KIL:
+					result = execute_command_illegal_halt(bus, command);
+					break;
+				case CPU_COMMAND_ILLEGAL_LAX:
+					result = execute_command_illegal_load(bus, command);
+					break;
+				case CPU_COMMAND_ILLEGAL_NOP:
+					result = execute_command_illegal_nop(bus, command);
+					break;
+				case CPU_COMMAND_ILLEGAL_SAX:
+					result = execute_command_illegal_store(bus, command);
+					break;
+				case CPU_COMMAND_ILLEGAL_SBC:
+					result = execute_command_illegal_subtract(bus, command);
 					break;
 
 				// TODO: add more illegal commands
@@ -798,6 +810,186 @@ namespace nescc {
 				default:
 					break;
 			}
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal_halt(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			m_halt = true;
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal_load(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_LAX:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE:
+							value = read_byte(bus, address_absolute(bus));
+							break;
+						case CPU_MODE_ABSOLUTE_Y:
+							value = read_byte(bus, address_absolute_y(bus, boundary));
+							break;
+						case CPU_MODE_IMMEDIATE:
+							value = read_byte(bus, m_program_counter++);
+							break;
+						case CPU_MODE_INDIRECT_X:
+							value = read_byte(bus, address_indirect_x(bus));
+							break;
+						case CPU_MODE_INDIRECT_Y:
+							value = read_byte(bus, address_indirect_y(bus, boundary));
+							break;
+						case CPU_MODE_ZERO_PAGE:
+							value = read_byte(bus, address_zero_page(bus));
+							break;
+						case CPU_MODE_ZERO_PAGE_Y:
+							value = read_byte(bus, address_zero_page_y(bus));
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+					}
+
+					m_accumulator = value;
+					m_index_x = value;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_LOAD,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			if(boundary) {
+				result += CPU_CYCLES_PAGE_BOUNDARY;
+			}
+
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal_nop(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second);
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					address_absolute(bus);
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					address_absolute_x(bus, boundary);
+
+					if(boundary) {
+						result += CPU_CYCLES_PAGE_BOUNDARY;
+					}
+					break;
+				case CPU_MODE_IMMEDIATE:
+					++m_program_counter;
+					break;
+				case CPU_MODE_IMPLIED:
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					address_zero_page(bus);
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					address_zero_page_x(bus);
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_NOP,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal_store(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_SAX:
+					value = (m_accumulator & m_index_x);
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE:
+							write_byte(bus, address_absolute(bus), value);
+							break;
+						case CPU_MODE_INDIRECT_X:
+							write_byte(bus, address_indirect_x(bus), value);
+							break;
+						case CPU_MODE_ZERO_PAGE:
+							write_byte(bus, address_zero_page(bus), value);
+							break;
+						case CPU_MODE_ZERO_PAGE_Y:
+							write_byte(bus, address_zero_page_y(bus), value);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+					}
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STORE,
+						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal_subtract(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			result = execute_command_subtract(bus, command);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -2066,7 +2258,7 @@ namespace nescc {
 			__in bool halt
 			)
 		{
-			TRACE_ENTRY_FORMAT("Halted=%x", halted);
+			TRACE_ENTRY_FORMAT("Halt=%x", halt);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -2426,7 +2618,7 @@ namespace nescc {
 //	<< " P:" << SCALAR_AS_HEX(uint8_t, m_flags)
 //	<< " SP:" << SCALAR_AS_HEX(uint8_t, m_stack_pointer)
 //	<< std::endl;
-
+//
 //if(++count >= 8991) {
 //	exit(0);
 //}

@@ -221,6 +221,31 @@ namespace nescc {
 					__in const std::pair<uint8_t, uint8_t> &command
 					);
 
+				uint8_t execute_command_illegal_halt(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_illegal_load(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_illegal_nop(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_illegal_store(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
+				uint8_t execute_command_illegal_subtract(
+					__in nescc::console::interface::bus &bus,
+					__in const std::pair<uint8_t, uint8_t> &command
+					);
+
 				uint8_t execute_command_increment(
 					__in nescc::console::interface::bus &bus,
 					__in const std::pair<uint8_t, uint8_t> &command

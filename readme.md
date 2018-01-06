@@ -140,6 +140,10 @@ Changelog
 
 Version 0.1.1801
 ----------------
+*Updated: 1/6/2018*
+
+* Added support for additional illegal commands: kil, lax, nop, sax, sbc
+
 *Updated: 1/5/2018*
 
 * Added illegal command support
