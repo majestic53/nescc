@@ -395,7 +395,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(boundary) {
@@ -448,7 +449,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(boundary) {
@@ -482,7 +484,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			(value & CPU_FLAG_OVERFLOW) ? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= ~CPU_FLAG_OVERFLOW;
@@ -534,7 +537,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_BRANCH,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			address = address_relative(bus, boundary);
@@ -614,7 +618,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					if(boundary) {
@@ -638,7 +643,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					(m_index_x >= value) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
@@ -658,7 +664,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					(m_index_y >= value) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
@@ -666,7 +673,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_COMPARE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -711,7 +719,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					value = read_byte(bus, address);
@@ -726,7 +735,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_DECREMENT,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -770,7 +780,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_FLAG,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -789,6 +800,12 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_DCP:
+					result = execute_command_illegal_decrement(bus, command);
+					break;
+				case CPU_COMMAND_ILLEGAL_ISC:
+					result = execute_command_illegal_increment(bus, command);
+					break;
 				case CPU_COMMAND_ILLEGAL_KIL:
 					result = execute_command_illegal_halt(bus, command);
 					break;
@@ -808,8 +825,85 @@ namespace nescc {
 				// TODO: add more illegal commands
 
 				default:
-					break;
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_COMMAND,
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal_decrement(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint16_t address = 0;
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_DCP:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE:
+							address = address_absolute(bus);
+							break;
+						case CPU_MODE_ABSOLUTE_X:
+							address = address_absolute_x(bus, boundary);
+
+							if(boundary) {
+								result += CPU_CYCLES_PAGE_BOUNDARY;
+							}
+							break;
+						case CPU_MODE_ABSOLUTE_Y:
+							address = address_absolute_y(bus, boundary);
+
+							if(boundary) {
+								result += CPU_CYCLES_PAGE_BOUNDARY;
+							}
+							break;
+						case CPU_MODE_INDIRECT_X:
+							address = address_indirect_x(bus);
+							break;
+						case CPU_MODE_INDIRECT_Y:
+							address = address_indirect_y(bus, boundary);
+
+							if(boundary) {
+								result += CPU_CYCLES_PAGE_BOUNDARY;
+							}
+							break;
+						case CPU_MODE_ZERO_PAGE:
+							address = address_zero_page(bus);
+							break;
+						case CPU_MODE_ZERO_PAGE_X:
+							address = address_zero_page_x(bus);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value = read_byte(bus, address);
+					write_byte(bus, address, --value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_DECREMENT,
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
+			}
+
+			(m_accumulator >= value) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+			value = (m_accumulator - value);
+			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -827,6 +921,80 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			m_halt = true;
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
+		uint8_t
+		cpu::execute_command_illegal_increment(
+			__in nescc::console::interface::bus &bus,
+			__in const std::pair<uint8_t, uint8_t> &command
+			)
+		{
+			uint16_t address = 0;
+			bool boundary = false;
+			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
+				CPU_MODE_STRING(command.second));
+
+			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_ISC:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE:
+							address = address_absolute(bus);
+							break;
+						case CPU_MODE_ABSOLUTE_X:
+							address = address_absolute_x(bus, boundary);
+
+							if(boundary) {
+								result += CPU_CYCLES_PAGE_BOUNDARY;
+							}
+							break;
+						case CPU_MODE_ABSOLUTE_Y:
+							address = address_absolute_y(bus, boundary);
+
+							if(boundary) {
+								result += CPU_CYCLES_PAGE_BOUNDARY;
+							}
+							break;
+						case CPU_MODE_INDIRECT_X:
+							address = address_indirect_x(bus);
+							break;
+						case CPU_MODE_INDIRECT_Y:
+							address = address_indirect_y(bus, boundary);
+
+							if(boundary) {
+								result += CPU_CYCLES_PAGE_BOUNDARY;
+							}
+							break;
+						case CPU_MODE_ZERO_PAGE:
+							address = address_zero_page(bus);
+							break;
+						case CPU_MODE_ZERO_PAGE_X:
+							address = address_zero_page_x(bus);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value = read_byte(bus, address);
+					write_byte(bus, address, ++value);
+					result += CPU_CYCLES_READ_WRITE;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_DECREMENT,
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
+			}
+
+			m_accumulator = add(~value);
+			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
+			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -871,7 +1039,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					m_accumulator = value;
@@ -879,7 +1048,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_LOAD,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(boundary) {
@@ -929,7 +1099,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_NOP,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -966,12 +1137,14 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STORE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1030,7 +1203,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					value = read_byte(bus, address);
@@ -1045,7 +1219,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_INCREMENT,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -1075,7 +1250,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1124,7 +1300,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					m_accumulator = value;
@@ -1149,7 +1326,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					m_index_x = value;
@@ -1174,14 +1352,16 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 
 					m_index_y = value;
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_LOAD,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(boundary) {
@@ -1248,7 +1428,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(boundary) {
@@ -1301,7 +1482,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(boundary) {
@@ -1358,7 +1540,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -1411,7 +1594,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -1499,7 +1683,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -1552,7 +1737,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -1584,7 +1770,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STACK_PULL,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1611,7 +1798,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STACK_PUSH,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1660,7 +1848,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 					break;
 				case CPU_COMMAND_STX:
@@ -1677,7 +1866,8 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 					break;
 				case CPU_COMMAND_STY:
@@ -1694,12 +1884,14 @@ namespace nescc {
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
 					}
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_STORE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
@@ -1765,7 +1957,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(boundary) {
@@ -1810,7 +2003,8 @@ namespace nescc {
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_TRANSFER,
-						"Command=%u(%02x), Mode=%u", command.first, command.first, command.second);
+						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+						command.first, command.first, command.second);
 			}
 
 			if(command.first != CPU_COMMAND_TXS) {
@@ -2395,7 +2589,7 @@ namespace nescc {
 			__in nescc::console::interface::bus &bus
 			)
 		{
-			uint8_t result;
+			uint8_t result = 0;
 			std::pair<uint8_t, uint8_t> command;
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
@@ -2517,8 +2711,8 @@ namespace nescc {
 					result = execute_command_transfer(command);
 					break;
 				default:
-					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Illegal command", "Command=%u(%02x), Mode=%u",
-						command.first, command.first, command.second);
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Illegal command", "Address=%u(%04x), Command=%u(%02x), Mode=%u",
+						m_program_counter, m_program_counter, command.first, command.first, command.second);
 					result = execute_command_illegal(bus, command);
 					break;
 			}

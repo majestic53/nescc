@@ -35,6 +35,7 @@ namespace nescc {
 		enum {
 			NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED = 0,
 			NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_BRANCH,
+			NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_COMMAND,
 			NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_COMPARE,
 			NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_DECREMENT,
 			NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_FLAG,
@@ -53,6 +54,7 @@ namespace nescc {
 		static const std::string NESCC_CONSOLE_CPU_EXCEPTION_STR[] = {
 			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Cpu is uninitialized",
 			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Unsupported cpu branch command",
+			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Unsupported cpu command",
 			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Unsupported cpu compare command",
 			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Unsupported cpu decrement command",
 			NESCC_CONSOLE_CPU_EXCEPTION_HEADER "Unsupported cpu flag command",
@@ -169,8 +171,9 @@ namespace nescc {
 			CPU_COMMAND_TSX, CPU_COMMAND_TXA, CPU_COMMAND_TXS, CPU_COMMAND_TYA,
 
 			// illegal instructions
-			CPU_COMMAND_ILLEGAL_KIL, CPU_COMMAND_ILLEGAL_LAX, CPU_COMMAND_ILLEGAL_NOP,
-			CPU_COMMAND_ILLEGAL_SAX, CPU_COMMAND_ILLEGAL_SBC,
+			CPU_COMMAND_ILLEGAL_DCP, CPU_COMMAND_ILLEGAL_ISC, CPU_COMMAND_ILLEGAL_KIL,
+			CPU_COMMAND_ILLEGAL_LAX, CPU_COMMAND_ILLEGAL_NOP, CPU_COMMAND_ILLEGAL_SAX,
+			CPU_COMMAND_ILLEGAL_SBC,
 		};
 
 		#define CPU_COMMAND_MAX CPU_COMMAND_ILLEGAL_SBC
@@ -184,7 +187,7 @@ namespace nescc {
 			"tax", "tay", "tsx", "txa", "txs", "tya",
 
 			// illegal instructions
-			"*kil", "*lax", "*nop", "*sax", "*sbc",
+			"*dcp", "*isc", "*kil", "*lax", "*nop", "*sax", "*sbc",
 			};
 
 		#define CPU_COMMAND_STRING(_TYPE_) \
@@ -387,11 +390,11 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_IMMEDIATE), // 0xc0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_IMMEDIATE),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_DCP, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_ZERO_PAGE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ZERO_PAGE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ZERO_PAGE),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_DCP, CPU_MODE_ZERO_PAGE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INY, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_IMMEDIATE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEX, CPU_MODE_IMPLIED),
@@ -399,31 +402,31 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPY, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ABSOLUTE),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_DCP, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BNE, CPU_MODE_RELATIVE), // 0xd0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_INDIRECT_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_KIL, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_DCP, CPU_MODE_INDIRECT_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ZERO_PAGE_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_DCP, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CLD, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_DCP, CPU_MODE_ABSOLUTE_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CMP, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_DEC, CPU_MODE_ABSOLUTE_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_DCP, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_IMMEDIATE), // 0xe0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_IMMEDIATE),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_ISC, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_ZERO_PAGE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ZERO_PAGE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ZERO_PAGE),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_ISC, CPU_MODE_ZERO_PAGE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INX, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_IMMEDIATE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
@@ -431,23 +434,23 @@ namespace nescc {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_CPX, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ABSOLUTE),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_ISC, CPU_MODE_ABSOLUTE),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BEQ, CPU_MODE_RELATIVE), // 0xf0
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_INDIRECT_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_KIL, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_ISC, CPU_MODE_INDIRECT_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ZERO_PAGE_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_ISC, CPU_MODE_ZERO_PAGE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SED, CPU_MODE_IMPLIED),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ABSOLUTE_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_IMPLIED),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_ISC, CPU_MODE_ABSOLUTE_Y),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_NOP, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_SBC, CPU_MODE_ABSOLUTE_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_INC, CPU_MODE_ABSOLUTE_X),
-			std::pair<uint8_t, uint8_t>(CPU_COMMAND_NOP, CPU_MODE_IMPLIED),
+			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_ISC, CPU_MODE_ABSOLUTE_X),
 			};
 	}
 }
