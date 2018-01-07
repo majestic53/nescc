@@ -140,9 +140,9 @@ Changelog
 
 Version 0.1.1801
 ----------------
-*Updated: 1/6/2018*
+*Updated: 1/6-7/2018*
 
-* Added support for additional illegal commands: dcp, isc, kil, lax, nop, rla, rra, sax, sbc, slo, sre
+* Added support for additional illegal commands: ahx, alr, anc, arr, axs, dcp, isc, kil, las, lax, nop, rla, rra, sax, sbc, shx, shy, slo, sre, tas, xaa
 
 *Updated: 1/5/2018*
 

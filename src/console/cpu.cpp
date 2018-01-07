@@ -800,6 +800,79 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_AHX:
+					// TODO
+					/*
+					{adr}:=A&X&H
+
+					AND X register with accumulator then AND result with 7 and store in
+					memory. Status flags: -
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Absolute,Y  |AXA arg,Y  |$9F| 3 | 5
+					(Indirect),Y|AXA arg    |$93| 2 | 6
+					*/
+					break;
+				case CPU_COMMAND_ILLEGAL_ALR:
+					// TODO
+					/*
+					A:=(A&#{imm}) >> 1
+
+					AND byte with accumulator, then shift right one bit in accumulator.
+					Status flags: N,Z,C
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Immediate   |ASR #arg   |$4B| 2 | 2
+					*/
+					break;
+				case CPU_COMMAND_ILLEGAL_ANC:
+					// TODO
+					/*
+					A:=A&#{imm}
+
+					AND byte with accumulator. If result is negative then carry is set.
+					Status flags: N,Z,C
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Immediate   |AAC #arg   |$0B| 2 | 2
+					Immediate   |AAC #arg   |$2B| 2 | 2
+					*/
+					break;
+				case CPU_COMMAND_ILLEGAL_ARR:
+					// TODO
+					/*
+					A:=(A&#{imm}) >> 1
+
+					AND byte with accumulator, then rotate one bit right in accumulator and
+					check bit 5 and 6:
+					If both bits are 1: set C, clear V.
+					If both bits are 0: clear C and V.
+					If only bit 5 is 1: set V, clear C.
+					If only bit 6 is 1: set C and V.
+					Status flags: N,V,Z,C
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Immediate   |ARR #arg   |$6B| 2 | 2
+					*/
+					break;
+				case CPU_COMMAND_ILLEGAL_AXS:
+					// TODO
+					/*
+					X:=A&X-#{imm}
+
+					AND X register with accumulator and store result in X register, then
+					subtract byte from X register (without borrow).
+					Status flags: N,Z,C
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Immediate   |AXS #arg   |$CB| 2 | 2
+					*/
+					break;
 				case CPU_COMMAND_ILLEGAL_DCP:
 					result = execute_command_illegal_decrement(bus, command);
 					break;
@@ -808,6 +881,20 @@ namespace nescc {
 					break;
 				case CPU_COMMAND_ILLEGAL_KIL:
 					result = execute_command_illegal_halt(bus, command);
+					break;
+				case CPU_COMMAND_ILLEGAL_LAS:
+					// TODO
+					/*
+					A,X,S:={adr}&S
+
+					AND memory with stack pointer, transfer result to accumulator, X
+					register and stack pointer.
+					Status flags: N,Z
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Absolute,Y  |LAR arg,Y  |$BB| 3 | 4 *
+					*/
 					break;
 				case CPU_COMMAND_ILLEGAL_LAX:
 					result = execute_command_illegal_load(bus, command);
@@ -827,15 +914,77 @@ namespace nescc {
 				case CPU_COMMAND_ILLEGAL_SBC:
 					result = execute_command_illegal_subtract(bus, command);
 					break;
+				case CPU_COMMAND_ILLEGAL_SHX:
+					// TODO
+					/*
+					{adr}:=X&H
+
+					AND X register with the high byte of the target address of the argument
+					+ 1. Store the result in memory.
+
+					M =3D X AND HIGH(arg) + 1
+
+					Status flags: -
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Absolute,Y  |SXA arg,Y  |$9E| 3 | 5
+					*/
+					break;
+				case CPU_COMMAND_ILLEGAL_SHY:
+					// TODO
+					/*
+					{adr}:=Y&H
+
+					AND Y register with the high byte of the target address of the argument
+					+ 1. Store the result in memory.
+
+					M =3D Y AND HIGH(arg) + 1
+
+					Status flags: -
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Absolute,X  |SYA arg,X  |$9C| 3 | 5
+					*/
+					break;
 				case CPU_COMMAND_ILLEGAL_SLO:
 					result = execute_command_illegal_shift_left(bus, command);
 					break;
 				case CPU_COMMAND_ILLEGAL_SRE:
 					result = execute_command_illegal_shift_right(bus, command);
 					break;
+				case CPU_COMMAND_ILLEGAL_TAS:
+					// TODO
+					/*
+					S:=A&X {adr}:=S&H
 
-				// TODO: add more illegal commands
+					AND X register with accumulator and store result in stack pointer, then
+					AND stack pointer with the high byte of the target address of the
+					argument + 1. Store result in memory.
 
+					S =3D X AND A, M =3D S AND HIGH(arg) + 1
+
+					Status flags: -
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Absolute,Y  |XAS arg,Y  |$9B| 3 | 5
+					*/
+					break;
+				case CPU_COMMAND_ILLEGAL_XAA:
+					// TODO
+					/*
+					A:=X&#{imm}
+
+					AND byte with x register and store result in accumulator.
+					Status flags: N,Z
+
+					Addressing  |Mnemonics  |Opc|Sz | n
+					------------|-----------|---|---|---
+					Immediate   |XAA #arg   |$8B| 2 | 2
+					*/
+					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_COMMAND,
 						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
