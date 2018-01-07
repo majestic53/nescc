@@ -142,7 +142,7 @@ Version 0.1.1801
 ----------------
 *Updated: 1/6/2018*
 
-* Added support for additional illegal commands: dcp, isc, kil, lax, nop, sax, sbc
+* Added support for additional illegal commands: dcp, isc, kil, lax, nop, rla, rra, sax, sbc, slo, sre
 
 *Updated: 1/5/2018*
 
