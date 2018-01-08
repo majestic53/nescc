@@ -133,6 +133,12 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				uint8_t add(
+					__in uint8_t left,
+					__in uint8_t right,
+					__in_opt bool overflow = true
+					);
+
 				uint16_t address_absolute(
 					__in nescc::console::interface::bus &bus
 					);

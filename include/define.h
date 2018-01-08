@@ -69,6 +69,17 @@ namespace nescc {
 
 	#define STRING_CHECK(_STR_) \
 		(_STR_.empty() ? STRING_EMPTY : _STR_.c_str())
+
+	enum {
+		BIT_0 = 0,
+		BIT_1,
+		BIT_2,
+		BIT_3,
+		BIT_4,
+		BIT_5,
+		BIT_6,
+		BIT_7,
+	};
 }
 
 #endif // NESCC_DEFINE_H_

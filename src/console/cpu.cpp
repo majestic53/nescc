@@ -82,6 +82,30 @@ namespace nescc {
 			return (uint8_t) result;
 		}
 
+		uint8_t
+		cpu::add(
+			__in uint8_t left,
+			__in uint8_t right,
+			__in_opt bool overflow
+			)
+		{
+			uint16_t result;
+
+			TRACE_ENTRY_FORMAT("Left=%u(%02x), Right=%u(%02x), Overflow=%x", left, left, right, right, overflow);
+
+			result = (left + right + (m_flags & CPU_FLAG_CARRY));
+
+			(result > UINT8_MAX) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+
+			if(overflow) {
+				(~(left ^ right) & (left ^ result) & CPU_FLAG_SIGN)
+					? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= ~CPU_FLAG_OVERFLOW;
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", (uint8_t) result, (uint8_t) result);
+			return (uint8_t) result;
+		}
+
 		uint16_t
 		cpu::address_absolute(
 			__in nescc::console::interface::bus &bus
@@ -800,79 +824,6 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			switch(command.first) {
-				case CPU_COMMAND_ILLEGAL_AHX:
-					// TODO
-					/*
-					{adr}:=A&X&H
-
-					AND X register with accumulator then AND result with 7 and store in
-					memory. Status flags: -
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Absolute,Y  |AXA arg,Y  |$9F| 3 | 5
-					(Indirect),Y|AXA arg    |$93| 2 | 6
-					*/
-					break;
-				case CPU_COMMAND_ILLEGAL_ALR:
-					// TODO
-					/*
-					A:=(A&#{imm}) >> 1
-
-					AND byte with accumulator, then shift right one bit in accumulator.
-					Status flags: N,Z,C
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Immediate   |ASR #arg   |$4B| 2 | 2
-					*/
-					break;
-				case CPU_COMMAND_ILLEGAL_ANC:
-					// TODO
-					/*
-					A:=A&#{imm}
-
-					AND byte with accumulator. If result is negative then carry is set.
-					Status flags: N,Z,C
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Immediate   |AAC #arg   |$0B| 2 | 2
-					Immediate   |AAC #arg   |$2B| 2 | 2
-					*/
-					break;
-				case CPU_COMMAND_ILLEGAL_ARR:
-					// TODO
-					/*
-					A:=(A&#{imm}) >> 1
-
-					AND byte with accumulator, then rotate one bit right in accumulator and
-					check bit 5 and 6:
-					If both bits are 1: set C, clear V.
-					If both bits are 0: clear C and V.
-					If only bit 5 is 1: set V, clear C.
-					If only bit 6 is 1: set C and V.
-					Status flags: N,V,Z,C
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Immediate   |ARR #arg   |$6B| 2 | 2
-					*/
-					break;
-				case CPU_COMMAND_ILLEGAL_AXS:
-					// TODO
-					/*
-					X:=A&X-#{imm}
-
-					AND X register with accumulator and store result in X register, then
-					subtract byte from X register (without borrow).
-					Status flags: N,Z,C
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Immediate   |AXS #arg   |$CB| 2 | 2
-					*/
-					break;
 				case CPU_COMMAND_ILLEGAL_DCP:
 					result = execute_command_illegal_decrement(bus, command);
 					break;
@@ -882,21 +833,13 @@ namespace nescc {
 				case CPU_COMMAND_ILLEGAL_KIL:
 					result = execute_command_illegal_halt(bus, command);
 					break;
+				case CPU_COMMAND_ILLEGAL_ALR:
+				case CPU_COMMAND_ILLEGAL_ANC:
+				case CPU_COMMAND_ILLEGAL_ARR:
+				case CPU_COMMAND_ILLEGAL_AXS:
 				case CPU_COMMAND_ILLEGAL_LAS:
-					// TODO
-					/*
-					A,X,S:={adr}&S
-
-					AND memory with stack pointer, transfer result to accumulator, X
-					register and stack pointer.
-					Status flags: N,Z
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Absolute,Y  |LAR arg,Y  |$BB| 3 | 4 *
-					*/
-					break;
 				case CPU_COMMAND_ILLEGAL_LAX:
+				case CPU_COMMAND_ILLEGAL_XAA:
 					result = execute_command_illegal_load(bus, command);
 					break;
 				case CPU_COMMAND_ILLEGAL_NOP:
@@ -908,82 +851,21 @@ namespace nescc {
 				case CPU_COMMAND_ILLEGAL_RRA:
 					result = execute_command_illegal_rotate_right(bus, command);
 					break;
+				case CPU_COMMAND_ILLEGAL_AHX:
 				case CPU_COMMAND_ILLEGAL_SAX:
+				case CPU_COMMAND_ILLEGAL_SHX:
+				case CPU_COMMAND_ILLEGAL_SHY:
+				case CPU_COMMAND_ILLEGAL_TAS:
 					result = execute_command_illegal_store(bus, command);
 					break;
 				case CPU_COMMAND_ILLEGAL_SBC:
 					result = execute_command_illegal_subtract(bus, command);
-					break;
-				case CPU_COMMAND_ILLEGAL_SHX:
-					// TODO
-					/*
-					{adr}:=X&H
-
-					AND X register with the high byte of the target address of the argument
-					+ 1. Store the result in memory.
-
-					M =3D X AND HIGH(arg) + 1
-
-					Status flags: -
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Absolute,Y  |SXA arg,Y  |$9E| 3 | 5
-					*/
-					break;
-				case CPU_COMMAND_ILLEGAL_SHY:
-					// TODO
-					/*
-					{adr}:=Y&H
-
-					AND Y register with the high byte of the target address of the argument
-					+ 1. Store the result in memory.
-
-					M =3D Y AND HIGH(arg) + 1
-
-					Status flags: -
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Absolute,X  |SYA arg,X  |$9C| 3 | 5
-					*/
 					break;
 				case CPU_COMMAND_ILLEGAL_SLO:
 					result = execute_command_illegal_shift_left(bus, command);
 					break;
 				case CPU_COMMAND_ILLEGAL_SRE:
 					result = execute_command_illegal_shift_right(bus, command);
-					break;
-				case CPU_COMMAND_ILLEGAL_TAS:
-					// TODO
-					/*
-					S:=A&X {adr}:=S&H
-
-					AND X register with accumulator and store result in stack pointer, then
-					AND stack pointer with the high byte of the target address of the
-					argument + 1. Store result in memory.
-
-					S =3D X AND A, M =3D S AND HIGH(arg) + 1
-
-					Status flags: -
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Absolute,Y  |XAS arg,Y  |$9B| 3 | 5
-					*/
-					break;
-				case CPU_COMMAND_ILLEGAL_XAA:
-					// TODO
-					/*
-					A:=X&#{imm}
-
-					AND byte with x register and store result in accumulator.
-					Status flags: N,Z
-
-					Addressing  |Mnemonics  |Opc|Sz | n
-					------------|-----------|---|---|---
-					Immediate   |XAA #arg   |$8B| 2 | 2
-					*/
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_COMMAND,
@@ -1008,50 +890,40 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			switch(command.first) {
-				case CPU_COMMAND_ILLEGAL_DCP:
-
-					switch(command.second) {
-						case CPU_MODE_ABSOLUTE:
-							address = address_absolute(bus);
-							break;
-						case CPU_MODE_ABSOLUTE_X:
-							address = address_absolute_x(bus, boundary);
-							result += CPU_CYCLES_PAGE_BOUNDARY;
-							break;
-						case CPU_MODE_ABSOLUTE_Y:
-							address = address_absolute_y(bus, boundary);
-							result += CPU_CYCLES_PAGE_BOUNDARY;
-							break;
-						case CPU_MODE_INDIRECT_X:
-							address = address_indirect_x(bus);
-							break;
-						case CPU_MODE_INDIRECT_Y:
-							address = address_indirect_y(bus, boundary);
-							result += CPU_CYCLES_PAGE_BOUNDARY;
-							break;
-						case CPU_MODE_ZERO_PAGE:
-							address = address_zero_page(bus);
-							break;
-						case CPU_MODE_ZERO_PAGE_X:
-							address = address_zero_page_x(bus);
-							break;
-						default:
-							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
-								command.first, command.first, command.second);
-					}
-
-					value = read_byte(bus, address);
-					write_byte(bus, address, --value);
-					result += CPU_CYCLES_READ_WRITE;
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					address = address_absolute(bus);
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					address = address_absolute_x(bus, boundary);
+					result += CPU_CYCLES_PAGE_BOUNDARY;
+					break;
+				case CPU_MODE_ABSOLUTE_Y:
+					address = address_absolute_y(bus, boundary);
+					result += CPU_CYCLES_PAGE_BOUNDARY;
+					break;
+				case CPU_MODE_INDIRECT_X:
+					address = address_indirect_x(bus);
+					break;
+				case CPU_MODE_INDIRECT_Y:
+					address = address_indirect_y(bus, boundary);
+					result += CPU_CYCLES_PAGE_BOUNDARY;
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					address = address_zero_page(bus);
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					address = address_zero_page_x(bus);
 					break;
 				default:
-					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_DECREMENT,
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
 						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
 						command.first, command.first, command.second);
 			}
 
+			value = read_byte(bus, address);
+			write_byte(bus, address, --value);
+			result += CPU_CYCLES_READ_WRITE;
 			(m_accumulator >= value) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
 			value = (m_accumulator - value);
 			!value ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
@@ -1091,50 +963,40 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			switch(command.first) {
-				case CPU_COMMAND_ILLEGAL_ISC:
-
-					switch(command.second) {
-						case CPU_MODE_ABSOLUTE:
-							address = address_absolute(bus);
-							break;
-						case CPU_MODE_ABSOLUTE_X:
-							address = address_absolute_x(bus, boundary);
-							result += CPU_CYCLES_PAGE_BOUNDARY;
-							break;
-						case CPU_MODE_ABSOLUTE_Y:
-							address = address_absolute_y(bus, boundary);
-							result += CPU_CYCLES_PAGE_BOUNDARY;
-							break;
-						case CPU_MODE_INDIRECT_X:
-							address = address_indirect_x(bus);
-							break;
-						case CPU_MODE_INDIRECT_Y:
-							address = address_indirect_y(bus, boundary);
-							result += CPU_CYCLES_PAGE_BOUNDARY;
-							break;
-						case CPU_MODE_ZERO_PAGE:
-							address = address_zero_page(bus);
-							break;
-						case CPU_MODE_ZERO_PAGE_X:
-							address = address_zero_page_x(bus);
-							break;
-						default:
-							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
-								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
-								command.first, command.first, command.second);
-					}
-
-					value = read_byte(bus, address);
-					write_byte(bus, address, ++value);
-					result += CPU_CYCLES_READ_WRITE;
+			switch(command.second) {
+				case CPU_MODE_ABSOLUTE:
+					address = address_absolute(bus);
+					break;
+				case CPU_MODE_ABSOLUTE_X:
+					address = address_absolute_x(bus, boundary);
+					result += CPU_CYCLES_PAGE_BOUNDARY;
+					break;
+				case CPU_MODE_ABSOLUTE_Y:
+					address = address_absolute_y(bus, boundary);
+					result += CPU_CYCLES_PAGE_BOUNDARY;
+					break;
+				case CPU_MODE_INDIRECT_X:
+					address = address_indirect_x(bus);
+					break;
+				case CPU_MODE_INDIRECT_Y:
+					address = address_indirect_y(bus, boundary);
+					result += CPU_CYCLES_PAGE_BOUNDARY;
+					break;
+				case CPU_MODE_ZERO_PAGE:
+					address = address_zero_page(bus);
+					break;
+				case CPU_MODE_ZERO_PAGE_X:
+					address = address_zero_page_x(bus);
 					break;
 				default:
-					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_INCREMENT,
+					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
 						"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
 						command.first, command.first, command.second);
 			}
 
+			value = read_byte(bus, address);
+			write_byte(bus, address, ++value);
+			result += CPU_CYCLES_READ_WRITE;
 			m_accumulator = add(~value);
 			!m_accumulator ? m_flags |= CPU_FLAG_ZERO : m_flags &= ~CPU_FLAG_ZERO;
 			(m_accumulator & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_SIGN : m_flags &= ~CPU_FLAG_SIGN;
@@ -1156,6 +1018,88 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_ALR:
+
+					switch(command.second) {
+						case CPU_MODE_IMMEDIATE:
+							value = read_byte(bus, m_program_counter++);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value = shift_right(value & m_accumulator);
+					m_accumulator = value;
+					break;
+				case CPU_COMMAND_ILLEGAL_ANC:
+
+					switch(command.second) {
+						case CPU_MODE_IMMEDIATE:
+							value = read_byte(bus, m_program_counter++);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value &= m_accumulator;
+					m_accumulator = value;
+					(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+					break;
+				case CPU_COMMAND_ILLEGAL_ARR:
+
+					switch(command.second) {
+						case CPU_MODE_IMMEDIATE:
+							value = read_byte(bus, m_program_counter++);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value &= m_accumulator;
+					(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+					((value >> BIT_7) ^ (value >> BIT_6)) ? m_flags |= CPU_FLAG_OVERFLOW
+						: m_flags &= ~CPU_FLAG_OVERFLOW;
+					value >>= 1;
+					m_accumulator = value;
+					break;
+				case CPU_COMMAND_ILLEGAL_AXS:
+
+					switch(command.second) {
+						case CPU_MODE_IMMEDIATE:
+							value = read_byte(bus, m_program_counter++);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value = add(m_accumulator & m_index_x, ~value, false);
+					m_index_x = value;
+					break;
+				case CPU_COMMAND_ILLEGAL_LAS:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE_Y:
+							value = read_byte(bus, address_absolute_y(bus, boundary));
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value &= m_stack_pointer;
+					m_accumulator = value;
+					m_index_x = value;
+					m_stack_pointer = value;
+					break;
 				case CPU_COMMAND_ILLEGAL_LAX:
 
 					switch(command.second) {
@@ -1188,6 +1132,21 @@ namespace nescc {
 
 					m_accumulator = value;
 					m_index_x = value;
+					break;
+				case CPU_COMMAND_ILLEGAL_XAA:
+
+					switch(command.second) {
+						case CPU_MODE_IMMEDIATE:
+							value = read_byte(bus, m_program_counter++);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					value &= m_index_x;
+					m_accumulator = value;
 					break;
 				default:
 					THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_LOAD,
@@ -1476,12 +1435,33 @@ namespace nescc {
 			__in const std::pair<uint8_t, uint8_t> &command
 			)
 		{
+			uint16_t address = 0;
+			bool boundary = false;
 			uint8_t result = CPU_MODE_CYCLES(command.second), value = 0;
 
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
 			switch(command.first) {
+				case CPU_COMMAND_ILLEGAL_AHX:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE_Y:
+							address = address_absolute_y(bus, boundary);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
+							break;
+						case CPU_MODE_INDIRECT_Y:
+							address = address_indirect_y(bus, boundary);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+
+					write_byte(bus, address, m_accumulator & m_index_x & ((address >> CHAR_BIT) + 1));
+					break;
 				case CPU_COMMAND_ILLEGAL_SAX:
 					value = (m_accumulator & m_index_x);
 
@@ -1497,6 +1477,49 @@ namespace nescc {
 							break;
 						case CPU_MODE_ZERO_PAGE_Y:
 							write_byte(bus, address_zero_page_y(bus), value);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+					break;
+				case CPU_COMMAND_ILLEGAL_SHX:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE_Y:
+							address = address_absolute_y(bus, boundary);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
+							write_byte(bus, address, m_index_x & ((address >> CHAR_BIT) + 1));
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+					break;
+				case CPU_COMMAND_ILLEGAL_SHY:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE_X:
+							address = address_absolute_x(bus, boundary);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
+							write_byte(bus, address, m_index_y & ((address >> CHAR_BIT) + 1));
+							break;
+						default:
+							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
+								"Address=%u(%04x), Command=%u(%02x), Mode=%u", m_program_counter, m_program_counter,
+								command.first, command.first, command.second);
+					}
+					break;
+				case CPU_COMMAND_ILLEGAL_TAS:
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE_Y:
+							address = address_absolute_y(bus, boundary);
+							result += CPU_CYCLES_PAGE_BOUNDARY;
+							m_stack_pointer = (m_accumulator & m_index_x);
+							write_byte(bus, address, m_stack_pointer & ((address >> CHAR_BIT) + 1));
 							break;
 						default:
 							THROW_NESCC_CONSOLE_CPU_EXCEPTION_FORMAT(NESCC_CONSOLE_CPU_EXCEPTION_UNSUPPORTED_MODE,
@@ -2680,10 +2703,6 @@ namespace nescc {
 			return result;
 		}
 
-// TODO
-//static uint32_t count = 0;
-// ---
-
 		void
 		cpu::reset(
 			__in nescc::console::interface::bus &bus,
@@ -2718,16 +2737,6 @@ namespace nescc {
 			TRACE_DEBUG_FORMAT(m_debug, "Cpu state", "\n%s", STRING_CHECK(as_string(true)));
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu reset.");
-
-// TODO
-/*std::cout << SCALAR_AS_HEX(uint16_t, m_program_counter) << "\t"
-	<< "A:" << SCALAR_AS_HEX(uint8_t, m_accumulator)
-	<< " X:" << SCALAR_AS_HEX(uint8_t, m_index_x)
-	<< " Y:" << SCALAR_AS_HEX(uint8_t, m_index_y)
-	<< " P:" << SCALAR_AS_HEX(uint8_t, m_flags)
-	<< " SP:" << SCALAR_AS_HEX(uint8_t, m_stack_pointer)
-	<< std::endl;*/
-// ---
 
 			TRACE_EXIT();
 		}
@@ -3166,20 +3175,6 @@ namespace nescc {
 
 				result += step(bus);
 				m_cycle += result;
-
-// TODO
-/*std::cout << SCALAR_AS_HEX(uint16_t, m_program_counter) << "\t"
-	<< "A:" << SCALAR_AS_HEX(uint8_t, m_accumulator)
-	<< " X:" << SCALAR_AS_HEX(uint8_t, m_index_x)
-	<< " Y:" << SCALAR_AS_HEX(uint8_t, m_index_y)
-	<< " P:" << SCALAR_AS_HEX(uint8_t, m_flags)
-	<< " SP:" << SCALAR_AS_HEX(uint8_t, m_stack_pointer)
-	<< std::endl;
-
-if(++count >= 8991) {
-	exit(0);
-}*/
-// ---
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
