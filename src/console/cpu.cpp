@@ -333,8 +333,40 @@ namespace nescc {
 			return result.str();
 		}
 
+		void
+		cpu::clear(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu clearing...");
+
+			m_accumulator = 0;
+			m_cycle = 0;
+			m_debug = false;
+			m_flags = 0;
+			m_halt = false;
+			m_index_x =0;
+			m_index_y = 0;
+			m_oam_dma.clear();
+			m_program_counter = 0;
+			m_ram.clear();
+			m_signal_maskable = false;
+			m_signal_non_maskable = false;
+			m_stack_pointer = 0;
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu cleared.");
+
+			TRACE_EXIT();
+		}
+
 		std::string
-		cpu::as_string_command(
+		cpu::command_as_string(
 			__in nescc::console::interface::bus &bus,
 			__in_opt bool verbose
 			) const
@@ -366,38 +398,6 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
-		}
-
-		void
-		cpu::clear(void)
-		{
-			TRACE_ENTRY();
-
-#ifndef NDEBUG
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_CPU_EXCEPTION(NESCC_CONSOLE_CPU_EXCEPTION_UNINITIALIZED);
-			}
-#endif // NDEBUG
-
-			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu clearing...");
-
-			m_accumulator = 0;
-			m_cycle = 0;
-			m_debug = false;
-			m_flags = 0;
-			m_halt = false;
-			m_index_x =0;
-			m_index_y = 0;
-			m_oam_dma.clear();
-			m_program_counter = 0;
-			m_ram.clear();
-			m_signal_maskable = false;
-			m_signal_non_maskable = false;
-			m_stack_pointer = 0;
-
-			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu cleared.");
-
-			TRACE_EXIT();
 		}
 
 		uint32_t

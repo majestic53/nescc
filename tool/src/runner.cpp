@@ -151,7 +151,7 @@ namespace nescc {
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT:
 
 						if(sub_arguments.empty()) {
-							result << m_runtime.bus().cpu().as_string_command(m_runtime.bus(), true);
+							result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
