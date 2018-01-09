@@ -137,7 +137,7 @@ namespace nescc {
 
 		#define CPU_MODE_MAX CPU_MODE_ZERO_PAGE_Y
 
-		static uint8_t CPU_MODE_CYC[] = {
+		static const uint8_t CPU_MODE_CYC[] = {
 			4, 4, 4, 2, 2, 2, 5, 6, 5, 7, 6, 2, 4, 3, 3, 4, 4,
 			};
 
@@ -153,6 +153,14 @@ namespace nescc {
 		#define CPU_MODE_STRING(_TYPE_) \
 			(((_TYPE_) > CPU_MODE_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(CPU_MODE_STR[_TYPE_]))
+
+		static const uint8_t CPU_MODE_LEN[] = {
+			3, 3, 3, 1, 2, 1, 3, 2, 2, 1, 1, 2, 1, 1, 2, 2, 2,
+			};
+
+		#define CPU_MODE_LENGTH(_TYPE_) \
+			(((_TYPE_) > CPU_MODE_MAX) ? CPU_MODE_LEN[CPU_MODE_IMPLIED] : \
+				CPU_MODE_LEN[_TYPE_])
 
 		enum {
 			CPU_COMMAND_ADC = 0, CPU_COMMAND_AND, CPU_COMMAND_ASL, CPU_COMMAND_BCC,

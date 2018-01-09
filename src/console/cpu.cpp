@@ -333,6 +333,41 @@ namespace nescc {
 			return result.str();
 		}
 
+		std::string
+		cpu::as_string_command(
+			__in nescc::console::interface::bus &bus,
+			__in_opt bool verbose
+			) const
+		{
+			std::stringstream result;
+			std::pair<uint8_t, uint8_t> command;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Verbose=%x", &bus, verbose);
+
+			result << SCALAR_AS_HEX(uint16_t, m_program_counter) << " -> ";
+			command = CPU_COMMAND.at(bus.cpu_read(m_program_counter));
+			result << CPU_COMMAND_STRING(command.first) << " " << std::left << std::setw(COLUMN_WIDTH)
+				<< CPU_MODE_STRING(command.second);
+
+			if(verbose) {
+				uint8_t iter = 0, length = CPU_MODE_LENGTH(command.second);
+
+				for(; iter < length; ++iter) {
+
+					if(iter) {
+						result << " ";
+					}
+
+					result << SCALAR_AS_HEX(uint8_t, bus.cpu_read(m_program_counter + iter));
+				}
+
+				result << " (" << (int) length << " byte" << ((length > 1) ? "s" : "") << ")";
+			}
+
+			TRACE_EXIT();
+			return result.str();
+		}
+
 		void
 		cpu::clear(void)
 		{

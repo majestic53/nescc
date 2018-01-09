@@ -45,6 +45,11 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				std::string as_string_command(
+					__in nescc::console::interface::bus &bus,
+					__in_opt bool verbose = false
+					) const;
+
 				void clear(void);
 
 				uint32_t cycle(void) const;

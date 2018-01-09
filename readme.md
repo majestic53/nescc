@@ -39,104 +39,114 @@ Interactive mode
 ================
 
 ```
-apu             [help, status]                                                          Display apu state
-cpu             [cycle, get, halt, help, irq, nmi, reg, reset, set, status, watch]      Display/Set cpu state
-debug           [help, set, status]                                                     Enable/Disable debug mode
-display         [help, hide, present, show, status]                                     Display/Set display state
-exit                                                                                    Exit interactive mode
-frame                                                                                   Display frame count
-help                                                                                    Display help information
-joypad          [help, status, strobe]                                                  Display/Set joypad state
-mapper          [help, status]                                                          Display mapper state
-pause                                                                                   Pause emulation
-ppu             [cycle, dot, get, help, port, scanline, set, status, watch]             Display/Set ppu state
-restart                                                                                 Restart emulation
-run                                                                                     Run/Unpause emulation
-status                                                                                  Display emulation status
-step                                                                                    Step emulation through a command
-stop                                                                                    Stop emulation
-version                                                                                 Display version information
+apu             [help, status]                                        Display apu state
+cpu             [cycle, get, halt, help, irq, next,
+			nmi, reg, reset, set, status, watch]          Display/Set cpu state
+debug           [help, set, status]                                   Enable/Disable debug mode
+display         [help, hide, present, show, status]                   Display/Set display state
+exit                                                                  Exit interactive mode
+frame                                                                 Display frame count
+help                                                                  Display help information
+joypad          [help, status, strobe]                                Display/Set joypad state
+mapper          [help, status]                                        Display mapper state
+pause                                                                 Pause emulation
+ppu             [cycle, dot, get, help, port, scanline,
+			set, status, watch]                           Display/Set ppu state
+restart                                                               Restart emulation
+run                                                                   Run/Unpause emulation
+status                                                                Display emulation status
+step                                                                  Step emulation through a command
+stop                                                                  Stop emulation
+version                                                               Display version information
 ```
 
 APU
 ---
 
 ```
-help                                                                                    Display help information
-status                                                                                  Display status information
+help                                          Display help information
+status                                        Display status information
 ```
 
 CPU
 ---
 
 ```
-cycle                                                                                   Display current cycle count
-get             <address> <offset>                                                      Display memory value
-halt                                                                                    Set/Clear halt value
-help                                                                                    Display help information
-irq                                                                                     Signal maskable interrupt
-nmi                                                                                     Signal non-maskable interrupt
-reg             <register> [<value>]                                                    Display/Set register value
-reset                                                                                   Signal reset
-set             [<address>] <value>                                                     Set memory value
-status                                                                                  Display status information
-watch           [<address> | clear]                                                     Set/Clear watch memory addresses
+cycle                                         Display current cycle count
+get             <address> <offset>            Display memory value
+halt            <value>                       Set/Clear halt value
+help                                          Display help information
+irq                                           Signal maskable interrupt
+next                                          Display next command
+nmi                                           Signal non-maskable interrupt
+reg             <register> [<value>]          Display/Set register value
+reset                                         Signal reset
+set             [<address>] <value>           Set memory value
+status                                        Display status information
+watch           [<address> | clear]           Set/Clear watch memory addresses
 ```
 
 Debug
 -----
 
 ```
-help                                                                                    Display help information
-set             [<address>] <value>                                                     Set memory value
-status                                                                                  Display status information
+help                                          Display help information
+set             [<address>] <value>           Set memory value
+status                                        Display status information
 ```
 
 Display
 -------
 
 ```
-help                                                                                    Display help information
-hide                                                                                    Hide display window
-present                                                                                 Refresh display window
-show                                                                                    Show display window
-status                                                                                  Display status information
+help                                          Display help information
+hide                                          Hide display window
+present                                       Refresh display window
+show                                          Show display window
+status                                        Display status information
 ```
 
 Joypad
 ------
 
 ```
-help                                                                                    Display help information
-status                                                                                  Display status information
-strobe          <value>                                                                 Set/Clear strobe
+help                                          Display help information
+status                                        Display status information
+strobe          <value>                       Set/Clear strobe
 ```
 
 Mapper
 ------
 
 ```
-help                                                                                    Display help information
-status                                                                                  Display status information
+help                                          Display help information
+status                                        Display status information
 ```
 
 PPU
 ---
 
 ```
-cycle                                                                                   Display current cycle count
-dot                                                                                     Display current dot
-get             <address> <offset>                                                      Display memory value
-help                                                                                    Display help information
-port            <port> [<value>]                                                        Display/Set port value
-scanline                                                                                Display current scanline
-set             [<address>] <value>                                                     Set memory value
-status                                                                                  Display status information
-watch           [<address> | clear]                                                     Set/Clear watch memory addresses
+cycle                                         Display current cycle count
+dot                                           Display current dot
+get             <address> <offset>            Display memory value
+help                                          Display help information
+port            <port> [<value>]              Display/Set port value
+scanline                                      Display current scanline
+set             [<address>] <value>           Set memory value
+status                                        Display status information
+watch           [<address> | clear]           Set/Clear watch memory addresses
 ```
 
 Changelog
 =========
+
+Version 0.1.1802
+----------------
+*Updated: 1/8/2018*
+
+* Added cpu next command
+* Fixed halting bug when using kil commands
 
 Version 0.1.1801
 ----------------
@@ -162,18 +172,6 @@ Version 0.1.1801
 *Updated: 1/1/2018*
 
 * Added ppu render routines
-
-Version 0.1.1752
-----------------
-*Updated: 12/30/2017*
-
-* Cleaned up interactive mode output
-* Fixed oam dma bug
-
-*Updated: 12/26-27/2017*
-
-* Added step command
-* Added display commands
 
 *Changelog truncated (see file history for full log)*
 

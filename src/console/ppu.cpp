@@ -1356,8 +1356,8 @@ namespace nescc {
 // TODO
 			m_background_shift_low = ((m_background_shift_low & 0xff00) | m_background_low);
 			m_background_shift_high = ((m_background_shift_high & 0xff00) | m_background_high);
-			m_attribute_table_latch_low = (m_attribute_table_current & 0x1);
-			m_attribute_table_latch_high = (m_attribute_table_current & 0x2);
+			m_attribute_table_latch_low = ((m_attribute_table_current & 0x1) ? true : false);
+			m_attribute_table_latch_high = ((m_attribute_table_current & 0x2) ? true : false);
 // ---
 
 			TRACE_EXIT();

@@ -148,6 +148,14 @@ namespace nescc {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
 						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().cpu().as_string_command(m_runtime.bus(), true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI:
 
 						if(sub_arguments.empty()) {

@@ -820,7 +820,7 @@ namespace nescc {
 
 			cycle += CPU_CYCLES_PER_FRAME;
 
-			while(cycle > 0) {
+			while(!m_cpu.halted() && (cycle > 0)) {
 				uint8_t cycle_last, iter;
 
 				cycle_last = m_cpu.update(*this);
