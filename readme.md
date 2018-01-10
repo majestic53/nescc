@@ -29,10 +29,10 @@ Usage
 ```
 Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 
--d | --debug           Run in debug mode
--h | --help            Display help information
--i | --interactive     Run in interactive mode
--v | --version         Display version information
+-d | --debug                                                          Run in debug mode
+-h | --help                                                           Display help information
+-i | --interactive                                                    Run in interactive mode
+-v | --version                                                        Display version information
 ```
 
 Interactive mode
@@ -65,77 +65,77 @@ APU
 ---
 
 ```
-help                                          Display help information
-status                                        Display status information
+help                                                                  Display help information
+status                                                                Display status information
 ```
 
 CPU
 ---
 
 ```
-cycle                                         Display current cycle count
-get             <address> <offset>            Display memory value
-halt            <value>                       Set/Clear halt value
-help                                          Display help information
-irq                                           Signal maskable interrupt
-nmi                                           Signal non-maskable interrupt
-reg             <register> [<value>]          Display/Set register value
-reset                                         Signal reset
-set             [<address>] <value>           Set memory value
-status                                        Display status information
-watch           [<address> | clear]           Set/Clear watch memory addresses
+cycle                                                                 Display current cycle count
+get             <address> <offset>                                    Display memory value
+halt            <value>                                               Set/Clear halt value
+help                                                                  Display help information
+irq                                                                   Signal maskable interrupt
+nmi                                                                   Signal non-maskable interrupt
+reg             <register> [<value>]                                  Display/Set register value
+reset                                                                 Signal reset
+set             [<address>] <value>                                   Set memory value
+status                                                                Display status information
+watch           [<address> | clear]                                   Set/Clear watch memory addresses
 ```
 
 Debug
 -----
 
 ```
-help                                          Display help information
-set             [<address>] <value>           Set memory value
-status                                        Display status information
+help                                                                  Display help information
+set             [<address>] <value>                                   Set memory value
+status                                                                Display status information
 ```
 
 Display
 -------
 
 ```
-help                                          Display help information
-hide                                          Hide display window
-present                                       Refresh display window
-show                                          Show display window
-status                                        Display status information
+help                                                                  Display help information
+hide                                                                  Hide display window
+present                                                               Refresh display window
+show                                                                  Show display window
+status                                                                Display status information
 ```
 
 Joypad
 ------
 
 ```
-help                                          Display help information
-status                                        Display status information
-strobe          <value>                       Set/Clear strobe
+help                                                                  Display help information
+status                                                                Display status information
+strobe          <value>                                               Set/Clear strobe
 ```
 
 Mapper
 ------
 
 ```
-help                                          Display help information
-status                                        Display status information
+help                                                                  Display help information
+status                                                                Display status information
 ```
 
 PPU
 ---
 
 ```
-cycle                                         Display current cycle count
-dot                                           Display current dot
-get             <address> <offset>            Display memory value
-help                                          Display help information
-port            <port> [<value>]              Display/Set port value
-scanline                                      Display current scanline
-set             [<address>] <value>           Set memory value
-status                                        Display status information
-watch           [<address> | clear]           Set/Clear watch memory addresses
+cycle                                                                 Display current cycle count
+dot                                                                   Display current dot
+get             <address> <offset>                                    Display memory value
+help                                                                  Display help information
+port            <port> [<value>]                                      Display/Set port value
+scanline                                                              Display current scanline
+set             [<address>] <value>                                   Set memory value
+status                                                                Display status information
+watch           [<address> | clear]                                   Set/Clear watch memory addresses
 ```
 
 Changelog
