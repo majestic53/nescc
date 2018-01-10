@@ -148,14 +148,6 @@ namespace nescc {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
 						break;
-					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT:
-
-						if(sub_arguments.empty()) {
-							result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), true);
-						} else {
-							result << "Unexpected command argument: " << sub_arguments.front();
-						}
-						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI:
 
 						if(sub_arguments.empty()) {
@@ -541,6 +533,27 @@ namespace nescc {
 		}
 
 		std::string
+		runner::command_next(
+			__in_opt const std::vector<std::string> &arguments
+			)
+		{
+			std::stringstream result;
+
+			if(arguments.empty()) {
+
+				if(m_runtime.initialized() && m_runtime.running()) {
+					result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), true);
+				} else {
+					result << "Emulation is not running";
+				}
+			} else {
+				result << "Unexpected command argument: " << arguments.front();
+			}
+
+			return result.str();
+		}
+
+		std::string
 		runner::command_pause(
 			__in_opt const std::vector<std::string> &arguments
 			)
@@ -912,6 +925,9 @@ namespace nescc {
 						m_runtime.step();
 						m_runtime.wait_step();
 						++m_step_count;
+#ifndef NDEBUG
+						result << command_next();
+#endif // NDEBUG
 					} else {
 						result << "Emulation is freerunning";
 					}
@@ -920,6 +936,10 @@ namespace nescc {
 					m_step_count = 1;
 					m_runtime.initialize();
 					m_runtime.run(m_path, m_debug, true);
+#ifndef NDEBUG
+					m_runtime.display().show(false);
+					result << command_next();
+#endif // NDEBUG
 				}
 			} else if(parse_subcommand_value(arguments, value)) {
 
@@ -928,6 +948,10 @@ namespace nescc {
 					m_step_count = 1;
 					m_runtime.initialize();
 					m_runtime.run(m_path, m_debug, true);
+#ifndef NDEBUG
+					m_runtime.display().show(false);
+					result << command_next();
+#endif // NDEBUG
 				}
 
 				if(m_runtime.stepping()) {
@@ -945,6 +969,9 @@ namespace nescc {
 						m_runtime.step();
 						m_runtime.wait_step();
 						++m_step_count;
+#ifndef NDEBUG
+						result << command_next();
+#endif // NDEBUG
 					}
 				} else {
 					result << "Emulation is freerunning";
@@ -1149,6 +1176,9 @@ namespace nescc {
 								break;
 							case ARGUMENT_INTERACTIVE_MAPPER:
 								response = command_mapper(arguments);
+								break;
+							case ARGUMENT_INTERACTIVE_NEXT:
+								response = command_next(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_PAUSE:
 								response = command_pause(arguments);

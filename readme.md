@@ -49,6 +49,7 @@ frame                                                                 Display fr
 help                                                                  Display help information
 joypad          [help, status, strobe]                                Display/Set joypad state
 mapper          [help, status]                                        Display mapper state
+next                                                                  Display next cpu instruction
 pause                                                                 Pause emulation
 ppu             [cycle, dot, get, help, port, scanline,
 			set, status, watch]                           Display/Set ppu state
@@ -77,7 +78,6 @@ get             <address> <offset>            Display memory value
 halt            <value>                       Set/Clear halt value
 help                                          Display help information
 irq                                           Signal maskable interrupt
-next                                          Display next command
 nmi                                           Signal non-maskable interrupt
 reg             <register> [<value>]          Display/Set register value
 reset                                         Signal reset
@@ -143,6 +143,11 @@ Changelog
 
 Version 0.1.1802
 ----------------
+*Updated: 1/9/2018*
+
+* Fixed cpu cycle count in jmp command
+* Made cpu next command global
+
 *Updated: 1/8/2018*
 
 * Added cpu next command
