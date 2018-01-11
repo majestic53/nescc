@@ -158,7 +158,7 @@ namespace nescc {
 				file.read((char *) m_rom_program.back().raw(), m_rom_program.back().size());
 			}
 
-			for(iter = 0; iter < header.rom_character; ++iter) {
+			for(iter = 0; iter <= header.rom_character; ++iter) {
 				m_rom_character.push_back(nescc::core::memory());
 				m_rom_character.back().set_size(CARTRIDGE_ROM_CHARACTER_LENGTH);
 				file.read((char *) m_rom_character.back().raw(), m_rom_character.back().size());

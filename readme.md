@@ -143,6 +143,12 @@ Changelog
 
 Version 0.1.1802
 ----------------
+*Updated: 1/10/2018*
+
+* Cpu next command now takes an optional offset parameter
+* Cpu next command output is now more readable
+* Fixed minor bugs in joypad
+
 *Updated: 1/9/2018*
 
 * Fixed cpu cycle count in jmp command

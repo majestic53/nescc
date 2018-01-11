@@ -537,12 +537,13 @@ namespace nescc {
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
+			uint16_t value = 1;
 			std::stringstream result;
 
-			if(arguments.empty()) {
+			if(arguments.empty() || parse_subcommand_value(arguments, value, false)) {
 
 				if(m_runtime.initialized() && m_runtime.running()) {
-					result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), true);
+					result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), value, true);
 				} else {
 					result << "Emulation is not running";
 				}
@@ -1350,7 +1351,8 @@ namespace nescc {
 		bool
 		runner::parse_subcommand_value(
 			__in const std::vector<std::string> &arguments,
-			__inout uint16_t &value
+			__inout uint16_t &value,
+			__in_opt bool hexidecimal
 			)
 		{
 			bool result = (arguments.size() == SUBCOMMAND_ARGUMENT_MAX);
@@ -1359,7 +1361,11 @@ namespace nescc {
 				value = 0;
 				std::stringstream stream;
 
-				stream << std::hex << arguments.front();
+				if(hexidecimal) {
+					stream << std::hex;
+				}
+
+				stream << arguments.front();
 				stream >> value;
 			}
 

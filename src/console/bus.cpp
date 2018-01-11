@@ -329,7 +329,7 @@ namespace nescc {
 			}
 
 			if(m_watch_cpu.find(address) != m_watch_cpu.end()) {
-				TRACE_WATCH_FORMAT("Cpu", "[%04x] <- %u(%02x)", address, value, value);
+				TRACE_WATCH_FORMAT("Cpu", "{%04x} [%04x] <- %u(%02x)", m_cpu.program_counter(), address, value, value);
 			}
 
 			TRACE_DEBUG_FORMAT(m_debug, "Cpu bus write", "[%04x] <- %u(%02x)", address, value, value);

@@ -49,6 +49,7 @@ namespace nescc {
 
 				std::string command_as_string(
 					__in nescc::console::interface::bus &bus,
+					__in_opt uint16_t offset = 1,
 					__in_opt bool verbose = false
 					) const;
 

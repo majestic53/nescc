@@ -82,6 +82,8 @@ namespace nescc {
 
 				void update(void);
 
+				std::vector<int> m_button;
+
 				bool m_debug;
 
 				nescc::core::memory m_port;

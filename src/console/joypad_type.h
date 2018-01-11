@@ -55,7 +55,6 @@ namespace nescc {
 				_FORMAT_, __VA_ARGS__)
 
 		#define JOYPAD_DATA_BUS 0x40
-		#define JOYPAD_DATA_FILL 0x80
 
 		enum {
 			JOYPAD_1 = 0,
@@ -86,12 +85,20 @@ namespace nescc {
 		#define JOYPAD_BUTTON_MAX JOYPAD_BUTTON_RIGHT
 
 		static const std::string JOYPAD_BUTTON_STR[] = {
-			"A   ", "B   ", "SEL ", "ST  ", "U   ", "D   ", "L   ", "R   ",
+			"A", "B", "Select", "Start", "Up", "Down", "Left", "Right",
 			};
 
 		#define JOYPAD_BUTTON_STRING(_TYPE_) \
 			(((_TYPE_) > JOYPAD_BUTTON_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(JOYPAD_BUTTON_STR[_TYPE_]))
+
+		static const std::string JOYPAD_BUTTON_STR_FMT[] = {
+			"A   ", "B   ", "SEL ", "ST  ", "U   ", "D   ", "L   ", "R   ",
+			};
+
+		#define JOYPAD_BUTTON_STRING_FORMAT(_TYPE_) \
+			(((_TYPE_) > JOYPAD_BUTTON_MAX) ? STRING_UNKNOWN : \
+				STRING_CHECK(JOYPAD_BUTTON_STR_FMT[_TYPE_]))
 
 		static const SDL_Scancode JOYPAD_1_BUT[] = {
 			SDL_SCANCODE_Z,

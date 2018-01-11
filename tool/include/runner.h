@@ -140,7 +140,8 @@ namespace nescc {
 
 				bool parse_subcommand_value(
 					__in const std::vector<std::string> &arguments,
-					__inout uint16_t &value
+					__inout uint16_t &value,
+					__in_opt bool hexidecimal = true
 					);
 
 				bool parse_subcommand_values(

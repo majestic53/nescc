@@ -52,7 +52,7 @@ namespace nescc {
 			for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
 				std::stringstream stream;
 
-				stream << "Pad" << (iter + 1);
+				stream << "Pad" << (iter + 1) << "[" << JOYPAD_BUTTON_STRING(m_button.at(iter)) << "]";
 				result << std::left << std::setw(COLUMN_WIDTH) << stream.str() << SCALAR_AS_HEX(uint8_t, m_port.read(iter));
 
 				if(verbose) {
@@ -62,7 +62,7 @@ namespace nescc {
 					stream.str(std::string());
 
 					for(button = 0; button <= JOYPAD_BUTTON_MAX; ++button) {
-						stream << JOYPAD_BUTTON_STRING(button);
+						stream << JOYPAD_BUTTON_STRING_FORMAT(button);
 					}
 
 					result << std::left << std::setw(COLUMN_WIDTH) << " " << stream.str();
@@ -102,6 +102,7 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad clearing...");
 
+			m_button.resize(JOYPAD_MAX + 1, JOYPAD_BUTTON_MAX + 1);
 			m_debug = false;
 			m_port.clear();
 			m_strobe = false;
@@ -181,7 +182,11 @@ namespace nescc {
 
 			value = m_port.read(pad);
 			result = (JOYPAD_DATA_BUS | (value & 1));
-			m_port.write(pad, JOYPAD_DATA_FILL | (value >> 1));
+			m_port.write(pad, value >> 1);
+
+			if(m_button.at(pad) <= JOYPAD_BUTTON_MAX) {
+				++m_button.at(pad);
+			}
 
 			TRACE_DEBUG_FORMAT(m_debug, "Joypad read", "[%04x] -> %u(%02x)", pad, result, result);
 
@@ -205,6 +210,7 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad resetting...");
 
+			m_button.resize(JOYPAD_MAX + 1, JOYPAD_BUTTON_MAX + 1);
 			m_debug = debug;
 			m_port.set_size(JOYPAD_MAX + 1);
 			m_strobe = false;
@@ -236,8 +242,8 @@ namespace nescc {
 
 					for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
 
-						result << ", Pad" << (iter + 1) << "=" << m_port.read(iter)
-								<< "(" << SCALAR_AS_HEX(uint8_t, m_port.read(iter)) << ")";
+						result << ", Pad" << (iter + 1) << "[" << JOYPAD_BUTTON_STRING(m_button.at(iter)) << "]="
+							<< m_port.read(iter) << "(" << SCALAR_AS_HEX(uint8_t, m_port.read(iter)) << ")";
 					}
 
 					result << ", Strobe=" << m_strobe;
@@ -264,6 +270,8 @@ namespace nescc {
 				}
 			}
 
+			m_button.at(JOYPAD_1) = JOYPAD_BUTTON_A;
+			m_button.at(JOYPAD_2) = JOYPAD_BUTTON_A;
 			m_port.write(JOYPAD_1, pad1);
 			m_port.write(JOYPAD_2, pad2);
 
