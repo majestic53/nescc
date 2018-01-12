@@ -3,7 +3,7 @@
 
 A NES emulator, written in C++
 
-![](https://github.com/majestic53/nescc/blob/master/asset/screen0.png "Screenshot 0") ![](https://github.com/majestic53/nescc/blob/master/asset/screen1.png "Screenshot 1")
+![](https://github.com/majestic53/nescc/blob/master/asset/demo.png "Demo")
 
 __NOTE__: This project is a work-in-progress. At the moment, only mapper #0 is supported.
 
