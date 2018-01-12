@@ -171,10 +171,8 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-// TODO
-			result = (0x23c0 | (m_address_vram.nametable << 10) | ((m_address_vram.coarse_y / 4) << 3)
-					| (m_address_vram.coarse_x / 4));
-// ---
+			result = (PPU_ATTRIBUTE_TABLE_BASE | (m_address_vram.nametable * PPU_NAMETABLE_LENGTH)
+					| ((m_address_vram.coarse_y >> 2) << 3) | (m_address_vram.coarse_x >> 2));
 
 			TRACE_EXIT_FORMAT("Result=%u(%04x)", result);
 			return result;
@@ -187,9 +185,8 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-// TODO
-			result = ((m_control.background_pattern_table * 0x1000) + (m_nametable_current * 16) + m_address_vram.fine_y);
-// ---
+			result = ((m_control.background_pattern_table * PPU_BACKGROUND_PATTERN_TABLE_LENGTH)
+					+ (m_nametable_current << 4) + m_address_vram.fine_y);
 
 			TRACE_EXIT_FORMAT("Result=%u(%04x)", result);
 			return result;
@@ -202,9 +199,7 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-// TODO
-			result = (0x2000 | (m_address_vram.raw & 0xfff));
-// ---
+			result = (PPU_NAMETABLE_BASE | (m_address_vram.raw & PPU_NAMETABLE_MASK));
 
 			TRACE_EXIT_FORMAT("Result=%u(%04x)", result);
 			return result;
@@ -397,7 +392,6 @@ namespace nescc {
 						case PPU_RENDER_PIXEL_ATTRIBUTE_TABLE_READ:
 							m_attribute_table_current = bus.ppu_read(m_address);
 
-// TODO
 							if(m_address_vram.coarse_y & 2) {
 								m_attribute_table_current >>= 4;
 							}
@@ -405,7 +399,6 @@ namespace nescc {
 							if(m_address_vram.coarse_x & 2) {
 								m_attribute_table_current >>= 2;
 							}
-// ---
 							break;
 						case PPU_RENDER_PIXEL_BACKGROUND_LOW_CALCULATE:
 							m_address = calculate_background_address();
@@ -414,9 +407,7 @@ namespace nescc {
 							m_background_low = bus.ppu_read(m_address);
 							break;
 						case PPU_RENDER_PIXEL_BACKGROUND_HIGH_CALCULATE:
-// TODO
 							m_address += 8;
-// ---
 							break;
 						case PPU_RENDER_PIXEL_BACKGROUND_HIGH_READ:
 							m_background_high = bus.ppu_read(m_address);
@@ -521,7 +512,6 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-// TODO
 			if((m_scanline < 240) && (dot >= 0) && (dot < 256)) {
 				ppu_color_t color;
 				bool priority = false;
@@ -553,7 +543,6 @@ namespace nescc {
 			m_background_shift_high <<= 1;
 			m_attribute_table_shift_low = ((m_attribute_table_shift_low << 1) | (m_attribute_table_latch_low));
 			m_attribute_table_shift_high = ((m_attribute_table_shift_high << 1) | (m_attribute_table_latch_high));
-// ---
 
 			TRACE_EXIT();
 		}
@@ -566,7 +555,6 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Dot=%u, Palette=%p", dot, &palette);
 
-// TODO
 			if(m_mask.background && !(!m_mask.background_left && (dot < 8))) {
 
 				palette = ((((m_background_shift_high >> (15 - m_fine_x)) & 1) << 1)
@@ -576,7 +564,6 @@ namespace nescc {
 							| ((m_attribute_table_shift_low >> (7 - m_fine_x)) & 1)) << 2);
 				}
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -591,14 +578,13 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Dot=%u, Palette=%u, Palette Object=%p, Priority=%p", dot, palette, &palette_object, &priority);
 
-// TODO
 			if(m_mask.sprite && !(!m_mask.sprite_left && (dot < 8))) {
 
 				for(int iter = 7; iter >= 0; iter--) {
 					int sprite_x;
 					nescc::console::sprite_t &entry = m_sprite.at(iter);
 
-					if((entry.id == 64) || (entry.position_x > dot)) {
+					if((entry.id == PPU_SPRITE_ID_INVALID) || (entry.position_x > dot)) {
 						continue;
 					}
 
@@ -619,13 +605,12 @@ namespace nescc {
 								m_status.sprite_0_hit = 1;
 							}
 
-							palette_object = ((palette_sprite | ((entry.attributes & 0x3) << 2)) + 16);
-							priority = ((entry.attributes & 0x20) ? true : false);
+							palette_object = ((palette_sprite | ((entry.attributes & 3) << 2)) + 16);
+							priority = ((entry.attributes & 32) ? true : false);
 						}
 					}
 				}
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -775,10 +760,10 @@ namespace nescc {
 
 			switch(m_mirroring) {
 				case CARTRIDGE_MIRRORING_HORIZONTAL:
-					address = (((address / 2) & PPU_NAMETABLE_LENGTH) + (address % PPU_NAMETABLE_LENGTH));
+					address = (((address >> 1) & PPU_NAMETABLE_LENGTH) + (address % PPU_NAMETABLE_LENGTH));
 					break;
 				case CARTRIDGE_MIRRORING_VERTICAL:
-					address %= (PPU_NAMETABLE_LENGTH * 2);
+					address %= (PPU_NAMETABLE_LENGTH << 1);
 					break;
 				default:
 					break;
@@ -1098,8 +1083,7 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-// TODO
-			for(; iter < 0x40; ++iter) {
+			for(; iter < 64; ++iter) {
 
 				int row = (((m_scanline == 261) ? -1 : m_scanline) - m_oam.read(iter * 4));
 				if(((row >= 0) && (row < (m_control.sprite_size ? 16: 8)))) {
@@ -1117,7 +1101,6 @@ namespace nescc {
 					}
 				}
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -1132,7 +1115,6 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-// TODO
 			for(; iter < 8; ++iter) {
 				uint8_t sprite_y;
 
@@ -1156,7 +1138,6 @@ namespace nescc {
 				entry.data_low = bus.ppu_read(address);
 				entry.data_high = bus.ppu_read(address + 8);
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -1278,11 +1259,9 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-// TODO
 			if(m_mask.background || m_mask.sprite) {
 				m_address_vram.raw = ((m_address_vram.raw & ~0x41f) | (m_address_temp.raw & 0x41f));
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -1292,11 +1271,9 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-// TODO
 			if(m_mask.background || m_mask.sprite) {
 				m_address_vram.raw = ((m_address_vram.raw & ~0x7be0) | (m_address_temp.raw & 0x7be0));
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -1306,7 +1283,6 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-// TODO
 			if(m_mask.background || m_mask.sprite) {
 
 				if(m_address_vram.coarse_x == 31) {
@@ -1315,7 +1291,6 @@ namespace nescc {
 					++m_address_vram.coarse_x;
 				}
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -1325,7 +1300,6 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-// TODO
 			if(m_mask.background || m_mask.sprite) {
 
 				if(m_address_vram.fine_y >= 7) {
@@ -1343,7 +1317,6 @@ namespace nescc {
 					++m_address_vram.fine_y;
 				}
 			}
-// ---
 
 			TRACE_EXIT();
 		}
@@ -1353,12 +1326,10 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-// TODO
 			m_background_shift_low = ((m_background_shift_low & 0xff00) | m_background_low);
 			m_background_shift_high = ((m_background_shift_high & 0xff00) | m_background_high);
-			m_attribute_table_latch_low = ((m_attribute_table_current & 0x1) ? true : false);
-			m_attribute_table_latch_high = ((m_attribute_table_current & 0x2) ? true : false);
-// ---
+			m_attribute_table_latch_low = ((m_attribute_table_current & 1) ? true : false);
+			m_attribute_table_latch_high = ((m_attribute_table_current & 2) ? true : false);
 
 			TRACE_EXIT();
 		}
@@ -1379,10 +1350,10 @@ namespace nescc {
 
 			switch(m_mirroring) {
 				case CARTRIDGE_MIRRORING_HORIZONTAL:
-					address = (((address / 2) & PPU_NAMETABLE_LENGTH) + (address % PPU_NAMETABLE_LENGTH));
+					address = (((address >> 1) & PPU_NAMETABLE_LENGTH) + (address % PPU_NAMETABLE_LENGTH));
 					break;
 				case CARTRIDGE_MIRRORING_VERTICAL:
-					address %= (PPU_NAMETABLE_LENGTH * 2);
+					address %= (PPU_NAMETABLE_LENGTH << 1);
 					break;
 				default:
 					break;

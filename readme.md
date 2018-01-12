@@ -3,7 +3,9 @@
 
 A NES emulator, written in C++
 
-__NOTE__: This project is a work-in-progress. At the moment, I only plan to support mapper #0. So expect rom support to be limited.
+![](https://github.com/majestic53/nescc/blob/master/asset/screen0.png "Screenshot 0") ![](https://github.com/majestic53/nescc/blob/master/asset/screen1.png "Screenshot 1")
+
+__NOTE__: This project is a work-in-progress. At the moment, only mapper #0 is supported.
 
 Table of Contents
 =================
@@ -143,6 +145,11 @@ Changelog
 
 Version 0.1.1802
 ----------------
+*Updated: 1/11/2018*
+
+* Fixed bug in ppu. It's now working!
+* Changed joypad mapping
+
 *Updated: 1/10/2018*
 
 * Cpu next command now takes an optional offset parameter

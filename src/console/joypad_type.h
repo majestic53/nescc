@@ -101,8 +101,8 @@ namespace nescc {
 				STRING_CHECK(JOYPAD_BUTTON_STR_FMT[_TYPE_]))
 
 		static const SDL_Scancode JOYPAD_1_BUT[] = {
-			SDL_SCANCODE_Z,
 			SDL_SCANCODE_X,
+			SDL_SCANCODE_Z,
 			SDL_SCANCODE_Q,
 			SDL_SCANCODE_W,
 			SDL_SCANCODE_UP,
@@ -116,8 +116,8 @@ namespace nescc {
 				JOYPAD_1_BUT[_TYPE_])
 
 		static const SDL_Scancode JOYPAD_2_BUT[] = {
-			SDL_SCANCODE_N,
 			SDL_SCANCODE_M,
+			SDL_SCANCODE_N,
 			SDL_SCANCODE_Y,
 			SDL_SCANCODE_U,
 			SDL_SCANCODE_KP_8,

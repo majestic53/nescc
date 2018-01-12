@@ -366,9 +366,9 @@ namespace nescc {
 
 				uint8_t m_background_low;
 
-				uint8_t m_background_shift_high;
+				uint16_t m_background_shift_high;
 
-				uint8_t m_background_shift_low;
+				uint16_t m_background_shift_low;
 
 				nescc::console::port_control_t m_control;
 
