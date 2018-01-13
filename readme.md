@@ -20,7 +20,7 @@ Table of Contents
 Features
 ========
 
-* Support for two controllers
+* Support for two controllers:
 	* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
 	* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
 * Support for mapper 0 (more to come)
@@ -37,13 +37,13 @@ Install the required libraries:
 libsdl2
 ```
 
-To build, run the following command from the project's root directory
+To build, run the following command from the project's root directory:
 
 ```
 $ make release
 ```
 
-To build with tracing enabled (not recommended), run the following command from the project's root directory
+To build with tracing enabled (not recommended), run the following command from the project's root directory:
 
 ```
 $ make TRACE=<LEVEL>
@@ -63,13 +63,13 @@ Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 -v | --version                                                        Display version information
 ```
 
-For example, to launch __without__ the interactive mode enabled
+For example, to launch __without__ the interactive mode enabled:
 
 ```
 $ nescc ../somerom.nes
 ```
 
-Launch with the interactive mode enabled
+Launch with the interactive mode enabled:
 
 ```
 $ nescc ../somerom.nes -i
@@ -78,7 +78,7 @@ $ nescc ../somerom.nes -i
 Interactive mode
 ================
 
-Launching in interactive mode allows for live debugging with the following commands
+Launching in interactive mode allows for live debugging with the following commands:
 
 ```
 apu             [help, status]                                        Display apu state
