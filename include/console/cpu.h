@@ -75,6 +75,7 @@ namespace nescc {
 
 				void reset(
 					__in nescc::console::interface::bus &bus,
+					__in bool powerup,
 					__in_opt bool debug = false
 					);
 

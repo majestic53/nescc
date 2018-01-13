@@ -25,8 +25,9 @@ namespace nescc {
 		m_bus(nescc::console::bus::acquire()),
 		m_debug(false),
 		m_display(nescc::interface::display::acquire()),
-		m_frame(0),
+		m_frame(1),
 		m_step(false),
+		m_step_frame(false),
 		m_trace(nescc::trace::acquire())
 	{
 		m_trace.initialize();
@@ -133,7 +134,26 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop entered.");
 
-		if(!m_step) {
+		if(m_step) {
+
+			result = poll_events();
+			if(result) {
+				m_bus.step(cycle);
+			}
+
+			m_step_complete.notify();
+			m_display.update();
+		} else if(m_step_frame) {
+
+			result = poll_events();
+			if(result) {
+				m_bus.update(cycle);
+				++m_frame;
+			}
+
+			m_step_complete.notify();
+			m_display.update();
+		} else {
 			uint32_t frame = 0, start = SDL_GetTicks();
 
 			for(; !nescc::core::thread::stopped();) {
@@ -178,14 +198,6 @@ namespace nescc {
 					start = SDL_GetTicks();
 				}
 			}
-		} else {
-
-			result = poll_events();
-			if(result) {
-				m_bus.step(cycle);
-			}
-
-			m_step_complete.notify();
 		}
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");
@@ -254,8 +266,9 @@ namespace nescc {
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitialized.");
 
 		m_debug = false;
-		m_frame = 0;
+		m_frame = 1;
 		m_step = false;
+		m_step_frame = false;
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime uninitialized.");
 
@@ -325,7 +338,8 @@ namespace nescc {
 	runtime::run(
 		__in const std::string &path,
 		__in_opt bool debug,
-		__in_opt bool step
+		__in_opt bool step,
+		__in_opt bool step_frame
 		)
 	{
 		TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
@@ -336,11 +350,12 @@ namespace nescc {
 		}
 #endif // NDEBUG
 
-		m_frame = 0;
+		m_frame = 1;
 		m_path = path;
 		m_debug = debug;
 		m_step = step;
-		nescc::core::thread::start(!step);
+		m_step_frame = step_frame;
+		nescc::core::thread::start(!step && !step_frame);
 
 		TRACE_EXIT();
 	}
@@ -431,7 +446,7 @@ namespace nescc {
 
 			if(m_initialized) {
 				result << ", Mode=" << (m_debug ? "Debug" : "Normal")
-						<< "/" << (m_step ? "Stepped" : "Freerunning")
+						<< "/" << (m_step ? "Stepped" : (m_step_frame ? "Stepped-frame" : "Freerunning"))
 					<< ", Path[" << m_path.size() << "]=" << m_path
 					<< ", Frame=" << m_frame;
 			}

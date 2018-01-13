@@ -148,6 +148,7 @@ namespace nescc {
 			ARGUMENT_INTERACTIVE_RUN,
 			ARGUMENT_INTERACTIVE_STATUS,
 			ARGUMENT_INTERACTIVE_STEP,
+			ARGUMENT_INTERACTIVE_STEP_FRAME,
 			ARGUMENT_INTERACTIVE_STOP,
 			ARGUMENT_INTERACTIVE_VERSION,
 		};
@@ -160,7 +161,8 @@ namespace nescc {
 			"debug",
 #endif // NDEBUG
 			"display", "exit", "frame", "help", "joypad", "mapper", "pause",
-			"ppu", "restart", "run", "status", "step", "stop", "version",
+			"ppu", "restart", "run", "status", "step", "step-frame", "stop",
+			"version",
 			};
 
 		#define ARGUMENT_INTERACTIVE_STRING(_TYPE_) \
@@ -184,7 +186,8 @@ namespace nescc {
 			"Restart emulation",
 			"Run/Unpause emulation",
 			"Display emulation status",
-			"Step emulation through a command",
+			"Step emulation through commands",
+			"Step emulation through frames",
 			"Stop emulation",
 			"Display version information",
 			};
@@ -211,6 +214,7 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_RUN), ARGUMENT_INTERACTIVE_RUN),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_STATUS), ARGUMENT_INTERACTIVE_STATUS),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_STEP), ARGUMENT_INTERACTIVE_STEP),
+			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_STEP_FRAME), ARGUMENT_INTERACTIVE_STEP_FRAME),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_STOP), ARGUMENT_INTERACTIVE_STOP),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_VERSION), ARGUMENT_INTERACTIVE_VERSION),
 			};
@@ -336,6 +340,7 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_RUN, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_STATUS, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_STEP, std::vector<uint32_t>()),
+			std::make_pair(ARGUMENT_INTERACTIVE_STEP_FRAME, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_STOP, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_VERSION, std::vector<uint32_t>()),
 			};

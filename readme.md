@@ -23,7 +23,7 @@ Features
 * Support for two controllers:
 	* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
 	* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
-* Support for mapper 0 (more to come)
+* Support for mapper #0 (more to come)
 * Support for live debugging (while in interactive mode)
 
 Build
@@ -97,7 +97,8 @@ ppu             [cycle, dot, get, help, port, scanline,
 restart                                                               Restart emulation
 run                                                                   Run/Unpause emulation
 status                                                                Display emulation status
-step                                                                  Step emulation through a command
+step                                                                  Step emulation through commands
+step-frame                                                            Step emulation through frames
 stop                                                                  Stop emulation
 version                                                               Display version information
 ```
@@ -187,8 +188,9 @@ Version 0.1.1802
 ----------------
 *Updated: 1/12/2018*
 
+* Added step-frame command
 * Moved next command to cpu next command
-* Small bug fixes
+* Small bug fixes/code cleanup
 
 *Updated: 1/11/2018*
 

@@ -45,7 +45,8 @@ namespace nescc {
 			void run(
 				__in const std::string &path,
 				__in_opt bool debug = false,
-				__in_opt bool step = false
+				__in_opt bool step = false,
+				__in_opt bool step_frame = false
 				);
 
 			bool running(void) const;
@@ -111,6 +112,8 @@ namespace nescc {
 			std::string m_path;
 
 			bool m_step;
+
+			bool m_step_frame;
 
 			nescc::core::signal m_step_complete;
 

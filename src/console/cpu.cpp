@@ -2887,10 +2887,11 @@ namespace nescc {
 		void
 		cpu::reset(
 			__in nescc::console::interface::bus &bus,
+			__in bool powerup,
 			__in_opt bool debug
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p, Debug=%x", &bus, debug);
+			TRACE_ENTRY_FORMAT("Bus=%p, Powerup=%x, Debug=%x", &bus, powerup, debug);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -2900,19 +2901,25 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Cpu resetting...");
 
-			m_accumulator = 0;
 			m_cycle = 0;
 			m_debug = debug;
-			m_flags = CPU_FLAG_RESET;
 			m_halt = false;
-			m_index_x = 0;
-			m_index_y = 0;
 			m_oam_dma.set_size(CPU_OAM_DMA_LENGTH);
 			m_program_counter = read_word(bus, CPU_INTERRUPT_RESET_ADDRESS);
 			m_ram.set_size(CPU_RAM_LENGTH);
 			m_signal_maskable = false;
 			m_signal_non_maskable = false;
-			m_stack_pointer = CPU_STACK_POINTER_ADDRESS_INIT;
+
+			if(powerup) {
+				m_accumulator = 0;
+				m_flags = CPU_FLAG_RESET;
+				m_index_x = 0;
+				m_index_y = 0;
+				m_stack_pointer = CPU_STACK_POINTER_ADDRESS_RESET;
+			} else {
+				m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
+				m_stack_pointer -= CPU_STACK_POINTER_ADDRESS_OFFSET;
+			}
 
 			TRACE_DEBUG(m_debug, "Cpu reset");
 			TRACE_DEBUG_FORMAT(m_debug, "Cpu state", "\n%s", STRING_CHECK(as_string(true)));

@@ -705,7 +705,7 @@ namespace nescc {
 
 			m_joypad.reset(*this, debug);
 			m_apu.reset(*this, debug);
-			m_cpu.reset(*this, debug);
+			m_cpu.reset(*this, true, debug);
 			m_ppu.reset(*this, debug);
 			m_debug = debug;
 

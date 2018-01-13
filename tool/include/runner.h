@@ -106,7 +106,9 @@ namespace nescc {
 					);
 
 				std::string command_step(
-					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
+					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>(),
+					__in_opt bool step = true,
+					__in_opt bool step_frame = false
 					);
 
 				std::string command_stop(
@@ -173,6 +175,8 @@ namespace nescc {
 				bool m_step;
 
 				uint32_t m_step_count;
+
+				bool m_step_frame;
 		};
 	}
 }

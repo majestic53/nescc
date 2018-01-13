@@ -29,7 +29,8 @@ namespace nescc {
 			m_interactive(false),
 			m_runtime(nescc::runtime::acquire()),
 			m_step(false),
-			m_step_count(0)
+			m_step_count(0),
+			m_step_frame(false)
 		{
 			return;
 		}
@@ -242,7 +243,7 @@ namespace nescc {
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_RESET:
 
 						if(sub_arguments.empty()) {
-							m_runtime.bus().cpu().reset(m_runtime.bus());
+							m_runtime.bus().cpu().reset(m_runtime.bus(), false);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
@@ -894,13 +895,19 @@ namespace nescc {
 
 		std::string
 		runner::command_step(
-			__in_opt const std::vector<std::string> &arguments
+			__in_opt const std::vector<std::string> &arguments,
+			__in_opt bool step,
+			__in_opt bool step_frame
 			)
 		{
 			uint16_t value = 0;
 			std::stringstream result;
 
-			if(arguments.empty()) {
+			if(m_step && step_frame) {
+				result << "Emulation is stepping cycles";
+			} else if(m_step_frame && step) {
+				result << "Emulation is stepping frames";
+			} else if(arguments.empty()) {
 
 				if(m_runtime.initialized()) {
 
@@ -917,18 +924,20 @@ namespace nescc {
 						result << "Emulation is freerunning";
 					}
 				} else {
-					m_step = true;
+					m_step = step;
+					m_step_frame = step_frame;
 					m_step_count = 1;
 					m_runtime.initialize();
-					m_runtime.run(m_path, m_debug, true);
+					m_runtime.run(m_path, m_debug, m_step, m_step_frame);
 				}
-			} else if(parse_subcommand_value(arguments, value)) {
+			} else if(parse_subcommand_value(arguments, value, m_step)) {
 
 				if(!m_runtime.initialized()) {
-					m_step = true;
+					m_step = step;
+					m_step_frame = step_frame;
 					m_step_count = 1;
 					m_runtime.initialize();
-					m_runtime.run(m_path, m_debug, true);
+					m_runtime.run(m_path, m_debug, m_step, m_step_frame);
 				}
 
 				if(m_runtime.stepping()) {
@@ -937,15 +946,22 @@ namespace nescc {
 						m_runtime.unpause();
 					}
 
-					for(;;) {
+					if(m_step_frame && (value <= m_runtime.frame())) {
+						result << "Invalid frame offset: " << arguments.front() << " (must be greater than "
+							<< m_runtime.frame() << ")";
+					} else {
 
-						if(m_runtime.bus().cpu().program_counter() == value) {
-							break;
+						for(;;) {
+
+							if((m_step && (m_runtime.bus().cpu().program_counter() == value))
+									|| (m_step_frame && (m_runtime.frame() >= value))) {
+								break;
+							}
+
+							m_runtime.step();
+							m_runtime.wait_step();
+							++m_step_count;
 						}
-
-						m_runtime.step();
-						m_runtime.wait_step();
-						++m_step_count;
 					}
 				} else {
 					result << "Emulation is freerunning";
@@ -1080,7 +1096,7 @@ namespace nescc {
 				if(m_runtime.initialized()) {
 					stream << ":";
 
-					if(!m_step) {
+					if(!m_step && !m_step_frame) {
 						stream << command_frame();
 					} else {
 						stream << m_step_count;
@@ -1167,7 +1183,10 @@ namespace nescc {
 								response = command_status(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_STEP:
-								response = command_step(arguments);
+								response = command_step(arguments, true, false);
+								break;
+							case ARGUMENT_INTERACTIVE_STEP_FRAME:
+								response = command_step(arguments, false, true);
 								break;
 							case ARGUMENT_INTERACTIVE_STOP:
 								response = command_stop(arguments);
@@ -1211,6 +1230,7 @@ namespace nescc {
 			m_path.clear();
 			m_step = false;
 			m_step_count = 0;
+			m_step_frame = false;
 		}
 
 		uint32_t
@@ -1568,7 +1588,7 @@ namespace nescc {
 						<< ", Path[" << m_path.size() << "]=" << m_path
 						<< ", Mode=" << (m_interactive ? "Interactive" : "Normal")
 							<< "/" << (m_debug ? "Debug" : "Non-debug")
-							<< "/" << (m_step ? "Step" : "Freerunning");
+							<< "/" << (m_step ? "Step" : (m_step_frame ? "Step-frame" : "Freerunning"));
 				}
 			}
 
