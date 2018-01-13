@@ -142,7 +142,6 @@ namespace nescc {
 			ARGUMENT_INTERACTIVE_HELP,
 			ARGUMENT_INTERACTIVE_JOYPAD,
 			ARGUMENT_INTERACTIVE_MAPPER,
-			ARGUMENT_INTERACTIVE_NEXT,
 			ARGUMENT_INTERACTIVE_PAUSE,
 			ARGUMENT_INTERACTIVE_PPU,
 			ARGUMENT_INTERACTIVE_RESTART,
@@ -160,9 +159,8 @@ namespace nescc {
 #ifndef NDEBUG
 			"debug",
 #endif // NDEBUG
-			"display", "exit", "frame", "help", "joypad", "mapper", "next",
-			"pause", "ppu", "restart", "run", "status", "step", "stop",
-			"version",
+			"display", "exit", "frame", "help", "joypad", "mapper", "pause",
+			"ppu", "restart", "run", "status", "step", "stop", "version",
 			};
 
 		#define ARGUMENT_INTERACTIVE_STRING(_TYPE_) \
@@ -181,7 +179,6 @@ namespace nescc {
 			"Display help information",
 			"Display/Set joypad state",
 			"Display mapper state",
-			"Display next cpu instruction",
 			"Pause emulation",
 			"Display/Set ppu state",
 			"Restart emulation",
@@ -208,7 +205,6 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_HELP), ARGUMENT_INTERACTIVE_HELP),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_JOYPAD), ARGUMENT_INTERACTIVE_JOYPAD),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_MAPPER), ARGUMENT_INTERACTIVE_MAPPER),
-			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_NEXT), ARGUMENT_INTERACTIVE_NEXT),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_PAUSE), ARGUMENT_INTERACTIVE_PAUSE),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_PPU), ARGUMENT_INTERACTIVE_PPU),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_RESTART), ARGUMENT_INTERACTIVE_RESTART),
@@ -227,6 +223,7 @@ namespace nescc {
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_HIDE,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ,
+			ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_PORT,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_PRESENT,
@@ -244,9 +241,9 @@ namespace nescc {
 		#define ARGUMENT_INTERACTIVE_SUBCOMMAND_MAX ARGUMENT_INTERACTIVE_SUBCOMMAND_WATCH
 
 		static const std::string ARGUMENT_INTERACTIVE_SUBCOMMAND_STR[] = {
-			"cycle", "dot", "get", "halt", "help", "hide", "irq", "nmi", "port",
-			"present", "reg", "reset", "scanline", "set", "show", "status", "strobe",
-			"watch",
+			"cycle", "dot", "get", "halt", "help", "hide", "irq", "next", "nmi",
+			"port", "present", "reg", "reset", "scanline", "set", "show", "status",
+			"strobe", "watch",
 			};
 
 		#define ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(_TYPE_) \
@@ -261,6 +258,7 @@ namespace nescc {
 			"Display help information",
 			"Hide display window",
 			"Signal maskable interrupt",
+			"Display next instruction",
 			"Signal non-maskable interrupt",
 			"Display/Set port value",
 			"Refresh display window",
@@ -271,7 +269,7 @@ namespace nescc {
 			"Show display window",
 			"Display status information",
 			"Set/Clear strobe",
-			"Set/Clear watch memory addresses",
+			"Set/Clear watched memory addresses",
 			};
 
 		#define ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING_DESCRIPTION(_TYPE_) \
@@ -286,6 +284,7 @@ namespace nescc {
 			"",
 			"",
 			"",
+			"[<value>]",
 			"",
 			"<port> [<value>]",
 			"",
@@ -309,9 +308,10 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_CPU, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_GET, ARGUMENT_INTERACTIVE_SUBCOMMAND_HALT,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP, ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ,
-				ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI, ARGUMENT_INTERACTIVE_SUBCOMMAND_REGISTER,
-				ARGUMENT_INTERACTIVE_SUBCOMMAND_RESET, ARGUMENT_INTERACTIVE_SUBCOMMAND_SET,
-				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, ARGUMENT_INTERACTIVE_SUBCOMMAND_WATCH, })),
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT, ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI,
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_REGISTER, ARGUMENT_INTERACTIVE_SUBCOMMAND_RESET,
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_SET, ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS,
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_WATCH, })),
 #ifndef NDEBUG
 			std::make_pair(ARGUMENT_INTERACTIVE_DEBUG, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_SET, ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, })),
@@ -326,7 +326,6 @@ namespace nescc {
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, ARGUMENT_INTERACTIVE_SUBCOMMAND_STROBE, })),
 			std::make_pair(ARGUMENT_INTERACTIVE_MAPPER, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, })),
-			std::make_pair(ARGUMENT_INTERACTIVE_NEXT, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_PAUSE, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_PPU, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_DOT, ARGUMENT_INTERACTIVE_SUBCOMMAND_GET,
@@ -371,6 +370,10 @@ namespace nescc {
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT[] = {
+			ARGUMENT_INTERACTIVE_CPU,
+			};
+
+		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT_SUPPORT[] = {
 			ARGUMENT_INTERACTIVE_CPU,
 			};
 
@@ -456,6 +459,10 @@ namespace nescc {
 				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ, std::set<uint32_t>(
 					ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT
 						+ sizeof(ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT)))),
+			std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT),
+				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT, std::set<uint32_t>(
+					ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT_SUPPORT
+						+ sizeof(ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT_SUPPORT)))),
 			std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI),
 				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI, std::set<uint32_t>(
 					ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI_SUPPORT

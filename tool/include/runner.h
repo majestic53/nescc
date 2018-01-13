@@ -85,10 +85,6 @@ namespace nescc {
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);
 
-				std::string command_next(
-					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
-					);
-
 				std::string command_pause(
 					__in_opt const std::vector<std::string> &arguments = std::vector<std::string>()
 					);

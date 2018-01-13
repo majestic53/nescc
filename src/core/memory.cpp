@@ -140,7 +140,7 @@ namespace nescc {
 						result << " --";
 					}
 
-					if(verbose && std::isprint(value)) {
+					if(verbose && std::isprint(value) && !std::isspace(value)) {
 						buffer += value;
 					} else {
 						buffer += MEMORY_FILL_CHARACTER;
