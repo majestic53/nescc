@@ -30,6 +30,7 @@ Features
 What's Missing
 --------------
 
+* Limited mapper support
 * No sound yet :(
 
 Build
