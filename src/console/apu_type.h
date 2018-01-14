@@ -51,6 +51,48 @@ namespace nescc {
 		#define THROW_NESCC_CONSOLE_APU_EXCEPTION_FORMAT(_EXCEPT_, _FORMAT_, ...) \
 			THROW_EXCEPTION_FORMAT(NESCC_CONSOLE_APU_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
+
+		enum {
+			APU_PORT_PULSE_1_TIMER = 0, // 0x4000 - 0x4003
+			APU_PORT_PULSE_1_LENGTH,
+			APU_PORT_PULSE_1_ENVELOPE,
+			APU_PORT_PULSE_1_SWEEP,
+			APU_PORT_PULSE_2_TIMER, // 0x4004 - 0x4007
+			APU_PORT_PULSE_2_LENGTH,
+			APU_PORT_PULSE_2_ENVELOPE,
+			APU_PORT_PULSE_2_SWEEP,
+			APU_PORT_TRIANGLE_TIMER, // 0x4008 - 0x400b
+			APU_PORT_TRIANGLE_LENGTH,
+			APU_PORT_TRIANGLE_UNUSED,
+			APU_PORT_TRIANGLE_LINEAR,
+			APU_PORT_NOISE_TIMER, // 0x400c- 0x400f
+			APU_PORT_NOISE_UNUSED,
+			APU_PORT_NOISE_ENVELOPE,
+			APU_PORT_NOISE_LINEAR,
+			APU_PORT_DMC_TIMER, // 0x4010- 0x4013
+			APU_PORT_DMC_MEMORY,
+			APU_PORT_DMC_SAMPLE,
+			APU_PORT_DMC_OUTPUT,
+			APU_PORT_INVALID_0,
+			APU_PORT_CHANNEL_STATUS, // 0x4015
+			APU_PORT_INVALID_1,
+			APU_PORT_FRAME_COUNT, // 0x4017
+		};
+
+		#define APU_PORT_MAX APU_PORT_FRAME_COUNT
+
+		static const std::string APU_PORT_STR[] = {
+			"Pulse1-Timer", "Pulse1-Length", "Pulse1-Envelope", "Pulse1-Sweep",
+			"Pulse2-Timer", "Pulse2-Length", "Pulse2-Envelope", "Pulse2-Sweep",
+			"Triangle-Timer", "Triangle-Length", "Triangle-Unused", "Triangle-Linear",
+			"Noise-Timer", "Noise-Unused", "Noise-Envelope", "Noise-Linear",
+			"DMC-Timer", "DCM-Memory", "DMC-Sample", "DCM-Output",
+			"Invalid", "Channel-Status", "Invalid", "Frame-Counter",
+			};
+
+		#define APU_PORT_STRING(_TYPE_) \
+			(((_TYPE_) > APU_PORT_MAX) ? STRING_UNKNOWN : \
+				STRING_CHECK(APU_PORT_STR[_TYPE_]))
 	}
 }
 

@@ -49,6 +49,7 @@ namespace nescc {
 
 				std::string command_as_string(
 					__in nescc::console::interface::bus &bus,
+					__in uint16_t address,
 					__in_opt uint16_t offset = 1,
 					__in_opt bool verbose = false
 					) const;
@@ -138,12 +139,6 @@ namespace nescc {
 
 				uint8_t add(
 					__in uint8_t value
-					);
-
-				uint8_t add(
-					__in uint8_t left,
-					__in uint8_t right,
-					__in_opt bool overflow = true
 					);
 
 				uint16_t address_absolute(

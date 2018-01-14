@@ -110,6 +110,14 @@ namespace nescc {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
 						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_DISASSEMBLE:
+
+						if(parse_subcommand_values(sub_arguments, address, value)) {
+							result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), address, value, true);
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_GET:
 
 						if(parse_subcommand_values(sub_arguments, address, value)) {
@@ -152,11 +160,11 @@ namespace nescc {
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT:
 
 						if(sub_arguments.empty() || parse_subcommand_value(sub_arguments, value, false)) {
-							result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), value, true);
+							result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(),
+								m_runtime.bus().cpu().program_counter(), value, true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
-
 						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI:
 

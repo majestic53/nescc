@@ -79,7 +79,6 @@ namespace nescc {
 		#define PPU_DOT_VBLANK_CLEAR 1 // 261, 1
 
 		#define PPU_NAMETABLE_BASE 0x2000
-		#define PPU_NAMETABLE_MASK 0xfff
 
 		#define PPU_SCANLINE_MAX 261
 		#define PPU_SCANLINE_PRE_RENDER 261

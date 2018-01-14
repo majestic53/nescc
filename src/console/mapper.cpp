@@ -277,6 +277,9 @@ namespace nescc {
 
 			m_debug = debug;
 
+			TRACE_DEBUG(m_debug, "Mapper reset");
+			TRACE_DEBUG_FORMAT(m_debug, "Mapper state", "\n%s", STRING_CHECK(as_string(true)));
+
 			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper reset.");
 
 			TRACE_EXIT();

@@ -53,7 +53,7 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 5
+	#define NESCC_VERSION_REVISION 6
 	#define NESCC_VERSION_WEEK 1802
 
 	#define STRING_EMPTY "Empty"
@@ -69,17 +69,6 @@ namespace nescc {
 
 	#define STRING_CHECK(_STR_) \
 		(_STR_.empty() ? STRING_EMPTY : _STR_.c_str())
-
-	enum {
-		BIT_0 = 0,
-		BIT_1,
-		BIT_2,
-		BIT_3,
-		BIT_4,
-		BIT_5,
-		BIT_6,
-		BIT_7,
-	};
 }
 
 #endif // NESCC_DEFINE_H_

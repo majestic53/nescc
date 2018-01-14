@@ -65,9 +65,9 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu clearing...");
 
-			// TODO
-
 			m_debug = false;
+
+			// TODO
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu cleared.");
 
@@ -98,13 +98,35 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu uninitializing...");
 
-			// TODO
-
 			clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu uninitialized.");
 
 			TRACE_EXIT();
+		}
+
+		uint8_t
+		apu::read_port(
+			__in nescc::console::interface::bus &bus,
+			__in uint8_t port
+			)
+		{
+			uint8_t result;
+
+			TRACE_ENTRY_FORMAT("Bus=%p, Port=%u(%s)", &bus, port, APU_PORT_STRING(port));
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			// TODO
+			result = 0;
+			// ---
+
+			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
+			return result;
 		}
 
 		void
@@ -123,9 +145,9 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu resetting...");
 
-			// TODO
-
 			m_debug = debug;
+
+			// TODO
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu reset.");
 
@@ -141,18 +163,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << NESCC_CONSOLE_APU_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
-
-			if(verbose) {
-				result << " Base=" << nescc::core::singleton<nescc::console::apu>::to_string(verbose);
-
-				if(m_initialized) {
-					result << ", Mode=" << (m_debug ? "Debug" : "Normal");
-
-					// TODO
-
-				}
-			}
+			// TODO
 
 			TRACE_EXIT();
 			return result.str();
@@ -164,6 +175,26 @@ namespace nescc {
 			)
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::write_port(
+			__in nescc::console::interface::bus &bus,
+			__in uint8_t port,
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p, Port=%u(%s), Value=%u(%02x)", &bus, port, APU_PORT_STRING(port), value, value);
 
 #ifndef NDEBUG
 			if(!m_initialized) {

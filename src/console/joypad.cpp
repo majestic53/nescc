@@ -215,6 +215,9 @@ namespace nescc {
 			m_port.set_size(JOYPAD_MAX + 1);
 			m_strobe = false;
 
+			TRACE_DEBUG(m_debug, "Joypad reset");
+			TRACE_DEBUG_FORMAT(m_debug, "Joypad state", "\n%s", STRING_CHECK(as_string(true)));
+
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad reset.");
 
 			TRACE_EXIT();

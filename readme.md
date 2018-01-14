@@ -116,6 +116,7 @@ CPU Subcommands
 
 ```
 cycle                                                                 Display current cycle count
+disassemble     <address> <offset>                                    Display instructions
 get             <address> <offset>                                    Display memory value
 halt            <value>                                               Set/Clear halt value
 help                                                                  Display help information
@@ -186,6 +187,12 @@ Changelog
 
 Version 0.1.1802
 ----------------
+*Updated: 1/13/2018*
+
+* Added apu port register structures
+* Added disassemble command
+* Bug fixes for illegal opcodes: arr, axs, sxa, sya
+
 *Updated: 1/12/2018*
 
 * Added step-frame command

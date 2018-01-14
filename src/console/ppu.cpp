@@ -199,7 +199,7 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-			result = (PPU_NAMETABLE_BASE | (m_address_vram.raw & PPU_NAMETABLE_MASK));
+			result = (PPU_NAMETABLE_BASE | (m_address_vram.raw & 0xfff));
 
 			TRACE_EXIT_FORMAT("Result=%u(%04x)", result);
 			return result;
@@ -539,10 +539,10 @@ namespace nescc {
 				bus.display_write(dot, m_scanline, color.raw);
 			}
 
-			m_background_shift_low <<= 1;
 			m_background_shift_high <<= 1;
-			m_attribute_table_shift_low = ((m_attribute_table_shift_low << 1) | (m_attribute_table_latch_low));
+			m_background_shift_low <<= 1;
 			m_attribute_table_shift_high = ((m_attribute_table_shift_high << 1) | (m_attribute_table_latch_high));
+			m_attribute_table_shift_low = ((m_attribute_table_shift_low << 1) | (m_attribute_table_latch_low));
 
 			TRACE_EXIT();
 		}
@@ -558,7 +558,7 @@ namespace nescc {
 			if(m_mask.background && !(!m_mask.background_left && (dot < 8))) {
 
 				palette = ((((m_background_shift_high >> (15 - m_fine_x)) & 1) << 1)
-							| ((m_background_shift_low >> (15 - m_fine_x)) & 1));
+						| ((m_background_shift_low >> (15 - m_fine_x)) & 1));
 				if(palette) {
 					palette |= (((((m_attribute_table_shift_high >> (7 - m_fine_x)) & 1) << 1)
 							| ((m_attribute_table_shift_low >> (7 - m_fine_x)) & 1)) << 2);
@@ -947,6 +947,9 @@ namespace nescc {
 			m_sprite_secondary.resize(PPU_SPRITE_LENGTH, PPU_SPRITE_INIT);
 			m_status.raw = 0;
 
+			TRACE_DEBUG(m_debug, "Ppu reset");
+			TRACE_DEBUG_FORMAT(m_debug, "Ppu state", "\n%s", STRING_CHECK(as_string(true)));
+
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu reset.");
 
 			TRACE_EXIT();
@@ -1326,10 +1329,10 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			m_background_shift_low = ((m_background_shift_low & 0xff00) | m_background_low);
 			m_background_shift_high = ((m_background_shift_high & 0xff00) | m_background_high);
-			m_attribute_table_latch_low = ((m_attribute_table_current & 1) ? true : false);
+			m_background_shift_low = ((m_background_shift_low & 0xff00) | m_background_low);
 			m_attribute_table_latch_high = ((m_attribute_table_current & 2) ? true : false);
+			m_attribute_table_latch_low = ((m_attribute_table_current & 1) ? true : false);
 
 			TRACE_EXIT();
 		}
@@ -1557,7 +1560,7 @@ namespace nescc {
 			address = m_port.read(PPU_PORT_OAM_ADDRESS);
 			m_oam.write(address, value);
 			m_port.write(PPU_PORT_OAM_DATA, value);
-			m_port.write(PPU_PORT_OAM_ADDRESS, ++address);
+			m_port.write(PPU_PORT_OAM_ADDRESS, address + 1);
 
 			TRACE_EXIT();
 		}

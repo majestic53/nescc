@@ -82,30 +82,6 @@ namespace nescc {
 			return (uint8_t) result;
 		}
 
-		uint8_t
-		cpu::add(
-			__in uint8_t left,
-			__in uint8_t right,
-			__in_opt bool overflow
-			)
-		{
-			uint16_t result;
-
-			TRACE_ENTRY_FORMAT("Left=%u(%02x), Right=%u(%02x), Overflow=%x", left, left, right, right, overflow);
-
-			result = (left + right + (m_flags & CPU_FLAG_CARRY));
-
-			(result > UINT8_MAX) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
-
-			if(overflow) {
-				(~(left ^ right) & (left ^ result) & CPU_FLAG_SIGN)
-					? m_flags |= CPU_FLAG_OVERFLOW : m_flags &= ~CPU_FLAG_OVERFLOW;
-			}
-
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", (uint8_t) result, (uint8_t) result);
-			return (uint8_t) result;
-		}
-
 		uint16_t
 		cpu::address_absolute(
 			__in nescc::console::interface::bus &bus
@@ -368,6 +344,7 @@ namespace nescc {
 		std::string
 		cpu::command_as_string(
 			__in nescc::console::interface::bus &bus,
+			__in uint16_t address,
 			__in_opt uint16_t offset,
 			__in_opt bool verbose
 			) const
@@ -375,9 +352,10 @@ namespace nescc {
 			std::stringstream result;
 			uint16_t iter = 0, program_counter;
 
-			TRACE_ENTRY_FORMAT("Bus=%p, Offset=%u, Verbose=%x", &bus, offset, verbose);
+			TRACE_ENTRY_FORMAT("Bus=%p, Address=%u(%04x) Offset=%u(%04x), Verbose=%x", &bus, address, address, offset, offset,
+				verbose);
 
-			program_counter = m_program_counter;
+			program_counter = address;
 
 			for(; iter < offset; ++iter) {
 				int8_t relative = 0;
@@ -771,7 +749,7 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p, Command=%s %s", &bus, CPU_COMMAND_STRING(command.first),
 				CPU_MODE_STRING(command.second));
 
-			push_word(bus, m_program_counter);
+			push_word(bus, m_program_counter + 1);
 			push_byte(bus, m_flags | CPU_FLAG_BREAK);
 			m_flags |= CPU_FLAG_INTERRUPT_DISABLE;
 			m_program_counter = read_word(bus, CPU_INTERRUPT_MASKABLE_ADDRESS);
@@ -1241,12 +1219,13 @@ namespace nescc {
 								command.first, command.first, command.second);
 					}
 
-					value &= m_accumulator;
-					(value & CPU_FLAG_SIGN) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
-					((value >> BIT_7) ^ (value >> BIT_6)) ? m_flags |= CPU_FLAG_OVERFLOW
+					m_accumulator &= value;
+					m_accumulator >>= 1;
+					(m_flags & CPU_FLAG_CARRY) ? m_accumulator |= CPU_FLAG_SIGN : m_accumulator &= ~CPU_FLAG_SIGN;
+					((m_accumulator >> 6) & 1) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+					(((m_accumulator >> 6) & 1) ^ ((m_accumulator >> 5) & 1)) ? m_flags |= CPU_FLAG_OVERFLOW
 						: m_flags &= ~CPU_FLAG_OVERFLOW;
-					value >>= 1;
-					m_accumulator = value;
+					value = m_accumulator;
 					break;
 				case CPU_COMMAND_ILLEGAL_AXS:
 
@@ -1260,8 +1239,10 @@ namespace nescc {
 								command.first, command.first, command.second);
 					}
 
-					value = add(m_accumulator & m_index_x, ~value, false);
-					m_index_x = value;
+					m_index_x &= m_accumulator;
+					(m_index_x >= value) ? m_flags |= CPU_FLAG_CARRY : m_flags &= ~CPU_FLAG_CARRY;
+					m_index_x -= value;
+					value = m_index_x;
 					break;
 				case CPU_COMMAND_ILLEGAL_LAS:
 
