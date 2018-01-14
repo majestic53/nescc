@@ -26,6 +26,11 @@ Features
 * Support for mapper #0 (more to come)
 * Support for live debugging (while in interactive mode)
 
+What's Missing
+--------------
+
+* No sound yet :(
+
 Build
 =====
 
@@ -116,7 +121,7 @@ CPU Subcommands
 
 ```
 cycle                                                                 Display current cycle count
-disassemble     <address> <offset>                                    Display instructions
+dasm            <address> <offset>                                    Display instructions
 get             <address> <offset>                                    Display memory value
 halt            <value>                                               Set/Clear halt value
 help                                                                  Display help information
