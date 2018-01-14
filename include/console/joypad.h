@@ -19,6 +19,7 @@
 #ifndef NESCC_CONSOLE_JOYPAD_H_
 #define NESCC_CONSOLE_JOYPAD_H_
 
+#include <map>
 #include <SDL2/SDL.h>
 #include "../core/memory.h"
 #include "../core/singleton.h"
@@ -42,6 +43,10 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				void button_change(
+					__in const SDL_ControllerButtonEvent &event
+					);
+
 				void clear(void);
 
 				void controller_add(
@@ -50,6 +55,10 @@ namespace nescc {
 
 				void controller_remove(
 					__in const SDL_ControllerDeviceEvent &event
+					);
+
+				void key_change(
+					__in const SDL_KeyboardEvent &event
 					);
 
 				nescc::core::memory &port(void);
@@ -98,6 +107,10 @@ namespace nescc {
 				bool m_debug;
 
 				nescc::core::memory m_port;
+
+				std::map<int, std::map<SDL_GameControllerButton, bool>> m_status_button;
+
+				std::map<SDL_Scancode, bool> m_status_key;
 
 				bool m_strobe;
 		};

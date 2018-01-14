@@ -193,6 +193,11 @@ Changelog
 
 Version 0.1.1802
 ----------------
+*Updated: 1/14/2018*
+
+* Added per-frame keyboard/controller support
+* More ppu bug fixes
+
 *Updated: 1/13/2018*
 
 * Added basic support for controllers

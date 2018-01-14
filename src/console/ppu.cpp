@@ -407,7 +407,7 @@ namespace nescc {
 							m_background_low = bus.ppu_read(m_address);
 							break;
 						case PPU_RENDER_PIXEL_BACKGROUND_HIGH_CALCULATE:
-							m_address += 8;
+							m_address += PPU_TILE_WIDTH;
 							break;
 						case PPU_RENDER_PIXEL_BACKGROUND_HIGH_READ:
 							m_background_high = bus.ppu_read(m_address);
@@ -508,11 +508,11 @@ namespace nescc {
 			__in nescc::console::interface::bus &bus
 			)
 		{
-			int dot = (m_dot - 2);
+			int dot = (m_dot - PPU_DOT_RENDER_PIXEL_LOW_MIN);
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			if((m_scanline < 240) && (dot >= 0) && (dot < 256)) {
+			if((m_scanline < PPU_SCANLINE_POST_RENDER) && (dot >= 0) && (dot < PPU_DOT_SCROLL_VERTICAL)) {
 				ppu_color_t color;
 				bool priority = false;
 				uint8_t palette = 0, palette_object = 0;
@@ -528,7 +528,7 @@ namespace nescc {
 					palette = 0;
 				}
 
-				color.raw = PPU_PALETTE_COLOR(bus.ppu_read(0x3f00 + palette));
+				color.raw = PPU_PALETTE_COLOR(bus.ppu_read(PPU_PALETTE_TABLE_BASE + palette));
 				if(m_mask.greyscale) {
 					uint8_t average = ((color.blue + color.green + color.red) / 3);
 					color.blue = average;
@@ -555,13 +555,13 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Dot=%u, Palette=%p", dot, &palette);
 
-			if(m_mask.background && !(!m_mask.background_left && (dot < 8))) {
+			if(m_mask.background && !(!m_mask.background_left && (dot < PPU_TILE_WIDTH))) {
 
-				palette = ((((m_background_shift_high >> (15 - m_fine_x)) & 1) << 1)
-						| ((m_background_shift_low >> (15 - m_fine_x)) & 1));
+				palette = ((((m_background_shift_high >> ((PPU_BLOCK_WIDTH - 1) - m_fine_x)) & 1) << 1)
+						| ((m_background_shift_low >> ((PPU_BLOCK_WIDTH - 1) - m_fine_x)) & 1));
 				if(palette) {
-					palette |= (((((m_attribute_table_shift_high >> (7 - m_fine_x)) & 1) << 1)
-							| ((m_attribute_table_shift_low >> (7 - m_fine_x)) & 1)) << 2);
+					palette |= (((((m_attribute_table_shift_high >> ((PPU_TILE_WIDTH - 1) - m_fine_x)) & 1) << 1)
+							| ((m_attribute_table_shift_low >> ((PPU_TILE_WIDTH - 1) - m_fine_x)) & 1)) << 2);
 				}
 			}
 
@@ -578,35 +578,35 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Dot=%u, Palette=%u, Palette Object=%p, Priority=%p", dot, palette, &palette_object, &priority);
 
-			if(m_mask.sprite && !(!m_mask.sprite_left && (dot < 8))) {
+			if(m_mask.sprite && !(!m_mask.sprite_left && (dot < PPU_SPRITE_LENGTH))) {
+				std::vector<nescc::console::sprite_t>::reverse_iterator entry;
 
-				for(int iter = 7; iter >= 0; iter--) {
+				for(entry = m_sprite.rbegin(); entry != m_sprite.rend(); ++entry) {
 					int sprite_x;
-					nescc::console::sprite_t &entry = m_sprite.at(iter);
 
-					if((entry.id == PPU_SPRITE_ID_INVALID) || (entry.position_x > dot)) {
-						continue;
-					}
+					if((entry->id != PPU_SPRITE_ID_INVALID) && (entry->position_x <= dot)) {
 
-					sprite_x = (dot - entry.position_x);
-					if(sprite_x < 8) {
-						uint8_t palette_sprite;
+						sprite_x = (dot - entry->position_x);
+						if(sprite_x < PPU_SPRITE_LENGTH) {
+							uint8_t palette_sprite;
 
-						if(entry.attributes & 64) {
-							sprite_x ^= 7;
-						}
-
-						palette_sprite = ((((entry.data_high >> (7 - sprite_x)) & 1) << 1)
-									| ((entry.data_low >> (7 - sprite_x)) & 1));
-
-						if(palette_sprite) {
-
-							if(!entry.id && palette && (dot != 255)) {
-								m_status.sprite_0_hit = 1;
+							if(entry->attributes & 0x40) {
+								sprite_x ^= (PPU_SPRITE_LENGTH - 1);
 							}
 
-							palette_object = ((palette_sprite | ((entry.attributes & 3) << 2)) + 16);
-							priority = ((entry.attributes & 32) ? true : false);
+							palette_sprite = ((((entry->data_high >> ((PPU_SPRITE_LENGTH - 1) - sprite_x)) & 1) << 1)
+										| ((entry->data_low >> ((PPU_SPRITE_LENGTH - 1) - sprite_x)) & 1));
+
+							if(palette_sprite) {
+
+								if(!entry->id && palette && (dot != PPU_DOT_RENDER_PIXEL_LOW_MAX)) {
+									m_status.sprite_0_hit = 1;
+								}
+
+								palette_object = ((palette_sprite | ((entry->attributes & 3) << 2))
+											+ PPU_SPRITE_LENGTH_LONG);
+								priority = ((entry->attributes & 0x20) ? true : false);
+							}
 						}
 					}
 				}
@@ -798,7 +798,7 @@ namespace nescc {
 				case 0x14:
 				case 0x18:
 				case 0x1c:
-					address -= 0x10;
+					address -= PPU_PALETTE_TABLE_OFFSET;
 					break;
 				default:
 					break;
@@ -857,7 +857,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			if(m_address_vram.address <= 0x3eff) {
+			if(m_address_vram.address <= PPU_DATA_ADDRESS_MAX) {
 				m_port_value = m_port_value_buffer;
 				m_port_value_buffer = bus.ppu_read(m_address_vram.address);
 			} else {
@@ -1086,19 +1086,19 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-			for(; iter < 64; ++iter) {
+			for(; iter < PPU_SPRITE_OAM_MAX; ++iter) {
 
-				int row = (((m_scanline == 261) ? -1 : m_scanline) - m_oam.read(iter * 4));
-				if(((row >= 0) && (row < (m_control.sprite_size ? 16: 8)))) {
+				int offset = (iter << 2), row = (((m_scanline == PPU_SCANLINE_MAX) ? -1 : m_scanline) - m_oam.read(offset));
+				if(((row >= 0) && (row < (m_control.sprite_size ? PPU_SPRITE_LENGTH_LONG : PPU_SPRITE_LENGTH)))) {
 					nescc::console::sprite_t &entry = m_sprite_secondary.at(count);
 
-					entry.attributes = m_oam.read((iter * 4) + 2);
+					entry.attributes = m_oam.read(offset + PPU_SPRITE_ATTRIBUTES);
 					entry.id = iter;
-					entry.position_x = m_oam.read((iter * 4) + 3);
-					entry.position_y = m_oam.read(iter * 4);
-					entry.tile = m_oam.read((iter * 4) + 1);
+					entry.position_x = m_oam.read(offset + PPU_SPRITE_POSITION_X);
+					entry.position_y = m_oam.read(offset + PPU_SPRITE_POSITION_Y);
+					entry.tile = m_oam.read(offset + PPU_SPRITE_TILE_ID);
 
-					if(++count >= 8) {
+					if(++count >= PPU_SPRITE_LENGTH) {
 						m_status.sprite_overflow = 1;
 						break;
 					}
@@ -1118,28 +1118,30 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			for(; iter < 8; ++iter) {
-				uint8_t sprite_y;
+			for(; iter < PPU_SPRITE_LENGTH; ++iter) {
+				uint8_t sprite_height, sprite_y;
 
 				m_sprite.at(iter) = m_sprite_secondary.at(iter);
 
 				nescc::console::sprite_t &entry = m_sprite.at(iter);
 
-				if(m_control.sprite_size) {
-					address = (((entry.tile & 1) * 0x1000) + ((entry.tile & ~1) * 16));
+				sprite_height = (m_control.sprite_size ? PPU_SPRITE_LENGTH_LONG : PPU_SPRITE_LENGTH);
+
+				if(sprite_height == PPU_SPRITE_LENGTH_LONG) {
+					address = (((entry.tile & 1) << 12) + ((entry.tile & ~1) << 4));
 				} else {
-					address = ((m_control.sprite_pattern_table * 0x1000) + (entry.tile * 16));
+					address = ((m_control.sprite_pattern_table << 12) + (entry.tile << 4));
 				}
 
-				sprite_y = ((m_scanline - entry.position_y) % (m_control.sprite_size ? 16: 8));
+				sprite_y = ((m_scanline - entry.position_y) % sprite_height);
 
 				if(entry.attributes & 0x80) {
-					sprite_y ^= ((m_control.sprite_size ? 16: 8) - 1);
+					sprite_y ^= (sprite_height - 1);
 				}
 
 				address += ((sprite_y & 8) + sprite_y);
 				entry.data_low = bus.ppu_read(address);
-				entry.data_high = bus.ppu_read(address + 8);
+				entry.data_high = bus.ppu_read(address + PPU_SPRITE_LENGTH);
 			}
 
 			TRACE_EXIT();
@@ -1231,7 +1233,7 @@ namespace nescc {
 				case PPU_SCANLINE_POST_RENDER: // 240
 					execute_post_render(bus);
 					break;
-				case PPU_SCANLINE_VBLANK_START ... PPU_SCANLINE_VBLANK_END: // 241 - 260
+				case PPU_SCANLINE_VBLANK_START: // 241
 					execute_vblank(bus);
 					break;
 				case PPU_SCANLINE_PRE_RENDER: // 261
@@ -1242,7 +1244,7 @@ namespace nescc {
 			}
 
 			if(++m_dot > PPU_DOT_MAX) {
-				m_dot = 0;
+				m_dot %= (PPU_DOT_MAX + 1);
 
 				if(++m_scanline > PPU_SCANLINE_MAX) {
 					m_scanline = 0;
@@ -1410,7 +1412,7 @@ namespace nescc {
 				case 0x14:
 				case 0x18:
 				case 0x1c:
-					address -= 0x10;
+					address -= PPU_PALETTE_TABLE_OFFSET;
 					break;
 				default:
 					break;

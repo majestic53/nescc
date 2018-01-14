@@ -93,6 +93,38 @@ namespace nescc {
 		}
 
 		void
+		joypad::button_change(
+			__in const SDL_ControllerButtonEvent &event
+			)
+		{
+			std::map<SDL_GameControllerButton, bool>::iterator iter_button;
+			std::map<int, std::map<SDL_GameControllerButton, bool>>::iterator iter_id;
+
+			TRACE_ENTRY_FORMAT("Event=%p", &event);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			iter_id = m_status_button.find(event.which);
+			if(iter_id == m_status_button.end()) {
+				m_status_button.insert(std::make_pair(event.which, std::map<SDL_GameControllerButton, bool>()));
+				iter_id = m_status_button.find(event.which);
+			}
+
+			iter_button = iter_id->second.find((SDL_GameControllerButton) event.button);
+			if(iter_button == iter_id->second.end()) {
+				iter_id->second.insert(std::make_pair((SDL_GameControllerButton) event.button, event.state == SDL_PRESSED));
+			} else {
+				iter_button->second = (event.state == SDL_PRESSED);
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
 		joypad::clear(void)
 		{
 			TRACE_ENTRY();
@@ -109,6 +141,8 @@ namespace nescc {
 			m_controller.resize(JOYPAD_MAX + 1, std::make_pair(0, nullptr));
 			m_debug = false;
 			m_port.clear();
+			m_status_button.clear();
+			m_status_key.clear();
 			m_strobe = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad cleared.");
@@ -180,11 +214,19 @@ namespace nescc {
 						iter != m_controller.end(); ++count, ++iter) {
 
 					if(iter->second && (iter->first == event.which)) {
+						std::map<int, std::map<SDL_GameControllerButton, bool>>::iterator iter_status;
+
 						TRACE_DEBUG_FORMAT(m_debug, "Removing controller", "Joypad=%u, Id=%i", count, iter->first);
 
 						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Removing controller", "Joypad=%u, Id=%i", count,
 								iter->first);
 						SDL_GameControllerClose(iter->second);
+
+						iter_status = m_status_button.find(iter->first);
+						if(iter_status != m_status_button.end()) {
+							m_status_button.erase(iter_status);
+						}
+
 						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Removed controller", "Joypad=%u, Id=%i", count,
 								iter->first);
 						iter->first = 0;
@@ -192,6 +234,31 @@ namespace nescc {
 						break;
 					}
 				}
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		joypad::key_change(
+			__in const SDL_KeyboardEvent &event
+			)
+		{
+			std::map<SDL_Scancode, bool>::iterator iter;
+
+			TRACE_ENTRY_FORMAT("Event=%p", &event);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			iter = m_status_key.find(event.keysym.scancode);
+			if(iter == m_status_key.end()) {
+				m_status_key.insert(std::make_pair(event.keysym.scancode, event.state == SDL_PRESSED));
+			} else {
+				iter->second = (event.state == SDL_PRESSED);
 			}
 
 			TRACE_EXIT();
@@ -267,7 +334,7 @@ namespace nescc {
 
 			value = m_port.read(pad);
 			result = (JOYPAD_DATA_BUS | (value & 1));
-			m_port.write(pad, value >> 1);
+			m_port.write(pad, JOYPAD_DATA_FILL | (value >> 1));
 
 			if(m_button.at(pad) <= JOYPAD_BUTTON_MAX) {
 				++m_button.at(pad);
@@ -299,6 +366,8 @@ namespace nescc {
 			m_controller.resize(JOYPAD_MAX + 1, std::make_pair(0, nullptr));
 			m_debug = debug;
 			m_port.set_size(JOYPAD_MAX + 1);
+			m_status_button.clear();
+			m_status_key.clear();
 			m_strobe = false;
 
 			TRACE_DEBUG(m_debug, "Joypad reset");
@@ -354,19 +423,29 @@ namespace nescc {
 			for(int iter = 0; iter <= JOYPAD_MAX; ++iter) {
 
 				if(m_controller.at(iter).second) { // controller
+					std::map<int, std::map<SDL_GameControllerButton, bool>>::iterator iter_controller;
 
-					for(int iter_button = 0; iter_button <= JOYPAD_BUTTON_MAX; ++iter_button) {
-						SDL_GameControllerGetButton(m_controller.at(iter).second, JOYPAD_CONTROLLER_BUTTON(iter_button))
-							? pad[iter] |= (1 << iter_button) : 0;
-					}
-				} else { // keyboard
-
-					const uint8_t *state = SDL_GetKeyboardState(nullptr);
-					if(state) {
+					iter_controller = m_status_button.find(m_controller.at(iter).first);
+					if(iter_controller != m_status_button.end()) {
 
 						for(int iter_button = 0; iter_button <= JOYPAD_BUTTON_MAX; ++iter_button) {
-							state[JOYPAD_KEYBOARD_BUTTON(iter_button + (iter * (JOYPAD_BUTTON_MAX + 1)))]
-									? pad[iter] |= (1 << iter_button) : 0;
+							std::map<SDL_GameControllerButton, bool>::iterator iter_controller_button;
+
+							iter_controller_button = iter_controller->second.find(JOYPAD_CONTROLLER_BUTTON(iter_button));
+							if(iter_controller_button != iter_controller->second.end()) {
+								iter_controller_button->second ? pad[iter] |= (1 << iter_button)
+										: pad[iter] &= ~(1 << iter_button);
+							}
+						}
+					}
+				} else { // keyboard
+					std::map<SDL_Scancode, bool>::iterator iter_key;
+
+					for(int iter_button = 0; iter_button <= JOYPAD_BUTTON_MAX; ++iter_button) {
+
+						iter_key = m_status_key.find(JOYPAD_KEYBOARD_BUTTON(iter_button + (iter * (JOYPAD_BUTTON_MAX + 1))));
+						if(iter_key != m_status_key.end()) {
+							iter_key->second ? pad[iter] |= (1 << iter_button) : pad[iter] &= ~(1 << iter_button);
 						}
 					}
 				}

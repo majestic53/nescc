@@ -55,6 +55,7 @@ namespace nescc {
 				_FORMAT_, __VA_ARGS__)
 
 		#define JOYPAD_DATA_BUS 0x40
+		#define JOYPAD_DATA_FILL 0x80
 
 		enum {
 			JOYPAD_1 = 0,

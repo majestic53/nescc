@@ -321,6 +321,11 @@ namespace nescc {
 		while(SDL_PollEvent(&event)) {
 
 			switch(event.type) {
+				case SDL_CONTROLLERBUTTONDOWN:
+				case SDL_CONTROLLERBUTTONUP:
+					TRACE_MESSAGE(TRACE_INFORMATION, "Encountered controller button change event.");
+					m_bus.joypad().button_change(event.cbutton);
+					break;
 				case SDL_CONTROLLERDEVICEADDED:
 					TRACE_MESSAGE(TRACE_INFORMATION, "Encountered controller add event.");
 					m_bus.joypad().controller_add(event.cdevice);
@@ -328,6 +333,14 @@ namespace nescc {
 				case SDL_CONTROLLERDEVICEREMOVED:
 					TRACE_MESSAGE(TRACE_INFORMATION, "Encountered controller remove event.");
 					m_bus.joypad().controller_remove(event.cdevice);
+					break;
+				case SDL_KEYDOWN:
+				case SDL_KEYUP:
+
+					if(!event.key.repeat) {
+						TRACE_MESSAGE(TRACE_INFORMATION, "Encountered key change event.");
+						m_bus.joypad().key_change(event.key);
+					}
 					break;
 				case SDL_QUIT:
 					TRACE_MESSAGE(TRACE_INFORMATION, "Encountered quit event.");

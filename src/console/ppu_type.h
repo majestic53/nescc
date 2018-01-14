@@ -58,6 +58,10 @@ namespace nescc {
 
 		#define PPU_BACKGROUND_PATTERN_TABLE_LENGTH 0x1000
 
+		#define PPU_BLOCK_WIDTH 16
+
+		#define PPU_DATA_ADDRESS_MAX 0x3eff
+
 		#define PPU_DOT_MAX 340
 		#define PPU_DOT_CLEAR_OAM 1 // 261, 1
 		#define PPU_DOT_NAMETABLE_READ_HIGH 340
@@ -80,16 +84,22 @@ namespace nescc {
 
 		#define PPU_NAMETABLE_BASE 0x2000
 
+		#define PPU_PALETTE_TABLE_BASE 0x3f00
+		#define PPU_PALETTE_TABLE_OFFSET 0x10
+
 		#define PPU_SCANLINE_MAX 261
 		#define PPU_SCANLINE_PRE_RENDER 261
 		#define PPU_SCANLINE_POST_RENDER 240
-		#define PPU_SCANLINE_VBLANK_END 260
 		#define PPU_SCANLINE_VBLANK_START 241
 		#define PPU_SCANLINE_VISIBLE_END 239
 		#define PPU_SCANLINE_VISIBLE_START 0
 
+		#define PPU_SPRITE_OAM_MAX 64
 		#define PPU_SPRITE_ID_INVALID 64
 		#define PPU_SPRITE_LENGTH 8
+		#define PPU_SPRITE_LENGTH_LONG 16
+
+		#define PPU_TILE_WIDTH 8
 
 		union ppu_color_t {
 			struct {
@@ -156,6 +166,13 @@ namespace nescc {
 		};
 
 		#define PPU_RENDER_PIXEL_MAX PPU_RENDER_PIXEL_BACKGROUND_HIGH_CALCULATE
+
+		enum {
+			PPU_SPRITE_POSITION_Y = 0,
+			PPU_SPRITE_TILE_ID,
+			PPU_SPRITE_ATTRIBUTES,
+			PPU_SPRITE_POSITION_X,
+		};
 
 		static const sprite_t PPU_SPRITE_INIT = {
 			.id = PPU_SPRITE_ID_INVALID,
