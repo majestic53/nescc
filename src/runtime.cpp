@@ -321,6 +321,14 @@ namespace nescc {
 		while(SDL_PollEvent(&event)) {
 
 			switch(event.type) {
+				case SDL_CONTROLLERDEVICEADDED:
+					TRACE_MESSAGE(TRACE_INFORMATION, "Encountered controller add event.");
+					m_bus.joypad().controller_add(event.cdevice);
+					break;
+				case SDL_CONTROLLERDEVICEREMOVED:
+					TRACE_MESSAGE(TRACE_INFORMATION, "Encountered controller remove event.");
+					m_bus.joypad().controller_remove(event.cdevice);
+					break;
 				case SDL_QUIT:
 					TRACE_MESSAGE(TRACE_INFORMATION, "Encountered quit event.");
 					result = false;

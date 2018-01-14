@@ -19,6 +19,7 @@
 #ifndef NESCC_CONSOLE_JOYPAD_H_
 #define NESCC_CONSOLE_JOYPAD_H_
 
+#include <SDL2/SDL.h>
 #include "../core/memory.h"
 #include "../core/singleton.h"
 #include "./interface/bus.h"
@@ -42,6 +43,14 @@ namespace nescc {
 					) const;
 
 				void clear(void);
+
+				void controller_add(
+					__in const SDL_ControllerDeviceEvent &event
+					);
+
+				void controller_remove(
+					__in const SDL_ControllerDeviceEvent &event
+					);
 
 				nescc::core::memory &port(void);
 
@@ -83,6 +92,8 @@ namespace nescc {
 				void update(void);
 
 				std::vector<int> m_button;
+
+				std::vector<std::pair<int, SDL_GameController *>> m_controller;
 
 				bool m_debug;
 

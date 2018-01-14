@@ -20,9 +20,10 @@ Table of Contents
 Features
 ========
 
-* Support for two controllers:
+* Support for two controllers (keyboard or controller):
 	* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
 	* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
+	* __NOTE__: If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
 * Support for mapper #0 (more to come)
 * Support for live debugging (while in interactive mode)
 
@@ -194,6 +195,7 @@ Version 0.1.1802
 ----------------
 *Updated: 1/13/2018*
 
+* Added basic support for controllers
 * Added apu port register structures
 * Added disassemble command
 * Bug fixes for illegal opcodes: arr, axs, sxa, sya

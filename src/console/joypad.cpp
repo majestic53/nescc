@@ -52,7 +52,8 @@ namespace nescc {
 			for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
 				std::stringstream stream;
 
-				stream << "Pad" << (iter + 1) << "[" << JOYPAD_BUTTON_STRING(m_button.at(iter)) << "]";
+				stream << "Pad" << (iter + 1) << "(" << (m_controller.at(iter).second ? "C" : "") << ")"
+					<< "[" << JOYPAD_BUTTON_STRING(m_button.at(iter)) << "]";
 				result << std::left << std::setw(COLUMN_WIDTH) << stream.str() << SCALAR_AS_HEX(uint8_t, m_port.read(iter));
 
 				if(verbose) {
@@ -96,18 +97,102 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
+#ifndef NDEBUG
 			if(!m_initialized) {
 				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
 			}
+#endif // NDEBUG
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad clearing...");
 
 			m_button.resize(JOYPAD_MAX + 1, JOYPAD_BUTTON_MAX + 1);
+			m_controller.resize(JOYPAD_MAX + 1, std::make_pair(0, nullptr));
 			m_debug = false;
 			m_port.clear();
 			m_strobe = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad cleared.");
+
+			TRACE_EXIT();
+		}
+
+		void
+		joypad::controller_add(
+			__in const SDL_ControllerDeviceEvent &event
+			)
+		{
+			uint32_t count = 1;
+
+			TRACE_ENTRY_FORMAT("Event=%p", &event);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(SDL_IsGameController(event.which)) {
+
+				for(std::vector<std::pair<int, SDL_GameController *>>::iterator iter = m_controller.begin();
+						iter != m_controller.end(); ++count, ++iter) {
+
+					if(!iter->second) {
+						TRACE_DEBUG_FORMAT(m_debug, "Adding controller", "Joypad=%u, Id=%i", count, iter->first);
+
+						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Adding controller", "Joypad=%u, Id=%i", count,
+								iter->first);
+
+						iter->second = SDL_GameControllerOpen(event.which);
+						if(iter->second) {
+							TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Added controller", "Joypad=%u, Id=%i, Mapping=%s",
+								count, iter->first, SDL_GameControllerMapping(iter->second));
+							iter->first = event.which;
+						} else {
+							TRACE_DEBUG_FORMAT(m_debug, "Failed to open controller", "Joypad=%u, Id=%i", count,
+									iter->first);
+						}
+						break;
+					}
+				}
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		joypad::controller_remove(
+			__in const SDL_ControllerDeviceEvent &event
+			)
+		{
+			uint32_t count = 1;
+
+			TRACE_ENTRY_FORMAT("Event=%p", &event);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION(NESCC_CONSOLE_JOYPAD_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(SDL_IsGameController(event.which)) {
+
+				for(std::vector<std::pair<int, SDL_GameController *>>::iterator iter = m_controller.begin();
+						iter != m_controller.end(); ++count, ++iter) {
+
+					if(iter->second && (iter->first == event.which)) {
+						TRACE_DEBUG_FORMAT(m_debug, "Removing controller", "Joypad=%u, Id=%i", count, iter->first);
+
+						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Removing controller", "Joypad=%u, Id=%i", count,
+								iter->first);
+						SDL_GameControllerClose(iter->second);
+						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Removed controller", "Joypad=%u, Id=%i", count,
+								iter->first);
+						iter->first = 0;
+						iter->second = nullptr;
+						break;
+					}
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -211,6 +296,7 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Joypad resetting...");
 
 			m_button.resize(JOYPAD_MAX + 1, JOYPAD_BUTTON_MAX + 1);
+			m_controller.resize(JOYPAD_MAX + 1, std::make_pair(0, nullptr));
 			m_debug = debug;
 			m_port.set_size(JOYPAD_MAX + 1);
 			m_strobe = false;
@@ -241,6 +327,7 @@ namespace nescc {
 					int iter;
 
 					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< ", Controller[" << m_controller.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_controller)
 						<< ", Port=" << m_port.to_string(verbose);
 
 					for(iter = 0; iter <= JOYPAD_MAX; ++iter) {
@@ -260,23 +347,33 @@ namespace nescc {
 		void
 		joypad::update(void)
 		{
-			uint8_t pad1 = 0, pad2 = 0;
+			uint8_t pad[JOYPAD_MAX + 1] = { 0 };
 
 			TRACE_ENTRY();
 
-			const uint8_t *state = SDL_GetKeyboardState(nullptr);
-			if(state) {
+			for(int iter = 0; iter <= JOYPAD_MAX; ++iter) {
 
-				for(int iter = 0; iter <= JOYPAD_BUTTON_MAX; ++iter) {
-					state[JOYPAD_1_BUTTON(iter)] ? pad1 |= (1 << iter) : 0;
-					state[JOYPAD_2_BUTTON(iter)] ? pad2 |= (1 << iter) : 0;
+				if(m_controller.at(iter).second) { // controller
+
+					for(int iter_button = 0; iter_button <= JOYPAD_BUTTON_MAX; ++iter_button) {
+						SDL_GameControllerGetButton(m_controller.at(iter).second, JOYPAD_CONTROLLER_BUTTON(iter_button))
+							? pad[iter] |= (1 << iter_button) : 0;
+					}
+				} else { // keyboard
+
+					const uint8_t *state = SDL_GetKeyboardState(nullptr);
+					if(state) {
+
+						for(int iter_button = 0; iter_button <= JOYPAD_BUTTON_MAX; ++iter_button) {
+							state[JOYPAD_KEYBOARD_BUTTON(iter_button + (iter * (JOYPAD_BUTTON_MAX + 1)))]
+									? pad[iter] |= (1 << iter_button) : 0;
+						}
+					}
 				}
-			}
 
-			m_button.at(JOYPAD_1) = JOYPAD_BUTTON_A;
-			m_button.at(JOYPAD_2) = JOYPAD_BUTTON_A;
-			m_port.write(JOYPAD_1, pad1);
-			m_port.write(JOYPAD_2, pad2);
+				m_button.at(iter) = JOYPAD_BUTTON_A;
+				m_port.write(iter, pad[iter]);
+			}
 
 			TRACE_EXIT();
 		}
