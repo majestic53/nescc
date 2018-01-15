@@ -200,11 +200,11 @@ namespace nescc {
 		}
 
 		uint8_t
-		mapper::read_rom_program_0(
+		mapper::read_rom_program(
 			__in uint16_t address
 			)
 		{
-			uint8_t result = 0;
+			uint8_t result = 0, type;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
@@ -214,28 +214,27 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			result = m_cartridge.rom_program(m_rom_program_index_0).read(address);
+			type = m_cartridge.mapper();
+			switch(type) {
+				case CARTRIDGE_MAPPER_NROM:
 
-			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
-			return result;
-		}
-
-		uint8_t
-		mapper::read_rom_program_1(
-			__in uint16_t address
-			)
-		{
-			uint8_t result = 0;
-
-			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
-
-#ifndef NDEBUG
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+					switch(address) {
+						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH:
+							result = m_cartridge.rom_program(m_rom_program_index_0).read(address);
+							break;
+						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH:
+							result = m_cartridge.rom_program(m_rom_program_index_1).read(
+									address - MAPPER_NROM_PROGRAM_1_LOW);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Type=%u, Address=%u(%04x)", type, address, address);
+					}
+					break;
+				default:
+					THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_TYPE,
+						"Type=%u", type);
 			}
-#endif // NDEBUG
-
-			result = m_cartridge.rom_program(m_rom_program_index_1).read(address);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -260,14 +259,14 @@ namespace nescc {
 
 			type = m_cartridge.mapper();
 			switch(type) {
-				case CARTRIDGE_MAPPER_NONE:
+				case CARTRIDGE_MAPPER_NROM:
 					m_ram_index = 0;
 					m_rom_character_index = 0;
 					m_rom_program_index_0 = 0;
-					m_rom_program_index_1 = ((m_cartridge.rom_program_banks() > 1) ? 1 : 0);
+					m_rom_program_index_1 = ((m_cartridge.rom_program_banks() > 1) ? 1 : 0); // mirror for NROM-128
 					break;
 				default:
-					THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED,
+					THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_TYPE,
 						"Type=%u", type);
 			}
 
@@ -301,9 +300,14 @@ namespace nescc {
 		}
 
 		nescc::core::memory &
-		mapper::rom_program_0(void)
+		mapper::rom_program(
+			__in uint16_t address
+			)
 		{
-			TRACE_ENTRY();
+			uint8_t type;
+			size_t result = 0;
+
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -311,13 +315,36 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			type = m_cartridge.mapper();
+			switch(type) {
+				case CARTRIDGE_MAPPER_NROM:
+
+					switch(address) {
+						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH:
+							result = m_rom_program_index_0;
+							break;
+						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH:
+							result = m_rom_program_index_1;
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Type=%u, Address=%u(%04x)", type, address, address);
+					}
+					break;
+				default:
+					THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_TYPE,
+						"Type=%u", type);
+			}
+
 			TRACE_EXIT();
-			return m_cartridge.rom_program(m_rom_program_index_0);
+			return m_cartridge.rom_program(result);
 		}
 
-		nescc::core::memory &
-		mapper::rom_program_1(void)
+		void
+		mapper::signal_interrupt(void)
 		{
+			uint8_t type;
+
 			TRACE_ENTRY();
 
 #ifndef NDEBUG
@@ -326,8 +353,19 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			type = m_cartridge.mapper();
+			switch(type) {
+				case CARTRIDGE_MAPPER_NROM:
+					break;
+
+				// TODO
+
+				default:
+					THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_TYPE,
+						"Type=%u", type);
+			}
+
 			TRACE_EXIT();
-			return m_cartridge.rom_program(m_rom_program_index_1);
 		}
 
 		std::string
@@ -395,11 +433,13 @@ namespace nescc {
 		}
 
 		void
-		mapper::write_rom_program_0(
+		mapper::write_rom_program(
 			__in uint16_t address,
 			__in uint8_t value
 			)
 		{
+			uint8_t type;
+
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
 
 #ifndef NDEBUG
@@ -408,26 +448,27 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			m_cartridge.rom_program(m_rom_program_index_0).write(address, value);
+			type = m_cartridge.mapper();
+			switch(type) {
+				case CARTRIDGE_MAPPER_NROM:
 
-			TRACE_EXIT();
-		}
-
-		void
-		mapper::write_rom_program_1(
-			__in uint16_t address,
-			__in uint8_t value
-			)
-		{
-			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
-
-#ifndef NDEBUG
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_MAPPER_EXCEPTION(NESCC_CONSOLE_MAPPER_EXCEPTION_UNINITIALIZED);
+					switch(address) {
+						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH:
+							m_cartridge.rom_program(m_rom_program_index_0).write(address, value);
+							break;
+						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH:
+							m_cartridge.rom_program(m_rom_program_index_1).write(address - MAPPER_NROM_PROGRAM_1_LOW,
+									value);
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Type=%u, Address=%u(%04x)", type, address, address);
+					}
+					break;
+				default:
+					THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_TYPE,
+						"Type=%u", type);
 			}
-#endif // NDEBUG
-
-			m_cartridge.rom_program(m_rom_program_index_1).write(address, value);
 
 			TRACE_EXIT();
 		}

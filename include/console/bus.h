@@ -87,6 +87,8 @@ namespace nescc {
 
 				nescc::console::mapper &mapper(void);
 
+				void mapper_interrupt(void);
+
 				uint8_t mirroring(void) const;
 
 				nescc::console::ppu &ppu(void);

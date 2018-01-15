@@ -350,6 +350,10 @@ namespace nescc {
 				case PPU_RENDER_VISIBLE:
 					execute_render_sprite(bus, type);
 					execute_render_background(bus, type);
+
+					if((m_dot == PPU_DOT_MAPPER_INTERRUPT) && (m_mask.background || m_mask.sprite)) {
+						bus.mapper_interrupt();
+					}
 					break;
 				default:
 					break;

@@ -34,7 +34,7 @@ namespace nescc {
 		#define CARTRIDGE_ROM_PROGRAM_MAX (CARTRIDGE_ROM_PROGRAM_LENGTH - 1)
 
 		enum {
-			CARTRIDGE_MAPPER_NONE = 0,
+			CARTRIDGE_MAPPER_NROM = 0,
 		};
 
 		enum {

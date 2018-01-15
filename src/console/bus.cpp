@@ -88,6 +88,7 @@ namespace nescc {
 			__in_opt bool verbose
 			) const
 		{
+			uint16_t relative;
 			std::stringstream result;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Verbose=%x", address, address, offset, offset, verbose);
@@ -113,16 +114,12 @@ namespace nescc {
 					result << m_joypad.port().as_string(address - JOYPAD_PORT_1, offset, JOYPAD_PORT_1, verbose);
 					break;
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
-					result << m_mapper.ram().as_string(address - CARTRIDGE_RAM_PROGRAM_START, offset,
-						CARTRIDGE_RAM_PROGRAM_START, verbose);
+					relative = (address - CARTRIDGE_RAM_PROGRAM_START);
+					result << m_mapper.ram().as_string(relative, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
 					break;
-				case CARTRIDGE_ROM_PROGRAM_0_START ... CARTRIDGE_ROM_PROGRAM_0_END: // 0x8000 - 0xbfff
-					result << m_mapper.rom_program_0().as_string(address - CARTRIDGE_ROM_PROGRAM_0_START, offset,
-						CARTRIDGE_ROM_PROGRAM_0_START, verbose);
-					break;
-				case CARTRIDGE_ROM_PROGRAM_1_START ... CARTRIDGE_ROM_PROGRAM_1_END: // 0xc000 - 0xffff
-					result << m_mapper.rom_program_1().as_string(address - CARTRIDGE_ROM_PROGRAM_1_START, offset,
-						CARTRIDGE_ROM_PROGRAM_1_START, verbose);
+				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
+					relative = (address - CARTRIDGE_ROM_PROGRAM_START);
+					result << m_mapper.rom_program(relative).as_string(relative, offset, CARTRIDGE_ROM_PROGRAM_START, verbose);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Offset=%u(%04x)",
@@ -210,11 +207,8 @@ namespace nescc {
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					result = m_mapper.read_ram(address - CARTRIDGE_RAM_PROGRAM_START);
 					break;
-				case CARTRIDGE_ROM_PROGRAM_0_START ... CARTRIDGE_ROM_PROGRAM_0_END: // 0x8000 - 0xbfff
-					result = m_mapper.read_rom_program_0(address - CARTRIDGE_ROM_PROGRAM_0_START);
-					break;
-				case CARTRIDGE_ROM_PROGRAM_1_START ... CARTRIDGE_ROM_PROGRAM_1_END: // 0xc000 - 0xffff
-					result = m_mapper.read_rom_program_1(address - CARTRIDGE_ROM_PROGRAM_1_START);
+				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
+					result = m_mapper.read_rom_program(address - CARTRIDGE_ROM_PROGRAM_START);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x)", address, address);
@@ -334,11 +328,8 @@ namespace nescc {
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
 					break;
-				case CARTRIDGE_ROM_PROGRAM_0_START ... CARTRIDGE_ROM_PROGRAM_0_END: // 0x8000 - 0xbfff
-					m_mapper.write_rom_program_0(address - CARTRIDGE_ROM_PROGRAM_0_START, value);
-					break;
-				case CARTRIDGE_ROM_PROGRAM_1_START ... CARTRIDGE_ROM_PROGRAM_1_END: // 0xc000 - 0xffff
-					m_mapper.write_rom_program_1(address - CARTRIDGE_ROM_PROGRAM_1_START, value);
+				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
+					m_mapper.write_rom_program(address - CARTRIDGE_ROM_PROGRAM_START, value);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Value=%u(%02x)",
@@ -439,6 +430,22 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return m_mapper;
+		}
+
+		void
+		bus::mapper_interrupt(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_mapper.signal_interrupt();
+
+			TRACE_EXIT();
 		}
 
 		uint8_t

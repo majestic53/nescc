@@ -50,11 +50,7 @@ namespace nescc {
 					__in uint16_t address
 					);
 
-				uint8_t read_rom_program_0(
-					__in uint16_t address
-					);
-
-				uint8_t read_rom_program_1(
+				uint8_t read_rom_program(
 					__in uint16_t address
 					);
 
@@ -64,9 +60,11 @@ namespace nescc {
 
 				nescc::core::memory &rom_character(void);
 
-				nescc::core::memory &rom_program_0(void);
+				nescc::core::memory &rom_program(
+					__in uint16_t address
+					);
 
-				nescc::core::memory &rom_program_1(void);
+				void signal_interrupt(void);
 
 				std::string to_string(
 					__in_opt bool verbose = false
@@ -82,12 +80,7 @@ namespace nescc {
 					__in uint8_t value
 					);
 
-				void write_rom_program_0(
-					__in uint16_t address,
-					__in uint8_t value
-					);
-
-				void write_rom_program_1(
+				void write_rom_program(
 					__in uint16_t address,
 					__in uint8_t value
 					);

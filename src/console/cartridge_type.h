@@ -64,10 +64,10 @@ namespace nescc {
 		#define CARTRIDGE_VERSION_1 1
 		#define CARTRIDGE_VERSION_2 2
 
-		#define CARTRIDGE_MAPPER_MAX CARTRIDGE_MAPPER_NONE
+		#define CARTRIDGE_MAPPER_MAX CARTRIDGE_MAPPER_NROM
 
 		static const std::string CARTRIDGE_MAPPER_STR[] = {
-			"None",
+			"NROM",
 			};
 
 		#define CARTRIDGE_MAPPER_STRING(_TYPE_) \

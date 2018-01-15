@@ -196,6 +196,7 @@ Version 0.1.1802
 ----------------
 *Updated: 1/14/2018*
 
+* Preparing mapper class for mapper 1 and 4
 * Added per-frame keyboard/controller support
 * More ppu bug fixes
 
