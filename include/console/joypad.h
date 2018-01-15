@@ -102,13 +102,13 @@ namespace nescc {
 
 				std::vector<int> m_button;
 
-				std::vector<std::pair<int, SDL_GameController *>> m_controller;
+				std::vector<std::pair<SDL_JoystickID, SDL_GameController *>> m_controller;
 
 				bool m_debug;
 
 				nescc::core::memory m_port;
 
-				std::map<int, std::map<SDL_GameControllerButton, bool>> m_status_button;
+				std::map<SDL_JoystickID, std::map<SDL_GameControllerButton, bool>> m_status_button;
 
 				std::map<SDL_Scancode, bool> m_status_key;
 

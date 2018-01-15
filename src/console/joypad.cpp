@@ -98,7 +98,7 @@ namespace nescc {
 			)
 		{
 			std::map<SDL_GameControllerButton, bool>::iterator iter_button;
-			std::map<int, std::map<SDL_GameControllerButton, bool>>::iterator iter_id;
+			std::map<SDL_JoystickID, std::map<SDL_GameControllerButton, bool>>::iterator iter_id;
 
 			TRACE_ENTRY_FORMAT("Event=%p", &event);
 
@@ -167,24 +167,36 @@ namespace nescc {
 
 			if(SDL_IsGameController(event.which)) {
 
-				for(std::vector<std::pair<int, SDL_GameController *>>::iterator iter = m_controller.begin();
+				for(std::vector<std::pair<SDL_JoystickID, SDL_GameController *>>::iterator iter = m_controller.begin();
 						iter != m_controller.end(); ++count, ++iter) {
 
 					if(!iter->second) {
-						TRACE_DEBUG_FORMAT(m_debug, "Adding controller", "Joypad=%u, Id=%i", count, iter->first);
-
-						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Adding controller", "Joypad=%u, Id=%i", count,
-								iter->first);
 
 						iter->second = SDL_GameControllerOpen(event.which);
-						if(iter->second) {
-							TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Added controller", "Joypad=%u, Id=%i, Mapping=%s",
-								count, iter->first, SDL_GameControllerMapping(iter->second));
-							iter->first = event.which;
-						} else {
-							TRACE_DEBUG_FORMAT(m_debug, "Failed to open controller", "Joypad=%u, Id=%i", count,
-									iter->first);
+						if(!iter->second) {
+							THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION_FORMAT(NESCC_CONSOLE_JOYPAD_EXCEPTION_EXTERNAL,
+								"SDL_GameControllerOpen failed! Error=%s", SDL_GetError());
 						}
+
+						SDL_Joystick *joystick = SDL_GameControllerGetJoystick(iter->second);
+						if(!joystick) {
+							THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION_FORMAT(NESCC_CONSOLE_JOYPAD_EXCEPTION_EXTERNAL,
+								"SDL_GameControllerGetJoystick failed! Error=%s", SDL_GetError());
+						}
+
+						iter->first = SDL_JoystickInstanceID(joystick);
+						if(iter->first < 0) {
+							THROW_NESCC_CONSOLE_JOYPAD_EXCEPTION_FORMAT(NESCC_CONSOLE_JOYPAD_EXCEPTION_EXTERNAL,
+								"SDL_JoystickInstanceID failed! Error=%s", SDL_GetError());
+						}
+
+						TRACE_DEBUG_FORMAT(m_debug, "Adding controller", "Joypad=%u, Id=%i", count, iter->first);
+
+						TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Adding controller", "Joypad=%u, Id=%i", count,
+								iter->first);
+
+						TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Added controller", "Joypad=%u, Id=%i, Mapping=%s",
+							count, iter->first, SDL_GameControllerMapping(iter->second));
 						break;
 					}
 				}
@@ -210,15 +222,15 @@ namespace nescc {
 
 			if(SDL_IsGameController(event.which)) {
 
-				for(std::vector<std::pair<int, SDL_GameController *>>::iterator iter = m_controller.begin();
+				for(std::vector<std::pair<SDL_JoystickID, SDL_GameController *>>::iterator iter = m_controller.begin();
 						iter != m_controller.end(); ++count, ++iter) {
 
 					if(iter->second && (iter->first == event.which)) {
-						std::map<int, std::map<SDL_GameControllerButton, bool>>::iterator iter_status;
+						std::map<SDL_JoystickID, std::map<SDL_GameControllerButton, bool>>::iterator iter_status;
 
 						TRACE_DEBUG_FORMAT(m_debug, "Removing controller", "Joypad=%u, Id=%i", count, iter->first);
 
-						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Removing controller", "Joypad=%u, Id=%i", count,
+						TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Removing controller", "Joypad=%u, Id=%i", count,
 								iter->first);
 						SDL_GameControllerClose(iter->second);
 
@@ -227,8 +239,9 @@ namespace nescc {
 							m_status_button.erase(iter_status);
 						}
 
-						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Removed controller", "Joypad=%u, Id=%i", count,
+						TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Removed controller", "Joypad=%u, Id=%i", count,
 								iter->first);
+
 						iter->first = 0;
 						iter->second = nullptr;
 						break;
@@ -423,7 +436,7 @@ namespace nescc {
 			for(int iter = 0; iter <= JOYPAD_MAX; ++iter) {
 
 				if(m_controller.at(iter).second) { // controller
-					std::map<int, std::map<SDL_GameControllerButton, bool>>::iterator iter_controller;
+					std::map<SDL_JoystickID, std::map<SDL_GameControllerButton, bool>>::iterator iter_controller;
 
 					iter_controller = m_status_button.find(m_controller.at(iter).first);
 					if(iter_controller != m_status_button.end()) {

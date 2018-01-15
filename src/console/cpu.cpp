@@ -359,11 +359,10 @@ namespace nescc {
 
 			for(; iter < offset; ++iter) {
 				int8_t relative = 0;
-				uint8_t address_zp = 0;
 				std::stringstream stream;
+				uint16_t target = 0, indirect = 0;
 				bool boundary = false, wrap = false;
 				std::pair<uint8_t, uint8_t> command;
-				uint16_t address = 0, indirect = 0;
 
 				if(iter) {
 					result << std::endl;
@@ -393,29 +392,29 @@ namespace nescc {
 
 				switch(command.second) {
 					case CPU_MODE_ABSOLUTE:
-						address = bus.cpu_read(program_counter++);
-						address |= (bus.cpu_read(program_counter++) << CHAR_BIT);
-						stream << "[" << SCALAR_AS_HEX(uint16_t, address)
-							<< "]=" << SCALAR_AS_HEX(uint8_t, bus.cpu_read(address));
+						target = bus.cpu_read(program_counter++);
+						target |= (bus.cpu_read(program_counter++) << CHAR_BIT);
+						stream << "[" << SCALAR_AS_HEX(uint16_t, target)
+							<< "]=" << SCALAR_AS_HEX(uint8_t, bus.cpu_read(target));
 						break;
 					case CPU_MODE_ABSOLUTE_X:
-						address = bus.cpu_read(program_counter++);
-						address |= (bus.cpu_read(program_counter++) << CHAR_BIT);
-						boundary = (((address & UINT8_MAX) + m_index_x) > UINT8_MAX);
-						address += m_index_x;
+						target = bus.cpu_read(program_counter++);
+						target |= (bus.cpu_read(program_counter++) << CHAR_BIT);
+						boundary = (((target & UINT8_MAX) + m_index_x) > UINT8_MAX);
+						target += m_index_x;
 						stream << "X=" << SCALAR_AS_HEX(uint8_t, m_index_x)
-							<< ", [" << SCALAR_AS_HEX(uint16_t, address) << "]="
-								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address))
+							<< ", [" << SCALAR_AS_HEX(uint16_t, target) << "]="
+								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target))
 							<< (boundary ? " (Boundary)" : "");
 						break;
 					case CPU_MODE_ABSOLUTE_Y:
-						address = bus.cpu_read(program_counter++);
-						address |= (bus.cpu_read(program_counter++) << CHAR_BIT);
-						boundary = (((address & UINT8_MAX) + m_index_y) > UINT8_MAX);
-						address += m_index_y;
+						target = bus.cpu_read(program_counter++);
+						target |= (bus.cpu_read(program_counter++) << CHAR_BIT);
+						boundary = (((target & UINT8_MAX) + m_index_y) > UINT8_MAX);
+						target += m_index_y;
 						stream << "Y=" << SCALAR_AS_HEX(uint8_t, m_index_y)
-							<< ", [" << SCALAR_AS_HEX(uint16_t, address) << "]="
-								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address))
+							<< ", [" << SCALAR_AS_HEX(uint16_t, target) << "]="
+								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target))
 							<< (boundary ? " (Boundary)" : "");
 						break;
 					case CPU_MODE_ACCUMULATOR:
@@ -429,65 +428,65 @@ namespace nescc {
 						indirect |= (bus.cpu_read(program_counter++) << CHAR_BIT);
 
 						if((indirect & UINT8_MAX) == UINT8_MAX) {
-							address = bus.cpu_read(indirect);
-							address |= (bus.cpu_read(indirect - UINT8_MAX) << CHAR_BIT);
+							target = bus.cpu_read(indirect);
+							target |= (bus.cpu_read(indirect - UINT8_MAX) << CHAR_BIT);
 							wrap = true;
 						} else {
-							address = bus.cpu_read(indirect);
-							address |= (bus.cpu_read(indirect + 1) << CHAR_BIT);
+							target = bus.cpu_read(indirect);
+							target |= (bus.cpu_read(indirect + 1) << CHAR_BIT);
 						}
 
 						stream << "**=" << SCALAR_AS_HEX(uint16_t, indirect)
-							<< ", [" << SCALAR_AS_HEX(uint16_t, address) << "]="
-								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address))
+							<< ", [" << SCALAR_AS_HEX(uint16_t, target) << "]="
+								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target))
 							<< (wrap ? " (Wrap)" : "");
 						break;
 					case CPU_MODE_INDIRECT_X:
 						indirect = bus.cpu_read(program_counter++);
 						indirect += m_index_x;
-						address = bus.cpu_read(indirect + 1);
-						address |= (bus.cpu_read(indirect) << CHAR_BIT);
+						target = bus.cpu_read(indirect + 1);
+						target |= (bus.cpu_read(indirect) << CHAR_BIT);
 						stream << "X=" << SCALAR_AS_HEX(uint8_t, m_index_x)
 							<< ", **=" << SCALAR_AS_HEX(uint16_t, indirect)
-							<< ", [" << SCALAR_AS_HEX(uint16_t, address) << "]="
-								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address));
+							<< ", [" << SCALAR_AS_HEX(uint16_t, target) << "]="
+								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target));
 						break;
 					case CPU_MODE_INDIRECT_Y:
 						indirect = bus.cpu_read(program_counter++);
-						address = bus.cpu_read(indirect + 1);
-						address |= (bus.cpu_read(indirect) << CHAR_BIT);
-						boundary = (((address & UINT8_MAX) + m_index_y) > UINT8_MAX);
-						address += m_index_y;
+						target = bus.cpu_read(indirect + 1);
+						target |= (bus.cpu_read(indirect) << CHAR_BIT);
+						boundary = (((target & UINT8_MAX) + m_index_y) > UINT8_MAX);
+						target += m_index_y;
 						stream << "Y=" << SCALAR_AS_HEX(uint8_t, m_index_y)
 							<< ", **=" << SCALAR_AS_HEX(uint16_t, indirect)
-							<< ", [" << SCALAR_AS_HEX(uint16_t, address) << "]="
-								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address))
+							<< ", [" << SCALAR_AS_HEX(uint16_t, target) << "]="
+								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target))
 							<< (boundary ? " (Bounard)" : "");
 						break;
 					case CPU_MODE_RELATIVE:
 						relative = bus.cpu_read(program_counter);
-						address = (program_counter + 1 + relative);
-						boundary = (((program_counter++) & (UINT8_MAX << CHAR_BIT)) != ((address) & (UINT8_MAX << CHAR_BIT)));
-						stream << "*=" << SCALAR_AS_HEX(uint16_t, address)
+						target = (program_counter + 1 + relative);
+						boundary = (((program_counter++) & (UINT8_MAX << CHAR_BIT)) != ((target) & (UINT8_MAX << CHAR_BIT)));
+						stream << "*=" << SCALAR_AS_HEX(uint16_t, target)
 							<< ", R=" << ((int) relative) << "(" << SCALAR_AS_HEX(uint8_t, relative) << ")"
 							<< (boundary ? " (Boundary)" : "");
 						break;
 					case CPU_MODE_ZERO_PAGE:
-						address_zp = bus.cpu_read(program_counter++);
-						stream << "[" << SCALAR_AS_HEX(uint8_t, address_zp) << "]="
-							<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address_zp));
+						target = bus.cpu_read(program_counter++);
+						stream << "[" << SCALAR_AS_HEX(uint8_t, target) << "]="
+							<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target));
 						break;
 					case CPU_MODE_ZERO_PAGE_X:
-						address_zp = (bus.cpu_read(program_counter++) + m_index_x);
+						target = (bus.cpu_read(program_counter++) + m_index_x);
 						stream << "X=" << SCALAR_AS_HEX(uint8_t, m_index_x)
-							<< ", [" << SCALAR_AS_HEX(uint8_t, address_zp) << "]="
-								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address_zp));
+							<< ", [" << SCALAR_AS_HEX(uint8_t, target) << "]="
+								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target));
 						break;
 					case CPU_MODE_ZERO_PAGE_Y:
-						address_zp = (bus.cpu_read(program_counter++) + m_index_y);
+						target = (bus.cpu_read(program_counter++) + m_index_y);
 						stream << "Y=" << SCALAR_AS_HEX(uint8_t, m_index_y)
-							<< ", [" << SCALAR_AS_HEX(uint8_t, address_zp) << "]="
-								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(address_zp));
+							<< ", [" << SCALAR_AS_HEX(uint8_t, target) << "]="
+								<< SCALAR_AS_HEX(uint8_t, bus.cpu_read(target));
 						break;
 					default:
 						break;
@@ -496,18 +495,18 @@ namespace nescc {
 				result << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str();
 
 				if(verbose) {
-					uint8_t iter = 0, length = CPU_MODE_LENGTH(command.second);
+					uint8_t iter_byte = 0, length = CPU_MODE_LENGTH(command.second);
 
 					stream.clear();
 					stream.str(std::string());
 
-					for(; iter < length; ++iter) {
+					for(; iter_byte < length; ++iter_byte) {
 
-						if(iter) {
+						if(iter_byte) {
 							stream << " ";
 						}
 
-						stream << SCALAR_AS_HEX(uint8_t, bus.cpu_read((program_counter - length) + iter));
+						stream << SCALAR_AS_HEX(uint8_t, bus.cpu_read((program_counter - length) + iter_byte));
 					}
 
 					result << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str();

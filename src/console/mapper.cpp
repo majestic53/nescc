@@ -304,8 +304,7 @@ namespace nescc {
 			__in uint16_t address
 			)
 		{
-			uint8_t type;
-			size_t result = 0;
+			uint8_t result = 0, type;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
