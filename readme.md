@@ -13,6 +13,8 @@ Table of Contents
 1. [Features](https://github.com/majestic53/nescc#features) -- Project features
 2. [Build](https://github.com/majestic53/nescc#build) -- How to build the project
 3. [Usage](https://github.com/majestic53/nescc#usage) -- How to use the project
+	* [Nescc](https://github.com/majestic53/nescc#nescc) -- How to use the Nescc application
+	* [Nescc-rominfo](https://github.com/majestic53/nescc#nescc-rominfo) -- How to use Nescc-rominfo application
 4. [Interactive Mode](https://github.com/majestic53/nescc#interactive-mode) -- How to use the projects interactive mode
 5. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
 6. [License](https://github.com/majestic53/nescc#license) -- Project license information
@@ -64,6 +66,8 @@ Usage
 Nescc
 -----
 
+Nescc is a CLI application for emulating/debugging NES roms.
+
 ```
 Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 
@@ -87,6 +91,8 @@ $ nescc ../somerom.nes -i
 
 Nescc-rominfo
 -------
+
+Nescc-rominfo is a CLI application for extracting various information from NES roms.
 
 ```
 Nescc-rominfo [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose] [-v|--version] path
