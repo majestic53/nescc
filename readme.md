@@ -14,14 +14,14 @@ Table of Contents
 2. [Build](https://github.com/majestic53/nescc#build) -- How to build the project
 3. [Usage](https://github.com/majestic53/nescc#usage) -- How to use the project
 	* [Nescc](https://github.com/majestic53/nescc#nescc) -- How to use the Nescc application
-		* [Interactive Commands](https://github.com/majestic53/nescc#interactive-commands)
- 		* [APU Subcommands](https://github.com/majestic53/nescc#apu-subcommands)
-		* [CPU Subcommands](https://github.com/majestic53/nescc#cpu-subcommands)
-		* [Debug Subcommands](https://github.com/majestic53/nescc#debug-subcommands)
-		* [Display Subcommands](https://github.com/majestic53/nescc#display-subcommands)
-		* [Joypad Subcommands](https://github.com/majestic53/nescc#joypad-subcommands)
-		* [Mapper Subcommands](https://github.com/majestic53/nescc#mapper-subcommands)
-		* [PPU Subcommands](https://github.com/majestic53/nescc#ppu-subcommands)
+		* [Interactive Commands](https://github.com/majestic53/nescc#interactive-commands) -- All interactive mode commands
+ 		* [APU Subcommands](https://github.com/majestic53/nescc#apu-subcommands) -- All interactive mode APU subcommands
+		* [CPU Subcommands](https://github.com/majestic53/nescc#cpu-subcommands) -- All interactive mode CPU subcommands
+		* [Debug Subcommands](https://github.com/majestic53/nescc#debug-subcommands) -- All interactive mode debug subcommands
+		* [Display Subcommands](https://github.com/majestic53/nescc#display-subcommands) -- All interactive mode display subcommands
+		* [Joypad Subcommands](https://github.com/majestic53/nescc#joypad-subcommands) -- All interactive mode joypad subcommands
+		* [Mapper Subcommands](https://github.com/majestic53/nescc#mapper-subcommands) -- All interactive mode mapper subcommands
+		* [PPU Subcommands](https://github.com/majestic53/nescc#ppu-subcommands) -- All interactive mode PPU subcommands
 	* [Nescc-rominfo](https://github.com/majestic53/nescc#nescc-rominfo) -- How to use Nescc-rominfo application
 4. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
 5. [License](https://github.com/majestic53/nescc#license) -- Project license information
