@@ -113,14 +113,14 @@ stop                                                                  Stop emula
 version                                                               Display version information
 ```
 
-###APU Subcommands###
+### APU Subcommands
 
 ```
 help                                                                  Display help information
 status                                                                Display status information
 ```
 
-###CPU Subcommands###
+### CPU Subcommands
 
 ```
 cycle                                                                 Display current cycle count
@@ -138,7 +138,7 @@ status                                                                Display st
 watch           [<address> | clear]                                   Set/Clear watched memory addresses
 ```
 
-###Debug Subcommands###
+### Debug Subcommands
 
 ```
 help                                                                  Display help information
@@ -146,7 +146,7 @@ set             [<address>] <value>                                   Set memory
 status                                                                Display status information
 ```
 
-###Display Subcommands###
+### Display Subcommands
 
 ```
 help                                                                  Display help information
@@ -156,7 +156,7 @@ show                                                                  Show displ
 status                                                                Display status information
 ```
 
-###Joypad Subcommands###
+### Joypad Subcommands
 
 ```
 help                                                                  Display help information
@@ -164,14 +164,14 @@ status                                                                Display st
 strobe          <value>                                               Set/Clear strobe
 ```
 
-###Mapper Subcommands###
+### Mapper Subcommands
 
 ```
 help                                                                  Display help information
 status                                                                Display status information
 ```
 
-###PPU Subcommands###
+### PPU Subcommands
 
 ```
 cycle                                                                 Display current cycle count
