@@ -201,8 +201,9 @@ Nescc-rominfo
 Nescc-rominfo is a CLI application for extracting various information from NES roms.
 
 ```
-Nescc-rominfo [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose] [-v|--version] path
+Nescc-rominfo [-d|--decode-chr] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose] [-v|--version] path
 
+-d | --decode-chr                                                     Decode character rom banks
 -c | --extract-chr                                                    Extract character rom banks
 -p | --extract-pgr                                                    Extract program rom banks
 -h | --help                                                           Display help information
@@ -222,7 +223,13 @@ To extract PRG and CHR roms:
 $ nescc-rominfo -c -p ../somerom.nes
 ```
 
-Extracted roms can be found in the same directory as the rom
+To extract CHR roms as images:
+
+```
+$ nescc-rominfo -c -d ../somerom.nes
+```
+
+Extracted roms/images can be found in the same directory as the rom
 
 Changelog
 =========
