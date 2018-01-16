@@ -19,6 +19,7 @@
 #ifndef NESCC_TOOL_ROMINFO_TYPE_H_
 #define NESCC_TOOL_ROMINFO_TYPE_H_
 
+#include <climits>
 #include <map>
 #include "../../include/exception.h"
 
@@ -83,10 +84,16 @@ namespace nescc {
 		#define EXTRACT_EXTENSION_DELIMITER "."
 		#define EXTRACT_FILE_DEFAULT "rom"
 		#define EXTRACT_ROM_CHR_EXTENSION "chr"
+		#define EXTRACT_ROM_CHR_DECODE_EXTENSION "ppm"
 		#define EXTRACT_ROM_PRG_EXTENSION "prg"
 
+		#define ROM_CHR_DECODE_DEPTH 255
+		#define ROM_CHR_DECODE_DIMENSION 128
+		#define ROM_CHR_DECODE_TYPE "P3"
+
 		enum {
-			ARGUMENT_EXTRACT_CHR = 0,
+			ARGUMENT_DECODE_CHR = 0,
+			ARGUMENT_EXTRACT_CHR,
 			ARGUMENT_EXTRACT_PRG,
 			ARGUMENT_HELP,
 			ARGUMENT_VERBOSE,
@@ -96,7 +103,7 @@ namespace nescc {
 		#define ARGUMENT_MAX ARGUMENT_VERSION
 
 		static const std::string ARGUMENT_STR[] = {
-			"c", "p", "h", "a", "v",
+			"d", "c", "p", "h", "a", "v",
 			};
 
 		#define ARGUMENT_STRING(_TYPE_) \
@@ -104,7 +111,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR[_TYPE_]))
 
 		static const std::string ARGUMENT_STR_LONG[] = {
-			"extract-chr", "extract-pgr", "help", "verbose", "version",
+			"decode-chr", "extract-chr", "extract-pgr", "help", "verbose", "version",
 			};
 
 		#define ARGUMENT_STRING_LONG(_TYPE_) \
@@ -112,6 +119,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR_LONG[_TYPE_]))
 
 		static const std::string ARGUMENT_STRING_DESC[] = {
+			"Decode character rom banks",
 			"Extract character rom banks",
 			"Extract program rom banks",
 			"Display help information",
@@ -124,6 +132,8 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STRING_DESC[_TYPE_]))
 
 		static const std::map<std::string, uint32_t> ARGUMENT_MAP = {
+			std::make_pair(ARGUMENT_STRING(ARGUMENT_DECODE_CHR), ARGUMENT_DECODE_CHR),
+			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_DECODE_CHR), ARGUMENT_DECODE_CHR),
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_EXTRACT_CHR), ARGUMENT_EXTRACT_CHR),
 			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_EXTRACT_CHR), ARGUMENT_EXTRACT_CHR),
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_EXTRACT_PRG), ARGUMENT_EXTRACT_PRG),
@@ -135,6 +145,41 @@ namespace nescc {
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_VERSION), ARGUMENT_VERSION),
 			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_VERSION), ARGUMENT_VERSION),
 			};
+
+		enum {
+			TILE_PALETTE_0 = 0,
+			TILE_PALETTE_1,
+			TILE_PALETTE_2,
+			TILE_PALETTE_3,
+		};
+
+		#define TILE_PALETTE_MAX TILE_PALETTE_3
+
+		union tile_palette_t {
+			struct {
+				uint32_t blue : 8;
+				uint32_t green : 8;
+				uint32_t red : 8;
+				uint32_t unused : 8;
+			};
+			uint32_t raw;
+		};
+
+		static const tile_palette_t TILE_PALETTE_COL[] = {
+			{ .red = 0x00, .green = 0x00, .blue = 0x00 }, // 0x000000
+			{ .red = 0x9c, .green = 0x17, .blue = 0x46 }, // 0x9C1746
+			{ .red = 0xe2, .green = 0x7a, .blue = 0x53 }, // 0xE27A53
+			{ .red = 0x8a, .green = 0x5e, .blue = 0x1d }, // 0x8A5E1D
+			};
+
+		#define TILE_PALETTE_COLOR(_TYPE_) \
+			(((_TYPE_) > TILE_PALETTE_MAX) ? TILE_PALETTE_COL[0] : \
+				TILE_PALETTE_COL[_TYPE_])
+
+		struct tile_plain_t {
+			uint8_t first[CHAR_BIT];
+			uint8_t second[CHAR_BIT];
+		};
 	}
 }
 

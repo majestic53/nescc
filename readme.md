@@ -232,6 +232,7 @@ Version 0.1.1803
 *Updated: 1/15/2018*
 
 * Added rominfo utility
+	* Added routine to decode CHR as PPM image (incomplete)
 
 Version 0.1.1802
 ----------------

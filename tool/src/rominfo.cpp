@@ -157,6 +157,80 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		void
+		rominfo::decode_character_bank(
+			__in const std::string &path,
+			__in std::vector<nescc::core::memory>::iterator &bank
+			)
+		{
+			std::ofstream file;
+			uint32_t iter, tile = 0;
+			std::stringstream result;
+			std::vector<uint8_t> pixel;
+			tile_plain_t *plane = nullptr;
+
+			TRACE_ENTRY_FORMAT("Path[%u]=%p, Bank=%p", path.size(), STRING_CHECK(path), &bank);
+
+			pixel.resize(ROM_CHR_DECODE_DIMENSION * ROM_CHR_DECODE_DIMENSION, 0);
+			result << ROM_CHR_DECODE_TYPE
+				<< std::endl << ROM_CHR_DECODE_DIMENSION << " " << ROM_CHR_DECODE_DIMENSION
+				<< std::endl << ROM_CHR_DECODE_DEPTH;
+
+			for(iter = 0; iter < bank->size(); iter += sizeof(tile_plain_t), ++tile) {
+
+				plane = (tile_plain_t *) &(bank->raw()[iter]);
+				if(plane) {
+
+					for(uint8_t y = 0; y < CHAR_BIT; ++y) {
+
+						for(int8_t x = (CHAR_BIT - 1); x >= 0; --x) {
+							uint32_t base_x = (tile % (ROM_CHR_DECODE_DIMENSION / CHAR_BIT));
+							uint32_t base_y = (tile / (ROM_CHR_DECODE_DIMENSION / CHAR_BIT));
+							uint32_t coord_x = (((CHAR_BIT - 1) - x) + (base_x * CHAR_BIT));
+							uint32_t coord_y = (y + (base_y * CHAR_BIT));
+
+// TODO: clean up this routine
+// TODO: fix this off-by-one bug!
+							if(coord_y > 127) {
+								break;
+							}
+// ---
+
+// TODO: get background sprites below by increasng height to 256, make sure to check header for mirroring
+	// horizontal: 	width=256, height=128
+	// vertical:	width=128, height=256
+
+							pixel.at((coord_y * ROM_CHR_DECODE_DIMENSION) + coord_x) =
+								(((plane->first[y] >> x) & 1) | (((plane->second[y] >> x) & 1) << 1));
+						}
+					}
+				}
+			}
+
+			for(iter = 0; iter < (ROM_CHR_DECODE_DIMENSION * ROM_CHR_DECODE_DIMENSION); ++iter) {
+
+				if(!(iter % ROM_CHR_DECODE_DIMENSION)) {
+					result << std::endl;
+				} else {
+					result << " ";
+				}
+
+				const tile_palette_t &palette = TILE_PALETTE_COLOR(pixel.at(iter));
+				result << (int) palette.red << " " << (int) palette.green << " " << (int) palette.blue;
+			}
+
+			file = std::ofstream(path.c_str(), std::ios::out | std::ios::trunc);
+			if(!file) {
+				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_NOT_CREATED,
+					"Path[%u]=%s", path.size(), STRING_CHECK(path));
+			}
+
+			file.write(result.str().c_str(), result.str().size());
+			file.close();
+
+			TRACE_EXIT();
+		}
+
 		std::string
 		rominfo::display_help(
 			__in_opt bool verbose
@@ -320,7 +394,9 @@ namespace nescc {
 		}
 
 		std::string
-		rominfo::extract_rom_character(void)
+		rominfo::extract_rom_character(
+			__in_opt bool decode
+			)
 		{
 			uint32_t offset;
 			std::ifstream input;
@@ -328,7 +404,7 @@ namespace nescc {
 			std::vector<nescc::core::memory> bank;
 			std::string directory, extension, file;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Decode=%x", decode);
 
 			result << "Extracting character banks from " << m_path
 				<< std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << "|- CHR ROM: "
@@ -376,8 +452,8 @@ namespace nescc {
 
 					path << directory << DIRECTORY_DELIMITER << file << "-" << count << EXTENSION_DELIMITER
 						<< EXTRACT_ROM_CHR_EXTENSION;
-					result << std::endl << "Writing " << FLOAT_PRECISION(1, iter->size() / KILOBYTE) << " KB ("
-						<< iter->size() << " bytes) character bank to " << path.str() << "...";
+					result << std::endl << "Writing character bank-" << count << ", " << FLOAT_PRECISION(1, iter->size() / KILOBYTE)
+						<< " KB (" << iter->size() << " bytes) to " << path.str() << "...";
 
 					output = std::ofstream(path.str().c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
 					if(!output) {
@@ -388,6 +464,16 @@ namespace nescc {
 					output.write((char *) iter->raw(), iter->size());
 					output.close();
 					result << " Done.";
+
+					if(decode) {
+						path.clear();
+						path.str(std::string());
+						path << directory << DIRECTORY_DELIMITER << file << "-" << count << EXTENSION_DELIMITER
+							<< EXTRACT_ROM_CHR_DECODE_EXTENSION;
+						result << std::endl << "Writing character bank-" << count << " image to " << path.str() << "...";
+						decode_character_bank(path.str(), iter);
+						result << " Done.";
+					}
 				}
 			}
 
@@ -452,8 +538,8 @@ namespace nescc {
 
 					path << directory << DIRECTORY_DELIMITER << file << "-" << count << EXTENSION_DELIMITER
 						<< EXTRACT_ROM_PRG_EXTENSION;
-					result << std::endl << "Writing " << FLOAT_PRECISION(1, iter->size() / KILOBYTE) << " KB ("
-						<< iter->size() << " bytes) program bank to " << path.str() << "...";
+					result << std::endl << "Writing program bank-" << count << ", " << FLOAT_PRECISION(1, iter->size() / KILOBYTE)
+						<< " KB (" << iter->size() << " bytes) to " << path.str() << "...";
 
 					output = std::ofstream(path.str().c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
 					if(!output) {
@@ -494,7 +580,8 @@ namespace nescc {
 			int index = 1;
 			std::stringstream result;
 			std::vector<std::string>::const_iterator iter;
-			bool extract_chr = false, extract_prg = false, help = false, verbose = false, version = false;
+			bool decode_chr = false, extract_chr = false, extract_prg = false, help = false, verbose = false,
+				version = false;
 
 			TRACE_ENTRY_FORMAT("Arguments[%u]=%p", input.size(), &input);
 
@@ -527,6 +614,9 @@ namespace nescc {
 					}
 
 					switch(entry->second) {
+						case ARGUMENT_DECODE_CHR:
+							decode_chr = true;
+							break;
 						case ARGUMENT_EXTRACT_CHR:
 							extract_chr = true;
 							break;
@@ -565,9 +655,7 @@ namespace nescc {
 				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_PATH_UNASSIGNED, "%s",
 					STRING_CHECK(display_usage()));
 			} else {
-				std::cout << NESCC_ROMINFO << " " << display_version(verbose) << std::endl << NESCC_COPYRIGHT
-					<< std::endl << std::endl;
-				load(m_path, extract_chr, extract_prg, verbose);
+				load(m_path, decode_chr, extract_chr, extract_prg, verbose);
 
 				if(!extract_chr && !extract_prg) {
 
@@ -584,6 +672,7 @@ namespace nescc {
 		void
 		rominfo::load(
 			__in const std::string &path,
+			__in_opt bool decode_chr,
 			__in_opt bool extract_chr,
 			__in_opt bool extract_prg,
 			__in_opt bool verbose
@@ -593,8 +682,8 @@ namespace nescc {
 			std::ifstream file;
 			std::string input_path;
 
-			TRACE_ENTRY_FORMAT("Path[%u]=%s, Extract={chr=%x, prg=%x}, Verbose=%x", path.size(), STRING_CHECK(path),
-				extract_chr, extract_prg, verbose);
+			TRACE_ENTRY_FORMAT("Path[%u]=%s, Decode={chr=%u}, Extract={chr=%x, prg=%x}, Verbose=%x", path.size(), STRING_CHECK(path),
+				decode_chr, extract_chr, extract_prg, verbose);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -629,7 +718,7 @@ namespace nescc {
 			extract_header();
 
 			if(extract_chr && m_character_rom_count) {
-				std::cout << extract_rom_character() << std::endl;
+				std::cout << extract_rom_character(decode_chr) << std::endl;
 			}
 
 			if(extract_prg && m_program_rom_count) {

@@ -43,6 +43,7 @@ namespace nescc {
 
 				void load(
 					__in const std::string &path,
+					__in_opt bool decode_chr = false,
 					__in_opt bool extract_chr = false,
 					__in_opt bool extract_prg = false,
 					__in_opt bool verbose = false
@@ -70,6 +71,11 @@ namespace nescc {
 					__in const rominfo &other
 					) = delete;
 
+				void decode_character_bank(
+					__in const std::string &path,
+					__in std::vector<nescc::core::memory>::iterator &bank
+					);
+
 				std::string display_help(
 					__in_opt bool verbose = false
 					) const;
@@ -89,7 +95,9 @@ namespace nescc {
 					__inout std::string &extension
 					);
 
-				std::string extract_rom_character(void);
+				std::string extract_rom_character(
+					__in_opt bool decode = false
+					);
 
 				std::string extract_rom_program(void);
 
