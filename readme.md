@@ -192,6 +192,12 @@ watch           [<address> | clear]                                   Set/Clear 
 Changelog
 =========
 
+Version 0.1.1803
+----------------
+*Updated: 1/15/2018*
+
+* Added rominfo utility
+
 Version 0.1.1802
 ----------------
 *Updated: 1/14/2018*
@@ -233,31 +239,6 @@ Version 0.1.1802
 
 * Added cpu next command
 * Fixed halting bug when using kil commands
-
-Version 0.1.1801
-----------------
-*Updated: 1/6-7/2018*
-
-* Added support for additional illegal commands: ahx, alr, anc, arr, axs, dcp, isc, kil, las, lax, nop, rla, rra, sax, sbc, shx, shy, slo, sre, tas, xaa
-
-*Updated: 1/5/2018*
-
-* Added illegal command support
-* Added cpu halt command
-
-*Updated: 1/4/2018*
-
-* Cpu bug fixes
-
-*Updated: 1/2-3/2018*
-
-* Added cpu/ppu watch command
-* Added ppu port command
-* Added better greyscale colors
-
-*Updated: 1/1/2018*
-
-* Added ppu render routines
 
 *Changelog truncated (see file history for full log)*
 

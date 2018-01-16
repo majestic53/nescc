@@ -26,29 +26,6 @@ namespace nescc {
 
 	namespace console {
 
-		typedef struct __attribute__((packed)) {
-			uint8_t magic[CARTRIDGE_MAGIC_LENGTH];
-			uint8_t rom_program;
-			uint8_t rom_character;
-			uint32_t mirroring : 1;
-			uint32_t battery : 1;
-			uint32_t trainer : 1;
-			uint32_t vram : 1;
-			uint32_t mapper_low : 4;
-			uint32_t vs_unisystem : 1;
-			uint32_t play_choice_10 : 1;
-			uint32_t version : 2;
-			uint32_t mapper_high : 4;
-			uint32_t ram_program : 8;
-			uint32_t tv_system : 1;
-			uint32_t unused_0 : 7;
-			uint8_t unused_1[6];
-		} cartridge_header;
-
-		typedef struct {
-			uint8_t unused[CARTRIDGE_TRAINER_LENGTH];
-		} cartridge_trainer;
-
 		cartridge::cartridge(void) :
 			m_loaded(false),
 			m_mapper(0),
