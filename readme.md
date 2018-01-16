@@ -61,6 +61,9 @@ Where LEVEL corrisponds to the tracing verbosity (0=Error, 1=Warnings, 2=Informa
 Usage
 =====
 
+Nescc
+-----
+
 ```
 Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 
@@ -70,7 +73,7 @@ Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 -v | --version                                                        Display version information
 ```
 
-For example, to launch __without__ the interactive mode enabled:
+To launch __without__ the interactive mode enabled:
 
 ```
 $ nescc ../somerom.nes
@@ -81,6 +84,33 @@ Launch with the interactive mode enabled:
 ```
 $ nescc ../somerom.nes -i
 ```
+
+Nescc-rominfo
+-------
+
+```
+Nescc-rominfo [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose] [-v|--version] path
+
+-c | --extract-chr                                                    Extract character rom banks
+-p | --extract-pgr                                                    Extract program rom banks
+-h | --help                                                           Display help information
+-a | --verbose                                                        Display verbose information
+-v | --version                                                        Display version information
+```
+
+To display a rom header in a human-readable form:
+
+```
+$ nescc-rominfo -a ../somerom.nes
+```
+
+To extract PRG and CHR roms:
+
+```
+$ nescc-rominfo -c -p ../somerom.nes
+```
+
+Extracted roms can be found in the same directory as the rom
 
 Interactive mode
 ================
