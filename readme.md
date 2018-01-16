@@ -15,9 +15,8 @@ Table of Contents
 3. [Usage](https://github.com/majestic53/nescc#usage) -- How to use the project
 	* [Nescc](https://github.com/majestic53/nescc#nescc) -- How to use the Nescc application
 	* [Nescc-rominfo](https://github.com/majestic53/nescc#nescc-rominfo) -- How to use Nescc-rominfo application
-4. [Interactive Mode](https://github.com/majestic53/nescc#interactive-mode) -- How to use the projects interactive mode
-5. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
-6. [License](https://github.com/majestic53/nescc#license) -- Project license information
+4. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
+5. [License](https://github.com/majestic53/nescc#license) -- Project license information
 
 Features
 ========
@@ -89,8 +88,105 @@ Launch with the interactive mode enabled:
 $ nescc ../somerom.nes -i
 ```
 
+Launching in interactive mode allows for live debugging with the following commands:
+
+```
+apu             [help, status]                                        Display apu state
+cpu             [cycle, get, halt, help, irq, next,
+			nmi, reg, reset, set, status, watch]          Display/Set cpu state
+debug           [help, set, status]                                   Enable/Disable debug mode
+display         [help, hide, present, show, status]                   Display/Set display state
+exit                                                                  Exit interactive mode
+frame                                                                 Display frame count
+help                                                                  Display help information
+joypad          [help, status, strobe]                                Display/Set joypad state
+mapper          [help, status]                                        Display mapper state
+pause                                                                 Pause emulation
+ppu             [cycle, dot, get, help, port, scanline,
+			set, status, watch]                           Display/Set ppu state
+restart                                                               Restart emulation
+run                                                                   Run/Unpause emulation
+status                                                                Display emulation status
+step                                                                  Step emulation through commands
+step-frame                                                            Step emulation through frames
+stop                                                                  Stop emulation
+version                                                               Display version information
+```
+
+###APU Subcommands###
+
+```
+help                                                                  Display help information
+status                                                                Display status information
+```
+
+###CPU Subcommands###
+
+```
+cycle                                                                 Display current cycle count
+dasm            <address> <offset>                                    Display instructions
+get             <address> <offset>                                    Display memory value
+halt            <value>                                               Set/Clear halt value
+help                                                                  Display help information
+irq                                                                   Signal maskable interrupt
+next            [<value>]                                             Display next instruction
+nmi                                                                   Signal non-maskable interrupt
+reg             <register> [<value>]                                  Display/Set register value
+reset                                                                 Signal reset
+set             [<address>] <value>                                   Set memory value
+status                                                                Display status information
+watch           [<address> | clear]                                   Set/Clear watched memory addresses
+```
+
+###Debug Subcommands###
+
+```
+help                                                                  Display help information
+set             [<address>] <value>                                   Set memory value
+status                                                                Display status information
+```
+
+###Display Subcommands###
+
+```
+help                                                                  Display help information
+hide                                                                  Hide display window
+present                                                               Refresh display window
+show                                                                  Show display window
+status                                                                Display status information
+```
+
+###Joypad Subcommands###
+
+```
+help                                                                  Display help information
+status                                                                Display status information
+strobe          <value>                                               Set/Clear strobe
+```
+
+###Mapper Subcommands###
+
+```
+help                                                                  Display help information
+status                                                                Display status information
+```
+
+###PPU Subcommands###
+
+```
+cycle                                                                 Display current cycle count
+dot                                                                   Display current dot
+get             <address> <offset>                                    Display memory value
+help                                                                  Display help information
+port            <port> [<value>]                                      Display/Set port value
+scanline                                                              Display current scanline
+set             [<address>] <value>                                   Set memory value
+status                                                                Display status information
+watch           [<address> | clear]                                   Set/Clear watch memory addresses
+```
+
 Nescc-rominfo
--------
+-------------
 
 Nescc-rominfo is a CLI application for extracting various information from NES roms.
 
@@ -117,113 +213,6 @@ $ nescc-rominfo -c -p ../somerom.nes
 ```
 
 Extracted roms can be found in the same directory as the rom
-
-Interactive mode
-================
-
-Launching in interactive mode allows for live debugging with the following commands:
-
-```
-apu             [help, status]                                        Display apu state
-cpu             [cycle, get, halt, help, irq, next,
-			nmi, reg, reset, set, status, watch]          Display/Set cpu state
-debug           [help, set, status]                                   Enable/Disable debug mode
-display         [help, hide, present, show, status]                   Display/Set display state
-exit                                                                  Exit interactive mode
-frame                                                                 Display frame count
-help                                                                  Display help information
-joypad          [help, status, strobe]                                Display/Set joypad state
-mapper          [help, status]                                        Display mapper state
-pause                                                                 Pause emulation
-ppu             [cycle, dot, get, help, port, scanline,
-			set, status, watch]                           Display/Set ppu state
-restart                                                               Restart emulation
-run                                                                   Run/Unpause emulation
-status                                                                Display emulation status
-step                                                                  Step emulation through commands
-step-frame                                                            Step emulation through frames
-stop                                                                  Stop emulation
-version                                                               Display version information
-```
-
-APU Subcommands
----------------
-
-```
-help                                                                  Display help information
-status                                                                Display status information
-```
-
-CPU Subcommands
----------------
-
-```
-cycle                                                                 Display current cycle count
-dasm            <address> <offset>                                    Display instructions
-get             <address> <offset>                                    Display memory value
-halt            <value>                                               Set/Clear halt value
-help                                                                  Display help information
-irq                                                                   Signal maskable interrupt
-next            [<value>]                                             Display next instruction
-nmi                                                                   Signal non-maskable interrupt
-reg             <register> [<value>]                                  Display/Set register value
-reset                                                                 Signal reset
-set             [<address>] <value>                                   Set memory value
-status                                                                Display status information
-watch           [<address> | clear]                                   Set/Clear watched memory addresses
-```
-
-Debug Subcommands
------------------
-
-```
-help                                                                  Display help information
-set             [<address>] <value>                                   Set memory value
-status                                                                Display status information
-```
-
-Display Subcommands
--------------------
-
-```
-help                                                                  Display help information
-hide                                                                  Hide display window
-present                                                               Refresh display window
-show                                                                  Show display window
-status                                                                Display status information
-```
-
-Joypad Subcommands
-------------------
-
-```
-help                                                                  Display help information
-status                                                                Display status information
-strobe          <value>                                               Set/Clear strobe
-```
-
-Mapper Subcommands
-------------------
-
-```
-help                                                                  Display help information
-status                                                                Display status information
-```
-
-PPU Subcommands
----------------
-
-```
-cycle                                                                 Display current cycle count
-dot                                                                   Display current dot
-get             <address> <offset>                                    Display memory value
-help                                                                  Display help information
-port            <port> [<value>]                                      Display/Set port value
-scanline                                                              Display current scanline
-set             [<address>] <value>                                   Set memory value
-status                                                                Display status information
-watch           [<address> | clear]                                   Set/Clear watch memory addresses
-```
 
 Changelog
 =========
