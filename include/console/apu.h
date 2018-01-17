@@ -132,8 +132,12 @@ namespace nescc {
 
 				void clear(void);
 
+				std::string port_as_string(
+					__in uint8_t port,
+					__in_opt bool verbose = false
+					);
+
 				uint8_t read_port(
-					__in nescc::console::interface::bus &bus,
 					__in uint8_t port
 					);
 
@@ -151,7 +155,6 @@ namespace nescc {
 					);
 
 				void write_port(
-					__in nescc::console::interface::bus &bus,
 					__in uint8_t port,
 					__in uint8_t value
 					);

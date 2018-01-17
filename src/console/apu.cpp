@@ -105,15 +105,30 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		std::string
+		apu::port_as_string(
+			__in uint8_t port,
+			__in_opt bool verbose
+			)
+		{
+			std::stringstream result;
+
+			TRACE_ENTRY_FORMAT("Port=%u(%s), Verbose=%x", port, APU_PORT_STRING(port), verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+			return result.str();
+		}
+
 		uint8_t
 		apu::read_port(
-			__in nescc::console::interface::bus &bus,
 			__in uint8_t port
 			)
 		{
 			uint8_t result;
 
-			TRACE_ENTRY_FORMAT("Bus=%p, Port=%u(%s)", &bus, port, APU_PORT_STRING(port));
+			TRACE_ENTRY_FORMAT("Port=%u(%s)", port, APU_PORT_STRING(port));
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -189,12 +204,11 @@ namespace nescc {
 
 		void
 		apu::write_port(
-			__in nescc::console::interface::bus &bus,
 			__in uint8_t port,
 			__in uint8_t value
 			)
 		{
-			TRACE_ENTRY_FORMAT("Bus=%p, Port=%u(%s), Value=%u(%02x)", &bus, port, APU_PORT_STRING(port), value, value);
+			TRACE_ENTRY_FORMAT("Port=%u(%s), Value=%u(%02x)", port, APU_PORT_STRING(port), value, value);
 
 #ifndef NDEBUG
 			if(!m_initialized) {

@@ -164,52 +164,52 @@ namespace nescc {
 			)
 		{
 			std::ofstream file;
-			uint32_t iter, tile = 0;
 			std::stringstream result;
 			std::vector<uint8_t> pixel;
-			tile_plain_t *plane = nullptr;
+			uint32_t iter, tile_x, tile_y;
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%p, Bank=%p", path.size(), STRING_CHECK(path), &bank);
 
-			pixel.resize(ROM_CHR_DECODE_DIMENSION * ROM_CHR_DECODE_DIMENSION, 0);
 			result << ROM_CHR_DECODE_TYPE
-				<< std::endl << ROM_CHR_DECODE_DIMENSION << " " << ROM_CHR_DECODE_DIMENSION
+				<< std::endl << ROM_CHR_DECODE_WIDTH << " " << ROM_CHR_DECODE_HEIGHT
 				<< std::endl << ROM_CHR_DECODE_DEPTH;
 
-			for(iter = 0; iter < bank->size(); iter += sizeof(tile_plain_t), ++tile) {
+			pixel.resize(ROM_CHR_DECODE_WIDTH * ROM_CHR_DECODE_HEIGHT, 0);
 
-				plane = (tile_plain_t *) &(bank->raw()[iter]);
-				if(plane) {
+			for(tile_y = 0; tile_y < (ROM_CHR_DECODE_HEIGHT / CHAR_BIT); ++tile_y) {
 
-					for(uint8_t y = 0; y < CHAR_BIT; ++y) {
+				for(tile_x = 0; tile_x < (ROM_CHR_DECODE_WIDTH / CHAR_BIT); ++tile_x) {
+					uint32_t index;
+					tile_plain_t *plain = nullptr;
 
-						for(int8_t x = (CHAR_BIT - 1); x >= 0; --x) {
-							uint32_t base_x = (tile % (ROM_CHR_DECODE_DIMENSION / CHAR_BIT));
-							uint32_t base_y = (tile / (ROM_CHR_DECODE_DIMENSION / CHAR_BIT));
-							uint32_t coord_x = (((CHAR_BIT - 1) - x) + (base_x * CHAR_BIT));
-							uint32_t coord_y = (y + (base_y * CHAR_BIT));
+					index = ((tile_y * sizeof(tile_plain_t) * (ROM_CHR_DECODE_HEIGHT / CHAR_BIT))
+							+ ((tile_x % (ROM_CHR_DECODE_HEIGHT / CHAR_BIT)) * sizeof(tile_plain_t)));
+					if(tile_x >= (ROM_CHR_DECODE_HEIGHT / CHAR_BIT)) {
+						index += ROM_CHR_DECODE_TABLE_LENGTH;
+					}
 
-// TODO: clean up this routine
-// TODO: fix this off-by-one bug!
-							if(coord_y > 127) {
-								break;
+					plain = (tile_plain_t *) (bank->raw() + index);
+					if(plain) {
+						uint8_t pixel_y = 0;
+						uint16_t sprite_x = (tile_x * CHAR_BIT), sprite_y = (tile_y * CHAR_BIT);
+
+						for(; pixel_y < CHAR_BIT; ++pixel_y) {
+							int8_t pixel_x = (CHAR_BIT - 1);
+
+							for(; pixel_x >= 0; --pixel_x) {
+								index = (((sprite_y + pixel_y) * ROM_CHR_DECODE_WIDTH)
+										+ (sprite_x + ((CHAR_BIT - 1) - pixel_x)));
+								pixel.at(index) = (((plain->first[pixel_y] >> pixel_x) & 1)
+										| (((plain->second[pixel_y] >> pixel_x) & 1) << 1));
 							}
-// ---
-
-// TODO: get background sprites below by increasng height to 256, make sure to check header for mirroring
-	// horizontal: 	width=256, height=128
-	// vertical:	width=128, height=256
-
-							pixel.at((coord_y * ROM_CHR_DECODE_DIMENSION) + coord_x) =
-								(((plane->first[y] >> x) & 1) | (((plane->second[y] >> x) & 1) << 1));
 						}
 					}
 				}
 			}
 
-			for(iter = 0; iter < (ROM_CHR_DECODE_DIMENSION * ROM_CHR_DECODE_DIMENSION); ++iter) {
+			for(iter = 0; iter < pixel.size(); ++iter) {
 
-				if(!(iter % ROM_CHR_DECODE_DIMENSION)) {
+				if(!(iter % ROM_CHR_DECODE_WIDTH)) {
 					result << std::endl;
 				} else {
 					result << " ";
@@ -583,7 +583,7 @@ namespace nescc {
 			bool decode_chr = false, extract_chr = false, extract_prg = false, help = false, verbose = false,
 				version = false;
 
-			TRACE_ENTRY_FORMAT("Arguments[%u]=%p", input.size(), &input);
+			TRACE_ENTRY_FORMAT("Arguments[%u]=%p", arguments.size(), &arguments);
 
 #ifndef NDEBUG
 			if(!m_initialized) {

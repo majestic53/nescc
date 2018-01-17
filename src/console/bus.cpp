@@ -102,13 +102,11 @@ namespace nescc {
 						PPU_PORT_START, verbose);
 					break;
 				case APU_PULSE_1_START ... APU_DMC_END: // 0x4000 - 0x4013
-					// TODO
+				case APU_CHANNEL_STATUS: // 0x4015
+					result << m_apu.port_as_string(address - APU_PULSE_1_START, verbose);
 					break;
 				case CPU_OAM_DMA: // 0x4014
 					result << m_cpu.oam_dma().as_string(address - CPU_OAM_DMA, offset, CPU_OAM_DMA, verbose);
-					break;
-				case APU_CHANNEL_STATUS: // 0x4015
-					// TODO
 					break;
 				case JOYPAD_PORT_1 ... JOYPAD_PORT_2: // 0x4016 - 0x4017
 					result << m_joypad.port().as_string(address - JOYPAD_PORT_1, offset, JOYPAD_PORT_1, verbose);
@@ -199,7 +197,7 @@ namespace nescc {
 						}
 					} break;
 				case APU_CHANNEL_STATUS: // 0x4015
-					// TODO
+					result = m_apu.read_port(address - APU_PULSE_1_START);
 					break;
 				case JOYPAD_PORT_1 ... JOYPAD_PORT_2: // 0x4016 - 0x4017
 					result = m_joypad.read_port(address - JOYPAD_PORT_1);
@@ -311,19 +309,15 @@ namespace nescc {
 						}
 					} break;
 				case APU_PULSE_1_START ... APU_DMC_END: // 0x4000 - 0x4013
-					// TODO
+				case APU_CHANNEL_STATUS: // 0x4015
+				case APU_FRAME_COUNTER: // 0x4017
+					m_apu.write_port(address - APU_PULSE_1_START, value);
 					break;
 				case CPU_OAM_DMA: // 0x4014
 					m_cpu.write_oam_dma(*this, value);
 					break;
-				case APU_CHANNEL_STATUS: // 0x4015
-					// TODO
-					break;
 				case JOYPAD_PORT_1: // 0x4016
 					m_joypad.write_port(value);
-					break;
-				case APU_FRAME_COUNTER: // 0x4017
-					// TODO
 					break;
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);

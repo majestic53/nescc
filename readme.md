@@ -236,6 +236,11 @@ Changelog
 
 Version 0.1.1803
 ----------------
+*Updated: 1/16/2018*
+
+* Integrated apu port read/write routines into bus
+* Cleaned up rominfo CHR decode routine
+
 *Updated: 1/15/2018*
 
 * Added rominfo utility
