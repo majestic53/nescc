@@ -220,7 +220,8 @@ namespace nescc {
 			};
 
 		enum {
-			ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE = 0,
+			ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT = 0,
+			ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_DISASSEMBLE,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_DOT,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_GET,
@@ -246,9 +247,9 @@ namespace nescc {
 		#define ARGUMENT_INTERACTIVE_SUBCOMMAND_MAX ARGUMENT_INTERACTIVE_SUBCOMMAND_WATCH
 
 		static const std::string ARGUMENT_INTERACTIVE_SUBCOMMAND_STR[] = {
-			"cycle", "dasm", "dot", "get", "halt", "help", "hide", "irq",
-			"next", "nmi", "port", "present", "reg", "reset", "scanline", "set",
-			"show", "status", "strobe", "watch",
+			"crt", "cycle", "dasm", "dot", "get", "halt", "help", "hide", "irq",
+			"next", "nmi", "port", "present", "reg", "reset", "scanline",
+			"set", "show", "status", "strobe", "watch",
 			};
 
 		#define ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(_TYPE_) \
@@ -256,6 +257,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_INTERACTIVE_SUBCOMMAND_STR[_TYPE_]))
 
 		static const std::string ARGUMENT_INTERACTIVE_SUBCOMMAND_STR_DESC[] = {
+			"Enable/Disable CRT filter",
 			"Display current cycle count",
 			"Display instructions",
 			"Display current dot",
@@ -283,6 +285,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_INTERACTIVE_SUBCOMMAND_STR_DESC[_TYPE_]))
 
 		static const std::string ARGUMENT_INTERACTIVE_SUBCOMMAND_STR_FORM[] = {
+			"<value>"
 			"",
 			"<address> <offset>",
 			"",
@@ -323,9 +326,10 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_DEBUG, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_SET, ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, })),
 #endif // NDEBUG
-			std::make_pair(ARGUMENT_INTERACTIVE_DISPLAY, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
-				ARGUMENT_INTERACTIVE_SUBCOMMAND_HIDE, ARGUMENT_INTERACTIVE_SUBCOMMAND_PRESENT,
-				ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW, ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS })),
+			std::make_pair(ARGUMENT_INTERACTIVE_DISPLAY, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT,
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP, ARGUMENT_INTERACTIVE_SUBCOMMAND_HIDE,
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_PRESENT, ARGUMENT_INTERACTIVE_SUBCOMMAND_SHOW,
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS })),
 			std::make_pair(ARGUMENT_INTERACTIVE_EXIT, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_FRAME, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_HELP, std::vector<uint32_t>()),
@@ -346,6 +350,10 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_STEP_FRAME, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_STOP, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_VERSION, std::vector<uint32_t>()),
+			};
+
+		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT_SUPPORT[] = {
+			ARGUMENT_INTERACTIVE_DISPLAY,
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE_SUPPORT[] = {
@@ -443,6 +451,10 @@ namespace nescc {
 			};
 
 		static const std::map<std::string, std::pair<uint32_t, std::set<uint32_t>>> ARGUMENT_INTERACTIVE_SUBCOMMAND_MAP = {
+			std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT),
+				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT, std::set<uint32_t>(
+					ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT_SUPPORT
+						+ sizeof(ARGUMENT_INTERACTIVE_SUBCOMMAND_CRT_SUPPORT)))),
 			std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE),
 				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE, std::set<uint32_t>(
 					ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE_SUPPORT

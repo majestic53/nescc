@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_TOOL_ROMINFO_H_
-#define NESCC_TOOL_ROMINFO_H_
+#ifndef NESCC_TOOL_EXTRACTOR_H_
+#define NESCC_TOOL_EXTRACTOR_H_
 
 #include "../../include/console/cartridge.h"
 #include "../../include/trace.h"
@@ -26,12 +26,12 @@ namespace nescc {
 
 	namespace tool {
 
-		class rominfo :
-				public nescc::core::singleton<nescc::tool::rominfo> {
+		class extractor :
+				public nescc::core::singleton<nescc::tool::extractor> {
 
 			public:
 
-				~rominfo(void);
+				~extractor(void);
 
 				std::string as_string(
 					__in_opt bool verbose = false
@@ -59,16 +59,16 @@ namespace nescc {
 
 			protected:
 
-				friend class nescc::core::singleton<nescc::tool::rominfo>;
+				friend class nescc::core::singleton<nescc::tool::extractor>;
 
-				rominfo(void);
+				extractor(void);
 
-				rominfo(
-					__in const rominfo &other
+				extractor(
+					__in const extractor &other
 					) = delete;
 
-				rominfo &operator=(
-					__in const rominfo &other
+				extractor &operator=(
+					__in const extractor &other
 					) = delete;
 
 				void decode_character_bank(
@@ -144,4 +144,4 @@ namespace nescc {
 	}
 }
 
-#endif // NESCC_TOOL_ROMINFO_H_
+#endif // NESCC_TOOL_EXTRACTOR_H_

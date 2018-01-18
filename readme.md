@@ -105,7 +105,7 @@ apu             [help, status]                                        Display ap
 cpu             [cycle, get, halt, help, irq, next,
 			nmi, reg, reset, set, status, watch]          Display/Set cpu state
 debug           [help, set, status]                                   Enable/Disable debug mode
-display         [help, hide, present, show, status]                   Display/Set display state
+display         [crt, help, hide, present, show, status]              Display/Set display state
 exit                                                                  Exit interactive mode
 frame                                                                 Display frame count
 help                                                                  Display help information
@@ -159,6 +159,7 @@ status                                                                Display st
 ### Display Subcommands
 
 ```
+crt             <value>                                               Enable/Disable CRT filter
 help                                                                  Display help information
 hide                                                                  Hide display window
 present                                                               Refresh display window
@@ -236,6 +237,14 @@ Changelog
 
 Version 0.1.1803
 ----------------
+*Updated: 1/17/2018*
+
+* Added CRT filter effects (incomplete)
+![CRT filter](https://github.com/majestic53/nescc/blob/master/asset/crt_filter.png "CRT filter")
+	* Currently supports scanlines and pixel bleed
+	* Still to do: screen curvature and screen border
+* Changed nescc-rominfo utility name to nescc-extract
+
 *Updated: 1/16/2018*
 
 * Integrated apu port read/write routines into bus

@@ -28,7 +28,7 @@ all: build archive
 archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
-	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)tool_runner.o
+	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)tool_extractor.o $(DIR_BUILD)tool_runner.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
 
@@ -36,7 +36,10 @@ build: build_tool
 
 ### TOOL ###
 
-build_tool: tool_runner.o
+build_tool: tool_extractor.o tool_runner.o
+
+tool_extractor.o: $(DIR_SRC)extractor.cpp $(DIR_INC)extractor.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)extractor.cpp -o $(DIR_BUILD)tool_extractor.o
 
 tool_runner.o: $(DIR_SRC)runner.cpp $(DIR_INC)runner.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)runner.cpp -o $(DIR_BUILD)tool_runner.o

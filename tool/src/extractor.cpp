@@ -18,14 +18,14 @@
 
 #include <cstring>
 #include <fstream>
-#include "../include/rominfo.h"
-#include "./rominfo_type.h"
+#include "../include/extractor.h"
+#include "./extractor_type.h"
 
 namespace nescc {
 
 	namespace tool {
 
-		rominfo::rominfo(void) :
+		extractor::extractor(void) :
 			m_character_rom_base(0),
 			m_character_rom_count(0),
 			m_character_rom_size(0),
@@ -49,7 +49,7 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		rominfo::~rominfo(void)
+		extractor::~extractor(void)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -59,7 +59,7 @@ namespace nescc {
 		}
 
 		std::string
-		rominfo::as_string(
+		extractor::as_string(
 			__in_opt bool verbose
 			) const
 		{
@@ -122,17 +122,17 @@ namespace nescc {
 		}
 
 		void
-		rominfo::clear(void)
+		extractor::clear(void)
 		{
 			TRACE_ENTRY();
 
 #ifndef NDEBUG
 			if(!m_initialized) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION(NESCC_TOOL_ROMINFO_EXCEPTION_UNINITIALIZED);
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION(NESCC_TOOL_EXTRACTOR_EXCEPTION_UNINITIALIZED);
 			}
 #endif // NDEBUG
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Rominfo clearing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Extractor clearing...");
 
 			m_character_rom_base = 0;
 			m_character_rom_count = 0;
@@ -152,13 +152,13 @@ namespace nescc {
 			m_raw.clear();
 			m_tv_system = 0;
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Rominfo cleared.");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Extractor cleared.");
 
 			TRACE_EXIT();
 		}
 
 		void
-		rominfo::decode_character_bank(
+		extractor::decode_character_bank(
 			__in const std::string &path,
 			__in std::vector<nescc::core::memory>::iterator &bank
 			)
@@ -221,7 +221,7 @@ namespace nescc {
 
 			file = std::ofstream(path.c_str(), std::ios::out | std::ios::trunc);
 			if(!file) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_NOT_CREATED,
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_CREATED,
 					"Path[%u]=%s", path.size(), STRING_CHECK(path));
 			}
 
@@ -232,7 +232,7 @@ namespace nescc {
 		}
 
 		std::string
-		rominfo::display_help(
+		extractor::display_help(
 			__in_opt bool verbose
 			) const
 		{
@@ -241,7 +241,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << NESCC_ROMINFO << display_version(verbose)
+			result << NESCC_EXTRACTOR << display_version(verbose)
 				<< std::endl << NESCC_COPYRIGHT
 				<< std::endl << std::endl << display_usage();
 
@@ -265,14 +265,14 @@ namespace nescc {
 		}
 
 		std::string
-		rominfo::display_usage(void) const
+		extractor::display_usage(void) const
 		{
 			int iter = 0;
 			std::stringstream result;
 
 			TRACE_ENTRY();
 
-			result << NESCC_ROMINFO;
+			result << NESCC_EXTRACTOR;
 
 			for(; iter <= ARGUMENT_MAX; ++iter) {
 				result << " [" << ARGUMENT_DELIMITER << ARGUMENT_STRING(iter)
@@ -286,7 +286,7 @@ namespace nescc {
 		}
 
 		std::string
-		rominfo::display_version(
+		extractor::display_version(
 			__in_opt bool verbose
 			) const
 		{
@@ -306,7 +306,7 @@ namespace nescc {
 		}
 
 		void
-		rominfo::extract_header(void)
+		extractor::extract_header(void)
 		{
 			uint32_t length;
 
@@ -315,7 +315,7 @@ namespace nescc {
 			if(std::memcmp(m_header.magic, CARTRIDGE_MAGIC, CARTRIDGE_MAGIC_LENGTH)) {
 				uint8_t *expected = (uint8_t *) CARTRIDGE_MAGIC;
 
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_MALFORMED,
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_MALFORMED,
 					"Header mismatch: %02x%02x%02x%02x (expecting %02x%02x%02x%02x)",
 					m_header.magic[0], m_header.magic[1], m_header.magic[2], m_header.magic[3],
 					expected[0], expected[1], expected[2], expected[3]);
@@ -339,14 +339,14 @@ namespace nescc {
 
 			length = (m_program_rom_base + m_program_rom_size);
 			if(length != m_character_rom_base) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_MALFORMED,
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_MALFORMED,
 					"PRG ROM offset does not match expected: %.01f KB (%u bytes) (expecting: %.01f KB (%u bytes))",
 					length / KILOBYTE, length, m_character_rom_base / KILOBYTE, m_character_rom_base);
 			}
 
 			length = (m_character_rom_base + m_character_rom_size);
 			if(length != m_length) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_MALFORMED,
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_MALFORMED,
 					"CHR ROM offset does not match expected: %.01f KB (%u bytes) (expecting: %.01f KB (%u bytes))",
 					length / KILOBYTE, length, m_length / KILOBYTE, m_length);
 			}
@@ -355,7 +355,7 @@ namespace nescc {
 		}
 
 		bool
-		rominfo::extract_path(
+		extractor::extract_path(
 			__in const std::string &path,
 			__inout std::string &directory,
 			__inout std::string &file,
@@ -394,7 +394,7 @@ namespace nescc {
 		}
 
 		std::string
-		rominfo::extract_rom_character(
+		extractor::extract_rom_character(
 			__in_opt bool decode
 			)
 		{
@@ -419,7 +419,7 @@ namespace nescc {
 
 			input = std::ifstream(m_path.c_str(), std::ios::in | std::ios::binary);
 			if(!input) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_NOT_FOUND, "Path[%u]=%s",
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_FOUND, "Path[%u]=%s",
 					m_path.size(), STRING_CHECK(m_path));
 			}
 
@@ -457,7 +457,7 @@ namespace nescc {
 
 					output = std::ofstream(path.str().c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
 					if(!output) {
-						THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_NOT_CREATED,
+						THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_CREATED,
 							"Path[%u]=%s", path.str().size(), STRING_CHECK(path.str()));
 					}
 
@@ -482,7 +482,7 @@ namespace nescc {
 		}
 
 		std::string
-		rominfo::extract_rom_program(void)
+		extractor::extract_rom_program(void)
 		{
 			uint32_t offset;
 			std::ifstream input;
@@ -505,7 +505,7 @@ namespace nescc {
 
 			input = std::ifstream(m_path.c_str(), std::ios::in | std::ios::binary);
 			if(!input) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_NOT_FOUND, "Path[%u]=%s",
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_FOUND, "Path[%u]=%s",
 					m_path.size(), STRING_CHECK(m_path));
 			}
 
@@ -543,7 +543,7 @@ namespace nescc {
 
 					output = std::ofstream(path.str().c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
 					if(!output) {
-						THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_NOT_CREATED,
+						THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_CREATED,
 							"Path[%u]=%s", path.str().size(), STRING_CHECK(path.str()));
 					}
 
@@ -558,13 +558,13 @@ namespace nescc {
 		}
 
 		nescc::console::cartridge_header
-		rominfo::header(void) const
+		extractor::header(void) const
 		{
 			TRACE_ENTRY();
 
 #ifndef NDEBUG
 			if(!m_initialized) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION(NESCC_TOOL_ROMINFO_EXCEPTION_UNINITIALIZED);
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION(NESCC_TOOL_EXTRACTOR_EXCEPTION_UNINITIALIZED);
 			}
 #endif // NDEBUG
 
@@ -573,7 +573,7 @@ namespace nescc {
 		}
 
 		void
-		rominfo::invoke(
+		extractor::invoke(
 			__in const std::vector<std::string> &arguments
 			)
 		{
@@ -587,12 +587,12 @@ namespace nescc {
 
 #ifndef NDEBUG
 			if(!m_initialized) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION(NESCC_TOOL_ROMINFO_EXCEPTION_UNINITIALIZED);
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION(NESCC_TOOL_EXTRACTOR_EXCEPTION_UNINITIALIZED);
 			}
 #endif // NDEBUG
 
 			if(arguments.size() <= 1) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_ARGUMENT_MISSING, "%s",
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_ARGUMENT_MISSING, "%s",
 					STRING_CHECK(display_usage()));
 			}
 
@@ -609,7 +609,7 @@ namespace nescc {
 
 					entry = ARGUMENT_MAP.find(str);
 					if(entry == ARGUMENT_MAP.end()) {
-						THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_ARGUMENT_MALFORMED,
+						THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_ARGUMENT_MALFORMED,
 							"Argument[%u]=%s", index, (*iter).c_str());
 					}
 
@@ -633,13 +633,13 @@ namespace nescc {
 							version = true;
 							break;
 						default:
-							THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_ARGUMENT_UNSUPPORTED,
+							THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_ARGUMENT_UNSUPPORTED,
 								"Argument[%u]=%s", index, (*iter).c_str());
 					}
 				} else {
 
 					if(!m_path.empty()) {
-						THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_PATH_REASSIGNED, "%s",
+						THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_PATH_REASSIGNED, "%s",
 							STRING_CHECK(display_usage()));
 					}
 
@@ -652,7 +652,7 @@ namespace nescc {
 			} else if(version) {
 				std::cout << display_version(true) << std::endl;
 			} else if(m_path.empty()) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_PATH_UNASSIGNED, "%s",
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_PATH_UNASSIGNED, "%s",
 					STRING_CHECK(display_usage()));
 			} else {
 				load(m_path, decode_chr, extract_chr, extract_prg, verbose);
@@ -670,7 +670,7 @@ namespace nescc {
 		}
 
 		void
-		rominfo::load(
+		extractor::load(
 			__in const std::string &path,
 			__in_opt bool decode_chr,
 			__in_opt bool extract_chr,
@@ -687,7 +687,7 @@ namespace nescc {
 
 #ifndef NDEBUG
 			if(!m_initialized) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION(NESCC_TOOL_ROMINFO_EXCEPTION_UNINITIALIZED);
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION(NESCC_TOOL_EXTRACTOR_EXCEPTION_UNINITIALIZED);
 			}
 #endif // NDEBUG
 
@@ -697,7 +697,7 @@ namespace nescc {
 
 			file = std::ifstream(path.c_str(), std::ios::in | std::ios::binary);
 			if(!file) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_NOT_FOUND, "Path[%u]=%s",
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_FOUND, "Path[%u]=%s",
 					path.size(), STRING_CHECK(path));
 			}
 
@@ -705,7 +705,7 @@ namespace nescc {
 
 			length = file.tellg();
 			if(length < sizeof(m_header)) {
-				THROW_NESCC_TOOL_ROMINFO_EXCEPTION_FORMAT(NESCC_TOOL_ROMINFO_EXCEPTION_FILE_MALFORMED, "Path[%u]=%s",
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_MALFORMED, "Path[%u]=%s",
 					path.size(), STRING_CHECK(path));
 			}
 
@@ -729,36 +729,36 @@ namespace nescc {
 		}
 
 		bool
-		rominfo::on_initialize(void)
+		extractor::on_initialize(void)
 		{
 			bool result = true;
 
 			TRACE_ENTRY();
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Rominfo initializing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Extractor initializing...");
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Rominfo initialized.");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Extractor initialized.");
 
 			TRACE_EXIT_FORMAT("Result=%x", result);
 			return result;
 		}
 
 		void
-		rominfo::on_uninitialize(void)
+		extractor::on_uninitialize(void)
 		{
 			TRACE_ENTRY();
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Rominfo uninitializing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Extractor uninitializing...");
 
 			clear();
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Rominfo uninitialized.");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Extractor uninitialized.");
 
 			TRACE_EXIT();
 		}
 
 		std::string
-		rominfo::to_string(
+		extractor::to_string(
 			__in_opt bool verbose
 			) const
 		{
@@ -766,10 +766,10 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << NESCC_TOOL_ROMINFO_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
+			result << NESCC_TOOL_EXTRACTOR_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 			if(verbose) {
-				result << " Base=" << nescc::core::singleton<nescc::tool::rominfo>::to_string(verbose);
+				result << " Base=" << nescc::core::singleton<nescc::tool::extractor>::to_string(verbose);
 
 				if(m_initialized) {
 					result << ", Path[" << m_path.size() << "]=" << STRING_CHECK(m_path)
@@ -782,29 +782,4 @@ namespace nescc {
 			return result.str();
 		}
 	}
-}
-
-int
-main(
-	__in int argc,
-	__in const char *argv[]
-	)
-{
-	int result = EXIT_SUCCESS;
-
-	try {
-		nescc::tool::rominfo &instance = nescc::tool::rominfo::acquire();
-		instance.initialize();
-		instance.invoke(std::vector<std::string>(argv, argv + argc));
-		instance.uninitialize();
-		instance.release();
-	} catch(nescc::exception &exc) {
-		std::cerr << "Error: " << exc.to_string(true) << std::endl;
-		result = EXIT_FAILURE;
-	} catch(std::exception &exc) {
-		std::cerr << "Error: " << exc.what() << std::endl;
-		result = EXIT_FAILURE;
-	}
-
-	return result;
 }

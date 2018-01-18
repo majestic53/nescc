@@ -18,6 +18,7 @@
 
 #include "../../include/console/ppu.h"
 #include "../../include/console/cartridge.h"
+#include "../../include/interface/display.h"
 #include "../../include/trace.h"
 #include "./ppu_type.h"
 
@@ -517,8 +518,8 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 			if((m_scanline < PPU_SCANLINE_POST_RENDER) && (dot >= 0) && (dot < PPU_DOT_SCROLL_VERTICAL)) {
-				ppu_color_t color;
 				bool priority = false;
+				nescc::interface::pixel_t color;
 				uint8_t palette = 0, palette_object = 0;
 
 				generate_pixel_background(dot, palette);
@@ -586,11 +587,10 @@ namespace nescc {
 				std::vector<nescc::console::sprite_t>::reverse_iterator entry;
 
 				for(entry = m_sprite.rbegin(); entry != m_sprite.rend(); ++entry) {
-					int sprite_x;
 
 					if((entry->id != PPU_SPRITE_ID_INVALID) && (entry->position_x <= dot)) {
 
-						sprite_x = (dot - entry->position_x);
+						int sprite_x = (dot - entry->position_x);
 						if(sprite_x < PPU_SPRITE_LENGTH) {
 							uint8_t palette_sprite;
 

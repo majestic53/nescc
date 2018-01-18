@@ -155,8 +155,6 @@ namespace nescc {
 			__in const SDL_ControllerDeviceEvent &event
 			)
 		{
-			uint32_t count = 1;
-
 			TRACE_ENTRY_FORMAT("Event=%p", &event);
 
 #ifndef NDEBUG
@@ -166,6 +164,7 @@ namespace nescc {
 #endif // NDEBUG
 
 			if(SDL_IsGameController(event.which)) {
+				uint32_t count = 1;
 
 				for(std::vector<std::pair<SDL_JoystickID, SDL_GameController *>>::iterator iter = m_controller.begin();
 						iter != m_controller.end(); ++count, ++iter) {
@@ -210,8 +209,6 @@ namespace nescc {
 			__in const SDL_ControllerDeviceEvent &event
 			)
 		{
-			uint32_t count = 1;
-
 			TRACE_ENTRY_FORMAT("Event=%p", &event);
 
 #ifndef NDEBUG
@@ -221,6 +218,7 @@ namespace nescc {
 #endif // NDEBUG
 
 			if(SDL_IsGameController(event.which)) {
+				uint32_t count = 1;
 
 				for(std::vector<std::pair<SDL_JoystickID, SDL_GameController *>>::iterator iter = m_controller.begin();
 						iter != m_controller.end(); ++count, ++iter) {

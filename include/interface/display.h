@@ -30,6 +30,16 @@ namespace nescc {
 		#define DISPLAY_HEIGHT 240
 		#define DISPLAY_WIDTH 256
 
+		union pixel_t {
+			struct {
+				uint32_t blue : 8;
+				uint32_t green : 8;
+				uint32_t red : 8;
+				uint32_t alpha : 8;
+			};
+			uint32_t raw;
+		};
+
 		class display :
 				public nescc::core::singleton<nescc::interface::display> {
 
@@ -49,7 +59,20 @@ namespace nescc {
 					) const;
 
 				void reset(
-					__in_opt bool debug = false
+					__in_opt bool debug = false,
+					__in_opt bool crt = false,
+					__in_opt bool bleed = true,
+					__in_opt bool scanlines = true,
+					__in_opt bool curvature = true,
+					__in_opt bool border = true
+					);
+
+				void set_filter_crt(
+					__in bool crt,
+					__in_opt bool bleed = true,
+					__in_opt bool scanlines = true,
+					__in_opt bool curvature = true,
+					__in_opt bool border = true
 					);
 
 				void set_frame_rate(
@@ -96,13 +119,25 @@ namespace nescc {
 					__in const display &other
 					) = delete;
 
+				void filter_crt(void);
+
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
+				bool m_crt;
+
+				bool m_crt_bleed;
+
+				bool m_crt_border;
+
+				bool m_crt_curvature;
+
+				bool m_crt_scanlines;
+
 				bool m_debug;
 
-				std::vector<uint32_t> m_pixel;
+				std::vector<pixel_t> m_pixel;
 
 				SDL_Renderer *m_renderer;
 

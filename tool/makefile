@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 BIN=nescc
-BIN_ROMINFO=nescc-rominfo
+BIN_EXTRACTOR=nescc-extract
 CC=clang++
 CC_FLAGS=-march=native -std=gnu++11 -Wall -Werror
 CC_FLAGS_EXT=-pthread -lSDL2 -lSDL2main
@@ -26,20 +26,20 @@ DIR_SRC_TOOL=./src/
 LIB=libnescc.a
 LIB_TOOL=libnescc_tool.a
 
-all: bin util
+all: nescc nescc-extract
 
 ### BINARIES ###
 
-bin:
+nescc:
 	@echo ''
 	@echo '--- BUILDING BINARY ------------------------'
-	$(CC) $(CC_FLAGS) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) $(CC_FLAGS_EXT) $(DIR_SRC)main.cpp $(DIR_BIN)$(LIB_TOOL) $(DIR_BIN)$(LIB) -o $(DIR_BIN)$(BIN)
+	$(CC) $(CC_FLAGS) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) $(CC_FLAGS_EXT) $(DIR_SRC)nescc.cpp $(DIR_BIN)$(LIB_TOOL) $(DIR_BIN)$(LIB) -o $(DIR_BIN)$(BIN)
 	@echo '--- DONE -----------------------------------'
 	@echo ''
 
-util:
+nescc-extract:
 	@echo ''
 	@echo '--- BUILDING BINARY ------------------------'
-	$(CC) $(CC_FLAGS) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) $(CC_FLAGS_EXT) $(DIR_SRC_TOOL)rominfo.cpp $(DIR_BIN)$(LIB_TOOL) $(DIR_BIN)$(LIB) -o $(DIR_BIN)$(BIN_ROMINFO)
+	$(CC) $(CC_FLAGS) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) $(CC_FLAGS_EXT) $(DIR_SRC)nescc-extract.cpp $(DIR_BIN)$(LIB_TOOL) $(DIR_BIN)$(LIB) -o $(DIR_BIN)$(BIN_EXTRACTOR)
 	@echo '--- DONE -----------------------------------'
 	@echo ''

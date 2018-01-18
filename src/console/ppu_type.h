@@ -102,16 +102,6 @@ namespace nescc {
 
 		#define PPU_TILE_WIDTH 8
 
-		union ppu_color_t {
-			struct {
-				uint32_t blue : 8;
-				uint32_t green : 8;
-				uint32_t red : 8;
-				uint32_t alpha : 8;
-			};
-			uint32_t raw;
-		};
-
 		static const uint32_t PPU_PALETTE_COL[] = {
 			0xff7c7c7c, 0xff0000fc, 0xff0000bc, 0xff4428bc, 0xff940084, 0xffa80020, 0xffa81000, 0xff881400,
 			0xff503000, 0xff007800, 0xff006800, 0xff005800, 0xff004058, 0xff000000, 0xff000000, 0xff000000,
