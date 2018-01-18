@@ -193,7 +193,7 @@ namespace nescc {
 						break;
 					}
 
-					m_display.update();
+					m_display.update(true);
 					SDL_Delay(RUNTIME_PAUSE_DELAY);
 					start = SDL_GetTicks();
 				}

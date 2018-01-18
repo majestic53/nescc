@@ -97,7 +97,9 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
-				void update(void);
+				void update(
+					__in_opt bool paused = false
+					);
 
 				void write(
 					__in uint16_t x,

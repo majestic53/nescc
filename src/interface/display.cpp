@@ -534,7 +534,9 @@ namespace nescc {
 		}
 
 		void
-		display::update(void)
+		display::update(
+			__in_opt bool paused
+			)
 		{
 			TRACE_ENTRY();
 
@@ -546,23 +548,26 @@ namespace nescc {
 
 			if(m_shown) {
 
-				if(m_crt) {
-					filter_crt();
-				}
+				if(!paused) {
 
-				if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(uint32_t))) {
-					THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-						"SDL_UpdateTexture failed! Error=%s", SDL_GetError());
-				}
+					if(m_crt) {
+						filter_crt();
+					}
 
-				if(SDL_RenderClear(m_renderer)) {
-					THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-						"SDL_RenderClear failed! Error=%s", SDL_GetError());
-				}
+					if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(uint32_t))) {
+						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+							"SDL_UpdateTexture failed! Error=%s", SDL_GetError());
+					}
 
-				if(SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr)) {
-					THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-						"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+					if(SDL_RenderClear(m_renderer)) {
+						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+							"SDL_RenderClear failed! Error=%s", SDL_GetError());
+					}
+
+					if(SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr)) {
+						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+							"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+					}
 				}
 
 				SDL_RenderPresent(m_renderer);
