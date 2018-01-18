@@ -35,6 +35,7 @@ Features
 	* __NOTE__: If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
 * Support for mapper #0 (more to come)
 * Support for live debugging (while in interactive mode)
+* Built-in CRT filter
 
 What's Missing
 --------------
