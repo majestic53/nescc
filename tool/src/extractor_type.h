@@ -22,6 +22,7 @@
 #include <climits>
 #include <map>
 #include "../../include/exception.h"
+#include "../../include/core/bitmap.h"
 
 namespace nescc {
 
@@ -84,7 +85,7 @@ namespace nescc {
 		#define EXTRACT_EXTENSION_DELIMITER "."
 		#define EXTRACT_FILE_DEFAULT "rom"
 		#define EXTRACT_ROM_CHR_EXTENSION "chr"
-		#define EXTRACT_ROM_CHR_DECODE_EXTENSION "ppm"
+		#define EXTRACT_ROM_CHR_DECODE_EXTENSION "bmp"
 		#define EXTRACT_ROM_PRG_EXTENSION "prg"
 
 		#define ROM_CHR_DECODE_DEPTH 255
@@ -157,21 +158,11 @@ namespace nescc {
 
 		#define TILE_PALETTE_MAX TILE_PALETTE_3
 
-		union tile_palette_t {
-			struct {
-				uint32_t blue : 8;
-				uint32_t green : 8;
-				uint32_t red : 8;
-				uint32_t unused : 8;
-			};
-			uint32_t raw;
-		};
-
-		static const tile_palette_t TILE_PALETTE_COL[] = {
-			{ .red = 0x00, .green = 0x00, .blue = 0x00 }, // 0x000000
-			{ .red = 0x9c, .green = 0x17, .blue = 0x46 }, // 0x9C1746
-			{ .red = 0xe2, .green = 0x7a, .blue = 0x53 }, // 0xE27A53
-			{ .red = 0x8a, .green = 0x5e, .blue = 0x1d }, // 0x8A5E1D
+		static const nescc::core::pixel_t TILE_PALETTE_COL[] = {
+			{ .alpha= 0xff, .red = 0x00, .green = 0x00, .blue = 0x00 }, // 0xff000000
+			{ .alpha= 0xff, .red = 0x9c, .green = 0x17, .blue = 0x46 }, // 0xff9c1746
+			{ .alpha= 0xff, .red = 0xe2, .green = 0x7a, .blue = 0x53 }, // 0xffe27a53
+			{ .alpha= 0xff, .red = 0x8a, .green = 0x5e, .blue = 0x1d }, // 0xff8a5e1d
 			};
 
 		#define TILE_PALETTE_COLOR(_TYPE_) \

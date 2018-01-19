@@ -37,7 +37,7 @@ archive:
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
 		$(DIR_BUILD)console_apu.o $(DIR_BUILD)console_bus.o $(DIR_BUILD)console_cartridge.o $(DIR_BUILD)console_cpu.o \
 			$(DIR_BUILD)console_joypad.o $(DIR_BUILD)console_mapper.o $(DIR_BUILD)console_ppu.o \
-		$(DIR_BUILD)core_memory.o $(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
+		$(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_memory.o $(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
 		$(DIR_BUILD)interface_display.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
@@ -84,7 +84,10 @@ console_ppu.o: $(DIR_SRC_CONSOLE)ppu.cpp $(DIR_INC_CONSOLE)ppu.h
 
 ### CORE ###
 
-build_core: core_memory.o core_signal.o core_thread.o
+build_core: core_bitmap.o core_memory.o core_signal.o core_thread.o
+
+core_bitmap.o: $(DIR_SRC_CORE)bitmap.cpp $(DIR_INC_CORE)bitmap.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)bitmap.cpp -o $(DIR_BUILD)core_bitmap.o
 
 core_memory.o: $(DIR_SRC_CORE)memory.cpp $(DIR_INC_CORE)memory.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)memory.cpp -o $(DIR_BUILD)core_memory.o

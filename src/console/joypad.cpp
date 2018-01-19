@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <SDL2/SDL.h>
 #include "../../include/console/joypad.h"
 #include "../../include/trace.h"
 #include "./joypad_type.h"

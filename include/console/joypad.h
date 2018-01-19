@@ -20,7 +20,6 @@
 #define NESCC_CONSOLE_JOYPAD_H_
 
 #include <map>
-#include <SDL2/SDL.h>
 #include "../core/memory.h"
 #include "../core/singleton.h"
 #include "./interface/bus.h"

@@ -61,7 +61,7 @@ namespace nescc {
 				nescc::core::memory &rom_character(void);
 
 				nescc::core::memory &rom_program(
-					__in uint16_t address
+					__inout uint16_t &address
 					);
 
 				void signal_interrupt(void);

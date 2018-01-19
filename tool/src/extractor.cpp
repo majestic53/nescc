@@ -163,16 +163,11 @@ namespace nescc {
 			__in std::vector<nescc::core::memory>::iterator &bank
 			)
 		{
-			std::ofstream file;
-			std::stringstream result;
+			nescc::core::bitmap image;
 			std::vector<uint8_t> pixel;
-			uint32_t iter, tile_x, tile_y;
+			uint32_t image_x, image_y, tile_x, tile_y;
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%p, Bank=%p", path.size(), STRING_CHECK(path), &bank);
-
-			result << ROM_CHR_DECODE_TYPE
-				<< std::endl << ROM_CHR_DECODE_WIDTH << " " << ROM_CHR_DECODE_HEIGHT
-				<< std::endl << ROM_CHR_DECODE_DEPTH;
 
 			pixel.resize(ROM_CHR_DECODE_WIDTH * ROM_CHR_DECODE_HEIGHT, 0);
 
@@ -207,26 +202,17 @@ namespace nescc {
 				}
 			}
 
-			for(iter = 0; iter < pixel.size(); ++iter) {
+			image.allocate(ROM_CHR_DECODE_WIDTH, ROM_CHR_DECODE_HEIGHT);
 
-				if(!(iter % ROM_CHR_DECODE_WIDTH)) {
-					result << std::endl;
-				} else {
-					result << " ";
+			for(image_y = 0; image_y < ROM_CHR_DECODE_HEIGHT; ++image_y) {
+
+				for(image_x = 0; image_x < ROM_CHR_DECODE_WIDTH; ++image_x) {
+					image.set(TILE_PALETTE_COLOR(pixel.at((image_y * ROM_CHR_DECODE_WIDTH) + image_x)),
+						image_x, image_y);
 				}
-
-				const tile_palette_t &palette = TILE_PALETTE_COLOR(pixel.at(iter));
-				result << (int) palette.red << " " << (int) palette.green << " " << (int) palette.blue;
 			}
 
-			file = std::ofstream(path.c_str(), std::ios::out | std::ios::trunc);
-			if(!file) {
-				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_CREATED,
-					"Path[%u]=%s", path.size(), STRING_CHECK(path));
-			}
-
-			file.write(result.str().c_str(), result.str().size());
-			file.close();
+			image.save(path);
 
 			TRACE_EXIT();
 		}

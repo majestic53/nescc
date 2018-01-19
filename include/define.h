@@ -25,6 +25,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <SDL2/SDL.h>
 
 namespace nescc {
 
@@ -41,6 +42,11 @@ namespace nescc {
 	#define __inout_opt
 #endif // __inout_opt
 
+	#define BACKGROUND_ALPHA 255
+	#define BACKGROUND_BLUE 0
+	#define BACKGROUND_GREEN 0
+	#define BACKGROUND_RED 0
+
 	#define COLUMN_WIDTH 16
 	#define COLUMN_WIDTH_LONG 32
 
@@ -53,7 +59,7 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 3
+	#define NESCC_VERSION_REVISION 4
 	#define NESCC_VERSION_WEEK 1803
 
 	#define STRING_EMPTY "Empty"

@@ -60,16 +60,8 @@ namespace nescc {
 			SDL_GetWindowSize(m_window, &width, &height);
 			result << std::left << std::setw(COLUMN_WIDTH) << "Dimensions" << width << ", " << height
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "CRT filter"
-					<< (m_crt ? "Enabled" : "Disabled");
-
-			if(m_crt) {
-				result << "(Bleed=" << (m_crt_bleed ? "Enabled" : "Disabled")
-					<< ", Border=" << (m_crt_border ? "Enabled" : "Disabled")
-					<< ", Curvature=" << (m_crt_curvature ? "Enabled" : "Disabled")
-					<< ", Scanlines=" << (m_crt_scanlines ? "Enabled" : "Disabled") << ")";
-			}
-
-			result << std::endl << std::left << std::setw(COLUMN_WIDTH) << "State" << (m_shown ? "Shown" : "Hidden")
+					<< (m_crt ? "Enabled" : "Disabled")
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "State" << (m_shown ? "Shown" : "Hidden")
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "Title" << STRING_CHECK(m_title);
 
 			TRACE_EXIT();
@@ -102,13 +94,13 @@ namespace nescc {
 
 			if(m_crt_bleed) {
 				uint32_t index, pixel, pixel_tmp;
-				std::vector<pixel_t> pixel_left = m_pixel, pixel_right = m_pixel;
+				std::vector<nescc::core::pixel_t> pixel_left = m_pixel, pixel_right = m_pixel;
 
 				for(pixel_y = 0; pixel_y < DISPLAY_HEIGHT; ++pixel_y) {
 
 					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
 						index = ((pixel_y * DISPLAY_WIDTH) + pixel_x);
-						nescc::interface::pixel_t &value_left = pixel_left.at(index), &value_right = pixel_right.at(index);
+						nescc::core::pixel_t &value_left = pixel_left.at(index), &value_right = pixel_right.at(index);
 
 						value_left.blue = 0;
 						value_right.red = 0;
@@ -156,7 +148,7 @@ namespace nescc {
 
 					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
 						index = ((pixel_y * DISPLAY_WIDTH) + pixel_x);
-						nescc::interface::pixel_t &value = m_pixel.at(index), &value_left = pixel_left.at(index),
+						nescc::core::pixel_t &value = m_pixel.at(index), &value_left = pixel_left.at(index),
 							&value_right = pixel_right.at(index);
 						value.red = PIXEL_BLEND(value.red, PIXEL_BLEND(value_left.red, value_right.red,
 							POST_PROCESS_BLEED_LAYER_BLEND_RATIO), POST_PROCESS_BLEED_BLEND_RATIO);
@@ -177,7 +169,7 @@ namespace nescc {
 					}
 
 					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
-						nescc::interface::pixel_t &value = m_pixel.at((pixel_y * DISPLAY_WIDTH) + pixel_x);
+						nescc::core::pixel_t &value = m_pixel.at((pixel_y * DISPLAY_WIDTH) + pixel_x);
 
 						value.red -= std::min(POST_PROCESS_SCANLINE_OFFSET, (int) value.red);
 						value.green -= std::min(POST_PROCESS_SCANLINE_OFFSET, (int) value.green);
@@ -244,7 +236,7 @@ namespace nescc {
 					"SDL_RenderSetLogicalSize failed! Error=%s", SDL_GetError());
 			}
 
-			if(SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255)) {
+			if(SDL_SetRenderDrawColor(m_renderer, BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, BACKGROUND_ALPHA)) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_SetRenderDrawColor failed! Error=%s", SDL_GetError());
 			}

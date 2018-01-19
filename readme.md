@@ -238,6 +238,12 @@ Changelog
 
 Version 0.1.1803
 ----------------
+*Updated: 1/18/2018*
+
+* Added bitmap class
+	* Integrated into extractor utility
+* Bug fixes
+
 *Updated: 1/17/2018*
 
 * Added CRT filter effects (incomplete)

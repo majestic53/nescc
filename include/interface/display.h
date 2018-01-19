@@ -20,7 +20,7 @@
 #define NESCC_INTERFACE_DISPLAY_H_
 
 #include <vector>
-#include <SDL2/SDL.h>
+#include "../core/bitmap.h"
 #include "../core/singleton.h"
 
 namespace nescc {
@@ -29,16 +29,6 @@ namespace nescc {
 
 		#define DISPLAY_HEIGHT 240
 		#define DISPLAY_WIDTH 256
-
-		union pixel_t {
-			struct {
-				uint32_t blue : 8;
-				uint32_t green : 8;
-				uint32_t red : 8;
-				uint32_t alpha : 8;
-			};
-			uint32_t raw;
-		};
 
 		class display :
 				public nescc::core::singleton<nescc::interface::display> {
@@ -139,7 +129,7 @@ namespace nescc {
 
 				bool m_debug;
 
-				std::vector<pixel_t> m_pixel;
+				std::vector<nescc::core::pixel_t> m_pixel;
 
 				SDL_Renderer *m_renderer;
 

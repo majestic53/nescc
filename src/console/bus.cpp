@@ -115,10 +115,11 @@ namespace nescc {
 					relative = (address - CARTRIDGE_RAM_PROGRAM_START);
 					result << m_mapper.ram().as_string(relative, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
 					break;
-				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
-					relative = (address - CARTRIDGE_ROM_PROGRAM_START);
-					result << m_mapper.rom_program(relative).as_string(relative, offset, CARTRIDGE_ROM_PROGRAM_START, verbose);
-					break;
+				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: { // 0x8000 - 0xffff
+						relative = (address - CARTRIDGE_ROM_PROGRAM_START);
+						nescc::core::memory &program = m_mapper.rom_program(relative);
+						result << program.as_string(relative, offset, CARTRIDGE_ROM_PROGRAM_START, verbose);
+					} break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Offset=%u(%04x)",
 						address, address, offset, offset);

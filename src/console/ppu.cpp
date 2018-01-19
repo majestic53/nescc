@@ -18,7 +18,7 @@
 
 #include "../../include/console/ppu.h"
 #include "../../include/console/cartridge.h"
-#include "../../include/interface/display.h"
+#include "../../include/core/bitmap.h"
 #include "../../include/trace.h"
 #include "./ppu_type.h"
 
@@ -519,7 +519,7 @@ namespace nescc {
 
 			if((m_scanline < PPU_SCANLINE_POST_RENDER) && (dot >= 0) && (dot < PPU_DOT_SCROLL_VERTICAL)) {
 				bool priority = false;
-				nescc::interface::pixel_t color;
+				nescc::core::pixel_t color;
 				uint8_t palette = 0, palette_object = 0;
 
 				generate_pixel_background(dot, palette);

@@ -219,10 +219,10 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 
 					switch(address) {
-						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH:
+						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH: // 0x0000 - 0x3fff
 							result = m_cartridge.rom_program(m_rom_program_index_0).read(address);
 							break;
-						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH:
+						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH: // 0x4000 - 0x7fff
 							result = m_cartridge.rom_program(m_rom_program_index_1).read(
 									address - MAPPER_NROM_PROGRAM_1_LOW);
 							break;
@@ -301,7 +301,7 @@ namespace nescc {
 
 		nescc::core::memory &
 		mapper::rom_program(
-			__in uint16_t address
+			__inout uint16_t &address
 			)
 		{
 			uint8_t result = 0, type;
@@ -319,11 +319,12 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 
 					switch(address) {
-						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH:
+						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH: // 0x0000 - 0x3fff
 							result = m_rom_program_index_0;
 							break;
-						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH:
+						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH: // 0x4000 - 0x7fff
 							result = m_rom_program_index_1;
+							address -= MAPPER_NROM_PROGRAM_1_LOW;
 							break;
 						default:
 							THROW_NESCC_CONSOLE_MAPPER_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_EXCEPTION_UNSUPPORTED_ADDRESS,
@@ -335,7 +336,7 @@ namespace nescc {
 						"Type=%u", type);
 			}
 
-			TRACE_EXIT();
+			TRACE_EXIT_FORMAT("Result=%04x(%u)", address, address);
 			return m_cartridge.rom_program(result);
 		}
 
@@ -452,10 +453,10 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 
 					switch(address) {
-						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH:
+						case MAPPER_NROM_PROGRAM_0_LOW ... MAPPER_NROM_PROGRAM_0_HIGH: // 0x0000 - 0x3fff
 							m_cartridge.rom_program(m_rom_program_index_0).write(address, value);
 							break;
-						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH:
+						case MAPPER_NROM_PROGRAM_1_LOW ... MAPPER_NROM_PROGRAM_1_HIGH: // 0x4000 - 0x7fff
 							m_cartridge.rom_program(m_rom_program_index_1).write(address - MAPPER_NROM_PROGRAM_1_LOW,
 									value);
 							break;
