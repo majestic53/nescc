@@ -50,7 +50,6 @@ namespace nescc {
 					__in_opt bool crt = false,
 					__in_opt bool bleed = true,
 					__in_opt bool scanlines = true,
-					__in_opt bool curvature = true,
 					__in_opt bool border = true
 					);
 
@@ -58,7 +57,6 @@ namespace nescc {
 					__in bool crt,
 					__in_opt bool bleed = true,
 					__in_opt bool scanlines = true,
-					__in_opt bool curvature = true,
 					__in_opt bool border = true
 					);
 
@@ -126,19 +124,15 @@ namespace nescc {
 
 				bool m_crt_border;
 
-				bool m_crt_curvature;
-
 				uint8_t m_crt_frame;
 
-				std::mutex m_mutex_change;
-
 				bool m_crt_scanlines;
-
-				bool m_crt_scanlines_even;
 
 				bool m_debug;
 
 				std::vector<nescc::core::pixel_t> m_pixel;
+
+				std::vector<nescc::core::pixel_t> m_pixel_previous;
 
 				SDL_Renderer *m_renderer;
 

@@ -29,10 +29,8 @@ namespace nescc {
 			m_crt(false),
 			m_crt_bleed(true),
 			m_crt_border(true),
-			m_crt_curvature(true),
 			m_crt_frame(0),
 			m_crt_scanlines(true),
-			m_crt_scanlines_even(false),
 			m_debug(false),
 			m_renderer(nullptr),
 			m_shown(false),
@@ -83,6 +81,7 @@ namespace nescc {
 #endif // NDEBUG
 
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
+			m_pixel_previous.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
 			m_title.clear();
 
 			TRACE_EXIT();
@@ -91,20 +90,17 @@ namespace nescc {
 		void
 		display::create_window(void)
 		{
-			uint32_t width = (m_crt ? DISPLAY_WIDTH_CRT : DISPLAY_WIDTH_CRT);
-			const char *quality = (m_crt ? DISPLAY_QUALITY_CRT : DISPLAY_QUALITY);
-
 			TRACE_ENTRY();
 
 			m_window = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-					width * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE, DISPLAY_FLAG);
+					DISPLAY_WIDTH_STRETCH * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE, DISPLAY_FLAG);
 
 			if(!m_window) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_CreateWindow failed! Error=%s", SDL_GetError());
 			}
 
-			if(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality) == SDL_FALSE) {
+			if(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, DISPLAY_QUALITY) == SDL_FALSE) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_SetHint failed! Error=%s", SDL_GetError());
 			}
@@ -115,7 +111,7 @@ namespace nescc {
 					"SDL_CreateRenderer failed! Error=%s", SDL_GetError());
 			}
 
-			if(SDL_RenderSetLogicalSize(m_renderer, width, DISPLAY_HEIGHT)) {
+			if(SDL_RenderSetLogicalSize(m_renderer, DISPLAY_WIDTH_STRETCH, DISPLAY_HEIGHT)) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_RenderSetLogicalSize failed! Error=%s", SDL_GetError());
 			}
@@ -131,17 +127,6 @@ namespace nescc {
 			if(!m_texture) {
 				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_CreateTexture failed! Error=%s", SDL_GetError());
-			}
-
-			if(m_crt && m_crt_border) {
-				m_bitmap_border.load(POST_PROCESS_BORDER_PATH);
-
-				m_texture_border = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_border.surface());
-
-				if(!m_texture_border) {
-					THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-						"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
-				}
 			}
 
 			if(SDL_RenderClear(m_renderer)) {
@@ -161,13 +146,6 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			m_shown = false;
-
-			if(m_texture_border) {
-				SDL_DestroyTexture(m_texture_border);
-				m_texture_border = nullptr;
-			}
-
-			m_bitmap_border.deallocate();
 
 			if(m_texture) {
 				SDL_DestroyTexture(m_texture);
@@ -194,6 +172,23 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
+			if(m_crt_scanlines) {
+				uint32_t index, offset = (rand() % POST_PROCESS_SIGNAL_ARTIFACT_WIDTH);
+
+				for(pixel_y = 0; pixel_y < DISPLAY_HEIGHT; ++pixel_y) {
+
+					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
+						index = ((pixel_y * DISPLAY_WIDTH) + pixel_x);
+						nescc::core::pixel_t artifact = POST_PROCESS_SIGNAL_ARTIFACT(pixel_x, pixel_y, offset),
+							&value = m_pixel.at(index);
+
+						value.red = PIXEL_BLEND(value.red, artifact.red, POST_PROCESS_SCANLINE_ARTIFACT_RATIO);
+						value.green = PIXEL_BLEND(value.green, artifact.green, POST_PROCESS_SCANLINE_ARTIFACT_RATIO);
+						value.blue = PIXEL_BLEND(value.blue, artifact.blue, POST_PROCESS_SCANLINE_ARTIFACT_RATIO);
+					}
+				}
+			}
+
 			if(m_crt_bleed) {
 				uint32_t index, pixel, pixel_tmp;
 				std::vector<nescc::core::pixel_t> pixel_left = m_pixel, pixel_right = m_pixel;
@@ -202,9 +197,22 @@ namespace nescc {
 
 					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
 						index = ((pixel_y * DISPLAY_WIDTH) + pixel_x);
+						nescc::core::pixel_t &value = m_pixel.at(index), &value_previous = m_pixel_previous.at(index);
+
+						value.red = PIXEL_BLEND(value.red, value_previous.red, POST_PROCESS_BLEED_FRINGE_RATIO);
+						value.green = PIXEL_BLEND(value.green, value_previous.green, POST_PROCESS_BLEED_FRINGE_RATIO);
+						value.blue = PIXEL_BLEND(value.blue, value_previous.blue, POST_PROCESS_BLEED_FRINGE_RATIO);
+					}
+				}
+
+				for(pixel_y = 0; pixel_y < DISPLAY_HEIGHT; ++pixel_y) {
+
+					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
+						index = ((pixel_y * DISPLAY_WIDTH) + pixel_x);
 						nescc::core::pixel_t &value_left = pixel_left.at(index), &value_right = pixel_right.at(index);
 
 						value_left.blue = 0;
+						value_left.green = 0;
 						value_right.red = 0;
 						value_right.blue = 0;
 					}
@@ -253,38 +261,18 @@ namespace nescc {
 						nescc::core::pixel_t &value = m_pixel.at(index), &value_left = pixel_left.at(index),
 							&value_right = pixel_right.at(index);
 						value.red = PIXEL_BLEND(value.red, PIXEL_BLEND(value_left.red, value_right.red,
-							POST_PROCESS_BLEED_LAYER_BLEND_RATIO), POST_PROCESS_BLEED_BLEND_RATIO);
+							POST_PROCESS_BLEED_LAYER_BLEND_RATIO), POST_PROCESS_BLEED_SWEEP_RATIO);
 						value.green = PIXEL_BLEND(value.green, PIXEL_BLEND(value_left.green, value_right.green,
-							POST_PROCESS_BLEED_LAYER_BLEND_RATIO), POST_PROCESS_BLEED_BLEND_RATIO);
+							POST_PROCESS_BLEED_LAYER_BLEND_RATIO), POST_PROCESS_BLEED_SWEEP_RATIO);
 						value.blue = PIXEL_BLEND(value.blue, PIXEL_BLEND(value_left.blue, value_right.blue,
-							POST_PROCESS_BLEED_LAYER_BLEND_RATIO), POST_PROCESS_BLEED_BLEND_RATIO);
+							POST_PROCESS_BLEED_LAYER_BLEND_RATIO), POST_PROCESS_BLEED_SWEEP_RATIO);
 					}
 				}
-			}
 
-			if(m_crt_scanlines) {
-				int offset = (std::rand() % POST_PROCESS_SCANLINE_OFFSET);
-
-				for(pixel_y = 0; pixel_y < DISPLAY_HEIGHT; ++pixel_y) {
-
-					if(m_crt_scanlines_even && !(pixel_y % 2)) {
-						continue;
-					} else if(!m_crt_scanlines_even && (pixel_y % 2)) {
-						continue;
-					}
-
-					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
-						nescc::core::pixel_t &value = m_pixel.at((pixel_y * DISPLAY_WIDTH) + pixel_x);
-
-						value.red += std::min(offset, (int) (UINT8_MAX - value.red));
-						value.green += std::min(offset, (int) (UINT8_MAX - value.green));
-						value.blue += std::min(offset, (int) (UINT8_MAX - value.blue));
-					}
+				if(++m_crt_frame == POST_PROCESS_BLEED_FRINGE) {
+					m_pixel_previous = m_pixel;
+					m_crt_frame = 0;
 				}
-			}
-
-			if(m_crt_curvature) {
-				// TODO
 			}
 
 			TRACE_EXIT();
@@ -303,6 +291,7 @@ namespace nescc {
 			title << NESCC << " " << nescc::runtime::version(true);
 			m_title = title.str();
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
+			m_pixel_previous.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
 			create_window();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display initialized.");
@@ -359,12 +348,11 @@ namespace nescc {
 			__in_opt bool crt,
 			__in_opt bool bleed,
 			__in_opt bool scanlines,
-			__in_opt bool curvature,
 			__in_opt bool border
 			)
 		{
-			TRACE_ENTRY_FORMAT("Debug=%x, CRT filter=%x, Bleed=%x, Scanlines=%x, Curvature=%x, Border=%x", debug,
-				crt, bleed, scanlines, curvature, border);
+			TRACE_ENTRY_FORMAT("Debug=%x, CRT filter=%x, Bleed=%x, Scanlines=%x, Border=%x", debug, crt, bleed,
+				scanlines, border);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -376,10 +364,8 @@ namespace nescc {
 			m_crt = crt;
 			m_crt_bleed = bleed;
 			m_crt_border = border;
-			m_crt_curvature = curvature;
 			m_crt_frame = 0;
 			m_crt_scanlines = scanlines;
-			m_crt_scanlines_even = false;
 			m_debug = debug;
 
 			TRACE_EXIT();
@@ -443,14 +429,12 @@ namespace nescc {
 			__in bool crt,
 			__in_opt bool bleed,
 			__in_opt bool scanlines,
-			__in_opt bool curvature,
 			__in_opt bool border
 			)
 		{
-			bool rebuild;
+			bool change;
 
-			TRACE_ENTRY_FORMAT("CRT filter=%x, Bleed=%x, Scanlines=%x, Curvature=%x, Border=%x",
-				crt, bleed, scanlines, curvature, border);
+			TRACE_ENTRY_FORMAT("CRT filter=%x, Bleed=%x, Scanlines=%x, Border=%x", crt, bleed, scanlines, border);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -458,19 +442,34 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			rebuild = (crt != m_crt);
+			change = (crt != m_crt);
 			m_crt = crt;
 			m_crt_bleed = bleed;
 			m_crt_border = border;
-			m_crt_curvature = curvature;
 			m_crt_frame = 0;
 			m_crt_scanlines = scanlines;
-			m_crt_scanlines_even = false;
 
-			if(rebuild) {
-				std::lock_guard<std::mutex> lock(m_mutex_change);
-				destroy_window();
-				create_window();
+			if(change && m_crt_border) {
+
+				if(m_crt) {
+					m_bitmap_border.load(POST_PROCESS_BORDER_PATH);
+
+					m_texture_border = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_border.surface());
+					if(!m_texture_border) {
+						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+							"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
+					}
+				} else {
+
+					if(m_texture_border) {
+						SDL_DestroyTexture(m_texture_border);
+						m_texture_border = nullptr;
+					}
+
+					m_bitmap_border.deallocate();
+				}
+
+				m_pixel_previous.assign(m_pixel.begin(), m_pixel.end());
 			}
 
 			TRACE_EXIT();
@@ -562,7 +561,6 @@ namespace nescc {
 					if(m_crt) {
 						result << "(Bleed=" << (m_crt_bleed ? "Enabled" : "Disabled")
 							<< ", Border=" << (m_crt_border ? "Enabled" : "Disabled")
-							<< ", Curvature=" << (m_crt_curvature ? "Enabled" : "Disabled")
 							<< ", Scanlines=" << (m_crt_scanlines ? "Enabled" : "Disabled") << ")";
 					}
 
@@ -593,18 +591,11 @@ namespace nescc {
 #endif // NDEBUG
 
 			if(m_shown) {
-				std::lock_guard<std::mutex> lock(m_mutex_change);
 
 				if(!paused) {
 
 					if(m_crt) {
 						filter_crt();
-
-						if(m_crt_scanlines && (++m_crt_frame >= (std::rand()
-								% POST_PROCESS_SCANLINE_FLICKER))) {
-							m_crt_scanlines_even = !m_crt_scanlines_even;
-							m_crt_frame = 0;
-						}
 					}
 
 					if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(uint32_t))) {

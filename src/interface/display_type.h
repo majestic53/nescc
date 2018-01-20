@@ -20,6 +20,7 @@
 #define NESCC_INTERFACE_DISPLAY_TYPE_H_
 
 #include "../../include/exception.h"
+#include "../../include/core/bitmap.h"
 
 namespace nescc {
 
@@ -61,16 +62,34 @@ namespace nescc {
 		#define DISPLAY_FRAME_RATE_PRECISION 1
 		#define DISPLAY_HEIGHT 240
 		#define DISPLAY_QUALITY "0"
-		#define DISPLAY_QUALITY_CRT "1"
 		#define DISPLAY_SCALE 2
 		#define DISPLAY_WIDTH 256
-		#define DISPLAY_WIDTH_CRT 320
+		#define DISPLAY_WIDTH_STRETCH 320
 
-		#define POST_PROCESS_BLEED_BLEND_RATIO 0.75
+		#define POST_PROCESS_BLEED_FRINGE 2
+		#define POST_PROCESS_BLEED_FRINGE_RATIO 0.6
 		#define POST_PROCESS_BLEED_LAYER_BLEND_RATIO 0.5
+		#define POST_PROCESS_BLEED_SWEEP_RATIO 0.75
 		#define POST_PROCESS_BORDER_PATH "./asset/border.bmp"
-		#define POST_PROCESS_SCANLINE_FLICKER 5
-		#define POST_PROCESS_SCANLINE_OFFSET 8
+		#define POST_PROCESS_SCANLINE_ARTIFACT_RATIO 0.9
+
+		static const std::vector<nescc::core::pixel_t> POST_PROCESS_SIGNAL_ART = {
+			{ .red = UINT8_MAX, },
+			{ .blue = UINT8_MAX, },
+			{ .green = UINT8_MAX, },
+			{ .green = UINT8_MAX, },
+			{ .red = UINT8_MAX, },
+			{ .blue = UINT8_MAX, },
+			{ .blue = UINT8_MAX, },
+			{ .green = UINT8_MAX, },
+			{ .red = UINT8_MAX, },
+			};
+
+		#define POST_PROCESS_SIGNAL_ARTIFACT_WIDTH 3
+
+		#define POST_PROCESS_SIGNAL_ARTIFACT(_X_, _Y_, _OFFSET_) \
+			POST_PROCESS_SIGNAL_ART.at(((((_Y_) + (_OFFSET_)) % POST_PROCESS_SIGNAL_ARTIFACT_WIDTH) \
+				* POST_PROCESS_SIGNAL_ARTIFACT_WIDTH) + (_X_ % POST_PROCESS_SIGNAL_ARTIFACT_WIDTH))
 
 		#define PIXEL_BLEND(_LEFT_, _RIGHT_, _RATIO_) \
 			(((_RATIO_) * (_LEFT_)) + ((1.0 - (_RATIO_)) * (_RIGHT_)))

@@ -238,6 +238,11 @@ Changelog
 
 Version 0.1.1803
 ----------------
+*Updated: 1/20/2018*
+
+* Added additional crt filter components
+	* Added screen artifacts
+
 *Updated: 1/19/2018*
 
 * Added additional crt filter components
