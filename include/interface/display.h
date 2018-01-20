@@ -27,9 +27,6 @@ namespace nescc {
 
 	namespace interface {
 
-		#define DISPLAY_HEIGHT 240
-		#define DISPLAY_WIDTH 256
-
 		class display :
 				public nescc::core::singleton<nescc::interface::display> {
 
@@ -111,11 +108,17 @@ namespace nescc {
 					__in const display &other
 					) = delete;
 
+				void create_window(void);
+
+				void destroy_window(void);
+
 				void filter_crt(void);
 
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
+
+				nescc::core::bitmap m_bitmap_border;
 
 				bool m_crt;
 
@@ -125,7 +128,13 @@ namespace nescc {
 
 				bool m_crt_curvature;
 
+				uint8_t m_crt_frame;
+
+				std::mutex m_mutex_change;
+
 				bool m_crt_scanlines;
+
+				bool m_crt_scanlines_even;
 
 				bool m_debug;
 
@@ -138,6 +147,8 @@ namespace nescc {
 				std::string m_title;
 
 				SDL_Texture *m_texture;
+
+				SDL_Texture *m_texture_border;
 
 				SDL_Window *m_window;
 		};

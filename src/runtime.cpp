@@ -35,6 +35,9 @@ namespace nescc {
 		TRACE_ENTRY();
 
 		TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, NESCC, "Ver. %s", STRING_CHECK(nescc::runtime::version(true)));
+
+		std::srand(std::time(nullptr));
+
 		TRACE_MESSAGE(TRACE_INFORMATION, NESCC_COPYRIGHT);
 
 		TRACE_EXIT();

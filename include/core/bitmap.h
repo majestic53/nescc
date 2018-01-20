@@ -92,6 +92,8 @@ namespace nescc {
 					__in uint32_t y
 					);
 
+				SDL_Surface *surface(void) const;
+
 				virtual std::string to_string(
 					__in_opt bool verbose = false
 					);

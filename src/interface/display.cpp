@@ -30,11 +30,14 @@ namespace nescc {
 			m_crt_bleed(true),
 			m_crt_border(true),
 			m_crt_curvature(true),
+			m_crt_frame(0),
 			m_crt_scanlines(true),
+			m_crt_scanlines_even(false),
 			m_debug(false),
 			m_renderer(nullptr),
 			m_shown(false),
 			m_texture(nullptr),
+			m_texture_border(nullptr),
 			m_window(nullptr)
 		{
 			TRACE_ENTRY();
@@ -81,6 +84,105 @@ namespace nescc {
 
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
 			m_title.clear();
+
+			TRACE_EXIT();
+		}
+
+		void
+		display::create_window(void)
+		{
+			uint32_t width = (m_crt ? DISPLAY_WIDTH_CRT : DISPLAY_WIDTH_CRT);
+			const char *quality = (m_crt ? DISPLAY_QUALITY_CRT : DISPLAY_QUALITY);
+
+			TRACE_ENTRY();
+
+			m_window = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+					width * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE, DISPLAY_FLAG);
+
+			if(!m_window) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_CreateWindow failed! Error=%s", SDL_GetError());
+			}
+
+			if(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality) == SDL_FALSE) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_SetHint failed! Error=%s", SDL_GetError());
+			}
+
+			m_renderer = SDL_CreateRenderer(m_window, -1, DISPLAY_FLAG_RENDERER);
+			if(!m_renderer) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_CreateRenderer failed! Error=%s", SDL_GetError());
+			}
+
+			if(SDL_RenderSetLogicalSize(m_renderer, width, DISPLAY_HEIGHT)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_RenderSetLogicalSize failed! Error=%s", SDL_GetError());
+			}
+
+			if(SDL_SetRenderDrawColor(m_renderer, BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, BACKGROUND_ALPHA)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_SetRenderDrawColor failed! Error=%s", SDL_GetError());
+			}
+
+			m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+					DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+			if(!m_texture) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_CreateTexture failed! Error=%s", SDL_GetError());
+			}
+
+			if(m_crt && m_crt_border) {
+				m_bitmap_border.load(POST_PROCESS_BORDER_PATH);
+
+				m_texture_border = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_border.surface());
+
+				if(!m_texture_border) {
+					THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+						"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
+				}
+			}
+
+			if(SDL_RenderClear(m_renderer)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_RenderClear failed! Error=%s", SDL_GetError());
+			}
+
+			SDL_RenderPresent(m_renderer);
+			m_shown = true;
+
+			TRACE_EXIT();
+		}
+
+		void
+		display::destroy_window(void)
+		{
+			TRACE_ENTRY();
+
+			m_shown = false;
+
+			if(m_texture_border) {
+				SDL_DestroyTexture(m_texture_border);
+				m_texture_border = nullptr;
+			}
+
+			m_bitmap_border.deallocate();
+
+			if(m_texture) {
+				SDL_DestroyTexture(m_texture);
+				m_texture = nullptr;
+			}
+
+			if(m_renderer) {
+				SDL_DestroyRenderer(m_renderer);
+				m_renderer = nullptr;
+			}
+
+			if(m_window) {
+				SDL_DestroyWindow(m_window);
+				m_window = nullptr;
+			}
 
 			TRACE_EXIT();
 		}
@@ -161,28 +263,27 @@ namespace nescc {
 			}
 
 			if(m_crt_scanlines) {
+				int offset = (std::rand() % POST_PROCESS_SCANLINE_OFFSET);
 
 				for(pixel_y = 0; pixel_y < DISPLAY_HEIGHT; ++pixel_y) {
 
-					if(!(pixel_y % 2)) {
+					if(m_crt_scanlines_even && !(pixel_y % 2)) {
+						continue;
+					} else if(!m_crt_scanlines_even && (pixel_y % 2)) {
 						continue;
 					}
 
 					for(pixel_x = 0; pixel_x < DISPLAY_WIDTH; ++pixel_x) {
 						nescc::core::pixel_t &value = m_pixel.at((pixel_y * DISPLAY_WIDTH) + pixel_x);
 
-						value.red -= std::min(POST_PROCESS_SCANLINE_OFFSET, (int) value.red);
-						value.green -= std::min(POST_PROCESS_SCANLINE_OFFSET, (int) value.green);
-						value.blue -= std::min(POST_PROCESS_SCANLINE_OFFSET, (int) value.blue);
+						value.red += std::min(offset, (int) (UINT8_MAX - value.red));
+						value.green += std::min(offset, (int) (UINT8_MAX - value.green));
+						value.blue += std::min(offset, (int) (UINT8_MAX - value.blue));
 					}
 				}
 			}
 
 			if(m_crt_curvature) {
-				// TODO
-			}
-
-			if(m_crt_border) {
 				// TODO
 			}
 
@@ -201,53 +302,8 @@ namespace nescc {
 
 			title << NESCC << " " << nescc::runtime::version(true);
 			m_title = title.str();
-
 			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
-
-			m_window = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-					DISPLAY_WIDTH * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE, DISPLAY_FLAG);
-
-			if(!m_window) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_CreateWindow failed! Error=%s", SDL_GetError());
-			}
-
-			m_renderer = SDL_CreateRenderer(m_window, -1, DISPLAY_FLAG_RENDERER);
-			if(!m_renderer) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_CreateRenderer failed! Error=%s", SDL_GetError());
-			}
-
-			m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-					DISPLAY_WIDTH, DISPLAY_HEIGHT);
-
-			if(!m_texture) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_CreateTexture failed! Error=%s", SDL_GetError());
-			}
-
-			if(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, DISPLAY_QUALITY) == SDL_FALSE) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_SetHint failed! Error=%s", SDL_GetError());
-			}
-
-			if(SDL_RenderSetLogicalSize(m_renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT)) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_RenderSetLogicalSize failed! Error=%s", SDL_GetError());
-			}
-
-			if(SDL_SetRenderDrawColor(m_renderer, BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, BACKGROUND_ALPHA)) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_SetRenderDrawColor failed! Error=%s", SDL_GetError());
-			}
-
-			if(SDL_RenderClear(m_renderer)) {
-				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-					"SDL_RenderClear failed! Error=%s", SDL_GetError());
-			}
-
-			SDL_RenderPresent(m_renderer);
-			m_shown = true;
+			create_window();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display initialized.");
 
@@ -262,23 +318,8 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display uninitializing...");
 
-			if(m_texture) {
-				SDL_DestroyTexture(m_texture);
-				m_texture = nullptr;
-			}
-
-			if(m_renderer) {
-				SDL_DestroyRenderer(m_renderer);
-				m_renderer = nullptr;
-			}
-
-			if(m_window) {
-				SDL_DestroyWindow(m_window);
-				m_window = nullptr;
-			}
-
+			destroy_window();
 			m_debug = false;
-			m_shown = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display uninitialized.");
 
@@ -336,7 +377,9 @@ namespace nescc {
 			m_crt_bleed = bleed;
 			m_crt_border = border;
 			m_crt_curvature = curvature;
+			m_crt_frame = 0;
 			m_crt_scanlines = scanlines;
+			m_crt_scanlines_even = false;
 			m_debug = debug;
 
 			TRACE_EXIT();
@@ -404,6 +447,8 @@ namespace nescc {
 			__in_opt bool border
 			)
 		{
+			bool rebuild;
+
 			TRACE_ENTRY_FORMAT("CRT filter=%x, Bleed=%x, Scanlines=%x, Curvature=%x, Border=%x",
 				crt, bleed, scanlines, curvature, border);
 
@@ -413,11 +458,20 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			rebuild = (crt != m_crt);
 			m_crt = crt;
 			m_crt_bleed = bleed;
 			m_crt_border = border;
 			m_crt_curvature = curvature;
+			m_crt_frame = 0;
 			m_crt_scanlines = scanlines;
+			m_crt_scanlines_even = false;
+
+			if(rebuild) {
+				std::lock_guard<std::mutex> lock(m_mutex_change);
+				destroy_window();
+				create_window();
+			}
 
 			TRACE_EXIT();
 		}
@@ -539,11 +593,18 @@ namespace nescc {
 #endif // NDEBUG
 
 			if(m_shown) {
+				std::lock_guard<std::mutex> lock(m_mutex_change);
 
 				if(!paused) {
 
 					if(m_crt) {
 						filter_crt();
+
+						if(m_crt_scanlines && (++m_crt_frame >= (std::rand()
+								% POST_PROCESS_SCANLINE_FLICKER))) {
+							m_crt_scanlines_even = !m_crt_scanlines_even;
+							m_crt_frame = 0;
+						}
 					}
 
 					if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(uint32_t))) {
@@ -559,6 +620,14 @@ namespace nescc {
 					if(SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr)) {
 						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 							"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+					}
+
+					if(m_crt && m_crt_border && m_texture_border) {
+
+						if(SDL_RenderCopy(m_renderer, m_texture_border, nullptr, nullptr)) {
+							THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+								"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+						}
 					}
 				}
 

@@ -238,6 +238,13 @@ Changelog
 
 Version 0.1.1803
 ----------------
+*Updated: 1/19/2018*
+
+* Added additional crt filter components
+	* Added screen blur
+	* Added screen flicker
+	* Added screen border
+
 *Updated: 1/18/2018*
 
 * Added bitmap class

@@ -356,6 +356,21 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		SDL_Surface *
+		bitmap::surface(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_allocated || !m_surface) {
+				THROW_NESCC_CORE_BITMAP_EXCEPTION(NESCC_CORE_BITMAP_EXCEPTION_UNALLOCATED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%p", m_surface);
+			return m_surface;
+		}
+
 		std::string
 		bitmap::to_string(
 			__in_opt bool verbose
