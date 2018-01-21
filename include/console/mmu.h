@@ -16,21 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_CONSOLE_MAPPER_H_
-#define NESCC_CONSOLE_MAPPER_H_
+#ifndef NESCC_CONSOLE_MMU_H_
+#define NESCC_CONSOLE_MMU_H_
 
+#include "./mapper/nrom.h"
 #include "./cartridge.h"
 
 namespace nescc {
 
 	namespace console {
 
-		class mapper :
-				public nescc::core::singleton<nescc::console::mapper> {
+		class mmu :
+				public nescc::core::singleton<nescc::console::mmu> {
 
 			public:
 
-				~mapper(void);
+				~mmu(void);
 
 				std::string as_string(
 					__in_opt bool verbose = false
@@ -87,16 +88,16 @@ namespace nescc {
 
 			protected:
 
-				friend class nescc::core::singleton<nescc::console::mapper>;
+				friend class nescc::core::singleton<nescc::console::mmu>;
 
-				mapper(void);
+				mmu(void);
 
-				mapper(
-					__in const mapper &other
+				mmu(
+					__in const mmu &other
 					) = delete;
 
-				mapper &operator=(
-					__in const mapper &other
+				mmu &operator=(
+					__in const mmu &other
 					) = delete;
 
 				bool on_initialize(void);
@@ -107,15 +108,9 @@ namespace nescc {
 
 				bool m_debug;
 
-				uint8_t m_ram_index;
-
-				uint8_t m_rom_character_index;
-
-				uint8_t m_rom_program_index_0;
-
-				uint8_t m_rom_program_index_1;
+				nescc::console::mapper::nrom m_mapper_nrom;
 		};
 	}
 }
 
-#endif // NESCC_CONSOLE_MAPPER_H_
+#endif // NESCC_CONSOLE_MMU_H_

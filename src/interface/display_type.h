@@ -62,6 +62,7 @@ namespace nescc {
 		#define DISPLAY_FRAME_RATE_PRECISION 1
 		#define DISPLAY_HEIGHT 240
 		#define DISPLAY_QUALITY "0"
+		#define DISPLAY_QUALITY_CRT "1"
 		#define DISPLAY_SCALE 2
 		#define DISPLAY_WIDTH 256
 		#define DISPLAY_WIDTH_STRETCH 320

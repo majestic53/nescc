@@ -20,7 +20,7 @@ Table of Contents
 		* [Debug Subcommands](https://github.com/majestic53/nescc#debug-subcommands) -- All interactive mode debug subcommands
 		* [Display Subcommands](https://github.com/majestic53/nescc#display-subcommands) -- All interactive mode display subcommands
 		* [Joypad Subcommands](https://github.com/majestic53/nescc#joypad-subcommands) -- All interactive mode joypad subcommands
-		* [Mapper Subcommands](https://github.com/majestic53/nescc#mapper-subcommands) -- All interactive mode mapper subcommands
+		* [MMU Subcommands](https://github.com/majestic53/nescc#mmu-subcommands) -- All interactive mode MMU subcommands
 		* [PPU Subcommands](https://github.com/majestic53/nescc#ppu-subcommands) -- All interactive mode PPU subcommands
 	* [Nescc-rominfo](https://github.com/majestic53/nescc#nescc-rominfo) -- How to use Nescc-rominfo application
 4. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
@@ -77,9 +77,10 @@ Nescc
 Nescc is a CLI application for emulating/debugging NES roms.
 
 ```
-Nescc [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
+Nescc [-c|--crt] [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 
 -d | --debug                                                          Run in debug mode
+-c | --crt                                                            Enable CRT filter
 -h | --help                                                           Display help information
 -i | --interactive                                                    Run in interactive mode
 -v | --version                                                        Display version information
@@ -111,7 +112,7 @@ exit                                                                  Exit inter
 frame                                                                 Display frame count
 help                                                                  Display help information
 joypad          [help, status, strobe]                                Display/Set joypad state
-mapper          [help, status]                                        Display mapper state
+mmu             [help, status]                                        Display mmu state
 pause                                                                 Pause emulation
 ppu             [cycle, dot, get, help, port, scanline,
 			set, status, watch]                           Display/Set ppu state
@@ -176,7 +177,7 @@ status                                                                Display st
 strobe          <value>                                               Set/Clear strobe
 ```
 
-### Mapper Subcommands
+### MMU Subcommands
 
 ```
 help                                                                  Display help information
@@ -240,6 +241,7 @@ Version 0.1.1803
 ----------------
 *Updated: 1/20/2018*
 
+* Refactored mapper into mmu[1] -> Mapper[*]
 * Added additional crt filter components
 	* Added screen artifacts
 

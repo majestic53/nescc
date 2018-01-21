@@ -71,8 +71,9 @@ namespace nescc {
 		#define ARGUMENT_DELIMITER '-'
 
 		enum {
+			ARGUMENT_CRT = 0,
 #ifndef NDEBUG
-			ARGUMENT_DEBUG = 0,
+			ARGUMENT_DEBUG,
 #endif // NDEBUG
 			ARGUMENT_HELP,
 			ARGUMENT_INTERACTIVE,
@@ -83,6 +84,7 @@ namespace nescc {
 		#define ARGUMENT_MIN 2
 
 		static const std::string ARGUMENT_STR[] = {
+			"c",
 #ifndef NDEBUG
 			"d",
 #endif // NDEBUG
@@ -94,6 +96,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR[_TYPE_]))
 
 		static const std::string ARGUMENT_STR_LONG[] = {
+			"crt",
 #ifndef NDEBUG
 			"debug",
 #endif // NDEBUG
@@ -105,6 +108,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR_LONG[_TYPE_]))
 
 		static const std::string ARGUMENT_STR_DESC[] = {
+			"Enable CRT filter",
 #ifndef NDEBUG
 			"Run in debug mode",
 #endif // NDEBUG
@@ -118,6 +122,8 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR_DESC[_TYPE_]))
 
 		static const std::map<std::string, uint32_t> ARGUMENT_MAP = {
+			std::make_pair(ARGUMENT_STRING(ARGUMENT_CRT), ARGUMENT_CRT),
+			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_CRT), ARGUMENT_CRT),
 #ifndef NDEBUG
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_DEBUG), ARGUMENT_DEBUG),
 			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_DEBUG), ARGUMENT_DEBUG),
@@ -141,7 +147,7 @@ namespace nescc {
 			ARGUMENT_INTERACTIVE_FRAME,
 			ARGUMENT_INTERACTIVE_HELP,
 			ARGUMENT_INTERACTIVE_JOYPAD,
-			ARGUMENT_INTERACTIVE_MAPPER,
+			ARGUMENT_INTERACTIVE_MMU,
 			ARGUMENT_INTERACTIVE_PAUSE,
 			ARGUMENT_INTERACTIVE_PPU,
 			ARGUMENT_INTERACTIVE_RESTART,
@@ -160,7 +166,7 @@ namespace nescc {
 #ifndef NDEBUG
 			"debug",
 #endif // NDEBUG
-			"display", "exit", "frame", "help", "joypad", "mapper", "pause",
+			"display", "exit", "frame", "help", "joypad", "mmu", "pause",
 			"ppu", "restart", "run", "status", "step", "step-frame", "stop",
 			"version",
 			};
@@ -180,7 +186,7 @@ namespace nescc {
 			"Display frame count",
 			"Display help information",
 			"Display/Set joypad state",
-			"Display mapper state",
+			"Display mmu state",
 			"Pause emulation",
 			"Display/Set ppu state",
 			"Restart emulation",
@@ -207,7 +213,7 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_FRAME), ARGUMENT_INTERACTIVE_FRAME),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_HELP), ARGUMENT_INTERACTIVE_HELP),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_JOYPAD), ARGUMENT_INTERACTIVE_JOYPAD),
-			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_MAPPER), ARGUMENT_INTERACTIVE_MAPPER),
+			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_MMU), ARGUMENT_INTERACTIVE_MMU),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_PAUSE), ARGUMENT_INTERACTIVE_PAUSE),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_PPU), ARGUMENT_INTERACTIVE_PPU),
 			std::make_pair(ARGUMENT_INTERACTIVE_STRING(ARGUMENT_INTERACTIVE_RESTART), ARGUMENT_INTERACTIVE_RESTART),
@@ -335,7 +341,7 @@ namespace nescc {
 			std::make_pair(ARGUMENT_INTERACTIVE_HELP, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_JOYPAD, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, ARGUMENT_INTERACTIVE_SUBCOMMAND_STROBE, })),
-			std::make_pair(ARGUMENT_INTERACTIVE_MAPPER, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
+			std::make_pair(ARGUMENT_INTERACTIVE_MMU, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, })),
 			std::make_pair(ARGUMENT_INTERACTIVE_PAUSE, std::vector<uint32_t>()),
 			std::make_pair(ARGUMENT_INTERACTIVE_PPU, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE,
@@ -381,7 +387,7 @@ namespace nescc {
 #ifndef NDEBUG
 			ARGUMENT_INTERACTIVE_DEBUG,
 #endif // NDEBUG
-			ARGUMENT_INTERACTIVE_DISPLAY, ARGUMENT_INTERACTIVE_JOYPAD, ARGUMENT_INTERACTIVE_MAPPER,
+			ARGUMENT_INTERACTIVE_DISPLAY, ARGUMENT_INTERACTIVE_JOYPAD, ARGUMENT_INTERACTIVE_MMU,
 			ARGUMENT_INTERACTIVE_PPU,
 			};
 
@@ -439,7 +445,7 @@ namespace nescc {
 			ARGUMENT_INTERACTIVE_DEBUG,
 #endif // NDEBUG
 			ARGUMENT_INTERACTIVE_DISPLAY, ARGUMENT_INTERACTIVE_JOYPAD,
-			ARGUMENT_INTERACTIVE_MAPPER, ARGUMENT_INTERACTIVE_PPU,
+			ARGUMENT_INTERACTIVE_MMU, ARGUMENT_INTERACTIVE_PPU,
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_STROBE_SUPPORT[] = {

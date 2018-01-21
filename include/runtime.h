@@ -46,7 +46,8 @@ namespace nescc {
 				__in const std::string &path,
 				__in_opt bool debug = false,
 				__in_opt bool step = false,
-				__in_opt bool step_frame = false
+				__in_opt bool step_frame = false,
+				__in_opt bool crt_filter = false
 				);
 
 			bool running(void) const;
@@ -102,6 +103,8 @@ namespace nescc {
 			void on_uninitialize(void);
 
 			nescc::console::bus &m_bus;
+
+			bool m_crt_filter;
 
 			bool m_debug;
 

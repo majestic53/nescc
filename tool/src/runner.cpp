@@ -25,6 +25,7 @@ namespace nescc {
 	namespace tool {
 
 		runner::runner(void) :
+			m_crt_filter(false),
 			m_debug(false),
 			m_interactive(false),
 			m_runtime(nescc::runtime::acquire()),
@@ -516,7 +517,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_mapper(
+		runner::command_mmu(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -525,7 +526,7 @@ namespace nescc {
 			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
 
 			if(!arguments.empty()) {
-				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_MAPPER);
+				type = parse_subcommand(arguments, ARGUMENT_INTERACTIVE_MMU);
 				sub_arguments.erase(sub_arguments.begin());
 			}
 
@@ -535,7 +536,7 @@ namespace nescc {
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
 
 						if(sub_arguments.empty()) {
-							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_MAPPER);
+							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_MMU);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
@@ -543,7 +544,7 @@ namespace nescc {
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:
 
 						if(sub_arguments.empty()) {
-							result << m_runtime.bus().mapper().as_string(true);
+							result << m_runtime.bus().mmu().as_string(true);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
 						}
@@ -847,7 +848,7 @@ namespace nescc {
 				}
 
 				m_runtime.initialize();
-				m_runtime.run(m_path);
+				m_runtime.run(m_path, m_debug, m_step, m_step_frame, m_crt_filter);
 			} else {
 				result << "Unexpected command argument: " << arguments.front();
 			}
@@ -873,7 +874,7 @@ namespace nescc {
 					}
 				} else {
 					m_runtime.initialize();
-					m_runtime.run(m_path, m_debug);
+					m_runtime.run(m_path, m_debug, m_step, m_step_frame, m_crt_filter);
 				}
 			} else {
 				result << "Unexpected command argument: " << arguments.front();
@@ -945,7 +946,7 @@ namespace nescc {
 					m_step_frame = step_frame;
 					m_step_count = 1;
 					m_runtime.initialize();
-					m_runtime.run(m_path, m_debug, m_step, m_step_frame);
+					m_runtime.run(m_path, m_debug, m_step, m_step_frame, m_crt_filter);
 				}
 			} else if(parse_subcommand_value(arguments, value, m_step)) {
 
@@ -954,7 +955,7 @@ namespace nescc {
 					m_step_frame = step_frame;
 					m_step_count = 1;
 					m_runtime.initialize();
-					m_runtime.run(m_path, m_debug, m_step, m_step_frame);
+					m_runtime.run(m_path, m_debug, m_step, m_step_frame, m_crt_filter);
 				}
 
 				if(m_runtime.stepping()) {
@@ -1052,6 +1053,9 @@ namespace nescc {
 					}
 
 					switch(entry->second) {
+						case ARGUMENT_CRT:
+							m_crt_filter = true;
+							break;
 #ifndef NDEBUG
 						case ARGUMENT_DEBUG:
 							m_debug = true;
@@ -1181,8 +1185,8 @@ namespace nescc {
 							case ARGUMENT_INTERACTIVE_JOYPAD:
 								response = command_joypad(arguments);
 								break;
-							case ARGUMENT_INTERACTIVE_MAPPER:
-								response = command_mapper(arguments);
+							case ARGUMENT_INTERACTIVE_MMU:
+								response = command_mmu(arguments);
 								break;
 							case ARGUMENT_INTERACTIVE_PAUSE:
 								response = command_pause(arguments);
@@ -1242,6 +1246,7 @@ namespace nescc {
 				m_runtime.uninitialize();
 			}
 
+			m_crt_filter = false;
 			m_debug = false;
 			m_interactive = false;
 			m_path.clear();
@@ -1431,7 +1436,7 @@ namespace nescc {
 					nescc::core::thread::wait();
 				} else {
 					m_runtime.initialize();
-					m_runtime.run(m_path, m_debug);
+					m_runtime.run(m_path, m_debug, m_step, m_step_frame, m_crt_filter);
 					m_runtime.wait();
 					m_runtime.uninitialize();
 				}
@@ -1605,7 +1610,8 @@ namespace nescc {
 						<< ", Path[" << m_path.size() << "]=" << m_path
 						<< ", Mode=" << (m_interactive ? "Interactive" : "Normal")
 							<< "/" << (m_debug ? "Debug" : "Non-debug")
-							<< "/" << (m_step ? "Step" : (m_step_frame ? "Step-frame" : "Freerunning"));
+							<< "/" << (m_step ? "Step" : (m_step_frame ? "Step-frame" : "Freerunning"))
+							<< "/" << (m_crt_filter ? "CRT-filter" : "Unfilitered");
 				}
 			}
 

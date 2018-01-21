@@ -23,6 +23,7 @@ namespace nescc {
 
 	runtime::runtime(void) :
 		m_bus(nescc::console::bus::acquire()),
+		m_crt_filter(false),
 		m_debug(false),
 		m_display(nescc::interface::display::acquire()),
 		m_frame(1),
@@ -225,6 +226,7 @@ namespace nescc {
 			m_display.reset(m_debug);
 			m_display.set_icon(RUNTIME_ICON_PATH);
 			m_display.set_title(m_path);
+			m_display.set_filter_crt(m_crt_filter);
 			m_step_complete.clear();
 		} catch(nescc::exception &exc) {
 			m_exception = exc;
@@ -268,6 +270,7 @@ namespace nescc {
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "SDL uninitialized.");
 
+		m_crt_filter = false;
 		m_debug = false;
 		m_frame = 1;
 		m_step = false;
@@ -367,10 +370,12 @@ namespace nescc {
 		__in const std::string &path,
 		__in_opt bool debug,
 		__in_opt bool step,
-		__in_opt bool step_frame
+		__in_opt bool step_frame,
+		__in_opt bool crt_filter
 		)
 	{
-		TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x", path.size(), STRING_CHECK(path), debug);
+		TRACE_ENTRY_FORMAT("Path[%u]=%s, Debug=%x, Step=%x, Step-frame=%x, Crt-filter=%x", path.size(), STRING_CHECK(path), debug,
+			step, step_frame, crt_filter);
 
 #ifndef NDEBUG
 		if(!m_initialized) {
@@ -378,6 +383,7 @@ namespace nescc {
 		}
 #endif // NDEBUG
 
+		m_crt_filter = crt_filter;
 		m_frame = 1;
 		m_path = path;
 		m_debug = debug;
@@ -475,6 +481,7 @@ namespace nescc {
 			if(m_initialized) {
 				result << ", Mode=" << (m_debug ? "Debug" : "Normal")
 						<< "/" << (m_step ? "Stepped" : (m_step_frame ? "Stepped-frame" : "Freerunning"))
+						<< "/" << (m_crt_filter ? "CRT-filter" : "Unfiltered")
 					<< ", Path[" << m_path.size() << "]=" << m_path
 					<< ", Frame=" << m_frame;
 			}

@@ -106,7 +106,11 @@ namespace nescc {
 					__in const display &other
 					) = delete;
 
+				void create_texture(void);
+
 				void create_window(void);
+
+				void destroy_texture(void);
 
 				void destroy_window(void);
 

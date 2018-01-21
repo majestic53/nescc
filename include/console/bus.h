@@ -23,7 +23,7 @@
 #include "./apu.h"
 #include "./cpu.h"
 #include "./joypad.h"
-#include "./mapper.h"
+#include "./mmu.h"
 #include "./ppu.h"
 #include "../interface/display.h"
 
@@ -85,11 +85,11 @@ namespace nescc {
 					__in_opt bool debug = false
 					);
 
-				nescc::console::mapper &mapper(void);
-
 				void mapper_interrupt(void);
 
 				uint8_t mirroring(void) const;
+
+				nescc::console::mmu &mmu(void);
 
 				nescc::console::ppu &ppu(void);
 
@@ -165,7 +165,7 @@ namespace nescc {
 
 				nescc::console::joypad &m_joypad;
 
-				nescc::console::mapper &m_mapper;
+				nescc::console::mmu &m_mmu;
 
 				nescc::console::ppu &m_ppu;
 

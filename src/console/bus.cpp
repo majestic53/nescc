@@ -30,7 +30,7 @@ namespace nescc {
 			m_debug(false),
 			m_display(nescc::interface::display::acquire()),
 			m_joypad(nescc::console::joypad::acquire()),
-			m_mapper(nescc::console::mapper::acquire()),
+			m_mmu(nescc::console::mmu::acquire()),
 			m_ppu(nescc::console::ppu::acquire())
 		{
 			TRACE_ENTRY();
@@ -45,7 +45,7 @@ namespace nescc {
 			m_cpu.release();
 			m_display.release();
 			m_joypad.release();
-			m_mapper.release();
+			m_mmu.release();
 			m_ppu.release();
 
 			TRACE_EXIT();
@@ -113,11 +113,11 @@ namespace nescc {
 					break;
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
 					relative = (address - CARTRIDGE_RAM_PROGRAM_START);
-					result << m_mapper.ram().as_string(relative, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
+					result << m_mmu.ram().as_string(relative, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
 					break;
 				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: { // 0x8000 - 0xffff
 						relative = (address - CARTRIDGE_ROM_PROGRAM_START);
-						nescc::core::memory &program = m_mapper.rom_program(relative);
+						nescc::core::memory &program = m_mmu.rom_program(relative);
 						result << program.as_string(relative, offset, CARTRIDGE_ROM_PROGRAM_START, verbose);
 					} break;
 				default:
@@ -204,10 +204,10 @@ namespace nescc {
 					result = m_joypad.read_port(address - JOYPAD_PORT_1);
 					break;
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
-					result = m_mapper.read_ram(address - CARTRIDGE_RAM_PROGRAM_START);
+					result = m_mmu.read_ram(address - CARTRIDGE_RAM_PROGRAM_START);
 					break;
 				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
-					result = m_mapper.read_rom_program(address - CARTRIDGE_ROM_PROGRAM_START);
+					result = m_mmu.read_rom_program(address - CARTRIDGE_ROM_PROGRAM_START);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x)", address, address);
@@ -321,10 +321,10 @@ namespace nescc {
 					m_joypad.write_port(value);
 					break;
 				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
-					m_mapper.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
+					m_mmu.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
 					break;
 				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
-					m_mapper.write_rom_program(address - CARTRIDGE_ROM_PROGRAM_START, value);
+					m_mmu.write_rom_program(address - CARTRIDGE_ROM_PROGRAM_START, value);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Value=%u(%02x)",
@@ -406,25 +406,10 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			m_mapper.cartridge().load(path);
-			m_mapper.reset(debug);
+			m_mmu.cartridge().load(path);
+			m_mmu.reset(debug);
 
 			TRACE_EXIT();
-		}
-
-		nescc::console::mapper &
-		bus::mapper(void)
-		{
-			TRACE_ENTRY();
-
-#ifndef NDEBUG
-			if(!m_initialized) {
-				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
-			}
-#endif // NDEBUG
-
-			TRACE_EXIT();
-			return m_mapper;
 		}
 
 		void
@@ -438,7 +423,7 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			m_mapper.signal_interrupt();
+			m_mmu.signal_interrupt();
 
 			TRACE_EXIT();
 		}
@@ -456,10 +441,25 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			result = m_mapper.cartridge().mirroring();
+			result = m_mmu.cartridge().mirroring();
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
+		}
+
+		nescc::console::mmu &
+		bus::mmu(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT();
+			return m_mmu;
 		}
 
 		bool
@@ -471,7 +471,7 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Bus initializing...");
 
-			m_mapper.initialize();
+			m_mmu.initialize();
 			m_joypad.initialize();
 			m_apu.initialize();
 			m_cpu.initialize();
@@ -494,7 +494,7 @@ namespace nescc {
 			m_cpu.uninitialize();
 			m_apu.uninitialize();
 			m_joypad.uninitialize();
-			m_mapper.uninitialize();
+			m_mmu.uninitialize();
 			m_debug = false;
 			m_watch_cpu.clear();
 			m_watch_ppu.clear();
@@ -532,7 +532,7 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					result << m_mapper.rom_character().as_string(address - CARTRIDGE_ROM_CHARACTER_0_START,
+					result << m_mmu.rom_character().as_string(address - CARTRIDGE_ROM_CHARACTER_0_START,
 						offset, 0, verbose);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
@@ -570,7 +570,7 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					result = m_mapper.read_rom_character(address - CARTRIDGE_ROM_CHARACTER_0_START);
+					result = m_mmu.read_rom_character(address - CARTRIDGE_ROM_CHARACTER_0_START);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					result = m_ppu.read_nametable(address - PPU_NAMETABLE_START);
@@ -656,7 +656,7 @@ namespace nescc {
 
 			switch(address) {
 				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
-					m_mapper.write_rom_character(address - CARTRIDGE_ROM_CHARACTER_0_START, value);
+					m_mmu.write_rom_character(address - CARTRIDGE_ROM_CHARACTER_0_START, value);
 					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					m_ppu.write_nametable(address - PPU_NAMETABLE_START, value);
@@ -782,7 +782,7 @@ namespace nescc {
 
 				if(m_initialized) {
 					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
-						<< ", Mapper=" << m_mapper.to_string(verbose)
+						<< ", Mapper=" << m_mmu.to_string(verbose)
 						<< ", Joypad=" << m_joypad.to_string(verbose)
 						<< ", Apu=" << m_apu.to_string(verbose)
 						<< ", Cpu=" << m_cpu.to_string(verbose);
