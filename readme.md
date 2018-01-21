@@ -79,8 +79,8 @@ Nescc is a CLI application for emulating/debugging NES roms.
 ```
 Nescc [-c|--crt] [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 
--d | --debug                                                          Run in debug mode
 -c | --crt                                                            Enable CRT filter
+-d | --debug                                                          Run in debug mode
 -h | --help                                                           Display help information
 -i | --interactive                                                    Run in interactive mode
 -v | --version                                                        Display version information
@@ -204,7 +204,8 @@ Nescc-rominfo
 Nescc-rominfo is a CLI application for extracting various information from NES roms.
 
 ```
-Nescc-rominfo [-d|--decode-chr] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose] [-v|--version] path
+Nescc-rominfo [-d|--decode-chr] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose]
+		[-v|--version] path
 
 -d | --decode-chr                                                     Decode character rom banks
 -c | --extract-chr                                                    Extract character rom banks
