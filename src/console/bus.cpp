@@ -441,7 +441,7 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			result = m_mmu.cartridge().mirroring();
+			result = m_mmu.mirroring();
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;

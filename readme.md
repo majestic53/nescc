@@ -240,6 +240,10 @@ Changelog
 
 Version 0.1.1803
 ----------------
+*Updated: 1/21/2018*
+
+* Added mapper 4 support (MMC3) (Incomplete)
+
 *Updated: 1/20/2018*
 
 * Refactored mapper into mmu[1] -> Mapper[*]

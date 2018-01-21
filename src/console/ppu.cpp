@@ -1036,6 +1036,18 @@ namespace nescc {
 		}
 
 		void
+		ppu::set_mirroring(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%02x)", value, value);
+
+			m_mirroring = value;
+
+			TRACE_EXIT();
+		}
+
+		void
 		ppu::set_oam_address(
 			__in uint8_t value
 			)

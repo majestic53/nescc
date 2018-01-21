@@ -32,10 +32,15 @@ namespace nescc {
 				public:
 
 					virtual std::string as_string(
+						__in nescc::console::cartridge &cartridge,
 						__in_opt bool verbose = false
 						) const = 0;
 
 					virtual void clear(void) = 0;
+
+					virtual uint8_t mirroring(
+						__in nescc::console::cartridge &cartridge
+						) const = 0;
 
 					virtual uint8_t ram(void) = 0;
 

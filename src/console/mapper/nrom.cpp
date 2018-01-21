@@ -74,14 +74,20 @@ namespace nescc {
 
 			std::string
 			nrom::as_string(
+				__in nescc::console::cartridge &cartridge,
 				__in_opt bool verbose
 				) const
 			{
+				uint8_t mirroring;
+
 				std::stringstream result;
 
-				TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Verbose=%x", &cartridge, verbose);
 
-				result << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM bank selected"
+				mirroring = cartridge.mirroring();
+				result << std::left << std::setw(COLUMN_WIDTH_LONG) << "Mirroring"
+						<< (int) mirroring << " (" << CARTRIDGE_MIRRORING_STRING(mirroring) << ")"
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM bank selected"
 						<< (int) m_ram_index
 					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG ROM bank 0 selected"
 						<< (int) m_rom_program_index_0
@@ -105,6 +111,21 @@ namespace nescc {
 				m_rom_program_index_1 = 0;
 
 				TRACE_EXIT();
+			}
+
+			uint8_t
+			nrom::mirroring(
+				__in nescc::console::cartridge &cartridge
+				) const
+			{
+				uint8_t result;
+
+				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
+
+				result = cartridge.mirroring();
+
+				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				return result;
 			}
 
 			uint8_t

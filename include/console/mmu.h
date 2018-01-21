@@ -19,6 +19,7 @@
 #ifndef NESCC_CONSOLE_MMU_H_
 #define NESCC_CONSOLE_MMU_H_
 
+#include "./mapper/mmc3.h"
 #include "./mapper/nrom.h"
 #include "./cartridge.h"
 
@@ -40,6 +41,8 @@ namespace nescc {
 				nescc::console::cartridge &cartridge(void);
 
 				void clear(void);
+
+				uint8_t mirroring(void) const;
 
 				nescc::core::memory &ram(void);
 
@@ -107,6 +110,8 @@ namespace nescc {
 				nescc::console::cartridge &m_cartridge;
 
 				bool m_debug;
+
+				nescc::console::mapper::mmc3 m_mapper_mmc3;
 
 				nescc::console::mapper::nrom m_mapper_nrom;
 		};

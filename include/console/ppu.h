@@ -181,6 +181,10 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				void set_mirroring(
+					__in uint8_t value
+					);
+
 				void set_oam_address(
 					__in uint8_t value
 					);

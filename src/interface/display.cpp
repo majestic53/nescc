@@ -193,7 +193,7 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			if(m_crt_scanlines) {
-				uint32_t index, offset = (rand() % POST_PROCESS_SIGNAL_ARTIFACT_WIDTH);
+				uint32_t index, offset = (std::rand() % POST_PROCESS_SIGNAL_ARTIFACT_WIDTH);
 
 				for(pixel_y = 0; pixel_y < DISPLAY_HEIGHT; ++pixel_y) {
 

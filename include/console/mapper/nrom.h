@@ -45,10 +45,15 @@ namespace nescc {
 						);
 
 					std::string as_string(
+						__in nescc::console::cartridge &cartridge,
 						__in_opt bool verbose = false
 						) const;
 
 					void clear(void);
+
+					uint8_t mirroring(
+						__in nescc::console::cartridge &cartridge
+						) const;
 
 					uint8_t ram(void);
 
