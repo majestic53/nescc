@@ -46,7 +46,7 @@ namespace nescc {
 					__in uint32_t height
 					);
 
-				bitmap(
+				explicit bitmap(
 					__in const std::string &path
 					);
 
