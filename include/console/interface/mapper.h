@@ -45,7 +45,9 @@ namespace nescc {
 						__in nescc::console::cartridge &cartridge
 						) const = 0;
 
-					virtual uint8_t ram(void) = 0;
+					virtual uint8_t ram(
+						__inout uint16_t &address
+						) = 0;
 
 					virtual uint8_t read_ram(
 						__in nescc::console::cartridge &cartridge,
@@ -66,7 +68,9 @@ namespace nescc {
 						__in nescc::console::cartridge &cartridge
 						) = 0;
 
-					virtual uint8_t rom_character(void) = 0;
+					virtual uint8_t rom_character(
+						__inout uint16_t &address
+						) = 0;
 
 					virtual uint8_t rom_program(
 						__inout uint16_t &address

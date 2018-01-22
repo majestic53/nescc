@@ -43,7 +43,9 @@ namespace nescc {
 
 				uint8_t mirroring(void) const;
 
-				nescc::core::memory &ram(void);
+				nescc::core::memory &ram(
+					__inout uint16_t &address
+					);
 
 				uint8_t read_ram(
 					__in uint16_t address
@@ -61,7 +63,9 @@ namespace nescc {
 					__in_opt bool debug = false
 					);
 
-				nescc::core::memory &rom_character(void);
+				nescc::core::memory &rom_character(
+					__inout uint16_t &address
+					);
 
 				nescc::core::memory &rom_program(
 					__inout uint16_t &address

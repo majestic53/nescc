@@ -165,9 +165,11 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::ram(void)
+			mmc3::ram(
+				__inout uint16_t &address
+				)
 			{
-				TRACE_ENTRY();
+				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", m_ram_index, m_ram_index);
 				return m_ram_index;
 			}
@@ -196,12 +198,64 @@ namespace nescc {
 				__in uint16_t address
 				)
 			{
-				uint8_t result;
+				uint8_t result = 0;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
 
 				// TODO: read character rom at address
-				result = 0;
+				if(!m_port_bank_select.chr_rom_mode) {
+
+					switch(address) {
+						case CHR_BANK_0_LOW ... CHR_BANK_0_HIGH: // 0x0000 - 0x07ff
+							// TODO
+							break;
+						case CHR_BANK_1_LOW ... CHR_BANK_1_HIGH: // 0x0800 - 0x0fff
+							// TODO
+							break;
+						case CHR_BANK_2_LOW ... CHR_BANK_2_HIGH: // 0x1000 - 0x13ff
+							// TODO
+							break;
+						case CHR_BANK_3_LOW ... CHR_BANK_3_HIGH: // 0x1400 - 0x17ff
+							// TODO
+							break;
+						case CHR_BANK_4_LOW ... CHR_BANK_4_HIGH: // 0x1800 - 0x1bff
+							// TODO
+							break;
+						case CHR_BANK_5_LOW ... CHR_BANK_5_HIGH: // 0x1cff - 0x1fff
+							// TODO
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Address=%u(%04x)", address, address);
+					}
+				} else {
+
+					switch(address) {
+						case CHR_BANK_0_INVERT_LOW ... CHR_BANK_0_INVERT_HIGH: // 0x0000 - 0x03ff
+							// TODO
+							break;
+						case CHR_BANK_1_INVERT_LOW ... CHR_BANK_1_INVERT_HIGH: // 0x0400 - 0x07ff
+							// TODO
+							break;
+						case CHR_BANK_2_INVERT_LOW ... CHR_BANK_2_INVERT_HIGH: // 0x0800 - 0x0bff
+							// TODO
+							break;
+						case CHR_BANK_3_INVERT_LOW ... CHR_BANK_3_INVERT_HIGH: // 0x0c00 - 0x0fff
+							// TODO
+							break;
+						case CHR_BANK_4_INVERT_LOW ... CHR_BANK_4_INVERT_HIGH: // 0x1000 - 0x17ff
+							// TODO
+							break;
+						case CHR_BANK_5_INVERT_LOW ... CHR_BANK_5_INVERT_HIGH: // 0x1800 - 0x1fff
+							// TODO
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Address=%u(%04x)", address, address);
+					}
+				}
 				// ---
 
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
@@ -214,12 +268,28 @@ namespace nescc {
 				__in uint16_t address
 				)
 			{
-				uint8_t result;
+				uint8_t result = 0;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
 
 				// TODO: read program rom at address
-				result = 0;
+				switch(address) {
+					case PRG_BANK_0_LOW ... PRG_BANK_0_HIGH: // 0x8000 - 0x9fff
+						// TODO
+						break;
+					case PRG_BANK_1_LOW ... PRG_BANK_1_HIGH: // 0xa000 - 0xbfff
+						// TODO
+						break;
+					case PRG_BANK_2_LOW ... PRG_BANK_2_HIGH: // 0xc000 - 0xdfff
+						// TODO
+						break;
+					case PRG_BANK_3_LOW ... PRG_BANK_3_HIGH: // 0xe000 - 0xffff
+						// TODO
+						break;
+					default:
+						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+							"Address=%u(%04x)", address, address);
+				}
 				// ---
 
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
@@ -263,14 +333,68 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::rom_character(void)
+			mmc3::rom_character(
+				__inout uint16_t &address
+				)
 			{
-				uint8_t result;
+				uint8_t result = 0;
 
-				TRACE_ENTRY();
+				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
 
 				// TODO: return current character rom index in cartridge
-				result = 0;
+				if(!m_port_bank_select.chr_rom_mode) {
+
+					switch(address) {
+						case CHR_BANK_0_LOW ... CHR_BANK_0_HIGH: // 0x0000 - 0x07ff
+							// TODO
+							break;
+						case CHR_BANK_1_LOW ... CHR_BANK_1_HIGH: // 0x0800 - 0x0fff
+							// TODO
+							break;
+						case CHR_BANK_2_LOW ... CHR_BANK_2_HIGH: // 0x1000 - 0x13ff
+							// TODO
+							break;
+						case CHR_BANK_3_LOW ... CHR_BANK_3_HIGH: // 0x1400 - 0x17ff
+							// TODO
+							break;
+						case CHR_BANK_4_LOW ... CHR_BANK_4_HIGH: // 0x1800 - 0x1bff
+							// TODO
+							break;
+						case CHR_BANK_5_LOW ... CHR_BANK_5_HIGH: // 0x1cff - 0x1fff
+							// TODO
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Address=%u(%04x)", address, address);
+					}
+				} else {
+
+					switch(address) {
+						case CHR_BANK_0_INVERT_LOW ... CHR_BANK_0_INVERT_HIGH: // 0x0000 - 0x03ff
+							// TODO
+							break;
+						case CHR_BANK_1_INVERT_LOW ... CHR_BANK_1_INVERT_HIGH: // 0x0400 - 0x07ff
+							// TODO
+							break;
+						case CHR_BANK_2_INVERT_LOW ... CHR_BANK_2_INVERT_HIGH: // 0x0800 - 0x0bff
+							// TODO
+							break;
+						case CHR_BANK_3_INVERT_LOW ... CHR_BANK_3_INVERT_HIGH: // 0x0c00 - 0x0fff
+							// TODO
+							break;
+						case CHR_BANK_4_INVERT_LOW ... CHR_BANK_4_INVERT_HIGH: // 0x1000 - 0x17ff
+							// TODO
+							break;
+						case CHR_BANK_5_INVERT_LOW ... CHR_BANK_5_INVERT_HIGH: // 0x1800 - 0x1fff
+							// TODO
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Address=%u(%04x)", address, address);
+					}
+				}
 				// ---
 
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
@@ -282,12 +406,28 @@ namespace nescc {
 				__inout uint16_t &address
 				)
 			{
-				uint8_t result;
+				uint8_t result = 0;
 
 				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
 
 				// TODO: return program rom index in cartridge corrisponding to address
-				result = 0;
+				switch(address) {
+					case PRG_BANK_0_LOW ... PRG_BANK_0_HIGH: // 0x8000 - 0x9fff
+						// TODO
+						break;
+					case PRG_BANK_1_LOW ... PRG_BANK_1_HIGH: // 0xa000 - 0xbfff
+						// TODO
+						break;
+					case PRG_BANK_2_LOW ... PRG_BANK_2_HIGH: // 0xc000 - 0xdfff
+						// TODO
+						break;
+					case PRG_BANK_3_LOW ... PRG_BANK_3_HIGH: // 0xe000 - 0xffff
+						// TODO
+						break;
+					default:
+						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+							"Address=%u(%04x)", address, address);
+				}
 				// ---
 
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
@@ -389,6 +529,60 @@ namespace nescc {
 					value, value);
 
 				// TODO: write into corrisponding character rom in cartridge at address
+				if(!m_port_bank_select.chr_rom_mode) {
+
+					switch(address) {
+						case CHR_BANK_0_LOW ... CHR_BANK_0_HIGH: // 0x0000 - 0x07ff
+							// TODO
+							break;
+						case CHR_BANK_1_LOW ... CHR_BANK_1_HIGH: // 0x0800 - 0x0fff
+							// TODO
+							break;
+						case CHR_BANK_2_LOW ... CHR_BANK_2_HIGH: // 0x1000 - 0x13ff
+							// TODO
+							break;
+						case CHR_BANK_3_LOW ... CHR_BANK_3_HIGH: // 0x1400 - 0x17ff
+							// TODO
+							break;
+						case CHR_BANK_4_LOW ... CHR_BANK_4_HIGH: // 0x1800 - 0x1bff
+							// TODO
+							break;
+						case CHR_BANK_5_LOW ... CHR_BANK_5_HIGH: // 0x1cff - 0x1fff
+							// TODO
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Address=%u(%04x)", address, address);
+					}
+				} else {
+
+					switch(address) {
+						case CHR_BANK_0_INVERT_LOW ... CHR_BANK_0_INVERT_HIGH: // 0x0000 - 0x03ff
+							// TODO
+							break;
+						case CHR_BANK_1_INVERT_LOW ... CHR_BANK_1_INVERT_HIGH: // 0x0400 - 0x07ff
+							// TODO
+							break;
+						case CHR_BANK_2_INVERT_LOW ... CHR_BANK_2_INVERT_HIGH: // 0x0800 - 0x0bff
+							// TODO
+							break;
+						case CHR_BANK_3_INVERT_LOW ... CHR_BANK_3_INVERT_HIGH: // 0x0c00 - 0x0fff
+							// TODO
+							break;
+						case CHR_BANK_4_INVERT_LOW ... CHR_BANK_4_INVERT_HIGH: // 0x1000 - 0x17ff
+							// TODO
+							break;
+						case CHR_BANK_5_INVERT_LOW ... CHR_BANK_5_INVERT_HIGH: // 0x1800 - 0x1fff
+							// TODO
+							break;
+						default:
+							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+								"Address=%u(%04x)", address, address);
+					}
+				}
+				// ---
 
 				TRACE_EXIT();
 			}
@@ -442,13 +636,13 @@ namespace nescc {
 					}
 
 					// TODO: build program/character rom mapping
-					if(m_port_bank_select.prg_rom_mode) {
+					if(!m_port_bank_select.prg_rom_mode) {
 
 					} else {
 
 					}
 
-					if(m_port_bank_select.chr_rom_mode) {
+					if(!m_port_bank_select.chr_rom_mode) {
 
 					} else {
 

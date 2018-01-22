@@ -131,9 +131,11 @@ namespace nescc {
 			}
 
 			uint8_t
-			nrom::ram(void)
+			nrom::ram(
+				__inout uint16_t &address
+				)
 			{
-				TRACE_ENTRY();
+				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", m_ram_index, m_ram_index);
 				return m_ram_index;
 			}
@@ -217,9 +219,11 @@ namespace nescc {
 			}
 
 			uint8_t
-			nrom::rom_character(void)
+			nrom::rom_character(
+				__inout uint16_t &address
+				)
 			{
-				TRACE_ENTRY();
+				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", m_rom_character_index, m_rom_character_index);
 				return m_rom_character_index;
 			}

@@ -116,8 +116,7 @@ namespace nescc {
 					m_mapper_nrom.clear(m_cartridge);
 					break;
 				default:
-					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
-						"Type=%u", type);
+					break;
 			}
 
 			m_debug = false;
@@ -190,11 +189,13 @@ namespace nescc {
 		}
 
 		nescc::core::memory &
-		mmu::ram(void)
+		mmu::ram(
+			__inout uint16_t &address
+			)
 		{
 			uint8_t result = 0, type;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -205,17 +206,17 @@ namespace nescc {
 			type = m_cartridge.mapper();
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
-					result = m_mapper_nrom.ram();
+					result = m_mapper_nrom.ram(address);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
-					result = m_mapper_mmc3.ram();
+					result = m_mapper_mmc3.ram(address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
 						"Type=%u", type);
 			}
 
-			TRACE_EXIT();
+			TRACE_EXIT_FORMAT("Result=%04x(%u)", address, address);
 			return m_cartridge.ram(result);
 		}
 
@@ -356,11 +357,13 @@ namespace nescc {
 		}
 
 		nescc::core::memory &
-		mmu::rom_character(void)
+		mmu::rom_character(
+			__inout uint16_t &address
+			)
 		{
 			uint8_t result = 0, type;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -371,17 +374,17 @@ namespace nescc {
 			type = m_cartridge.mapper();
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
-					result = m_mapper_nrom.rom_character();
+					result = m_mapper_nrom.rom_character(address);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
-					result = m_mapper_mmc3.rom_character();
+					result = m_mapper_mmc3.rom_character(address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
 						"Type=%u", type);
 			}
 
-			TRACE_EXIT();
+			TRACE_EXIT_FORMAT("Result=%04x(%u)", address, address);
 			return m_cartridge.rom_character(result);
 		}
 

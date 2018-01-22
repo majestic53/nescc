@@ -57,7 +57,9 @@ namespace nescc {
 						__in nescc::console::cartridge &cartridge
 						) const;
 
-					uint8_t ram(void);
+					uint8_t ram(
+						__inout uint16_t &address
+						);
 
 					uint8_t read_ram(
 						__in nescc::console::cartridge &cartridge,
@@ -78,7 +80,9 @@ namespace nescc {
 						__in nescc::console::cartridge &cartridge
 						);
 
-					uint8_t rom_character(void);
+					uint8_t rom_character(
+						__inout uint16_t &address
+						);
 
 					uint8_t rom_program(
 						__inout uint16_t &address
