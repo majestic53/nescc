@@ -98,6 +98,12 @@ Launch with the interactive mode enabled:
 $ nescc ../somerom.nes -i
 ```
 
+Launch with the CRT filter enabled:
+
+```
+$ nescc ../somerom.nes -c
+```
+
 ### Interactive Commands
 
 Launching in interactive mode allows for live debugging with the following commands:
