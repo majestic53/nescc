@@ -324,7 +324,7 @@ namespace nescc {
 					m_mmu.write_ram(address - CARTRIDGE_RAM_PROGRAM_START, value);
 					break;
 				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
-					m_mmu.write_rom_program(address - CARTRIDGE_ROM_PROGRAM_START, value);
+					m_mmu.write_rom_program(*this, address - CARTRIDGE_ROM_PROGRAM_START, value);
 					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Value=%u(%02x)",
@@ -423,7 +423,7 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			m_mmu.signal_interrupt();
+			m_mmu.signal_interrupt(*this);
 
 			TRACE_EXIT();
 		}
@@ -587,6 +587,24 @@ namespace nescc {
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
+		}
+
+		void
+		bus::ppu_set_mirroring(
+			__in uint8_t value
+			)
+		{
+			TRACE_ENTRY_FORMAT("Value=%u(%s)", value, CARTRIDGE_MIRRORING_STRING(value));
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_ppu.set_mirroring(value);
+
+			TRACE_EXIT();
 		}
 
 		std::set<uint16_t>

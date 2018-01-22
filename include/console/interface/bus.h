@@ -70,6 +70,10 @@ namespace nescc {
 						__in uint16_t address
 						) = 0;
 
+					virtual void ppu_set_mirroring(
+						__in uint8_t value
+						) = 0;
+
 					virtual void ppu_write(
 						__in uint16_t address,
 						__in uint8_t value

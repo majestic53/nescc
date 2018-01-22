@@ -103,6 +103,10 @@ namespace nescc {
 					__in uint16_t address
 					);
 
+				void ppu_set_mirroring(
+					__in uint8_t value
+					);
+
 				std::set<uint16_t> ppu_watch(void);
 
 				void ppu_watch_add(

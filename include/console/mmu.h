@@ -21,7 +21,6 @@
 
 #include "./mapper/mmc3.h"
 #include "./mapper/nrom.h"
-#include "./cartridge.h"
 
 namespace nescc {
 
@@ -68,7 +67,9 @@ namespace nescc {
 					__inout uint16_t &address
 					);
 
-				void signal_interrupt(void);
+				void signal_interrupt(
+					__in nescc::console::interface::bus &bus
+					);
 
 				std::string to_string(
 					__in_opt bool verbose = false
@@ -85,6 +86,7 @@ namespace nescc {
 					);
 
 				void write_rom_program(
+					__in nescc::console::interface::bus &bus,
 					__in uint16_t address,
 					__in uint8_t value
 					);

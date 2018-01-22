@@ -101,9 +101,11 @@ namespace nescc {
 			}
 
 			void
-			nrom::clear(void)
+			nrom::clear(
+				__in nescc::console::cartridge &cartridge
+				)
 			{
-				TRACE_ENTRY();
+				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
 				m_ram_index = 0;
 				m_rom_character_index = 0;
@@ -251,10 +253,11 @@ namespace nescc {
 
 			void
 			nrom::signal_interrupt(
+				__in nescc::console::interface::bus &bus,
 				__in nescc::console::cartridge &cartridge
 				)
 			{
-				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
+				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p", &bus, &cartridge);
 				TRACE_EXIT();
 			}
 
@@ -311,13 +314,14 @@ namespace nescc {
 
 			void
 			nrom::write_rom_program(
+				__in nescc::console::interface::bus &bus,
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address,
 				__in uint8_t value
 				)
 			{
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &cartridge, address, address,
-					value, value);
+				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &bus, &cartridge,
+					address, address, value, value);
 
 				switch(address) {
 					case MAPPER_PROGRAM_0_LOW ... MAPPER_PROGRAM_0_HIGH: // 0x0000 - 0x3fff

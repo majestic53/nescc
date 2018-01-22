@@ -49,7 +49,9 @@ namespace nescc {
 						__in_opt bool verbose = false
 						) const;
 
-					void clear(void);
+					void clear(
+						__in nescc::console::cartridge &cartridge
+						);
 
 					uint8_t mirroring(
 						__in nescc::console::cartridge &cartridge
@@ -83,6 +85,7 @@ namespace nescc {
 						);
 
 					void signal_interrupt(
+						__in nescc::console::interface::bus &bus,
 						__in nescc::console::cartridge &cartridge
 						);
 
@@ -103,6 +106,7 @@ namespace nescc {
 						);
 
 					void write_rom_program(
+						__in nescc::console::interface::bus &bus,
 						__in nescc::console::cartridge &cartridge,
 						__in uint16_t address,
 						__in uint8_t value

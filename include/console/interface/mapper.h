@@ -20,6 +20,7 @@
 #define NESCC_CONSOLE_INTERFACE_MAPPER_H_
 
 #include "../cartridge.h"
+#include "../interface/bus.h"
 
 namespace nescc {
 
@@ -36,7 +37,9 @@ namespace nescc {
 						__in_opt bool verbose = false
 						) const = 0;
 
-					virtual void clear(void) = 0;
+					virtual void clear(
+						__in nescc::console::cartridge &cartridge
+						) = 0;
 
 					virtual uint8_t mirroring(
 						__in nescc::console::cartridge &cartridge
@@ -70,6 +73,7 @@ namespace nescc {
 						) = 0;
 
 					virtual void signal_interrupt(
+						__in nescc::console::interface::bus &bus,
 						__in nescc::console::cartridge &cartridge
 						) = 0;
 
@@ -86,6 +90,7 @@ namespace nescc {
 						) = 0;
 
 					virtual void write_rom_program(
+						__in nescc::console::interface::bus &bus,
 						__in nescc::console::cartridge &cartridge,
 						__in uint16_t address,
 						__in uint8_t value

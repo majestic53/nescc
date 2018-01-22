@@ -28,6 +28,21 @@ namespace nescc {
 		namespace mapper {
 
 			enum {
+				BANK_CHR_ROM_MODE_0 = 0, // 0x0000 - 0x0fff: 2 2KB character banks, 0x1000 - 0x1fff: 4 1KB character banks
+				BANK_CHR_ROM_MODE_1, // 0x0000 - 0x0fff: 4 1KB character banks, 0x1000 - 0x1fff: 2 2KB character banks
+			};
+
+			enum {
+				BANK_MIRRORING_VERTICAL = 0,
+				BANK_MIRRORING_HORIZONTAL,
+			};
+
+			enum {
+				BANK_PRG_ROM_MODE_0 = 0, // 0x8000 - 0x9fff: swappable, 0xc000 - 0xdfff: fixed to second-to-last bank
+				BANK_PRG_ROM_MODE_1, // 0x8000 - 0x9fff: fixed to second-to-last bank, 0xc000 - 0xdfff: swappable
+			};
+
+			enum {
 				BANK_SELECT_2_KB_CHR_0 = 0, // select 2 KB character bank at PPU 0x0000 - 0x07ff (or 0x1000 - 0x17ff)
 				BANK_SELECT_2_KB_CHR_1, // select 2 KB character bank at PPU 0x0800 - 0x0fff (or 0x1800 - 0x1fff)
 				BANK_SELECT_1_KB_CHR_0, // select 1 KB character bank at PPU 0x1000 - 0x13ff (or 0x0000 - 0x03ff)
@@ -38,15 +53,7 @@ namespace nescc {
 				BANK_SELECT_8_KB_PRG_1, // select 8 KB program bank at PPU 0xa000 - 0xbfff
 			};
 
-			enum {
-				BANK_PRG_ROM_MODE_0 = 0, // 0x8000 - 0x9fff: swappable, 0xc000 - 0xdfff: fixed to second-to-last bank
-				BANK_PRG_ROM_MODE_1, // 0x8000 - 0x9fff: fixed to second-to-last bank, 0xc000 - 0xdfff: swappable
-			};
-
-			enum {
-				BANK_CHR_ROM_MODE_0 = 0, // 0x0000 - 0x0fff: 2 2KB character banks, 0x1000 - 0x1fff: 4 1KB character banks
-				BANK_CHR_ROM_MODE_1, // 0x0000 - 0x0fff: 4 1KB character banks, 0x1000 - 0x1fff: 2 2KB character banks
-			};
+			#define BANK_SELECT_MAX BANK_SELECT_8_KB_PRG_1
 
 			union port_bank_data_t { // 0x8000 - 0x9fff, even
 				struct {
@@ -64,10 +71,6 @@ namespace nescc {
 					uint8_t prg_rom_mode : 1; // program rom configuration
 					uint8_t chr_rom_mode : 1; // character rom configuration
 				};
-				uint8_t raw;
-			};
-
-			union port_irq_disable_t { // 0xe000 - 0xfffe, even
 				uint8_t raw;
 			};
 
@@ -122,7 +125,9 @@ namespace nescc {
 						__in_opt bool verbose = false
 						) const;
 
-					void clear(void);
+					void clear(
+						__in nescc::console::cartridge &cartridge
+						);
 
 					uint8_t mirroring(
 						__in nescc::console::cartridge &cartridge
@@ -156,6 +161,7 @@ namespace nescc {
 						);
 
 					void signal_interrupt(
+						__in nescc::console::interface::bus &bus,
 						__in nescc::console::cartridge &cartridge
 						);
 
@@ -176,6 +182,7 @@ namespace nescc {
 						);
 
 					void write_rom_program(
+						__in nescc::console::interface::bus &bus,
 						__in nescc::console::cartridge &cartridge,
 						__in uint16_t address,
 						__in uint8_t value
@@ -183,11 +190,9 @@ namespace nescc {
 
 				protected:
 
-					nescc::console::mapper::port_bank_data_t m_port_bank_data;
+					std::vector<nescc::console::mapper::port_bank_data_t> m_port_bank_data;
 
 					nescc::console::mapper::port_bank_select_t m_port_bank_select;
-
-					nescc::console::mapper::port_irq_disable_t m_port_irq_disable;
 
 					nescc::console::mapper::port_irq_enable_t m_port_irq_enable;
 

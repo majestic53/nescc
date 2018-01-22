@@ -95,6 +95,8 @@ namespace nescc {
 		void
 		mmu::clear(void)
 		{
+			uint8_t type;
+
 			TRACE_ENTRY();
 
 #ifndef NDEBUG
@@ -103,13 +105,24 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper clearing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu clearing...");
 
-			m_mapper_mmc3.clear();
-			m_mapper_nrom.clear();
+			type = m_cartridge.mapper();
+			switch(type) {
+				case CARTRIDGE_MAPPER_NROM:
+					m_mapper_mmc3.clear(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_MMC3:
+					m_mapper_nrom.clear(m_cartridge);
+					break;
+				default:
+					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
+						"Type=%u", type);
+			}
+
 			m_debug = false;
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper cleared.");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu cleared.");
 
 			TRACE_EXIT();
 		}
@@ -151,11 +164,11 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper initializing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu initializing...");
 
 			m_cartridge.initialize();
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper initialized.");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu initialized.");
 
 			TRACE_EXIT_FORMAT("Result=%x", result);
 			return result;
@@ -166,12 +179,12 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper uninitializing...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu uninitializing...");
 
-			m_cartridge.uninitialize();
 			clear();
+			m_cartridge.uninitialize();
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper uninitialized.");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu uninitialized.");
 
 			TRACE_EXIT();
 		}
@@ -317,7 +330,7 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper resetting...");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu resetting...");
 
 			type = m_cartridge.mapper();
 			switch(type) {
@@ -334,10 +347,10 @@ namespace nescc {
 
 			m_debug = debug;
 
-			TRACE_DEBUG(m_debug, "Mapper reset");
-			TRACE_DEBUG_FORMAT(m_debug, "Mapper state", "\n%s", STRING_CHECK(as_string(true)));
+			TRACE_DEBUG(m_debug, "Mmu reset");
+			TRACE_DEBUG_FORMAT(m_debug, "Mmu state", "\n%s", STRING_CHECK(as_string(true)));
 
-			TRACE_MESSAGE(TRACE_INFORMATION, "Mapper reset.");
+			TRACE_MESSAGE(TRACE_INFORMATION, "Mmu reset.");
 
 			TRACE_EXIT();
 		}
@@ -405,11 +418,13 @@ namespace nescc {
 		}
 
 		void
-		mmu::signal_interrupt(void)
+		mmu::signal_interrupt(
+			__in nescc::console::interface::bus &bus
+			)
 		{
 			uint8_t type;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -420,10 +435,10 @@ namespace nescc {
 			type = m_cartridge.mapper();
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
-					m_mapper_nrom.signal_interrupt(m_cartridge);
+					m_mapper_nrom.signal_interrupt(bus, m_cartridge);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
-					m_mapper_mmc3.signal_interrupt(m_cartridge);
+					m_mapper_mmc3.signal_interrupt(bus, m_cartridge);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -536,13 +551,14 @@ namespace nescc {
 
 		void
 		mmu::write_rom_program(
+			__in nescc::console::interface::bus &bus,
 			__in uint16_t address,
 			__in uint8_t value
 			)
 		{
 			uint8_t type;
 
-			TRACE_ENTRY_FORMAT("Address=%u(%04x), Value=%u(%02x)", address, address, value, value);
+			TRACE_ENTRY_FORMAT("Bus=%p, Address=%u(%04x), Value=%u(%02x)", &bus, address, address, value, value);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -553,10 +569,10 @@ namespace nescc {
 			type = m_cartridge.mapper();
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
-					m_mapper_nrom.write_rom_program(m_cartridge, address, value);
+					m_mapper_nrom.write_rom_program(bus, m_cartridge, address, value);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
-					m_mapper_mmc3.write_rom_program(m_cartridge, address, value);
+					m_mapper_mmc3.write_rom_program(bus, m_cartridge, address, value);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
