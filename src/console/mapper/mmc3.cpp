@@ -90,8 +90,9 @@ namespace nescc {
 				) const
 			{
 				std::stringstream result;
-				uint8_t count = 0, mirroring;
-				std::vector<nescc::console::mapper::port_bank_data_t>::const_iterator iter;
+				uint8_t count, mirroring;
+				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom_prg;
+				std::vector<nescc::console::mapper::port_bank_data_t>::const_iterator iter_bank_data;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Verbose=%x", &cartridge, verbose);
 
@@ -105,13 +106,29 @@ namespace nescc {
 							<< " (" << (m_port_ram_protect.write_protect ? "Disallow" : "Allow")
 								<< (m_port_ram_protect.chip_enable ? ", Chip enable" : "") << ")";
 
-				for(iter = m_port_bank_data.begin(); iter != m_port_bank_data.end(); ++count, ++iter) {
+				count = 0;
+
+				for(iter_rom_prg = m_rom_prg_index.begin(); iter_rom_prg != m_rom_prg_index.end(); ++count,
+						++iter_rom_prg) {
 					std::stringstream stream;
 
-					stream << "PRG/CHR Bank Data[" << count << "]";
+					stream << "PRG RAM bank[" << (int) count << "] selected";
 					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
-						<< SCALAR_AS_HEX(uint8_t, iter->raw) << " (" << (iter->half ? "First" : "Second") << ", "
-							<< SCALAR_AS_HEX(uint8_t, iter->select) << ")";
+							<< (int) iter_rom_prg->first << " (Offset=" << SCALAR_AS_HEX(uint16_t, iter_rom_prg->second)
+							<< ")";
+				}
+
+				count = 0;
+
+				for(iter_bank_data = m_port_bank_data.begin(); iter_bank_data != m_port_bank_data.end(); ++count,
+						++iter_bank_data) {
+					std::stringstream stream;
+
+					stream << "PRG/CHR Bank Data[" << (int) count << "]";
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+						<< SCALAR_AS_HEX(uint8_t, iter_bank_data->raw)
+							<< " (" << (iter_bank_data->half ? "First" : "Second") << ", "
+								<< SCALAR_AS_HEX(uint8_t, iter_bank_data->select) << ")";
 				}
 
 				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG/CHR Bank Select"
@@ -145,6 +162,8 @@ namespace nescc {
 					: BANK_MIRRORING_VERTICAL);
 				m_port_ram_protect.raw = 0;
 				m_ram_index = 0;
+				m_rom_prg_index.resize(PRG_BANK_MAX + 1, std::make_pair(0, 0));
+				m_rom_prg_index.at(PRG_BANK_3) = std::make_pair(cartridge.rom_program_banks() - 1, PRG_BANK_WIDTH);
 
 				TRACE_EXIT();
 			}
@@ -272,25 +291,35 @@ namespace nescc {
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
 
-				// TODO: read program rom at address
 				switch(address) {
-					case PRG_BANK_0_LOW ... PRG_BANK_0_HIGH: // 0x8000 - 0x9fff
-						// TODO
-						break;
-					case PRG_BANK_1_LOW ... PRG_BANK_1_HIGH: // 0xa000 - 0xbfff
-						// TODO
-						break;
-					case PRG_BANK_2_LOW ... PRG_BANK_2_HIGH: // 0xc000 - 0xdfff
-						// TODO
-						break;
-					case PRG_BANK_3_LOW ... PRG_BANK_3_HIGH: // 0xe000 - 0xffff
-						// TODO
-						break;
+					case PRG_BANK_0_LOW ... PRG_BANK_0_HIGH: { // 0x8000 - 0x9fff
+							std::pair<uint8_t, uint16_t> &index = m_rom_prg_index.at(PRG_BANK_0);
+
+							result = cartridge.rom_program(index.first).read(address + index.second);
+						} break;
+					case PRG_BANK_1_LOW ... PRG_BANK_1_HIGH: { // 0xa000 - 0xbfff
+							std::pair<uint8_t, uint16_t> &index = m_rom_prg_index.at(PRG_BANK_1);
+
+							result = cartridge.rom_program(index.first).read((address - PRG_BANK_1_LOW)
+									+ index.second);
+						} break;
+					case PRG_BANK_2_LOW ... PRG_BANK_2_HIGH: {// 0xc000 - 0xdfff
+							std::pair<uint8_t, uint16_t> &index = m_rom_prg_index.at(PRG_BANK_2);
+
+							result = cartridge.rom_program(index.first).read((address - PRG_BANK_2_LOW)
+									+ index.second);
+						} break;
+					case PRG_BANK_3_LOW ... PRG_BANK_3_HIGH: { // 0xe000 - 0xffff
+							std::pair<uint8_t, uint16_t> &index = m_rom_prg_index.at(PRG_BANK_3);
+
+							result = cartridge.rom_program(index.first).read((address - PRG_BANK_3_LOW)
+									+ index.second);
+						} break;
 					default:
-						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
 							"Address=%u(%04x)", address, address);
 				}
-				// ---
 
 				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
 				return result;
@@ -301,8 +330,9 @@ namespace nescc {
 				__in nescc::console::cartridge &cartridge
 				)
 			{
-				uint8_t count = 0;
-				std::vector<nescc::console::mapper::port_bank_data_t>::iterator iter;
+				uint8_t count;
+				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom_prg;
+				std::vector<nescc::console::mapper::port_bank_data_t>::iterator iter_bank_data;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
@@ -311,16 +341,30 @@ namespace nescc {
 				m_port_irq_enable.raw = 0;
 				m_port_irq_latch.raw = 0;
 				m_port_irq_reload.raw = 0;
-				m_port_mirroring.mode = ((cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL) ? BANK_MIRRORING_HORIZONTAL
-					: BANK_MIRRORING_VERTICAL);
+				m_port_mirroring.mode = ((cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL)
+					? BANK_MIRRORING_HORIZONTAL : BANK_MIRRORING_VERTICAL);
 				m_port_ram_protect.raw = 0;
 				m_ram_index = 0;
+				m_rom_prg_index.resize(PRG_BANK_MAX + 1, std::make_pair(0, 0));
+				m_rom_prg_index.at(PRG_BANK_3) = std::make_pair(cartridge.rom_program_banks() - 1, PRG_BANK_WIDTH);
 
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG RAM Bank", "%u", m_ram_index);
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG RAM Protect", "%u", m_port_ram_protect.raw);
 
-				for(iter = m_port_bank_data.begin(); iter != m_port_bank_data.end(); ++count, ++iter) {
-					TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG/CHR Bank Data", "[%u] %u", count, iter->raw);
+				count = 0;
+
+				for(iter_rom_prg = m_rom_prg_index.begin(); iter_rom_prg != m_rom_prg_index.end(); ++count,
+						++iter_rom_prg) {
+					TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM Bank", "[%u] %u (Offset=%04x)", count,
+						iter_rom_prg->first, iter_rom_prg->second);
+				}
+
+				count = 0;
+
+				for(iter_bank_data = m_port_bank_data.begin(); iter_bank_data != m_port_bank_data.end(); ++count,
+						++iter_bank_data) {
+					TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG/CHR Bank Data", "[%u] %u", count,
+						iter_bank_data->raw);
 				}
 
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG/CHR Bank Select", "%u", m_port_bank_select.raw);
@@ -425,7 +469,8 @@ namespace nescc {
 						// TODO
 						break;
 					default:
-						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
 							"Address=%u(%04x)", address, address);
 				}
 				// ---
@@ -467,30 +512,46 @@ namespace nescc {
 				result << NESCC_CONSOLE_MAPPER_MMC3_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 				if(verbose) {
-					std::vector<nescc::console::mapper::port_bank_data_t>::const_iterator iter;
-					uint8_t mirroring = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
+					std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom_prg;
+					std::vector<nescc::console::mapper::port_bank_data_t>::const_iterator iter_bank_data;
+					uint8_t mirroring = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL
+									: CARTRIDGE_MIRRORING_VERTICAL);
 
 					result << ", Mirroring=" << (int) mirroring << "(" << CARTRIDGE_MIRRORING_STRING(mirroring) << ")"
 						<< ", PRG RAM Bank=" << (int) m_ram_index
 						<< ", PRG RAM Protect=" << SCALAR_AS_HEX(uint8_t, m_port_ram_protect.raw)
 							<< "(" << (m_port_ram_protect.write_protect ? "Disallow" : "Allow")
 								<< (m_port_ram_protect.chip_enable ? ", Chip enable" : "") << ")"
-						<< ", PRG/CHR Bank Data[" << m_port_bank_data.size() << "]={";
+						<< ", PRG ROM Bank[" << m_rom_prg_index.size() << "]={";
 
-						for(iter = m_port_bank_data.begin(); iter != m_port_bank_data.end(); ++iter) {
+					for(iter_rom_prg = m_rom_prg_index.begin(); iter_rom_prg != m_rom_prg_index.end();
+							++iter_rom_prg) {
 
-							if(iter != m_port_bank_data.begin()) {
-								result << "; ";
-							}
-
-							result << SCALAR_AS_HEX(uint8_t, iter->raw) << "(" << (iter->half ? "First" : "Second")
-								<< ", " << SCALAR_AS_HEX(uint8_t, iter->select);
+						if(iter_rom_prg != m_rom_prg_index.begin()) {
+							result << "; ";
 						}
 
-						result << "}, PRG/CHR Bank Select=" << SCALAR_AS_HEX(uint8_t, m_port_bank_select.raw)
-							<< "(" << SCALAR_AS_HEX(uint8_t, m_port_bank_select.select)
-								<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.prg_rom_mode)
-								<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.chr_rom_mode) << ")"
+						result << (int) iter_rom_prg->first << ", " << SCALAR_AS_HEX(uint16_t, iter_rom_prg->second);
+					}
+
+					result << "}, PRG/CHR Bank Data[" << m_port_bank_data.size() << "]={";
+
+					for(iter_bank_data = m_port_bank_data.begin(); iter_bank_data != m_port_bank_data.end();
+							++iter_bank_data) {
+
+						if(iter_bank_data != m_port_bank_data.begin()) {
+							result << "; ";
+						}
+
+						result << SCALAR_AS_HEX(uint8_t, iter_bank_data->raw)
+							<< "(" << (iter_bank_data->half ? "First" : "Second")
+								<< ", " << SCALAR_AS_HEX(uint8_t, iter_bank_data->select);
+					}
+
+					result << "}, PRG/CHR Bank Select=" << SCALAR_AS_HEX(uint8_t, m_port_bank_select.raw)
+						<< "(" << SCALAR_AS_HEX(uint8_t, m_port_bank_select.select)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.prg_rom_mode)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.chr_rom_mode) << ")"
 						<< ", IRQ=" << SCALAR_AS_HEX(uint8_t, m_port_irq_enable.raw)
 							<< "(" << (m_port_irq_enable.raw ? "Enabled" : "Disabled")
 								<< ", Latch=" << SCALAR_AS_HEX(uint8_t, m_port_irq_latch.raw)
@@ -598,59 +659,56 @@ namespace nescc {
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &bus, &cartridge,
 					address, address, value, value);
 
-				if(address & PORT_BASE) {
+				switch(address & PORT_MASK) {
+					case PORT_BANK_SELECT: // 0x8000
+						m_port_bank_select.raw = value;
+						break;
+					case PORT_BANK_DATA: // 0x8001
+						m_port_bank_data.at(m_port_bank_select.select).raw = value;
+						break;
+					case PORT_MIRRORING: // 0xa000
+						m_port_mirroring.raw = value;
+						break;
+					case PORT_RAM_PROTECT: // 0xa001
+						m_port_ram_protect.raw = value;
+						break;
+					case PORT_IRQ_LATCH: // 0xc000
+						m_port_irq_latch.raw = value;
+						break;
+					case PORT_IRQ_RELOAD: // 0xc001
+						m_port_irq_reload.raw = 0;
+						break;
+					case PORT_IRQ_DISABLE: // 0xe000
 
-					switch(address & PORT_MASK) {
-						case PORT_BANK_SELECT: // 0x8000
-							m_port_bank_select.raw = value;
-							break;
-						case PORT_BANK_DATA: // 0x8001
-							m_port_bank_data.at(m_port_bank_select.select).raw = value;
-							break;
-						case PORT_MIRRORING: // 0xa000
-							m_port_mirroring.raw = value;
-							break;
-						case PORT_RAM_PROTECT: // 0xa001
-							m_port_ram_protect.raw = value;
-							break;
-						case PORT_IRQ_LATCH: // 0xc000
-							m_port_irq_latch.raw = value;
-							break;
-						case PORT_IRQ_RELOAD: // 0xc001
-							m_port_irq_reload.raw = 0;
-							break;
-						case PORT_IRQ_DISABLE: // 0xe000
+						if(m_port_irq_enable.raw) {
+							bus.cpu_interrupt_maskable();
+						}
 
-							if(m_port_irq_enable.raw) {
-								bus.cpu_interrupt_maskable();
-							}
-
-							m_port_irq_enable.raw = 0;
-							break;
-						case PORT_IRQ_ENABLE: // 0xe001
-							m_port_irq_enable.raw = 1;
-							break;
-						default:
-							TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped mapper port", "Address=%u(%04x)",
-								address, address);
-					}
-
-					// TODO: build program/character rom mapping
-					if(!m_port_bank_select.prg_rom_mode) {
-
-					} else {
-
-					}
-
-					if(!m_port_bank_select.chr_rom_mode) {
-
-					} else {
-
-					}
-					// ---
-
-					bus.ppu_set_mirroring(m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
+						m_port_irq_enable.raw = 0;
+						break;
+					case PORT_IRQ_ENABLE: // 0xe001
+						m_port_irq_enable.raw = 1;
+						break;
+					default:
+						TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped mapper port", "Address=%u(%04x)",
+							address, address);
 				}
+
+				// TODO: build program/character rom mapping
+				if(!m_port_bank_select.prg_rom_mode) {
+
+				} else {
+
+				}
+
+				if(!m_port_bank_select.chr_rom_mode) {
+
+				} else {
+
+				}
+				// ---
+
+				bus.ppu_set_mirroring(m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
 
 				TRACE_EXIT();
 			}

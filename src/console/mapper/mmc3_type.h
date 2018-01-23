@@ -80,26 +80,35 @@ namespace nescc {
 			#define CHR_BANK_5_INVERT_LOW 0x1800
 			#define CHR_BANK_5_INVERT_HIGH 0x1fff
 
-			#define PRG_BANK_0_LOW 0x8000
-			#define PRG_BANK_0_HIGH 0x9fff
-			#define PRG_BANK_1_LOW 0xa000
-			#define PRG_BANK_1_HIGH 0xbfff
-			#define PRG_BANK_2_LOW 0xc000
-			#define PRG_BANK_2_HIGH 0xdfff
-			#define PRG_BANK_3_LOW 0xe000
-			#define PRG_BANK_3_HIGH 0xffff
+			#define PRG_BANK_0_LOW 0x0000
+			#define PRG_BANK_0_HIGH 0x1fff
+			#define PRG_BANK_1_LOW 0x2000
+			#define PRG_BANK_1_HIGH 0x3fff
+			#define PRG_BANK_2_LOW 0x4000
+			#define PRG_BANK_2_HIGH 0x5fff
+			#define PRG_BANK_3_LOW 0x6000
+			#define PRG_BANK_3_HIGH 0x7fff
+			#define PRG_BANK_WIDTH 0x2000
 
-			#define PORT_BASE 0x8000
-			#define PORT_MASK 0xE001
+			enum {
+				PRG_BANK_0 = 0,
+				PRG_BANK_1,
+				PRG_BANK_2,
+				PRG_BANK_3,
+			};
 
-			#define PORT_BANK_SELECT 0x8000
-			#define PORT_BANK_DATA 0x8001
-			#define PORT_MIRRORING 0xa000
-			#define PORT_RAM_PROTECT 0xa001
-			#define PORT_IRQ_LATCH 0xc000
-			#define PORT_IRQ_RELOAD 0xc001
-			#define PORT_IRQ_DISABLE 0xe000
-			#define PORT_IRQ_ENABLE 0xe001
+			#define PRG_BANK_MAX PRG_BANK_3
+
+			#define PORT_MASK 0x6001
+
+			#define PORT_BANK_SELECT 0x0000
+			#define PORT_BANK_DATA 0x0001
+			#define PORT_MIRRORING 0x2000
+			#define PORT_RAM_PROTECT 0x2001
+			#define PORT_IRQ_LATCH 0x4000
+			#define PORT_IRQ_RELOAD 0x4001
+			#define PORT_IRQ_DISABLE 0x6000
+			#define PORT_IRQ_ENABLE 0x6001
 		}
 	}
 }

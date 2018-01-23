@@ -244,6 +244,12 @@ Extracted roms/images can be found in the same directory as the rom
 Changelog
 =========
 
+Version 0.1.1804
+----------------
+*Updated: 1/22/2018*
+
+* Implemented mapper 4 read program rom routine
+
 Version 0.1.1803
 ----------------
 *Updated: 1/21/2018*
@@ -286,48 +292,6 @@ Version 0.1.1803
 
 * Added rominfo utility
 	* Added routine to decode CHR as PPM image (incomplete)
-
-Version 0.1.1802
-----------------
-*Updated: 1/14/2018*
-
-* Preparing mapper class for mapper 1 and 4
-* Added per-frame keyboard/controller support
-* More ppu bug fixes
-
-*Updated: 1/13/2018*
-
-* Added basic support for controllers
-* Added apu port register structures
-* Added disassemble command
-* Bug fixes for illegal opcodes: arr, axs, sxa, sya
-
-*Updated: 1/12/2018*
-
-* Added step-frame command
-* Moved next command to cpu next command
-* Small bug fixes/code cleanup
-
-*Updated: 1/11/2018*
-
-* Fixed bug in ppu. It's now working!
-* Changed joypad mapping
-
-*Updated: 1/10/2018*
-
-* Cpu next command now takes an optional offset parameter
-* Cpu next command output is now more readable
-* Fixed minor bugs in joypad
-
-*Updated: 1/9/2018*
-
-* Fixed cpu cycle count in jmp command
-* Made cpu next command global
-
-*Updated: 1/8/2018*
-
-* Added cpu next command
-* Fixed halting bug when using kil commands
 
 *Changelog truncated (see file history for full log)*
 

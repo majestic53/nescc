@@ -209,6 +209,8 @@ namespace nescc {
 					nescc::console::mapper::port_ram_protect_t m_port_ram_protect;
 
 					uint8_t m_ram_index;
+
+					std::vector<std::pair<uint8_t, uint16_t>> m_rom_prg_index;
 			};
 		}
 	}

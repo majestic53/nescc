@@ -59,8 +59,8 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 8
-	#define NESCC_VERSION_WEEK 1803
+	#define NESCC_VERSION_REVISION 1
+	#define NESCC_VERSION_WEEK 1804
 
 	#define STRING_EMPTY "Empty"
 	#define STRING_INVALID "Invalid"
