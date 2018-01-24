@@ -79,6 +79,19 @@ namespace nescc {
 			#define CHR_BANK_4_INVERT_HIGH 0x17ff
 			#define CHR_BANK_5_INVERT_LOW 0x1800
 			#define CHR_BANK_5_INVERT_HIGH 0x1fff
+			#define PRG_BANK_WIDTH_SHORT 0x0400
+			#define PRG_BANK_WIDTH_LONG 0x0800
+
+			enum {
+				CHR_BANK_0 = 0,
+				CHR_BANK_1,
+				CHR_BANK_2,
+				CHR_BANK_3,
+				CHR_BANK_4,
+				CHR_BANK_5,
+			};
+
+			#define CHR_BANK_MAX CHR_BANK_5
 
 			#define PRG_BANK_0_LOW 0x0000
 			#define PRG_BANK_0_HIGH 0x1fff

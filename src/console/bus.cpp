@@ -88,8 +88,8 @@ namespace nescc {
 			__in_opt bool verbose
 			) const
 		{
-			uint16_t relative;
 			std::stringstream result;
+			uint16_t relative, relative_offset;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Verbose=%x", address, address, offset, offset, verbose);
 
@@ -111,18 +111,18 @@ namespace nescc {
 				case JOYPAD_PORT_1 ... JOYPAD_PORT_2: // 0x4016 - 0x4017
 					result << m_joypad.port().as_string(address - JOYPAD_PORT_1, offset, JOYPAD_PORT_1, verbose);
 					break;
-				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: { // 0x6000 - 0x7fff
-						uint16_t sub_bank_offset;
-
-						relative = (address - CARTRIDGE_RAM_PROGRAM_START);
-						sub_bank_offset = relative;
-						result << m_mmu.ram(sub_bank_offset).as_string(relative, offset, CARTRIDGE_RAM_PROGRAM_START, verbose);
-					} break;
-				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: { // 0x8000 - 0xffff
-						relative = (address - CARTRIDGE_ROM_PROGRAM_START);
-						nescc::core::memory &program = m_mmu.rom_program(relative);
-						result << program.as_string(relative, offset, CARTRIDGE_ROM_PROGRAM_START, verbose);
-					} break;
+				case CARTRIDGE_RAM_PROGRAM_START ... CARTRIDGE_RAM_PROGRAM_END: // 0x6000 - 0x7fff
+					relative = (address - CARTRIDGE_RAM_PROGRAM_START);
+					relative_offset = relative;
+					result << m_mmu.ram(relative).as_string(relative, offset,
+							CARTRIDGE_RAM_PROGRAM_START + (relative_offset - relative), verbose);
+					break;
+				case CARTRIDGE_ROM_PROGRAM_START ... CARTRIDGE_ROM_PROGRAM_END: // 0x8000 - 0xffff
+					relative = (address - CARTRIDGE_ROM_PROGRAM_START);
+					relative_offset = relative;
+					result << m_mmu.rom_program(relative).as_string(relative, offset,
+							CARTRIDGE_ROM_PROGRAM_START + (relative_offset - relative), verbose);
+					break;
 				default:
 					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Unmapped cpu region", "Address=%u(%04x), Offset=%u(%04x)",
 						address, address, offset, offset);
@@ -529,17 +529,16 @@ namespace nescc {
 			__in_opt bool verbose
 			) const
 		{
+			uint16_t relative;
 			std::stringstream result;
 
 			TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u(%04x), Verbose=%x", address, address, offset, offset, verbose);
 
 			switch(address) {
-				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: { // 0x0000 - 0x1fff
-						uint16_t sub_bank_offset = (address - CARTRIDGE_ROM_CHARACTER_0_START);
-
-						result << m_mmu.rom_character(sub_bank_offset).as_string(address - CARTRIDGE_ROM_CHARACTER_0_START,
-							offset, 0, verbose);
-					} break;
+				case CARTRIDGE_ROM_CHARACTER_0_START ... CARTRIDGE_ROM_CHARACTER_0_END: // 0x0000 - 0x1fff
+					relative = (address - CARTRIDGE_ROM_CHARACTER_0_START);
+					result << m_mmu.rom_character(relative).as_string(relative, offset, 0, verbose);
+					break;
 				case PPU_NAMETABLE_START ... PPU_NAMETABLE_END: // 0x2000 - 0x3eff
 					result << m_ppu.nametable().as_string((address - PPU_NAMETABLE_START) % (PPU_NAMETABLE_LENGTH * 2),
 						offset, PPU_NAMETABLE_START, verbose);
