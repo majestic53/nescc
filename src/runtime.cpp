@@ -349,7 +349,18 @@ namespace nescc {
 						TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Encountered key change event",
 							"Key=%i, State=%s", event.key.keysym.scancode,
 							(event.cbutton.state == SDL_PRESSED) ? "Pressed" : "Released");
-						m_bus.joypad().key_change(event.key);
+
+						switch(event.key.keysym.scancode) {
+							case SDL_SCANCODE_F11:
+
+								if(event.key.state == SDL_RELEASED) {
+									m_display.toggle_fullscreen();
+								}
+								break;
+							default:
+								m_bus.joypad().key_change(event.key);
+								break;
+						}
 					}
 					break;
 				case SDL_QUIT:

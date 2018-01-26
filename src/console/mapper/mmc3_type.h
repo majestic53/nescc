@@ -55,32 +55,21 @@ namespace nescc {
 					_FORMAT_, __VA_ARGS__)
 
 			#define CHR_BANK_0_LOW 0x0000
-			#define CHR_BANK_0_HIGH 0x07ff
-			#define CHR_BANK_1_LOW 0x0800
-			#define CHR_BANK_1_HIGH 0x0fff
-			#define CHR_BANK_2_LOW 0x1000
-			#define CHR_BANK_2_HIGH 0x13ff
-			#define CHR_BANK_3_LOW 0x1400
-			#define CHR_BANK_3_HIGH 0x17ff
-			#define CHR_BANK_4_LOW 0x1800
-			#define CHR_BANK_4_HIGH 0x1bff
-			#define CHR_BANK_5_LOW 0x1cff
-			#define CHR_BANK_5_HIGH 0x1fff
-
-			#define CHR_BANK_0_INVERT_LOW 0x0000
-			#define CHR_BANK_0_INVERT_HIGH 0x03ff
-			#define CHR_BANK_1_INVERT_LOW 0x0400
-			#define CHR_BANK_1_INVERT_HIGH 0x07ff
-			#define CHR_BANK_2_INVERT_LOW 0x0800
-			#define CHR_BANK_2_INVERT_HIGH 0x0bff
-			#define CHR_BANK_3_INVERT_LOW 0x0c00
-			#define CHR_BANK_3_INVERT_HIGH 0x0fff
-			#define CHR_BANK_4_INVERT_LOW 0x1000
-			#define CHR_BANK_4_INVERT_HIGH 0x17ff
-			#define CHR_BANK_5_INVERT_LOW 0x1800
-			#define CHR_BANK_5_INVERT_HIGH 0x1fff
-			#define PRG_BANK_WIDTH_SHORT 0x0400
-			#define PRG_BANK_WIDTH_LONG 0x0800
+			#define CHR_BANK_0_HIGH 0x03ff
+			#define CHR_BANK_1_LOW 0x0400
+			#define CHR_BANK_1_HIGH 0x07ff
+			#define CHR_BANK_2_LOW 0x0800
+			#define CHR_BANK_2_HIGH 0x0bff
+			#define CHR_BANK_3_LOW 0x0c00
+			#define CHR_BANK_3_HIGH 0x0fff
+			#define CHR_BANK_4_LOW 0x1000
+			#define CHR_BANK_4_HIGH 0x13ff
+			#define CHR_BANK_5_LOW 0x1400
+			#define CHR_BANK_5_HIGH 0x17ff
+			#define CHR_BANK_6_LOW 0x1800
+			#define CHR_BANK_6_HIGH 0x1bff
+			#define CHR_BANK_7_LOW 0x1c00
+			#define CHR_BANK_7_HIGH 0x1fff
 
 			enum {
 				CHR_BANK_0 = 0,
@@ -89,9 +78,11 @@ namespace nescc {
 				CHR_BANK_3,
 				CHR_BANK_4,
 				CHR_BANK_5,
+				CHR_BANK_6,
+				CHR_BANK_7,
 			};
 
-			#define CHR_BANK_MAX CHR_BANK_5
+			#define CHR_BANK_MAX CHR_BANK_7
 
 			#define PRG_BANK_0_LOW 0x0000
 			#define PRG_BANK_0_HIGH 0x1fff

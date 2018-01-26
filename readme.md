@@ -246,6 +246,10 @@ Changelog
 
 Version 0.1.1804
 ----------------
+*Updated: 1/25/2018*
+
+* Added f11 fullscreen toggle
+
 *Updated: 1/22-23/2018*
 
 * Implemented mapper 4 read program rom routine

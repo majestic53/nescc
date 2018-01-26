@@ -99,57 +99,77 @@ namespace nescc {
 				mirroring = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
 				result << std::left << std::setw(COLUMN_WIDTH_LONG) << "Mirroring"
 						<< (int) mirroring << " (" << CARTRIDGE_MIRRORING_STRING(mirroring) << ")"
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM bank selected"
-						<< (int) m_ram_index
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM Protect"
-						<< SCALAR_AS_HEX(uint8_t, m_port_ram_protect.raw)
-							<< " (" << (m_port_ram_protect.write_protect ? "Disallow" : "Allow")
-								<< (m_port_ram_protect.chip_enable ? ", Chip enable" : "") << ")";
-
-				count = 0;
-
-				for(iter_rom = m_rom_prg_index.begin(); iter_rom != m_rom_prg_index.end(); ++count, ++iter_rom) {
-					std::stringstream stream;
-
-					stream << "PRG RAM bank[" << (int) count << "] selected";
-					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
-							<< (int) iter_rom->first << " (Offset=" << SCALAR_AS_HEX(uint16_t, iter_rom->second)
-							<< ")";
-				}
-
-				count = 0;
-
-				for(iter_rom = m_rom_chr_index.begin(); iter_rom != m_rom_chr_index.end(); ++count, ++iter_rom) {
-					std::stringstream stream;
-
-					stream << "CHR RAM bank[" << (int) count << "] selected";
-					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
-							<< (int) iter_rom->first << " (Offset=" << SCALAR_AS_HEX(uint16_t, iter_rom->second)
-							<< ")";
-				}
-
-				count = 0;
-
-				for(iter_bank = m_port_bank_data.begin(); iter_bank != m_port_bank_data.end(); ++count, ++iter_bank) {
-					std::stringstream stream;
-
-					stream << "PRG/CHR Bank Data[" << (int) count << "]";
-					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
-						<< SCALAR_AS_HEX(uint8_t, iter_bank->raw)
-							<< " (" << (iter_bank->half ? "First" : "Second") << ", "
-								<< SCALAR_AS_HEX(uint8_t, iter_bank->select) << ")";
-				}
-
-				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG/CHR Bank Select"
-						<< SCALAR_AS_HEX(uint8_t, m_port_bank_select.raw)
-							<< " (" << SCALAR_AS_HEX(uint8_t, m_port_bank_select.select)
-								<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.prg_rom_mode)
-								<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.chr_rom_mode) << ")"
 					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "IRQ"
 						<< SCALAR_AS_HEX(uint8_t, m_port_irq_enable.raw)
 							<< " (" << (m_port_irq_enable.raw ? "Enabled" : "Disabled")
 								<< ", Latch=" << SCALAR_AS_HEX(uint8_t, m_port_irq_latch.raw)
-								<< ", Reload=" << SCALAR_AS_HEX(uint8_t, m_port_irq_reload.raw) << ")";
+								<< ", Reload=" << SCALAR_AS_HEX(uint8_t, m_port_irq_reload.raw) << ")"
+					<< std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM bank selected"
+						<< (int) m_ram_index
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM Protect"
+						<< SCALAR_AS_HEX(uint8_t, m_port_ram_protect.raw)
+							<< " (" << (m_port_ram_protect.write_protect ? "Disallow" : "Allow")
+								<< (m_port_ram_protect.chip_enable ? ", Chip enable" : "") << ")"
+					<< std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG/CHR Bank Select"
+						<< SCALAR_AS_HEX(uint8_t, m_port_bank_select.raw)
+							<< " (" << SCALAR_AS_HEX(uint8_t, m_port_bank_select.select)
+								<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.prg_rom_mode)
+								<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.chr_rom_mode) << ")";
+
+				count = 0;
+				result << std::endl;
+
+				for(iter_rom = m_rom_prg_index.begin(); iter_rom != m_rom_prg_index.end(); ++count, ++iter_rom) {
+					std::stringstream stream;
+
+					stream << "PRG ROM bank[" << (int) count << "] selected";
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+							<< (int) iter_rom->first << " (Offset=" << SCALAR_AS_HEX(uint16_t, iter_rom->second)
+							<< ")";
+				}
+
+				count = 0;
+				result << std::endl;
+
+				for(iter_rom = m_rom_chr_index.begin(); iter_rom != m_rom_chr_index.end(); ++count, ++iter_rom) {
+					std::stringstream stream;
+
+					stream << "CHR ROM bank[" << (int) count << "] selected";
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+							<< (int) iter_rom->first << " (Offset=" << SCALAR_AS_HEX(uint16_t, iter_rom->second)
+							<< ")";
+				}
+
+				count = 0;
+				result << std::endl;
+
+				for(iter_bank = m_port_bank_data.begin(); iter_bank != m_port_bank_data.end(); ++count, ++iter_bank) {
+					std::stringstream stream;
+
+					switch(count) {
+						case BANK_SELECT_2_KB_CHR_0 ... BANK_SELECT_1_KB_CHR_3:
+							stream << "CHR";
+							break;
+						case BANK_SELECT_8_KB_PRG_0 ... BANK_SELECT_8_KB_PRG_1:
+							stream << "PRG";
+							break;
+						default:
+							break;
+					}
+
+					stream << " Bank Data[" << (int) count << "]";
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+						<< SCALAR_AS_HEX(uint8_t, iter_bank->raw);
+
+					switch(count) {
+						case BANK_SELECT_8_KB_PRG_0 ... BANK_SELECT_8_KB_PRG_1:
+							result << " (" << (iter_bank->half ? "First" : "Second") << ", "
+								<< SCALAR_AS_HEX(uint8_t, iter_bank->select) << ")";
+							break;
+						default:
+							break;
+					}
+				}
 
 				TRACE_EXIT();
 				return result.str();
@@ -190,70 +210,43 @@ namespace nescc {
 
 				offset = 0;
 
-				if(!m_port_bank_select.chr_rom_mode) {
-
-					switch(address) {
-						case CHR_BANK_0_LOW ... CHR_BANK_0_HIGH: // 0x0000 - 0x07ff
-							result = CHR_BANK_0;
-							offset = CHR_BANK_0_LOW;
-							break;
-						case CHR_BANK_1_LOW ... CHR_BANK_1_HIGH: // 0x0800 - 0x0fff
-							result = CHR_BANK_1;
-							offset = CHR_BANK_1_LOW;
-							break;
-						case CHR_BANK_2_LOW ... CHR_BANK_2_HIGH: // 0x1000 - 0x13ff
-							result = CHR_BANK_2;
-							offset = CHR_BANK_2_LOW;
-							break;
-						case CHR_BANK_3_LOW ... CHR_BANK_3_HIGH: // 0x1400 - 0x17ff
-							result = CHR_BANK_3;
-							offset = CHR_BANK_3_LOW;
-							break;
-						case CHR_BANK_4_LOW ... CHR_BANK_4_HIGH: // 0x1800 - 0x1bff
-							result = CHR_BANK_4;
-							offset = CHR_BANK_4_LOW;
-							break;
-						case CHR_BANK_5_LOW ... CHR_BANK_5_HIGH: // 0x1cff - 0x1fff
-							result = CHR_BANK_5;
-							offset = CHR_BANK_5_LOW;
-							break;
-						default:
-							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
-								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
-								"Address=%u(%04x)", address, address);
-					}
-				} else {
-
-					switch(address) {
-						case CHR_BANK_0_INVERT_LOW ... CHR_BANK_0_INVERT_HIGH: // 0x0000 - 0x03ff
-							result = CHR_BANK_0;
-							offset = CHR_BANK_0_INVERT_LOW;
-							break;
-						case CHR_BANK_1_INVERT_LOW ... CHR_BANK_1_INVERT_HIGH: // 0x0400 - 0x07ff
-							result = CHR_BANK_1;
-							offset = CHR_BANK_1_INVERT_LOW;
-							break;
-						case CHR_BANK_2_INVERT_LOW ... CHR_BANK_2_INVERT_HIGH: // 0x0800 - 0x0bff
-							result = CHR_BANK_2;
-							offset = CHR_BANK_2_INVERT_LOW;
-							break;
-						case CHR_BANK_3_INVERT_LOW ... CHR_BANK_3_INVERT_HIGH: // 0x0c00 - 0x0fff
-							result = CHR_BANK_3;
-							offset = CHR_BANK_3_INVERT_LOW;
-							break;
-						case CHR_BANK_4_INVERT_LOW ... CHR_BANK_4_INVERT_HIGH: // 0x1000 - 0x17ff
-							result = CHR_BANK_4;
-							offset = CHR_BANK_4_INVERT_LOW;
-							break;
-						case CHR_BANK_5_INVERT_LOW ... CHR_BANK_5_INVERT_HIGH: // 0x1800 - 0x1fff
-							result = CHR_BANK_5;
-							offset = CHR_BANK_5_INVERT_LOW;
-							break;
-						default:
-							THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
-								NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
-								"Address=%u(%04x)", address, address);
-					}
+				switch(address) {
+					case CHR_BANK_0_LOW ... CHR_BANK_0_HIGH: // 0x0000 - 0x03ff
+						result = CHR_BANK_0;
+						offset = CHR_BANK_0_LOW;
+						break;
+					case CHR_BANK_1_LOW ... CHR_BANK_1_HIGH: // 0x0400 - 0x07ff
+						result = CHR_BANK_1;
+						offset = CHR_BANK_1_LOW;
+						break;
+					case CHR_BANK_2_LOW ... CHR_BANK_2_HIGH: // 0x0800 - 0x0bff
+						result = CHR_BANK_2;
+						offset = CHR_BANK_2_LOW;
+						break;
+					case CHR_BANK_3_LOW ... CHR_BANK_3_HIGH: // 0x0c00 - 0x0fff
+						result = CHR_BANK_3;
+						offset = CHR_BANK_3_LOW;
+						break;
+					case CHR_BANK_4_LOW ... CHR_BANK_4_HIGH: // 0x1000 - 0x13ff
+						result = CHR_BANK_4;
+						offset = CHR_BANK_4_LOW;
+						break;
+					case CHR_BANK_5_LOW ... CHR_BANK_5_HIGH: // 0x1400 - 0x17ff
+						result = CHR_BANK_5;
+						offset = CHR_BANK_5_LOW;
+						break;
+					case CHR_BANK_6_LOW ... CHR_BANK_6_HIGH: // 0x1800 - 0x1bff
+						result = CHR_BANK_6;
+						offset = CHR_BANK_6_LOW;
+						break;
+					case CHR_BANK_7_LOW ... CHR_BANK_7_HIGH: // 0x1c00 - 0x1fff
+						result = CHR_BANK_7;
+						offset = CHR_BANK_7_LOW;
+						break;
+					default:
+						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+							"Address=%u(%04x)", address, address);
 				}
 
 				TRACE_EXIT_FORMAT("Result=%u", result);
@@ -368,11 +361,12 @@ namespace nescc {
 				)
 			{
 				uint8_t result = 0;
-				uint16_t bank_offset = 0;
+				uint16_t bank, bank_offset = 0;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
 
-				std::pair<uint8_t, uint16_t> &entry = m_rom_prg_index.at(find_bank_program(address, bank_offset));
+				bank = find_bank_program(address, bank_offset);
+				std::pair<uint8_t, uint16_t> &entry = m_rom_prg_index.at(bank);
 
 				result = cartridge.rom_program(entry.first).read((address - bank_offset) + entry.second);
 
@@ -610,7 +604,7 @@ namespace nescc {
 				__in uint8_t value
 				)
 			{
-				uint8_t select;
+				uint16_t select;
 
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &bus, &cartridge,
 					address, address, value, value);
@@ -650,31 +644,64 @@ namespace nescc {
 							address, address);
 				}
 
-				if(!m_port_bank_select.prg_rom_mode) {
-					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_0);
+				// TODO: build program/character rom mapping
+				nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
+				select = entry.select;
+				m_rom_prg_index.at(PRG_BANK_1) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r7
 
+				if(!m_port_bank_select.prg_rom_mode) {
+					entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_0);
 					select = entry.select;
 					m_rom_prg_index.at(PRG_BANK_0) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r6
-					entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
-					select = entry.select;
-					m_rom_prg_index.at(PRG_BANK_1) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r7
 					m_rom_prg_index.at(PRG_BANK_2) = std::make_pair(cartridge.rom_program_banks() - 1, 0); // (-2)
 				} else {
-					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
-
 					m_rom_prg_index.at(PRG_BANK_0) = std::make_pair(cartridge.rom_program_banks() - 1, 0); // (-2)
-					select = entry.select;
-					m_rom_prg_index.at(PRG_BANK_1) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r7
 					entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_0);
 					select = entry.select;
 					m_rom_prg_index.at(PRG_BANK_2) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r6
 				}
 
-				// TODO: build character rom mapping
 				if(!m_port_bank_select.chr_rom_mode) {
+					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
 
+					m_rom_chr_index.at(CHR_BANK_0) = std::make_pair((entry.raw * 0x400) / 0x2000, 0); // r0
+					m_rom_chr_index.at(CHR_BANK_1) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0400); // r0
+
+					entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_1);
+					m_rom_chr_index.at(CHR_BANK_2) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0800); // r1
+					m_rom_chr_index.at(CHR_BANK_3) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0c00); // r1
+
+					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
+					m_rom_chr_index.at(CHR_BANK_4) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1000); // r2
+
+					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_1);
+					m_rom_chr_index.at(CHR_BANK_5) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1400); // r3
+
+					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_2);
+					m_rom_chr_index.at(CHR_BANK_6) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1800); // r4
+
+					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_3);
+					m_rom_chr_index.at(CHR_BANK_7) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1c00); // r5
 				} else {
+					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
+					m_rom_chr_index.at(CHR_BANK_0) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1000); // r2
 
+					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_1);
+					m_rom_chr_index.at(CHR_BANK_1) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1400); // r3
+
+					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_2);
+					m_rom_chr_index.at(CHR_BANK_2) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1800); // r4
+
+					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_3);
+					m_rom_chr_index.at(CHR_BANK_3) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1c00); // r5
+
+					entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
+					m_rom_chr_index.at(CHR_BANK_4) = std::make_pair((entry.raw * 0x400) / 0x2000, 0); // r0
+					m_rom_chr_index.at(CHR_BANK_5) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0400); // r0
+
+					entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_1);
+					m_rom_chr_index.at(CHR_BANK_6) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0800); // r1
+					m_rom_chr_index.at(CHR_BANK_7) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0c00); // r1
 				}
 				// ---
 

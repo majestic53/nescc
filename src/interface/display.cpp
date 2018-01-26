@@ -32,6 +32,7 @@ namespace nescc {
 			m_crt_frame(0),
 			m_crt_scanlines(true),
 			m_debug(false),
+			m_fullscreen(false),
 			m_renderer(nullptr),
 			m_shown(false),
 			m_texture(nullptr),
@@ -63,6 +64,7 @@ namespace nescc {
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "CRT filter"
 					<< (m_crt ? "Enabled" : "Disabled")
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "State" << (m_shown ? "Shown" : "Hidden")
+					<< (m_fullscreen ? "Fullscreen" : "Window")
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "Title" << STRING_CHECK(m_title);
 
 			TRACE_EXIT();
@@ -329,6 +331,7 @@ namespace nescc {
 
 			destroy_window();
 			m_debug = false;
+			m_fullscreen = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display uninitialized.");
 
@@ -368,11 +371,12 @@ namespace nescc {
 			__in_opt bool crt,
 			__in_opt bool bleed,
 			__in_opt bool scanlines,
-			__in_opt bool border
+			__in_opt bool border,
+			__in_opt bool fullscreen
 			)
 		{
-			TRACE_ENTRY_FORMAT("Debug=%x, CRT filter=%x, Bleed=%x, Scanlines=%x, Border=%x", debug, crt, bleed,
-				scanlines, border);
+			TRACE_ENTRY_FORMAT("Debug=%x, CRT filter=%x, Bleed=%x, Scanlines=%x, Border=%x, Fullscreen=%x", debug, crt, bleed,
+				scanlines, border, fullscreen);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -387,6 +391,7 @@ namespace nescc {
 			m_crt_frame = 0;
 			m_crt_scanlines = scanlines;
 			m_debug = debug;
+			m_fullscreen = fullscreen;
 
 			TRACE_EXIT();
 		}
@@ -593,7 +598,8 @@ namespace nescc {
 					}
 
 					result << ", Window=" << SCALAR_AS_HEX(uintptr_t, m_window)
-							<< "(" << (m_shown ? "Shown" : "Hidden") << ")"
+							<< "(" << (m_shown ? "Shown" : "Hidden")
+								<< "/" << (m_fullscreen ? "Fullscreen" : "Window") << ")"
 						<< ", Renderer=" << SCALAR_AS_HEX(uintptr_t, m_renderer)
 						<< ", Texture=" << SCALAR_AS_HEX(uintptr_t, m_texture)
 						<< ", Title[" << m_title.size() << "]=" << STRING_CHECK(m_title)
@@ -603,6 +609,29 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		void
+		display::toggle_fullscreen(void)
+		{
+			int mode = (!m_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			if(SDL_SetWindowFullscreen(m_window, mode)) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_SetWindowFullscreen failed! Error=%s", SDL_GetError());
+			}
+
+			m_fullscreen = !m_fullscreen;
+
+			TRACE_EXIT();
 		}
 
 		void

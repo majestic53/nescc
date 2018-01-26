@@ -50,7 +50,8 @@ namespace nescc {
 					__in_opt bool crt = false,
 					__in_opt bool bleed = true,
 					__in_opt bool scanlines = true,
-					__in_opt bool border = true
+					__in_opt bool border = true,
+					__in_opt bool fullscreen = false
 					);
 
 				void set_filter_crt(
@@ -81,6 +82,8 @@ namespace nescc {
 				virtual std::string to_string(
 					__in_opt bool verbose = false
 					) const;
+
+				void toggle_fullscreen(void);
 
 				void update(
 					__in_opt bool paused = false
@@ -133,6 +136,8 @@ namespace nescc {
 				bool m_crt_scanlines;
 
 				bool m_debug;
+
+				bool m_fullscreen;
 
 				std::vector<nescc::core::pixel_t> m_pixel;
 
