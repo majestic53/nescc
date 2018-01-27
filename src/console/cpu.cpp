@@ -309,6 +309,126 @@ namespace nescc {
 			return result.str();
 		}
 
+		std::string
+		cpu::bank_as_string(
+			__in std::vector<nescc::core::memory>::iterator &bank,
+			__in_opt bool verbose
+			)
+		{
+			uint16_t iter = 0;
+			uint8_t length = 0;
+			std::stringstream result;
+
+			TRACE_ENTRY_FORMAT("Bank=%p, Verbose=%x", &bank, verbose);
+
+			for(; iter < bank->size(); iter += length) {
+				std::stringstream stream;
+				std::pair<uint8_t, uint8_t> command;
+
+				if(iter) {
+					result << std::endl;
+				}
+
+				result << SCALAR_AS_HEX(uint16_t, iter) << " -> ";
+				command = CPU_COMMAND.at(bank->read(iter));
+				length = CPU_MODE_LENGTH(command.second);
+				result << CPU_COMMAND_STRING(command.first);
+
+				switch(command.second) {
+					case CPU_MODE_ABSOLUTE:
+					case CPU_MODE_ABSOLUTE_X:
+					case CPU_MODE_ABSOLUTE_Y:
+					case CPU_MODE_ACCUMULATOR:
+					case CPU_MODE_INDIRECT:
+					case CPU_MODE_INDIRECT_X:
+					case CPU_MODE_INDIRECT_Y:
+					case CPU_MODE_ZERO_PAGE:
+					case CPU_MODE_ZERO_PAGE_X:
+					case CPU_MODE_ZERO_PAGE_Y:
+						result << " " << std::left << std::setw(COLUMN_WIDTH) << CPU_MODE_STRING(command.second);
+						break;
+					default:
+						result << " " << std::left << std::setw(COLUMN_WIDTH) << " ";
+						break;
+				}
+
+				if((iter + (length - 1)) < bank->size()) {
+					int8_t relative;
+					uint16_t indirect, offset, target;
+
+					offset = (iter + 1);
+
+					switch(command.second) {
+						case CPU_MODE_ABSOLUTE:
+						case CPU_MODE_ABSOLUTE_X:
+						case CPU_MODE_ABSOLUTE_Y:
+							target = bank->read(offset++);
+							target |= (bank->read(offset) << CHAR_BIT);
+							stream << "[" << SCALAR_AS_HEX(uint16_t, target) << "]";
+							break;
+						case CPU_MODE_ACCUMULATOR:
+							stream << "A";
+							break;
+						case CPU_MODE_IMMEDIATE:
+							stream << "#=" << SCALAR_AS_HEX(uint8_t, bank->read(offset));
+							break;
+						case CPU_MODE_INDIRECT:
+						case CPU_MODE_INDIRECT_X:
+						case CPU_MODE_INDIRECT_Y:
+							indirect = bank->read(offset++);
+							indirect |= (bank->read(offset) << CHAR_BIT);
+							stream << "**=" << SCALAR_AS_HEX(uint16_t, indirect);
+							break;
+						case CPU_MODE_RELATIVE:
+							relative = bank->read(offset);
+							stream << "R=" << ((int) relative) << "(" << SCALAR_AS_HEX(uint8_t, relative) << ")";
+							break;
+						case CPU_MODE_ZERO_PAGE:
+						case CPU_MODE_ZERO_PAGE_X:
+						case CPU_MODE_ZERO_PAGE_Y:
+							target = bank->read(offset);
+							stream << "[" << SCALAR_AS_HEX(uint8_t, target) << "]";
+							break;
+						default:
+							break;
+					}
+				}
+
+				result << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str();
+
+				if(verbose) {
+					uint8_t iter_byte = 0, offset;
+
+					stream.clear();
+					stream.str(std::string());
+
+					for(; iter_byte < length; ++iter_byte) {
+
+						if(iter_byte) {
+							stream << " ";
+						}
+
+						offset = ((iter - length) + iter_byte);
+						if(offset < bank->size()) {
+							stream << SCALAR_AS_HEX(uint8_t, bank->read(offset));
+						} else {
+							stream << "??";
+						}
+					}
+
+					result << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str();
+
+					stream.clear();
+					stream.str(std::string());
+					stream << "(" << (int) length << " byte" << ((length > 1) ? "s" : "") << ")";
+					result << stream.str();
+				}
+			}
+
+			TRACE_EXIT();
+			return result.str();
+		}
+
 		void
 		cpu::clear(void)
 		{

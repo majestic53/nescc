@@ -45,6 +45,11 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				static std::string bank_as_string(
+					__in std::vector<nescc::core::memory>::iterator &bank,
+					__in_opt bool verbose = false
+					);
+
 				void clear(void);
 
 				std::string command_as_string(

@@ -76,6 +76,11 @@ namespace nescc {
 					__in std::vector<nescc::core::memory>::iterator &bank
 					);
 
+				void decode_program_bank(
+					__in const std::string &path,
+					__in std::vector<nescc::core::memory>::iterator &bank
+					);
+
 				std::string display_help(
 					__in_opt bool verbose = false
 					) const;
@@ -99,7 +104,9 @@ namespace nescc {
 					__in_opt bool decode = false
 					);
 
-				std::string extract_rom_program(void);
+				std::string extract_rom_program(
+					__in_opt bool decode = false
+					);
 
 				bool on_initialize(void);
 

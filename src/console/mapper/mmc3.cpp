@@ -206,7 +206,7 @@ namespace nescc {
 			{
 				uint32_t result = 0;
 
-				TRACE_ENTRY_FORMAT("Address=%04x(%u), Offset=%u", address, address, offset);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u", address, address, offset);
 
 				offset = 0;
 
@@ -261,7 +261,7 @@ namespace nescc {
 			{
 				uint32_t result = 0;
 
-				TRACE_ENTRY_FORMAT("Address=%04x(%u), Offset=%u", address, address, offset);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x), Offset=%u", address, address, offset);
 
 				offset = 0;
 
@@ -303,7 +303,7 @@ namespace nescc {
 
 				result = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_VERTICAL : CARTRIDGE_MIRRORING_HORIZONTAL);
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -312,8 +312,8 @@ namespace nescc {
 				__inout uint16_t &address
 				)
 			{
-				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", m_ram_index, m_ram_index);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", m_ram_index, m_ram_index);
 				return m_ram_index;
 			}
 
@@ -325,13 +325,13 @@ namespace nescc {
 			{
 				uint8_t result = 0;
 
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x)", &cartridge, address, address);
 
 				if(m_port_ram_protect.chip_enable) {
 					result = cartridge.ram(m_ram_index).read(address);
 				}
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -344,13 +344,13 @@ namespace nescc {
 				uint8_t result = 0;
 				uint16_t bank_offset = 0;
 
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x)", &cartridge, address, address);
 
 				std::pair<uint8_t, uint16_t> &entry = m_rom_chr_index.at(find_bank_character(address, bank_offset));
 
 				result = cartridge.rom_character(entry.first).read((address - bank_offset) + entry.second);
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -363,14 +363,14 @@ namespace nescc {
 				uint8_t result = 0;
 				uint16_t bank, bank_offset = 0;
 
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x)", &cartridge, address, address);
 
 				bank = find_bank_program(address, bank_offset);
 				std::pair<uint8_t, uint16_t> &entry = m_rom_prg_index.at(bank);
 
 				result = cartridge.rom_program(entry.first).read((address - bank_offset) + entry.second);
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -438,14 +438,14 @@ namespace nescc {
 				uint8_t result = 0;
 				uint16_t bank_offset = 0;
 
-				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 				std::pair<uint8_t, uint16_t> &entry = m_rom_chr_index.at(find_bank_character(address, bank_offset));
 
 				result = entry.first;
 				address = ((address - bank_offset) + entry.second);
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -457,14 +457,14 @@ namespace nescc {
 				uint8_t result = 0;
 				uint16_t bank_offset = 0;
 
-				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 				std::pair<uint8_t, uint16_t> &entry = m_rom_prg_index.at(find_bank_program(address, bank_offset));
 
 				result = entry.first;
 				address = ((address - bank_offset) + entry.second);
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -567,7 +567,7 @@ namespace nescc {
 				__in uint8_t value
 				)
 			{
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &cartridge, address, address,
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x), Value=%u(%02x)", &cartridge, address, address,
 					value, value);
 
 				if(!m_port_ram_protect.write_protect) {
@@ -586,7 +586,7 @@ namespace nescc {
 			{
 				uint16_t bank_offset = 0;
 
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &cartridge, address, address,
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x), Value=%u(%02x)", &cartridge, address, address,
 					value, value);
 
 				std::pair<uint8_t, uint16_t> &entry = m_rom_chr_index.at(find_bank_character(address, bank_offset));
@@ -604,7 +604,7 @@ namespace nescc {
 				__in uint8_t value
 				)
 			{
-				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &bus, &cartridge,
+				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%u(%04x), Value=%u(%02x)", &bus, &cartridge,
 					address, address, value, value);
 
 				switch(address & PORT_MASK) {

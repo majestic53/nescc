@@ -126,7 +126,7 @@ namespace nescc {
 
 				result = cartridge.mirroring();
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -135,8 +135,8 @@ namespace nescc {
 				__inout uint16_t &address
 				)
 			{
-				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", m_ram_index, m_ram_index);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", m_ram_index, m_ram_index);
 				return m_ram_index;
 			}
 
@@ -148,11 +148,11 @@ namespace nescc {
 			{
 				uint8_t result;
 
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x)", &cartridge, address, address);
 
 				result = cartridge.ram(m_ram_index).read(address);
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -164,11 +164,11 @@ namespace nescc {
 			{
 				uint8_t result;
 
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x)", &cartridge, address, address);
 
 				result = cartridge.rom_character(m_rom_character_index).read(address);
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -180,7 +180,7 @@ namespace nescc {
 			{
 				uint8_t result = 0;
 
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u)", &cartridge, address, address);
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x)", &cartridge, address, address);
 
 				switch(address) {
 					case MAPPER_PROGRAM_0_LOW ... MAPPER_PROGRAM_0_HIGH: // 0x0000 - 0x3fff
@@ -195,7 +195,7 @@ namespace nescc {
 							"Address=%u(%04x)", address, address);
 				}
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -223,8 +223,8 @@ namespace nescc {
 				__inout uint16_t &address
 				)
 			{
-				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", m_rom_character_index, m_rom_character_index);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", m_rom_character_index, m_rom_character_index);
 				return m_rom_character_index;
 			}
 
@@ -235,7 +235,7 @@ namespace nescc {
 			{
 				uint8_t result = 0;
 
-				TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
+				TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 				switch(address) {
 					case MAPPER_PROGRAM_0_LOW ... MAPPER_PROGRAM_0_HIGH: // 0x0000 - 0x3fff
@@ -251,7 +251,7 @@ namespace nescc {
 							"Address=%u(%04x)", address, address);
 				}
 
-				TRACE_EXIT_FORMAT("Result=%02x(%u)", result, result);
+				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
 			}
 
@@ -293,7 +293,7 @@ namespace nescc {
 				__in uint8_t value
 				)
 			{
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &cartridge, address, address,
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x), Value=%u(%02x)", &cartridge, address, address,
 					value, value);
 
 				cartridge.ram(m_ram_index).write(address, value);
@@ -308,7 +308,7 @@ namespace nescc {
 				__in uint8_t value
 				)
 			{
-				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &cartridge, address, address,
+				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x), Value=%u(%02x)", &cartridge, address, address,
 					value, value);
 
 				cartridge.rom_character(m_rom_character_index).write(address, value);
@@ -324,7 +324,7 @@ namespace nescc {
 				__in uint8_t value
 				)
 			{
-				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &bus, &cartridge,
+				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%u(%04x), Value=%u(%02x)", &bus, &cartridge,
 					address, address, value, value);
 
 				switch(address) {

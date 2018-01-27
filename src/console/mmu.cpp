@@ -195,7 +195,7 @@ namespace nescc {
 		{
 			uint8_t result = 0, type;
 
-			TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -216,7 +216,7 @@ namespace nescc {
 						"Type=%u", type);
 			}
 
-			TRACE_EXIT_FORMAT("Result=%04x(%u)", address, address);
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", address, address);
 			return m_cartridge.ram(result);
 		}
 
@@ -363,7 +363,7 @@ namespace nescc {
 		{
 			uint8_t result = 0, type;
 
-			TRACE_ENTRY_FORMAT("Address=%04x(%u)", address, address);
+			TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -384,7 +384,7 @@ namespace nescc {
 						"Type=%u", type);
 			}
 
-			TRACE_EXIT_FORMAT("Result=%04x(%u)", address, address);
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", address, address);
 			return m_cartridge.rom_character(result);
 		}
 
@@ -416,7 +416,7 @@ namespace nescc {
 						"Type=%u", type);
 			}
 
-			TRACE_EXIT_FORMAT("Result=%04x(%u)", address, address);
+			TRACE_EXIT_FORMAT("Result=%u(%04x)", address, address);
 			return m_cartridge.rom_program(result);
 		}
 

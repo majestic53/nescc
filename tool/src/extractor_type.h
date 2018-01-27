@@ -86,6 +86,7 @@ namespace nescc {
 		#define EXTRACT_FILE_DEFAULT "rom"
 		#define EXTRACT_ROM_CHR_EXTENSION "chr"
 		#define EXTRACT_ROM_CHR_DECODE_EXTENSION "bmp"
+		#define EXTRACT_ROM_PRG_DECODE_EXTENSION "asm"
 		#define EXTRACT_ROM_PRG_EXTENSION "prg"
 
 		#define ROM_CHR_DECODE_DEPTH 255
@@ -95,7 +96,7 @@ namespace nescc {
 		#define ROM_CHR_DECODE_WIDTH 256
 
 		enum {
-			ARGUMENT_DECODE_CHR = 0,
+			ARGUMENT_DECODE = 0,
 			ARGUMENT_EXTRACT_CHR,
 			ARGUMENT_EXTRACT_PRG,
 			ARGUMENT_HELP,
@@ -114,7 +115,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR[_TYPE_]))
 
 		static const std::string ARGUMENT_STR_LONG[] = {
-			"decode-chr", "extract-chr", "extract-pgr", "help", "verbose", "version",
+			"decode", "extract-chr", "extract-pgr", "help", "verbose", "version",
 			};
 
 		#define ARGUMENT_STRING_LONG(_TYPE_) \
@@ -122,7 +123,7 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STR_LONG[_TYPE_]))
 
 		static const std::string ARGUMENT_STRING_DESC[] = {
-			"Decode character rom banks",
+			"Decode rom banks",
 			"Extract character rom banks",
 			"Extract program rom banks",
 			"Display help information",
@@ -135,8 +136,8 @@ namespace nescc {
 				STRING_CHECK(ARGUMENT_STRING_DESC[_TYPE_]))
 
 		static const std::map<std::string, uint32_t> ARGUMENT_MAP = {
-			std::make_pair(ARGUMENT_STRING(ARGUMENT_DECODE_CHR), ARGUMENT_DECODE_CHR),
-			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_DECODE_CHR), ARGUMENT_DECODE_CHR),
+			std::make_pair(ARGUMENT_STRING(ARGUMENT_DECODE), ARGUMENT_DECODE),
+			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_DECODE), ARGUMENT_DECODE),
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_EXTRACT_CHR), ARGUMENT_EXTRACT_CHR),
 			std::make_pair(ARGUMENT_STRING_LONG(ARGUMENT_EXTRACT_CHR), ARGUMENT_EXTRACT_CHR),
 			std::make_pair(ARGUMENT_STRING(ARGUMENT_EXTRACT_PRG), ARGUMENT_EXTRACT_PRG),

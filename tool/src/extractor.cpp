@@ -18,6 +18,7 @@
 
 #include <cstring>
 #include <fstream>
+#include "../../include/console/cpu.h"
 #include "../include/extractor.h"
 #include "./extractor_type.h"
 
@@ -167,7 +168,7 @@ namespace nescc {
 			std::vector<uint8_t> pixel;
 			uint32_t image_x, image_y, tile_x, tile_y;
 
-			TRACE_ENTRY_FORMAT("Path[%u]=%p, Bank=%p", path.size(), STRING_CHECK(path), &bank);
+			TRACE_ENTRY_FORMAT("Path[%u]=%s, Bank=%p", path.size(), STRING_CHECK(path), &bank);
 
 			pixel.resize(ROM_CHR_DECODE_WIDTH * ROM_CHR_DECODE_HEIGHT, 0);
 
@@ -213,6 +214,31 @@ namespace nescc {
 			}
 
 			image.save(path);
+
+			TRACE_EXIT();
+		}
+
+		void
+		extractor::decode_program_bank(
+			__in const std::string &path,
+			__in std::vector<nescc::core::memory>::iterator &bank
+			)
+		{
+			std::ofstream file;
+			std::string result;
+
+			TRACE_ENTRY_FORMAT("Path[%u]=%s, Bank=%p", path.size(), STRING_CHECK(path), &bank);
+
+			result = nescc::console::cpu::bank_as_string(bank, true);
+
+			file = std::ofstream(path.c_str(), std::ios::out | std::ios::trunc);
+			if(!file) {
+				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_FILE_NOT_CREATED,
+					"Path[%u]=%s", path.size(), STRING_CHECK(path));
+			}
+
+			file.write((char *) result.c_str(), result.size());
+			file.close();
 
 			TRACE_EXIT();
 		}
@@ -468,7 +494,9 @@ namespace nescc {
 		}
 
 		std::string
-		extractor::extract_rom_program(void)
+		extractor::extract_rom_program(
+			__in bool decode
+			)
 		{
 			uint32_t offset;
 			std::ifstream input;
@@ -476,7 +504,7 @@ namespace nescc {
 			std::vector<nescc::core::memory> bank;
 			std::string directory, extension, file;
 
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Decode=%x", decode);
 
 			result << "Extracting program banks from " << m_path
 				<< std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << "|- PRG ROM: "
@@ -536,6 +564,16 @@ namespace nescc {
 					output.write((char *) iter->raw(), iter->size());
 					output.close();
 					result << " Done.";
+
+					if(decode) {
+						path.clear();
+						path.str(std::string());
+						path << directory << DIRECTORY_DELIMITER << file << "-" << count << EXTENSION_DELIMITER
+							<< EXTRACT_ROM_PRG_DECODE_EXTENSION;
+						result << std::endl << "Writing program bank-" << count << " disassembly to " << path.str() << "...";
+						decode_program_bank(path.str(), iter);
+						result << " Done.";
+					}
 				}
 			}
 
@@ -566,7 +604,7 @@ namespace nescc {
 			int index = 1;
 			std::stringstream result;
 			std::vector<std::string>::const_iterator iter;
-			bool decode_chr = false, extract_chr = false, extract_prg = false, help = false, verbose = false,
+			bool decode = false, extract_chr = false, extract_prg = false, help = false, verbose = false,
 				version = false;
 
 			TRACE_ENTRY_FORMAT("Arguments[%u]=%p", arguments.size(), &arguments);
@@ -600,8 +638,8 @@ namespace nescc {
 					}
 
 					switch(entry->second) {
-						case ARGUMENT_DECODE_CHR:
-							decode_chr = true;
+						case ARGUMENT_DECODE:
+							decode = true;
 							break;
 						case ARGUMENT_EXTRACT_CHR:
 							extract_chr = true;
@@ -641,7 +679,7 @@ namespace nescc {
 				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_PATH_UNASSIGNED, "%s",
 					STRING_CHECK(display_usage()));
 			} else {
-				load(m_path, decode_chr, extract_chr, extract_prg, verbose);
+				load(m_path, decode, extract_chr, extract_prg, verbose);
 
 				if(!extract_chr && !extract_prg) {
 
@@ -658,7 +696,7 @@ namespace nescc {
 		void
 		extractor::load(
 			__in const std::string &path,
-			__in_opt bool decode_chr,
+			__in_opt bool decode,
 			__in_opt bool extract_chr,
 			__in_opt bool extract_prg,
 			__in_opt bool verbose
@@ -668,8 +706,8 @@ namespace nescc {
 			std::ifstream file;
 			std::string input_path;
 
-			TRACE_ENTRY_FORMAT("Path[%u]=%s, Decode={chr=%u}, Extract={chr=%x, prg=%x}, Verbose=%x", path.size(), STRING_CHECK(path),
-				decode_chr, extract_chr, extract_prg, verbose);
+			TRACE_ENTRY_FORMAT("Path[%u]=%s, Decode=%x, Extract={chr=%x, prg=%x}, Verbose=%x", path.size(), STRING_CHECK(path),
+				decode, extract_chr, extract_prg, verbose);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -704,11 +742,11 @@ namespace nescc {
 			extract_header();
 
 			if(extract_chr && m_character_rom_count) {
-				std::cout << extract_rom_character(decode_chr) << std::endl;
+				std::cout << extract_rom_character(decode) << std::endl;
 			}
 
 			if(extract_prg && m_program_rom_count) {
-				std::cout << extract_rom_program() << std::endl;
+				std::cout << extract_rom_program(decode) << std::endl;
 			}
 
 			TRACE_EXIT();

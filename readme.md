@@ -210,10 +210,10 @@ Nescc-extract
 Nescc-extract is a CLI application for extracting various information from NES roms.
 
 ```
-Nescc-extract [-d|--decode-chr] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose]
+Nescc-extract [-d|--decode] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose]
 		[-v|--version] path
 
--d | --decode-chr                                                     Decode character rom banks
+-d | --decode                                                         Decode rom banks
 -c | --extract-chr                                                    Extract character rom banks
 -p | --extract-pgr                                                    Extract program rom banks
 -h | --help                                                           Display help information
@@ -233,19 +233,29 @@ To extract PRG and CHR roms:
 $ nescc-extract -c -p ../somerom.nes
 ```
 
+To extract PRG roms as assembly:
+
+```
+$ nescc-extract -p -d ../somerom.nes
+```
+
 To extract CHR roms as images:
 
 ```
 $ nescc-extract -c -d ../somerom.nes
 ```
 
-Extracted roms/images can be found in the same directory as the rom
+Extracted roms/assembly/images can be found in the same directory as the input rom
 
 Changelog
 =========
 
 Version 0.1.1804
 ----------------
+*Updated: 1/27/2018*
+
+* Added program rom decoding to nescc-extract tool
+
 *Updated: 1/26/2018*
 
 * Added halt screen
