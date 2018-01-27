@@ -65,6 +65,10 @@ namespace nescc {
 					__in float rate
 					);
 
+				void set_halted(
+					__in bool halted
+					);
+
 				void set_icon(
 					__in const std::string &path
 					);
@@ -125,6 +129,8 @@ namespace nescc {
 
 				nescc::core::bitmap m_bitmap_border;
 
+				nescc::core::bitmap m_bitmap_halt;
+
 				bool m_crt;
 
 				bool m_crt_bleed;
@@ -139,6 +145,8 @@ namespace nescc {
 
 				bool m_fullscreen;
 
+				bool m_halted;
+
 				std::vector<nescc::core::pixel_t> m_pixel;
 
 				std::vector<nescc::core::pixel_t> m_pixel_previous;
@@ -152,6 +160,8 @@ namespace nescc {
 				SDL_Texture *m_texture;
 
 				SDL_Texture *m_texture_border;
+
+				SDL_Texture *m_texture_halt;
 
 				SDL_Window *m_window;
 		};

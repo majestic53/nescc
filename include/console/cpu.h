@@ -89,6 +89,7 @@ namespace nescc {
 					);
 
 				void set_halt(
+					__in nescc::console::interface::bus &bus,
 					__in bool halt
 					);
 

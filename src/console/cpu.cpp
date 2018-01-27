@@ -1102,6 +1102,7 @@ namespace nescc {
 				CPU_MODE_STRING(command.second));
 
 			m_halt = true;
+			bus.display_halt(true);
 
 			TRACE_EXIT_FORMAT("Result=%u", result);
 			return result;
@@ -2901,6 +2902,8 @@ namespace nescc {
 				m_stack_pointer -= CPU_STACK_POINTER_ADDRESS_OFFSET;
 			}
 
+			bus.display_halt(false);
+
 			TRACE_DEBUG(m_debug, "Cpu reset");
 			TRACE_DEBUG_FORMAT(m_debug, "Cpu state", "\n%s", STRING_CHECK(as_string(true)));
 
@@ -2989,10 +2992,11 @@ namespace nescc {
 
 		void
 		cpu::set_halt(
+			__in nescc::console::interface::bus &bus,
 			__in bool halt
 			)
 		{
-			TRACE_ENTRY_FORMAT("Halt=%x", halt);
+			TRACE_ENTRY_FORMAT("Bus=%p, Halt=%x", &bus, halt);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -3001,6 +3005,7 @@ namespace nescc {
 #endif // NDEBUG
 
 			m_halt = halt;
+			bus.display_halt(halt);
 
 			TRACE_EXIT();
 		}

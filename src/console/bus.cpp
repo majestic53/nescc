@@ -345,6 +345,24 @@ namespace nescc {
 		}
 
 		void
+		bus::display_halt(
+			__in bool halt
+			)
+		{
+			TRACE_ENTRY_FORMAT("Halt=%x", halt);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_BUS_EXCEPTION(NESCC_CONSOLE_BUS_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_display.set_halted(halt);
+
+			TRACE_EXIT();
+		}
+
+		void
 		bus::display_update(void)
 		{
 			TRACE_ENTRY();
@@ -878,6 +896,10 @@ namespace nescc {
 				}
 
 				cycle -= cycle_last;
+			}
+
+			if(m_cpu.halted()) {
+				m_display.update();
 			}
 
 			TRACE_EXIT();

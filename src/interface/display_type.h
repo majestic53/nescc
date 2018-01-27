@@ -72,6 +72,7 @@ namespace nescc {
 		#define POST_PROCESS_BLEED_LAYER_BLEND_RATIO 0.5
 		#define POST_PROCESS_BLEED_SWEEP_RATIO 0.75
 		#define POST_PROCESS_BORDER_PATH "./asset/border.bmp"
+		#define POST_PROCESS_HALT_PATH "./asset/halt.bmp"
 		#define POST_PROCESS_SCANLINE_ARTIFACT_RATIO 0.9
 
 		static const std::vector<nescc::core::pixel_t> POST_PROCESS_SIGNAL_ART = {

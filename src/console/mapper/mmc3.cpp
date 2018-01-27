@@ -604,8 +604,6 @@ namespace nescc {
 				__in uint8_t value
 				)
 			{
-				uint16_t select;
-
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%04x(%u), Value=%02x(%u)", &bus, &cartridge,
 					address, address, value, value);
 
@@ -646,62 +644,68 @@ namespace nescc {
 
 				// TODO: build program/character rom mapping
 				nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
-				select = entry.select;
-				m_rom_prg_index.at(PRG_BANK_1) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r7
+				m_rom_prg_index.at(PRG_BANK_1) = std::make_pair(entry.raw / 2, (entry.raw % 2) * PRG_BANK_WIDTH); // r7
 
 				if(!m_port_bank_select.prg_rom_mode) {
 					entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_0);
-					select = entry.select;
-					m_rom_prg_index.at(PRG_BANK_0) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r6
+					m_rom_prg_index.at(PRG_BANK_0) = std::make_pair(entry.raw / 2, (entry.raw % 2) * PRG_BANK_WIDTH); // r6
 					m_rom_prg_index.at(PRG_BANK_2) = std::make_pair(cartridge.rom_program_banks() - 1, 0); // (-2)
 				} else {
 					m_rom_prg_index.at(PRG_BANK_0) = std::make_pair(cartridge.rom_program_banks() - 1, 0); // (-2)
 					entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_0);
-					select = entry.select;
-					m_rom_prg_index.at(PRG_BANK_2) = std::make_pair(select, entry.half ? PRG_BANK_WIDTH : 0); // r6
+					m_rom_prg_index.at(PRG_BANK_2) = std::make_pair(entry.raw / 2, (entry.raw % 2) * PRG_BANK_WIDTH); // r6
 				}
 
 				if(!m_port_bank_select.chr_rom_mode) {
-					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
 
-					m_rom_chr_index.at(CHR_BANK_0) = std::make_pair((entry.raw * 0x400) / 0x2000, 0); // r0
-					m_rom_chr_index.at(CHR_BANK_1) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0400); // r0
+					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
+					m_rom_chr_index.at(CHR_BANK_0) = std::make_pair((entry.raw & 0xfe) / 8, ((entry.raw & 0xfe) % 8)
+										* CHR_BANK_WIDTH); // r0 & 0xfe
+					m_rom_chr_index.at(CHR_BANK_1) = std::make_pair((entry.raw | 0x01) / 8, ((entry.raw | 0x01) % 8)
+										* CHR_BANK_WIDTH); // r0 | 0x01
 
 					entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_1);
-					m_rom_chr_index.at(CHR_BANK_2) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0800); // r1
-					m_rom_chr_index.at(CHR_BANK_3) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0c00); // r1
+					m_rom_chr_index.at(CHR_BANK_2) = std::make_pair((entry.raw & 0xfe) / 8, ((entry.raw & 0xfe) % 8)
+										* CHR_BANK_WIDTH); // r1 & 0xfe
+					m_rom_chr_index.at(CHR_BANK_3) = std::make_pair((entry.raw | 0x01) / 8, ((entry.raw | 0x01) % 8)
+										* CHR_BANK_WIDTH); // r1 | 0x01
 
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
-					m_rom_chr_index.at(CHR_BANK_4) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1000); // r2
+					m_rom_chr_index.at(CHR_BANK_4) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r2
 
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_1);
-					m_rom_chr_index.at(CHR_BANK_5) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1400); // r3
+					m_rom_chr_index.at(CHR_BANK_5) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r3
 
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_2);
-					m_rom_chr_index.at(CHR_BANK_6) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1800); // r4
+					m_rom_chr_index.at(CHR_BANK_6) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r4
 
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_3);
-					m_rom_chr_index.at(CHR_BANK_7) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1c00); // r5
+					m_rom_chr_index.at(CHR_BANK_7) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r5
 				} else {
+
 					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
-					m_rom_chr_index.at(CHR_BANK_0) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1000); // r2
+					m_rom_chr_index.at(CHR_BANK_0) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r2
 
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_1);
-					m_rom_chr_index.at(CHR_BANK_1) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1400); // r3
+					m_rom_chr_index.at(CHR_BANK_1) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r3
 
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_2);
-					m_rom_chr_index.at(CHR_BANK_2) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1800); // r4
+					m_rom_chr_index.at(CHR_BANK_2) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r4
 
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_3);
-					m_rom_chr_index.at(CHR_BANK_3) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x1c00); // r5
+					m_rom_chr_index.at(CHR_BANK_3) = std::make_pair(entry.raw / 8, (entry.raw % 8) * CHR_BANK_WIDTH); // r5
 
 					entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
-					m_rom_chr_index.at(CHR_BANK_4) = std::make_pair((entry.raw * 0x400) / 0x2000, 0); // r0
-					m_rom_chr_index.at(CHR_BANK_5) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0400); // r0
+					m_rom_chr_index.at(CHR_BANK_4) = std::make_pair((entry.raw & 0xfe) / 8, ((entry.raw & 0xfe) % 8)
+										* CHR_BANK_WIDTH); // r0 & 0xfe
+					m_rom_chr_index.at(CHR_BANK_5) = std::make_pair((entry.raw | 0x01) / 8, ((entry.raw | 0x01) % 8)
+										* CHR_BANK_WIDTH); // r0 | 0x01
 
 					entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_1);
-					m_rom_chr_index.at(CHR_BANK_6) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0800); // r1
-					m_rom_chr_index.at(CHR_BANK_7) = std::make_pair((entry.raw * 0x400) / 0x2000, 0x0c00); // r1
+					m_rom_chr_index.at(CHR_BANK_6) = std::make_pair((entry.raw & 0xfe) / 8, ((entry.raw & 0xfe) % 8)
+										* CHR_BANK_WIDTH); // r1 & 0xfe
+					m_rom_chr_index.at(CHR_BANK_7) = std::make_pair((entry.raw | 0x01) / 8, ((entry.raw | 0x01) % 8)
+										* CHR_BANK_WIDTH); // r1 | 0x01
 				}
 				// ---
 

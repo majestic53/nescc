@@ -70,6 +70,10 @@ namespace nescc {
 					__in uint8_t value
 					);
 
+				void display_halt(
+					__in bool halt
+					);
+
 				void display_update(void);
 
 				void display_write(

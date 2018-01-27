@@ -22,7 +22,7 @@ Table of Contents
 		* [Joypad Subcommands](https://github.com/majestic53/nescc#joypad-subcommands) -- All interactive mode joypad subcommands
 		* [MMU Subcommands](https://github.com/majestic53/nescc#mmu-subcommands) -- All interactive mode MMU subcommands
 		* [PPU Subcommands](https://github.com/majestic53/nescc#ppu-subcommands) -- All interactive mode PPU subcommands
-	* [Nescc-rominfo](https://github.com/majestic53/nescc#nescc-rominfo) -- How to use Nescc-rominfo application
+	* [Nescc-extract](https://github.com/majestic53/nescc#nescc-extract) -- How to use Nescc-extract application
 4. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
 5. [License](https://github.com/majestic53/nescc#license) -- Project license information
 
@@ -204,13 +204,13 @@ status                                                                Display st
 watch           [<address> | clear]                                   Set/Clear watch memory addresses
 ```
 
-Nescc-rominfo
+Nescc-extract
 -------------
 
-Nescc-rominfo is a CLI application for extracting various information from NES roms.
+Nescc-extract is a CLI application for extracting various information from NES roms.
 
 ```
-Nescc-rominfo [-d|--decode-chr] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose]
+Nescc-extract [-d|--decode-chr] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose]
 		[-v|--version] path
 
 -d | --decode-chr                                                     Decode character rom banks
@@ -224,19 +224,19 @@ Nescc-rominfo [-d|--decode-chr] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help
 To display a rom header in a human-readable form:
 
 ```
-$ nescc-rominfo -a ../somerom.nes
+$ nescc-extract -a ../somerom.nes
 ```
 
 To extract PRG and CHR roms:
 
 ```
-$ nescc-rominfo -c -p ../somerom.nes
+$ nescc-extract -c -p ../somerom.nes
 ```
 
 To extract CHR roms as images:
 
 ```
-$ nescc-rominfo -c -d ../somerom.nes
+$ nescc-extract -c -d ../somerom.nes
 ```
 
 Extracted roms/images can be found in the same directory as the rom
@@ -246,6 +246,10 @@ Changelog
 
 Version 0.1.1804
 ----------------
+*Updated: 1/26/2018*
+
+* Added halt screen
+
 *Updated: 1/25/2018*
 
 * Added f11 fullscreen toggle

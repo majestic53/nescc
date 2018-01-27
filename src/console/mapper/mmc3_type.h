@@ -70,16 +70,18 @@ namespace nescc {
 			#define CHR_BANK_6_HIGH 0x1bff
 			#define CHR_BANK_7_LOW 0x1c00
 			#define CHR_BANK_7_HIGH 0x1fff
+			#define CHR_BANK_WIDTH 0x0400
 
-			enum {
-				CHR_BANK_0 = 0,
-				CHR_BANK_1,
-				CHR_BANK_2,
-				CHR_BANK_3,
-				CHR_BANK_4,
-				CHR_BANK_5,
-				CHR_BANK_6,
-				CHR_BANK_7,
+			enum {				// 0x00 	0x40
+							// ---- 	----
+				CHR_BANK_0 = 0,		// r0 & 0xfe	r2
+				CHR_BANK_1,		// r0 | 0x01	r3
+				CHR_BANK_2,		// r1 & 0xfe	r4
+				CHR_BANK_3,		// r1 | 0x01	r5
+				CHR_BANK_4,		// r2		r0 & 0xfe
+				CHR_BANK_5,		// r3		r0 | 0x01
+				CHR_BANK_6,		// r4		r1 & 0xfe
+				CHR_BANK_7,		// r5		r1 | 0x01
 			};
 
 			#define CHR_BANK_MAX CHR_BANK_7
@@ -94,11 +96,12 @@ namespace nescc {
 			#define PRG_BANK_3_HIGH 0x7fff
 			#define PRG_BANK_WIDTH 0x2000
 
-			enum {
-				PRG_BANK_0 = 0,
-				PRG_BANK_1,
-				PRG_BANK_2,
-				PRG_BANK_3,
+			enum {				// 0x00	0x40
+							// ---- ----
+				PRG_BANK_0 = 0,		// r6	(-2)
+				PRG_BANK_1,		// r7	r7
+				PRG_BANK_2,		// (-2) r6
+				PRG_BANK_3,		// (-1) (-1)
 			};
 
 			#define PRG_BANK_MAX PRG_BANK_3

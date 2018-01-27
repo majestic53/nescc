@@ -116,7 +116,7 @@ namespace nescc {
 						if(parse_subcommand_values(sub_arguments, address, value)) {
 							result << m_runtime.bus().cpu().command_as_string(m_runtime.bus(), address, value, true);
 						} else {
-							result << "Unexpected command argument: " << sub_arguments.front();
+							result << "Invalid command arguments: <address> <offset>";
 						}
 						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_GET:
@@ -137,7 +137,7 @@ namespace nescc {
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HALT:
 
 						if(parse_subcommand_value(sub_arguments, value)) {
-							m_runtime.bus().cpu().set_halt(value ? true : false);
+							m_runtime.bus().cpu().set_halt(m_runtime.bus(), value ? true : false);
 						} else {
 							result << "Invalid command arguments: <value>";
 						}

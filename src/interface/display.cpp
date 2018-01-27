@@ -33,10 +33,12 @@ namespace nescc {
 			m_crt_scanlines(true),
 			m_debug(false),
 			m_fullscreen(false),
+			m_halted(false),
 			m_renderer(nullptr),
 			m_shown(false),
 			m_texture(nullptr),
 			m_texture_border(nullptr),
+			m_texture_halt(nullptr),
 			m_window(nullptr)
 		{
 			TRACE_ENTRY();
@@ -64,7 +66,8 @@ namespace nescc {
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "CRT filter"
 					<< (m_crt ? "Enabled" : "Disabled")
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "State" << (m_shown ? "Shown" : "Hidden")
-					<< (m_fullscreen ? "Fullscreen" : "Window")
+					<< "/" << (m_fullscreen ? "Fullscreen" : "Window")
+					<< "/" << (m_halted ? "Halted" : "Running")
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH) << "Title" << STRING_CHECK(m_title);
 
 			TRACE_EXIT();
@@ -316,6 +319,22 @@ namespace nescc {
 			m_pixel_previous.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
 			create_window();
 
+			m_bitmap_border.load(POST_PROCESS_BORDER_PATH);
+
+			m_texture_border = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_border.surface());
+			if(!m_texture_border) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
+			}
+
+			m_bitmap_halt.load(POST_PROCESS_HALT_PATH);
+
+			m_texture_halt = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_halt.surface());
+			if(!m_texture_halt) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+					"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
+			}
+
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display initialized.");
 
 			TRACE_EXIT_FORMAT("Result=%x", result);
@@ -329,9 +348,24 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display uninitializing...");
 
+			if(m_texture_halt) {
+				SDL_DestroyTexture(m_texture_halt);
+				m_texture_halt = nullptr;
+			}
+
+			m_bitmap_halt.deallocate();
+
+			if(m_texture_border) {
+				SDL_DestroyTexture(m_texture_border);
+				m_texture_border = nullptr;
+			}
+
+			m_bitmap_border.deallocate();
+
 			destroy_window();
 			m_debug = false;
 			m_fullscreen = false;
+			m_halted = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Display uninitialized.");
 
@@ -392,6 +426,7 @@ namespace nescc {
 			m_crt_scanlines = scanlines;
 			m_debug = debug;
 			m_fullscreen = fullscreen;
+			m_halted = false;
 
 			TRACE_EXIT();
 		}
@@ -476,27 +511,6 @@ namespace nescc {
 
 			if(change) {
 
-				if(m_crt_border) {
-
-					if(m_crt) {
-						m_bitmap_border.load(POST_PROCESS_BORDER_PATH);
-
-						m_texture_border = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_border.surface());
-						if(!m_texture_border) {
-							THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
-								"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
-						}
-					} else {
-
-						if(m_texture_border) {
-							SDL_DestroyTexture(m_texture_border);
-							m_texture_border = nullptr;
-						}
-
-						m_bitmap_border.deallocate();
-					}
-				}
-
 				if(m_window) {
 					destroy_texture();
 					create_texture();
@@ -504,6 +518,24 @@ namespace nescc {
 
 				m_pixel_previous.assign(m_pixel.begin(), m_pixel.end());
 			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		display::set_halted(
+			__in bool halted
+			)
+		{
+			TRACE_ENTRY_FORMAT("Halted=%x", halted);
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION(NESCC_INTERFACE_DISPLAY_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_halted = halted;
 
 			TRACE_EXIT();
 		}
@@ -599,7 +631,8 @@ namespace nescc {
 
 					result << ", Window=" << SCALAR_AS_HEX(uintptr_t, m_window)
 							<< "(" << (m_shown ? "Shown" : "Hidden")
-								<< "/" << (m_fullscreen ? "Fullscreen" : "Window") << ")"
+								<< "/" << (m_fullscreen ? "Fullscreen" : "Window")
+								<< "/" << (m_halted ? "Halted" : "Running") << ")"
 						<< ", Renderer=" << SCALAR_AS_HEX(uintptr_t, m_renderer)
 						<< ", Texture=" << SCALAR_AS_HEX(uintptr_t, m_texture)
 						<< ", Title[" << m_title.size() << "]=" << STRING_CHECK(m_title)
@@ -649,7 +682,13 @@ namespace nescc {
 
 			if(m_shown) {
 
-				if(!paused) {
+				if(m_halted) {
+
+					if(SDL_RenderCopy(m_renderer, m_texture_halt, nullptr, nullptr)) {
+						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+							"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+					}
+				} else if(!paused) {
 
 					if(m_crt) {
 						filter_crt();
