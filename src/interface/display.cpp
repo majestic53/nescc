@@ -684,6 +684,11 @@ namespace nescc {
 
 				if(m_halted) {
 
+					if(SDL_RenderClear(m_renderer)) {
+						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
+							"SDL_RenderClear failed! Error=%s", SDL_GetError());
+					}
+
 					if(SDL_RenderCopy(m_renderer, m_texture_halt, nullptr, nullptr)) {
 						THROW_NESCC_INTERFACE_DISPLAY_EXCEPTION_FORMAT(NESCC_INTERFACE_DISPLAY_EXCEPTION_EXTERNAL,
 							"SDL_RenderCopy failed! Error=%s", SDL_GetError());
