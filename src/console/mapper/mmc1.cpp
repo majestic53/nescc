@@ -250,6 +250,8 @@ namespace nescc {
 				__in nescc::console::cartridge &cartridge
 				)
 			{
+				uint8_t select;
+				uint16_t offset;
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p", &bus, &cartridge);
 
 				switch(m_port_control.prg_rom_mode) {
@@ -271,20 +273,21 @@ namespace nescc {
 				}
 
 				switch(m_port_control.chr_rom_mode) {
-					case BANK_CHR_ROM_MODE_0: { // switch 8KB bank
-							std::pair<uint8_t, uint16_t> &entry = m_rom_character_index.at(CHR_BANK_0);
-							entry.first = (m_port_bank_character.at(CHR_BANK_0).select >> 1);
-							entry.second = 0;
-							m_rom_character_index.at(CHR_BANK_1) = std::make_pair(0, 0);
-						} break;
-					case BANK_CHR_ROM_MODE_1: { // switch 4KB banks
-							std::pair<uint8_t, uint16_t> &entry = m_rom_character_index.at(CHR_BANK_0);
-							entry.first = (m_port_bank_character.at(CHR_BANK_0).select);
-							entry.second = 0;
-							entry = m_rom_character_index.at(CHR_BANK_1);
-							entry.first = (m_port_bank_character.at(CHR_BANK_1).select);
-							entry.second = (CARTRIDGE_ROM_CHARACTER_LENGTH / 2);
-						} break;
+					case BANK_CHR_ROM_MODE_0: // switch 8KB bank
+						select = m_port_bank_character.at(CHR_BANK_0).select;
+						m_rom_character_index.at(CHR_BANK_0) = std::make_pair(select, 0);
+						m_rom_character_index.at(CHR_BANK_1) = std::make_pair(0, 0);
+						break;
+					case BANK_CHR_ROM_MODE_1: // switch 4KB banks
+						select = (m_port_bank_character.at(CHR_BANK_0).select / CHR_BANK_PER_CHR_ROM_BANK);
+						offset = ((m_port_bank_character.at(CHR_BANK_0).select % CHR_BANK_PER_CHR_ROM_BANK)
+								* CHR_BANK_WIDTH);
+						m_rom_character_index.at(CHR_BANK_0) = std::make_pair(select, offset);
+						select = (m_port_bank_character.at(CHR_BANK_1).select / CHR_BANK_PER_CHR_ROM_BANK);
+						offset = ((m_port_bank_character.at(CHR_BANK_1).select % CHR_BANK_PER_CHR_ROM_BANK)
+								* CHR_BANK_WIDTH);
+						m_rom_character_index.at(CHR_BANK_1) = std::make_pair(select, offset);
+						break;
 					default:
 						break;
 				}

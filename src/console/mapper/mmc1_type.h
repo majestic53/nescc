@@ -60,6 +60,8 @@ namespace nescc {
 			#define CHR_BANK_0_HIGH 0x0fff
 			#define CHR_BANK_1_LOW 0x1000
 			#define CHR_BANK_1_HIGH 0x1fff
+			#define CHR_BANK_WIDTH (CARTRIDGE_ROM_CHARACTER_LENGTH / 2)
+			#define CHR_BANK_PER_CHR_ROM_BANK (CARTRIDGE_ROM_CHARACTER_LENGTH / CHR_BANK_WIDTH)
 
 			enum {
 				CHR_BANK_0 = 0,
