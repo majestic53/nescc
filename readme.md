@@ -27,11 +27,19 @@ Table of Contents
 Features
 ========
 
-* Support for two controllers (keyboard or controller):
-	* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
-	* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
-	* __NOTE__: If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
-* Support for mapper #0 (NROM), mapper #1 (MMC1)
+What's there
+------------
+
+* Support for two controllers (keyboard or controller)
+	* Keyboard
+		* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
+		* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
+	* NES USB controller
+		* If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
+* Support for mappers
+	* Mapper #0 (NROM)
+	* Mapper #1 (MMC1)
+	* Mapper #4 (MMC3) __NOTE__: Support for this mapper is limited
 * Support for live debugging (while in interactive mode)
 * Built-in CRT filter
 
