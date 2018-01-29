@@ -19,6 +19,7 @@
 #ifndef NESCC_CONSOLE_MMU_H_
 #define NESCC_CONSOLE_MMU_H_
 
+#include "./mapper/mmc1.h"
 #include "./mapper/mmc3.h"
 #include "./mapper/nrom.h"
 
@@ -116,6 +117,8 @@ namespace nescc {
 				nescc::console::cartridge &m_cartridge;
 
 				bool m_debug;
+
+				nescc::console::mapper::mmc1 m_mapper_mmc1;
 
 				nescc::console::mapper::mmc3 m_mapper_mmc3;
 

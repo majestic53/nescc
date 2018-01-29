@@ -138,14 +138,6 @@ namespace nescc {
 
 		#define CPU_MODE_MAX CPU_MODE_ZERO_PAGE_Y
 
-		static const uint8_t CPU_MODE_CYC[] = {
-			4, 4, 4, 2, 2, 2, 5, 6, 5, 7, 6, 2, 4, 3, 3, 4, 4,
-			};
-
-		#define CPU_MODE_CYCLES(_TYPE_) \
-			(((_TYPE_) > CPU_MODE_MAX) ? CPU_MODE_CYC[CPU_MODE_IMPLIED] : \
-				CPU_MODE_CYC[_TYPE_])
-
 		static const std::string CPU_MODE_STR[] = {
 			"abs", "abs, x", "abs, y", "Acc", "#", "imp", "(abs)", "(zp, x)", "(zp), y",
 			"int", "intr", "rel", "pull", "push", "zp", "zp, x", "zp, y",
@@ -154,6 +146,14 @@ namespace nescc {
 		#define CPU_MODE_STRING(_TYPE_) \
 			(((_TYPE_) > CPU_MODE_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(CPU_MODE_STR[_TYPE_]))
+
+		static const uint8_t CPU_MODE_CYC[] = {
+			4, 4, 4, 2, 2, 2, 5, 6, 5, 7, 6, 2, 4, 3, 3, 4, 4,
+			};
+
+		#define CPU_MODE_CYCLES(_TYPE_) \
+			(((_TYPE_) > CPU_MODE_MAX) ? CPU_MODE_CYC[CPU_MODE_IMPLIED] : \
+				CPU_MODE_CYC[_TYPE_])
 
 		static const uint8_t CPU_MODE_LEN[] = {
 			3, 3, 3, 1, 2, 1, 3, 2, 2, 1, 1, 2, 1, 1, 2, 2, 2,
@@ -209,7 +209,7 @@ namespace nescc {
 			(((_TYPE_) > CPU_COMMAND_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(CPU_COMMAND_STR[_TYPE_]))
 
-		static const std::vector<std::pair<uint8_t, uint8_t>> CPU_COMMAND = {
+		static const std::vector<std::pair<uint8_t, uint8_t>> CPU_COMMAND_MAP = {
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_BRK, CPU_MODE_INTERRUPT), // 0x00
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ORA, CPU_MODE_INDIRECT_X),
 			std::pair<uint8_t, uint8_t>(CPU_COMMAND_ILLEGAL_KIL, CPU_MODE_IMPLIED),

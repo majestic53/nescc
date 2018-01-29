@@ -330,7 +330,7 @@ namespace nescc {
 				}
 
 				result << SCALAR_AS_HEX(uint16_t, iter) << " -> ";
-				command = CPU_COMMAND.at(bank->read(iter));
+				command = CPU_COMMAND_MAP.at(bank->read(iter));
 				length = CPU_MODE_LENGTH(command.second);
 				result << CPU_COMMAND_STRING(command.first);
 
@@ -397,12 +397,13 @@ namespace nescc {
 				result << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str();
 
 				if(verbose) {
-					uint8_t iter_byte = 0, offset;
+					uint8_t iter_byte = 0;
 
 					stream.clear();
 					stream.str(std::string());
 
 					for(; iter_byte < length; ++iter_byte) {
+						uint8_t offset;
 
 						if(iter_byte) {
 							stream << " ";
@@ -489,7 +490,7 @@ namespace nescc {
 				}
 
 				result << SCALAR_AS_HEX(uint16_t, program_counter) << " -> ";
-				command = CPU_COMMAND.at(bus.cpu_read(program_counter++));
+				command = CPU_COMMAND_MAP.at(bus.cpu_read(program_counter++));
 				result << CPU_COMMAND_STRING(command.first);
 
 				switch(command.second) {
@@ -538,7 +539,7 @@ namespace nescc {
 							<< (boundary ? " (Boundary)" : "");
 						break;
 					case CPU_MODE_ACCUMULATOR:
-						stream << "A=" << m_accumulator;
+						stream << "A=" << SCALAR_AS_HEX(uint8_t, m_accumulator);
 						break;
 					case CPU_MODE_IMMEDIATE:
 						stream << "#=" << SCALAR_AS_HEX(uint8_t, bus.cpu_read(program_counter++));
@@ -3259,7 +3260,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
-			command = CPU_COMMAND.at(read_byte(bus, m_program_counter));
+			command = CPU_COMMAND_MAP.at(read_byte(bus, m_program_counter));
 
 			TRACE_DEBUG_FORMAT(m_debug, "Cpu command", "[%04x] %s %s", m_program_counter,
 				CPU_COMMAND_STRING(command.first), CPU_MODE_STRING(command.second));
@@ -3376,8 +3377,10 @@ namespace nescc {
 					result = execute_command_transfer(command);
 					break;
 				default:
-					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Illegal command", "Address=%u(%04x), Command=%u(%02x), Mode=%u",
-						m_program_counter, m_program_counter, command.first, command.first, command.second);
+					TRACE_MESSAGE_FORMAT(TRACE_WARNING, "Illegal command", "Address=%u(%04x), Command=%u(%02x)(%s), Mode=%u(%s)",
+						(m_program_counter - 1), (m_program_counter - 1),
+						command.first, command.first, CPU_COMMAND_STRING(command.first),
+						command.second, CPU_MODE_STRING(command.second));
 					result = execute_command_illegal(bus, command);
 					break;
 			}

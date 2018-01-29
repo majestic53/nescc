@@ -66,6 +66,9 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 					result << std::endl << std::endl << m_mapper_nrom.as_string(m_cartridge, verbose);
 					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result << std::endl << std::endl << m_mapper_mmc1.as_string(m_cartridge, verbose);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result << std::endl << std::endl << m_mapper_mmc3.as_string(m_cartridge, verbose);
 					break;
@@ -110,10 +113,13 @@ namespace nescc {
 			type = m_cartridge.mapper();
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
-					m_mapper_mmc3.clear(m_cartridge);
+					m_mapper_nrom.clear(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					m_mapper_mmc1.clear(m_cartridge);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
-					m_mapper_nrom.clear(m_cartridge);
+					m_mapper_mmc3.clear(m_cartridge);
 					break;
 				default:
 					break;
@@ -143,6 +149,9 @@ namespace nescc {
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
 					result = m_mapper_nrom.mirroring(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result = m_mapper_mmc1.mirroring(m_cartridge);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.mirroring(m_cartridge);
@@ -208,6 +217,9 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 					result = m_mapper_nrom.ram(address);
 					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result = m_mapper_mmc1.ram(address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.ram(address);
 					break;
@@ -239,6 +251,9 @@ namespace nescc {
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
 					result = m_mapper_nrom.read_ram(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result = m_mapper_mmc1.read_ram(m_cartridge, address);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.read_ram(m_cartridge, address);
@@ -272,6 +287,9 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 					result = m_mapper_nrom.read_rom_character(m_cartridge, address);
 					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result = m_mapper_mmc1.read_rom_character(m_cartridge, address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.read_rom_character(m_cartridge, address);
 					break;
@@ -303,6 +321,9 @@ namespace nescc {
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
 					result = m_mapper_nrom.read_rom_program(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result = m_mapper_mmc1.read_rom_program(m_cartridge, address);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.read_rom_program(m_cartridge, address);
@@ -337,6 +358,9 @@ namespace nescc {
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
 					m_mapper_nrom.reset(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					m_mapper_mmc1.reset(m_cartridge);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.reset(m_cartridge);
@@ -376,6 +400,9 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 					result = m_mapper_nrom.rom_character(address);
 					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result = m_mapper_mmc1.rom_character(address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.rom_character(address);
 					break;
@@ -408,6 +435,9 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 					result = m_mapper_nrom.rom_program(address);
 					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					result = m_mapper_mmc1.rom_program(address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.rom_program(address);
 					break;
@@ -439,6 +469,9 @@ namespace nescc {
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
 					m_mapper_nrom.signal_interrupt(bus, m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					m_mapper_mmc1.signal_interrupt(bus, m_cartridge);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.signal_interrupt(bus, m_cartridge);
@@ -475,6 +508,9 @@ namespace nescc {
 						case CARTRIDGE_MAPPER_NROM:
 							result << ", " << m_mapper_nrom.to_string(verbose);
 							break;
+						case CARTRIDGE_MAPPER_MMC1:
+							result << ", " << m_mapper_mmc1.to_string(verbose);
+							break;
 						case CARTRIDGE_MAPPER_MMC3:
 							result << ", " << m_mapper_mmc3.to_string(verbose);
 							break;
@@ -509,6 +545,9 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_NROM:
 					m_mapper_nrom.write_ram(m_cartridge, address, value);
 					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					m_mapper_mmc1.write_ram(m_cartridge, address, value);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.write_ram(m_cartridge, address, value);
 					break;
@@ -540,6 +579,9 @@ namespace nescc {
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
 					m_mapper_nrom.write_rom_character(m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					m_mapper_mmc1.write_rom_character(m_cartridge, address, value);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.write_rom_character(m_cartridge, address, value);
@@ -573,6 +615,9 @@ namespace nescc {
 			switch(type) {
 				case CARTRIDGE_MAPPER_NROM:
 					m_mapper_nrom.write_rom_program(bus, m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_MMC1:
+					m_mapper_mmc1.write_rom_program(bus, m_cartridge, address, value);
 					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.write_rom_program(bus, m_cartridge, address, value);

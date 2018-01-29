@@ -5,8 +5,6 @@ A NES emulator and debugger, written in C++
 
 ![Demo](https://github.com/majestic53/nescc/blob/master/asset/demo.png "Demo")
 
-__NOTE__: This project is a work-in-progress. At the moment, only mapper #0 is supported.
-
 Table of Contents
 =================
 
@@ -33,7 +31,7 @@ Features
 	* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
 	* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
 	* __NOTE__: If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
-* Support for mapper #0 (more to come)
+* Support for mapper #0 (NROM), mapper #1 (MMC1)
 * Support for live debugging (while in interactive mode)
 * Built-in CRT filter
 
@@ -252,6 +250,10 @@ Changelog
 
 Version 0.1.1804
 ----------------
+*Updated: 1/28/2018*
+
+* Added mapper 1 support (MMC1)
+
 *Updated: 1/27/2018*
 
 * Added program rom decoding to nescc-extract tool

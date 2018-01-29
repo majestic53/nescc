@@ -100,7 +100,8 @@ namespace nescc {
 						<< SCALAR_AS_HEX(uint8_t, m_control.nmi);
 			}
 
-			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Mask" << SCALAR_AS_HEX(uint8_t, m_mask.raw);
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+				<< "Mask" << SCALAR_AS_HEX(uint8_t, m_mask.raw);
 
 			if(verbose) {
 				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Greyscale"
@@ -121,7 +122,8 @@ namespace nescc {
 						<< SCALAR_AS_HEX(uint8_t, m_mask.blue);
 			}
 
-			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Status" << SCALAR_AS_HEX(uint8_t, m_status.raw);
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG)
+				<< "Status" << SCALAR_AS_HEX(uint8_t, m_status.raw);
 
 			if(verbose) {
 				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Sprite overflow"
@@ -132,7 +134,7 @@ namespace nescc {
 						<< SCALAR_AS_HEX(uint8_t, m_status.vertical_blank);
 			}
 
-			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "OAM address"
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "OAM address"
 					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_OAM_ADDRESS))
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "OAM data"
 					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_OAM_DATA))
@@ -142,6 +144,8 @@ namespace nescc {
 					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_ADDRESS))
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Data"
 					<< SCALAR_AS_HEX(uint8_t, m_port.read(PPU_PORT_DATA))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << std::endl << "Mirroring"
+					<< SCALAR_AS_HEX(uint8_t, m_mirroring) << " (" << CARTRIDGE_MIRRORING_STRING(m_mirroring) << ")"
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << std::endl << "Cycle"
 					<< m_cycle
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << std::endl << "Scanline/Dot"
