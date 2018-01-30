@@ -109,8 +109,6 @@ namespace nescc {
 				__in nescc::console::cartridge &cartridge
 				)
 			{
-				std::stringstream result;
-
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
 				m_port_select.raw = 0;
