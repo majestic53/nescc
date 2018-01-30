@@ -39,14 +39,16 @@ What's there
 * Support for mappers
 	* Mapper #0 (NROM)
 	* Mapper #1 (MMC1)
+	* Mapper #2 (UXROM)
+	* Mapper #3 (CNROM)
 	* Mapper #4 (MMC3) __NOTE__: Support for this mapper is limited
+	* Mapper #7 (AXROM)
 * Support for live debugging (while in interactive mode)
 * Built-in CRT filter
 
 What's Missing
 --------------
 
-* Limited mapper support
 * No sound yet :(
 
 Build
@@ -256,6 +258,12 @@ Extracted roms/assembly/images can be found in the same directory as the input r
 Changelog
 =========
 
+Version 0.1.1805
+----------------
+*Updated: 1/29/2018*
+
+* Added mapper 2/3/7 (UXROM/CNROM/AXROM) support
+
 Version 0.1.1804
 ----------------
 *Updated: 1/28/2018*
@@ -277,49 +285,6 @@ Version 0.1.1804
 *Updated: 1/22-23/2018*
 
 * Implemented mapper 4 read program rom routine
-
-Version 0.1.1803
-----------------
-*Updated: 1/21/2018*
-
-* Added mapper 4 support (MMC3) (Incomplete)
-
-*Updated: 1/20/2018*
-
-* Refactored mapper into mmu[1] -> Mapper[*]
-* Added additional crt filter components
-	* Added screen artifacts
-
-*Updated: 1/19/2018*
-
-* Added additional crt filter components
-	* Added screen blur
-	* Added screen flicker
-	* Added screen border
-
-*Updated: 1/18/2018*
-
-* Added bitmap class
-	* Integrated into extractor utility
-* Bug fixes
-
-*Updated: 1/17/2018*
-
-* Added CRT filter effects (incomplete)
-![CRT filter](https://github.com/majestic53/nescc/blob/master/asset/crt_filter.png "CRT filter")
-	* Currently supports scanlines and pixel bleed
-	* Still to do: screen curvature and screen border
-* Changed nescc-rominfo utility name to nescc-extract
-
-*Updated: 1/16/2018*
-
-* Integrated apu port read/write routines into bus
-* Cleaned up rominfo CHR decode routine
-
-*Updated: 1/15/2018*
-
-* Added rominfo utility
-	* Added routine to decode CHR as PPM image (incomplete)
 
 *Changelog truncated (see file history for full log)*
 

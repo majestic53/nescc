@@ -69,8 +69,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result << std::endl << std::endl << m_mapper_mmc1.as_string(m_cartridge, verbose);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result << std::endl << std::endl << m_mapper_uxrom.as_string(m_cartridge, verbose);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result << std::endl << std::endl << m_mapper_cnrom.as_string(m_cartridge, verbose);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result << std::endl << std::endl << m_mapper_mmc3.as_string(m_cartridge, verbose);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result << std::endl << std::endl << m_mapper_axrom.as_string(m_cartridge, verbose);
 					break;
 				default:
 					break;
@@ -118,8 +127,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					m_mapper_mmc1.clear(m_cartridge);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					m_mapper_uxrom.clear(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					m_mapper_cnrom.clear(m_cartridge);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.clear(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					m_mapper_axrom.clear(m_cartridge);
 					break;
 				default:
 					break;
@@ -153,8 +171,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result = m_mapper_mmc1.mirroring(m_cartridge);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result = m_mapper_uxrom.mirroring(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result = m_mapper_cnrom.mirroring(m_cartridge);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.mirroring(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result = m_mapper_axrom.mirroring(m_cartridge);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -220,8 +247,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result = m_mapper_mmc1.ram(address);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result = m_mapper_uxrom.ram(address);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result = m_mapper_cnrom.ram(address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.ram(address);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result = m_mapper_axrom.ram(address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -255,8 +291,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result = m_mapper_mmc1.read_ram(m_cartridge, address);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result = m_mapper_uxrom.read_ram(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result = m_mapper_cnrom.read_ram(m_cartridge, address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.read_ram(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result = m_mapper_axrom.read_ram(m_cartridge, address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -290,8 +335,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result = m_mapper_mmc1.read_rom_character(m_cartridge, address);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result = m_mapper_uxrom.read_rom_character(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result = m_mapper_cnrom.read_rom_character(m_cartridge, address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.read_rom_character(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result = m_mapper_axrom.read_rom_character(m_cartridge, address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -325,8 +379,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result = m_mapper_mmc1.read_rom_program(m_cartridge, address);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result = m_mapper_uxrom.read_rom_program(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result = m_mapper_cnrom.read_rom_program(m_cartridge, address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.read_rom_program(m_cartridge, address);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result = m_mapper_axrom.read_rom_program(m_cartridge, address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -362,8 +425,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					m_mapper_mmc1.reset(m_cartridge);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					m_mapper_uxrom.reset(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					m_mapper_cnrom.reset(m_cartridge);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.reset(m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					m_mapper_axrom.reset(m_cartridge);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -403,8 +475,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result = m_mapper_mmc1.rom_character(address);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result = m_mapper_uxrom.rom_character(address);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result = m_mapper_cnrom.rom_character(address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.rom_character(address);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result = m_mapper_axrom.rom_character(address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -438,8 +519,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					result = m_mapper_mmc1.rom_program(address);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					result = m_mapper_uxrom.rom_program(address);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					result = m_mapper_cnrom.rom_program(address);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					result = m_mapper_mmc3.rom_program(address);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					result = m_mapper_axrom.rom_program(address);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -473,8 +563,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					m_mapper_mmc1.signal_interrupt(bus, m_cartridge);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					m_mapper_uxrom.signal_interrupt(bus, m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					m_mapper_cnrom.signal_interrupt(bus, m_cartridge);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.signal_interrupt(bus, m_cartridge);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					m_mapper_axrom.signal_interrupt(bus, m_cartridge);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -511,8 +610,17 @@ namespace nescc {
 						case CARTRIDGE_MAPPER_MMC1:
 							result << ", " << m_mapper_mmc1.to_string(verbose);
 							break;
+						case CARTRIDGE_MAPPER_UXROM:
+							result << ", " << m_mapper_uxrom.to_string(verbose);
+							break;
+						case CARTRIDGE_MAPPER_CNROM:
+							result << ", " << m_mapper_cnrom.to_string(verbose);
+							break;
 						case CARTRIDGE_MAPPER_MMC3:
 							result << ", " << m_mapper_mmc3.to_string(verbose);
+							break;
+						case CARTRIDGE_MAPPER_AXROM:
+							result << ", " << m_mapper_axrom.to_string(verbose);
 							break;
 						default:
 							break;
@@ -548,8 +656,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					m_mapper_mmc1.write_ram(m_cartridge, address, value);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					m_mapper_uxrom.write_ram(m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					m_mapper_cnrom.write_ram(m_cartridge, address, value);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.write_ram(m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					m_mapper_axrom.write_ram(m_cartridge, address, value);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -583,8 +700,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					m_mapper_mmc1.write_rom_character(m_cartridge, address, value);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					m_mapper_uxrom.write_rom_character(m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					m_mapper_cnrom.write_rom_character(m_cartridge, address, value);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.write_rom_character(m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					m_mapper_axrom.write_rom_character(m_cartridge, address, value);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,
@@ -619,8 +745,17 @@ namespace nescc {
 				case CARTRIDGE_MAPPER_MMC1:
 					m_mapper_mmc1.write_rom_program(bus, m_cartridge, address, value);
 					break;
+				case CARTRIDGE_MAPPER_UXROM:
+					m_mapper_uxrom.write_rom_program(bus, m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_CNROM:
+					m_mapper_cnrom.write_rom_program(bus, m_cartridge, address, value);
+					break;
 				case CARTRIDGE_MAPPER_MMC3:
 					m_mapper_mmc3.write_rom_program(bus, m_cartridge, address, value);
+					break;
+				case CARTRIDGE_MAPPER_AXROM:
+					m_mapper_axrom.write_rom_program(bus, m_cartridge, address, value);
 					break;
 				default:
 					THROW_NESCC_CONSOLE_MMU_EXCEPTION_FORMAT(NESCC_CONSOLE_MMU_EXCEPTION_UNSUPPORTED_TYPE,

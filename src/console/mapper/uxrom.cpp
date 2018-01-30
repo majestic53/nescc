@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../../include/console/mapper/nrom.h"
+#include "../../../include/console/mapper/uxrom.h"
 #include "../../../include/trace.h"
-#include "./nrom_type.h"
+#include "./uxrom_type.h"
 
 namespace nescc {
 
@@ -26,7 +26,7 @@ namespace nescc {
 
 		namespace mapper {
 
-			nrom::nrom(void) :
+			uxrom::uxrom(void) :
 				m_ram_index(0),
 				m_rom_character_index(0),
 				m_rom_program_index_0(0),
@@ -36,9 +36,10 @@ namespace nescc {
 				TRACE_EXIT();
 			}
 
-			nrom::nrom(
-				__in const nrom &other
+			uxrom::uxrom(
+				__in const uxrom &other
 				) :
+					m_port_select(other.m_port_select),
 					m_ram_index(other.m_ram_index),
 					m_rom_character_index(other.m_rom_character_index),
 					m_rom_program_index_0(other.m_rom_program_index_0),
@@ -48,20 +49,21 @@ namespace nescc {
 				TRACE_EXIT();
 			}
 
-			nrom::~nrom(void)
+			uxrom::~uxrom(void)
 			{
 				TRACE_ENTRY();
 				TRACE_EXIT();
 			}
 
-			nrom &
-			nrom::operator=(
-				__in const nrom &other
+			uxrom &
+			uxrom::operator=(
+				__in const uxrom &other
 				)
 			{
 				TRACE_ENTRY();
 
 				if(this != &other) {
+					m_port_select = other.m_port_select;
 					m_ram_index = other.m_ram_index;
 					m_rom_character_index = other.m_rom_character_index;
 					m_rom_program_index_0 = other.m_rom_program_index_0;
@@ -73,7 +75,7 @@ namespace nescc {
 			}
 
 			std::string
-			nrom::as_string(
+			uxrom::as_string(
 				__in nescc::console::cartridge &cartridge,
 				__in_opt bool verbose
 				) const
@@ -94,29 +96,34 @@ namespace nescc {
 					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG ROM bank 1 selected"
 						<< (int) m_rom_program_index_1
 					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "CHR ROM bank selected"
-						<< (int) m_rom_character_index;
+						<< (int) m_rom_character_index
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG ROM Data"
+						<< SCALAR_AS_HEX(uint8_t, m_port_select.select);
 
 				TRACE_EXIT();
 				return result.str();
 			}
 
 			void
-			nrom::clear(
+			uxrom::clear(
 				__in nescc::console::cartridge &cartridge
 				)
 			{
+				std::stringstream result;
+
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
+				m_port_select.raw = 0;
 				m_ram_index = 0;
 				m_rom_character_index = 0;
 				m_rom_program_index_0 = 0;
-				m_rom_program_index_1 = ((cartridge.rom_program_banks() > 1) ? 1 : 0); // mirror for NROM-128
+				m_rom_program_index_1 = (cartridge.rom_program_banks() - 1);
 
 				TRACE_EXIT();
 			}
 
 			uint8_t
-			nrom::mirroring(
+			uxrom::mirroring(
 				__in nescc::console::cartridge &cartridge
 				) const
 			{
@@ -131,7 +138,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			nrom::ram(
+			uxrom::ram(
 				__inout uint16_t &address
 				)
 			{
@@ -141,7 +148,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			nrom::read_ram(
+			uxrom::read_ram(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address
 				)
@@ -157,7 +164,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			nrom::read_rom_character(
+			uxrom::read_rom_character(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address
 				)
@@ -173,7 +180,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			nrom::read_rom_program(
+			uxrom::read_rom_program(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address
 				)
@@ -190,8 +197,8 @@ namespace nescc {
 						result = cartridge.rom_program(m_rom_program_index_1).read(address - MAPPER_PROGRAM_1_LOW);
 						break;
 					default:
-						THROW_NESCC_CONSOLE_MAPPER_NROM_EXCEPTION_FORMAT(
-							NESCC_CONSOLE_MAPPER_NROM_EXCEPTION_UNSUPPORTED_ADDRESS,
+						THROW_NESCC_CONSOLE_MAPPER_UXROM_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_UXROM_EXCEPTION_UNSUPPORTED_ADDRESS,
 							"Address=%u(%04x)", address, address);
 				}
 
@@ -200,27 +207,29 @@ namespace nescc {
 			}
 
 			void
-			nrom::reset(
+			uxrom::reset(
 				__in nescc::console::cartridge &cartridge
 				)
 			{
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
+				m_port_select.raw = 0;
 				m_ram_index = 0;
 				m_rom_character_index = 0;
 				m_rom_program_index_0 = 0;
-				m_rom_program_index_1 = ((cartridge.rom_program_banks() > 1) ? 1 : 0); // mirror for NROM-128
+				m_rom_program_index_1 = (cartridge.rom_program_banks() - 1);
 
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG RAM Bank", "%u", m_ram_index);
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM Bank", "%u, %u", m_rom_program_index_0, m_rom_program_index_1);
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-CHR ROM Bank", "%u", m_rom_character_index);
+				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG ROM Data", "%u", m_port_select.raw);
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Mirroring", "%u", cartridge.mirroring());
 
 				TRACE_EXIT();
 			}
 
 			uint8_t
-			nrom::rom_character(
+			uxrom::rom_character(
 				__inout uint16_t &address
 				)
 			{
@@ -230,7 +239,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			nrom::rom_program(
+			uxrom::rom_program(
 				__inout uint16_t &address
 				)
 			{
@@ -247,8 +256,8 @@ namespace nescc {
 						address -= MAPPER_PROGRAM_1_LOW;
 						break;
 					default:
-						THROW_NESCC_CONSOLE_MAPPER_NROM_EXCEPTION_FORMAT(
-							NESCC_CONSOLE_MAPPER_NROM_EXCEPTION_UNSUPPORTED_ADDRESS,
+						THROW_NESCC_CONSOLE_MAPPER_UXROM_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_UXROM_EXCEPTION_UNSUPPORTED_ADDRESS,
 							"Address=%u(%04x)", address, address);
 				}
 
@@ -257,7 +266,7 @@ namespace nescc {
 			}
 
 			void
-			nrom::signal_interrupt(
+			uxrom::signal_interrupt(
 				__in nescc::console::interface::bus &bus,
 				__in nescc::console::cartridge &cartridge
 				)
@@ -267,7 +276,7 @@ namespace nescc {
 			}
 
 			std::string
-			nrom::to_string(
+			uxrom::to_string(
 				__in_opt bool verbose
 				) const
 			{
@@ -275,12 +284,13 @@ namespace nescc {
 
 				TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-				result << NESCC_CONSOLE_MAPPER_NROM_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
+				result << NESCC_CONSOLE_MAPPER_UXROM_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 				if(verbose) {
 					result << ", PRG RAM Bank=" << (int) m_ram_index
 						<< ", PRG ROM Bank=" << (int) m_rom_program_index_0 << ", " << (int) m_rom_program_index_1
-						<< ", CHR ROM Bank=" << (int) m_rom_character_index;
+						<< ", CHR ROM Bank=" << (int) m_rom_character_index
+						<< ", PRG Bank Data=" << SCALAR_AS_HEX(uint8_t, m_port_select.select);
 				}
 
 				TRACE_EXIT();
@@ -288,7 +298,7 @@ namespace nescc {
 			}
 
 			void
-			nrom::write_ram(
+			uxrom::write_ram(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address,
 				__in uint8_t value
@@ -303,7 +313,7 @@ namespace nescc {
 			}
 
 			void
-			nrom::write_rom_character(
+			uxrom::write_rom_character(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address,
 				__in uint8_t value
@@ -318,7 +328,7 @@ namespace nescc {
 			}
 
 			void
-			nrom::write_rom_program(
+			uxrom::write_rom_program(
 				__in nescc::console::interface::bus &bus,
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address,
@@ -328,18 +338,8 @@ namespace nescc {
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p, Address=%u(%04x), Value=%u(%02x)", &bus, &cartridge,
 					address, address, value, value);
 
-				switch(address) {
-					case MAPPER_PROGRAM_0_LOW ... MAPPER_PROGRAM_0_HIGH: // 0x0000 - 0x3fff
-						cartridge.rom_program(m_rom_program_index_0).write(address, value);
-						break;
-					case MAPPER_PROGRAM_1_LOW ... MAPPER_PROGRAM_1_HIGH: // 0x4000 - 0x7fff
-						cartridge.rom_program(m_rom_program_index_1).write(address - MAPPER_PROGRAM_1_LOW, value);
-						break;
-					default:
-						THROW_NESCC_CONSOLE_MAPPER_NROM_EXCEPTION_FORMAT(
-							NESCC_CONSOLE_MAPPER_NROM_EXCEPTION_UNSUPPORTED_ADDRESS,
-							"Address=%u(%04x)", address, address);
-				}
+				m_port_select.raw = value;
+				m_rom_program_index_0 = m_port_select.select;
 
 				TRACE_EXIT();
 			}

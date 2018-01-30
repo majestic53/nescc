@@ -119,6 +119,12 @@ namespace nescc {
 			uint8_t raw;
 		};
 
+		void apu_callback(
+			__inout void *data,
+			__inout uint8_t *buffer,
+			__in int length
+			);
+
 		class apu :
 				public nescc::core::singleton<nescc::console::apu> {
 
@@ -178,6 +184,8 @@ namespace nescc {
 				void on_uninitialize(void);
 
 				bool m_debug;
+
+				bool m_odd;
 		};
 	}
 }

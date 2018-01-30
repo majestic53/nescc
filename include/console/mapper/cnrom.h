@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_CONSOLE_MAPPER_MMC1_H_
-#define NESCC_CONSOLE_MAPPER_MMC1_H_
+#ifndef NESCC_CONSOLE_MAPPER_CNROM_H_
+#define NESCC_CONSOLE_MAPPER_CNROM_H_
 
 #include "../interface/mapper.h"
 
@@ -27,57 +27,29 @@ namespace nescc {
 
 		namespace mapper {
 
-			union port_mmc1_bank_character_t { // 0xa000 - 0xbfff (internal) / 0xc000 - 0xdfff (internal
+			union port_cnrom_bank_select_t {
 				struct {
-					uint8_t select : 5;
-					uint8_t unused : 3;
-				};
-				uint8_t raw;
-			};
-
-			union port_mmc1_bank_program_t { // 0xe000 - 0xffff (internal)
-				struct {
-					uint8_t select : 4;
-					uint8_t chip_enable : 1;
-					uint8_t unused : 3;
-				};
-				uint8_t raw;
-			};
-
-			union port_mmc1_control_t { // 0x8000 - 0x9fff (internal)
-				struct {
-					uint8_t mirroring : 2;
-					uint8_t prg_rom_mode : 2;
-					uint8_t chr_rom_mode : 1;
-					uint8_t unused : 3;
-				};
-				uint8_t raw;
-			};
-
-			union port_mmc1_load_t { // 0x8000 - 0xffff
-				struct {
-					uint8_t data : 1;
+					uint8_t select : 2;
 					uint8_t unused : 6;
-					uint8_t reset : 1;
 				};
 				uint8_t raw;
 			};
 
-			class mmc1 :
+			class cnrom :
 					public nescc::console::interface::mapper {
 
 				public:
 
-					mmc1(void);
+					cnrom(void);
 
-					mmc1(
-						__in const mmc1 &other
+					cnrom(
+						__in const cnrom &other
 						);
 
-					virtual ~mmc1(void);
+					virtual ~cnrom(void);
 
-					mmc1 &operator=(
-						__in const mmc1 &other
+					cnrom &operator=(
+						__in const cnrom &other
 						);
 
 					std::string as_string(
@@ -154,41 +126,18 @@ namespace nescc {
 
 				protected:
 
-					uint16_t find_bank_character(
-						__in uint16_t address,
-						__inout uint16_t &offset
-						);
-
-					uint16_t find_bank_program(
-						__in uint16_t address,
-						__inout uint16_t &offset
-						);
-
-					void find_banks(
-						__in nescc::console::interface::bus &bus,
-						__in nescc::console::cartridge &cartridge
-						);
-
-					std::vector<nescc::console::mapper::port_mmc1_bank_character_t> m_port_bank_character;
-
-					nescc::console::mapper::port_mmc1_bank_program_t m_port_bank_program;
-
-					nescc::console::mapper::port_mmc1_control_t m_port_control;
-
-					nescc::console::mapper::port_mmc1_load_t m_port_load;
-
-					uint8_t m_port_shift;
-
-					uint8_t m_port_shift_latch;
+					nescc::console::mapper::port_cnrom_bank_select_t m_port_select;
 
 					uint8_t m_ram_index;
 
-					std::vector<std::pair<uint8_t, uint16_t>> m_rom_character_index;
+					uint8_t m_rom_character_index;
 
-					std::vector<std::pair<uint8_t, uint16_t>> m_rom_program_index;
+					uint8_t m_rom_program_index_0;
+
+					uint8_t m_rom_program_index_1;
 			};
 		}
 	}
 }
 
-#endif // NESCC_CONSOLE_MAPPER_MMC1_H_
+#endif // NESCC_CONSOLE_MAPPER_CNROM_H_

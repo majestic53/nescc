@@ -92,7 +92,7 @@ namespace nescc {
 				std::stringstream result;
 				uint8_t count, mirroring;
 				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-				std::vector<nescc::console::mapper::port_bank_data_t>::const_iterator iter_bank;
+				std::vector<nescc::console::mapper::port_mmc3_bank_data_t>::const_iterator iter_bank;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Verbose=%x", &cartridge, verbose);
 
@@ -300,7 +300,7 @@ namespace nescc {
 			{
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p", &bus, &cartridge);
 
-				nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
+				nescc::console::mapper::port_mmc3_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
 				m_rom_program_index.at(PRG_BANK_1) = std::make_pair(entry.raw / PRG_BANK_PER_PRG_ROM_BANK,
 									(entry.raw % PRG_BANK_PER_PRG_ROM_BANK) * PRG_BANK_WIDTH); // r7
 
@@ -317,7 +317,7 @@ namespace nescc {
 				}
 
 				if(!m_port_bank_select.chr_rom_mode) {
-					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
+					nescc::console::mapper::port_mmc3_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
 					m_rom_character_index.at(CHR_BANK_0) = std::make_pair((entry.raw & 0xfe) / CHR_BANK_PER_CHR_ROM_BANK,
 										((entry.raw & 0xfe) % CHR_BANK_PER_CHR_ROM_BANK)
 										* CHR_BANK_WIDTH); // r0 & 0xfe
@@ -344,7 +344,7 @@ namespace nescc {
 					m_rom_character_index.at(CHR_BANK_7) = std::make_pair(entry.raw / CHR_BANK_PER_CHR_ROM_BANK,
 										(entry.raw % CHR_BANK_PER_CHR_ROM_BANK) * CHR_BANK_WIDTH); // r5
 				} else {
-					nescc::console::mapper::port_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
+					nescc::console::mapper::port_mmc3_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
 					m_rom_character_index.at(CHR_BANK_0) = std::make_pair(entry.raw / CHR_BANK_PER_CHR_ROM_BANK,
 										(entry.raw % CHR_BANK_PER_CHR_ROM_BANK) * CHR_BANK_WIDTH); // r2
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_1);
@@ -464,7 +464,7 @@ namespace nescc {
 			{
 				uint8_t count;
 				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-				std::vector<nescc::console::mapper::port_bank_data_t>::iterator iter_bank;
+				std::vector<nescc::console::mapper::port_mmc3_bank_data_t>::iterator iter_bank;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
@@ -585,7 +585,7 @@ namespace nescc {
 
 				if(verbose) {
 					std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-					std::vector<nescc::console::mapper::port_bank_data_t>::const_iterator iter_bank;
+					std::vector<nescc::console::mapper::port_mmc3_bank_data_t>::const_iterator iter_bank;
 					uint8_t mirroring = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL
 									: CARTRIDGE_MIRRORING_VERTICAL);
 

@@ -19,9 +19,12 @@
 #ifndef NESCC_CONSOLE_MMU_H_
 #define NESCC_CONSOLE_MMU_H_
 
+#include "./mapper/axrom.h"
+#include "./mapper/cnrom.h"
 #include "./mapper/mmc1.h"
 #include "./mapper/mmc3.h"
 #include "./mapper/nrom.h"
+#include "./mapper/uxrom.h"
 
 namespace nescc {
 
@@ -118,11 +121,17 @@ namespace nescc {
 
 				bool m_debug;
 
+				nescc::console::mapper::axrom m_mapper_axrom;
+
+				nescc::console::mapper::cnrom m_mapper_cnrom;
+
 				nescc::console::mapper::mmc1 m_mapper_mmc1;
 
 				nescc::console::mapper::mmc3 m_mapper_mmc3;
 
 				nescc::console::mapper::nrom m_mapper_nrom;
+
+				nescc::console::mapper::uxrom m_mapper_uxrom;
 		};
 	}
 }

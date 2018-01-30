@@ -90,7 +90,7 @@ namespace nescc {
 				std::stringstream result;
 				uint8_t count, mirroring = -1;
 				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-				std::vector<nescc::console::mapper::port_bank_character_t>::const_iterator iter_bank;
+				std::vector<nescc::console::mapper::port_mmc1_bank_character_t>::const_iterator iter_bank;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Verbose=%x", &cartridge, verbose);
 
@@ -402,7 +402,7 @@ namespace nescc {
 			{
 				uint8_t count;
 				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-				std::vector<nescc::console::mapper::port_bank_character_t>::const_iterator iter_bank;
+				std::vector<nescc::console::mapper::port_mmc1_bank_character_t>::const_iterator iter_bank;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
@@ -512,7 +512,7 @@ namespace nescc {
 				if(verbose) {
 					uint8_t mirroring = -1;
 					std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-					std::vector<nescc::console::mapper::port_bank_character_t>::const_iterator iter_bank;
+					std::vector<nescc::console::mapper::port_mmc1_bank_character_t>::const_iterator iter_bank;
 
 					switch(m_port_control.mirroring) {
 						case BANK_MIRRORING_VERTICAL:

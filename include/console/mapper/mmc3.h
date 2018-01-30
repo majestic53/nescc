@@ -27,7 +27,7 @@ namespace nescc {
 
 		namespace mapper {
 
-			union port_bank_data_t { // 0x8000 - 0x9fff, even
+			union port_mmc3_bank_data_t { // 0x8000 - 0x9fff, even
 				struct {
 					uint8_t half : 1; // 0: select first half of program bank, 1: select second half
 					uint8_t select : 5; // select 16 KB program bank at 0x8000 - 0x9FFF, 0xA000 - 0xBFFF, or 0xC000 - 0xDFFF
@@ -36,7 +36,7 @@ namespace nescc {
 				uint8_t raw;
 			};
 
-			union port_bank_select_t { // 0x8001 - 0x9fff, odd
+			union port_mmc3_bank_select_t { // 0x8001 - 0x9fff, odd
 				struct {
 					uint8_t select : 3; // which bank to swap based off register
 					uint8_t unused : 3;
@@ -46,19 +46,19 @@ namespace nescc {
 				uint8_t raw;
 			};
 
-			union port_irq_enable_t { // 0xe001 - 0xffff, odd
+			union port_mmc3_irq_enable_t { // 0xe001 - 0xffff, odd
 				uint8_t raw;
 			};
 
-			union port_irq_latch_t { // 0xc000 - 0xdffe, even
+			union port_mmc3_irq_latch_t { // 0xc000 - 0xdffe, even
 				uint8_t raw;
 			};
 
-			union port_irq_reload_t { // 0xc001 - 0xdfff, odd
+			union port_mmc3_irq_reload_t { // 0xc001 - 0xdfff, odd
 				uint8_t raw;
 			};
 
-			union port_mirroring_t { // 0xa000 - 0xbffe, even
+			union port_mmc3_mirroring_t { // 0xa000 - 0xbffe, even
 				struct {
 					uint8_t mode : 1; // 0: vertical, 1: horizontal
 					uint8_t unusued : 7;
@@ -66,7 +66,7 @@ namespace nescc {
 				uint8_t raw;
 			};
 
-			union port_ram_protect_t { // 0xa001 - 0xbfff, odd
+			union port_mmc3_ram_protect_t { // 0xa001 - 0xbfff, odd
 				struct {
 					uint8_t unused : 6;
 					uint8_t write_protect : 1; // 0: allow writes, 1: disallow writes
@@ -181,19 +181,19 @@ namespace nescc {
 						__in nescc::console::cartridge &cartridge
 						);
 
-					std::vector<nescc::console::mapper::port_bank_data_t> m_port_bank_data;
+					std::vector<nescc::console::mapper::port_mmc3_bank_data_t> m_port_bank_data;
 
-					nescc::console::mapper::port_bank_select_t m_port_bank_select;
+					nescc::console::mapper::port_mmc3_bank_select_t m_port_bank_select;
 
-					nescc::console::mapper::port_irq_enable_t m_port_irq_enable;
+					nescc::console::mapper::port_mmc3_irq_enable_t m_port_irq_enable;
 
-					nescc::console::mapper::port_irq_latch_t m_port_irq_latch;
+					nescc::console::mapper::port_mmc3_irq_latch_t m_port_irq_latch;
 
-					nescc::console::mapper::port_irq_reload_t m_port_irq_reload;
+					nescc::console::mapper::port_mmc3_irq_reload_t m_port_irq_reload;
 
-					nescc::console::mapper::port_mirroring_t m_port_mirroring;
+					nescc::console::mapper::port_mmc3_mirroring_t m_port_mirroring;
 
-					nescc::console::mapper::port_ram_protect_t m_port_ram_protect;
+					nescc::console::mapper::port_mmc3_ram_protect_t m_port_ram_protect;
 
 					uint8_t m_ram_index;
 

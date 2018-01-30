@@ -39,7 +39,8 @@ archive:
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
 		$(DIR_BUILD)console_apu.o $(DIR_BUILD)console_bus.o $(DIR_BUILD)console_cartridge.o $(DIR_BUILD)console_cpu.o \
 			$(DIR_BUILD)console_joypad.o $(DIR_BUILD)console_mmu.o $(DIR_BUILD)console_ppu.o \
-		$(DIR_BUILD)console_mapper_mmc1.o $(DIR_BUILD)console_mapper_mmc3.o $(DIR_BUILD)console_mapper_nrom.o \
+		$(DIR_BUILD)console_mapper_axrom.o $(DIR_BUILD)console_mapper_cnrom.o $(DIR_BUILD)console_mapper_mmc1.o \
+			$(DIR_BUILD)console_mapper_mmc3.o $(DIR_BUILD)console_mapper_nrom.o $(DIR_BUILD)console_mapper_uxrom.o \
 		$(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_memory.o $(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
 		$(DIR_BUILD)interface_display.o
 	@echo '--- DONE -----------------------------------'
@@ -87,7 +88,14 @@ console_ppu.o: $(DIR_SRC_CONSOLE)ppu.cpp $(DIR_INC_CONSOLE)ppu.h
 
 ### CONSOLE::MAPPER ###
 
-build_console_mapper: console_mapper_mmc1.o console_mapper_mmc3.o console_mapper_nrom.o
+build_console_mapper: console_mapper_axrom.o console_mapper_cnrom.o console_mapper_mmc1.o console_mapper_mmc3.o console_mapper_nrom.o \
+	console_mapper_uxrom.o
+
+console_mapper_axrom.o: $(DIR_SRC_CONSOLE_MAPPER)axrom.cpp $(DIR_INC_CONSOLE_MAPPER)axrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)axrom.cpp -o $(DIR_BUILD)console_mapper_axrom.o
+
+console_mapper_cnrom.o: $(DIR_SRC_CONSOLE_MAPPER)cnrom.cpp $(DIR_INC_CONSOLE_MAPPER)cnrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)cnrom.cpp -o $(DIR_BUILD)console_mapper_cnrom.o
 
 console_mapper_mmc1.o: $(DIR_SRC_CONSOLE_MAPPER)mmc1.cpp $(DIR_INC_CONSOLE_MAPPER)mmc1.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)mmc1.cpp -o $(DIR_BUILD)console_mapper_mmc1.o
@@ -97,6 +105,9 @@ console_mapper_mmc3.o: $(DIR_SRC_CONSOLE_MAPPER)mmc3.cpp $(DIR_INC_CONSOLE_MAPPE
 
 console_mapper_nrom.o: $(DIR_SRC_CONSOLE_MAPPER)nrom.cpp $(DIR_INC_CONSOLE_MAPPER)nrom.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)nrom.cpp -o $(DIR_BUILD)console_mapper_nrom.o
+
+console_mapper_uxrom.o: $(DIR_SRC_CONSOLE_MAPPER)uxrom.cpp $(DIR_INC_CONSOLE_MAPPER)uxrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)uxrom.cpp -o $(DIR_BUILD)console_mapper_uxrom.o
 
 ### CORE ###
 

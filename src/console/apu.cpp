@@ -24,8 +24,23 @@ namespace nescc {
 
 	namespace console {
 
+		void
+		apu_callback(
+			__inout void *data,
+			__inout uint8_t *buffer,
+			__in int length
+			)
+		{
+			TRACE_ENTRY_FORMAT("Data=%p, Buffer[%i]=%p", data, length, buffer);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
 		apu::apu(void) :
-			m_debug(false)
+			m_debug(false),
+			m_odd(true)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -66,6 +81,7 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu clearing...");
 
 			m_debug = false;
+			m_odd = true;
 
 			// TODO
 
@@ -161,6 +177,7 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu resetting...");
 
 			m_debug = debug;
+			m_odd = true;
 
 			// TODO
 
@@ -197,7 +214,13 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			// TODO
+			// TODO: clock triangle
+
+			if(m_odd) {
+				// TODO: clock pulse/noise/dmc
+			}
+
+			m_odd = !m_odd;
 
 			TRACE_EXIT();
 		}
