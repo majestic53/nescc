@@ -119,12 +119,6 @@ namespace nescc {
 			uint8_t raw;
 		};
 
-		void apu_callback(
-			__inout void *data,
-			__inout uint8_t *buffer,
-			__in int length
-			);
-
 		class apu :
 				public nescc::core::singleton<nescc::console::apu> {
 
@@ -137,6 +131,10 @@ namespace nescc {
 					) const;
 
 				void clear(void);
+
+				bool paused(void) const;
+
+				void pause(void);
 
 				std::string port_as_string(
 					__in uint8_t port,
@@ -155,6 +153,10 @@ namespace nescc {
 				std::string to_string(
 					__in_opt bool verbose = false
 					) const;
+
+				void toggle(void);
+
+				void unpause(void);
 
 				void update(
 					__in nescc::console::interface::bus &bus
@@ -185,7 +187,11 @@ namespace nescc {
 
 				bool m_debug;
 
+				SDL_AudioSpec m_format;
+
 				bool m_odd;
+
+				bool m_paused;
 		};
 	}
 }

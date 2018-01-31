@@ -260,6 +260,11 @@ Changelog
 
 Version 0.1.1805
 ----------------
+*Updated: 1/30/2018*
+
+* Added SDL audio device to apu (incomplete)
+* Renamed mmc1/mmc3 to sxrom/txrom
+
 *Updated: 1/29/2018*
 
 * Added mapper 2/3/7 (UXROM/CNROM/AXROM) support

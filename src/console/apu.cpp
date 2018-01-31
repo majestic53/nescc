@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include "../../include/console/apu.h"
 #include "../../include/trace.h"
 #include "./apu_type.h"
@@ -34,13 +35,17 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Data=%p, Buffer[%i]=%p", data, length, buffer);
 
 			// TODO
+			std::memset(buffer, 0, length);
+			// ---
 
 			TRACE_EXIT();
 		}
 
 		apu::apu(void) :
 			m_debug(false),
-			m_odd(true)
+			m_format({ }),
+			m_odd(true),
+			m_paused(false)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT();
@@ -80,8 +85,10 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu clearing...");
 
+			std::memset(&m_format, 0, sizeof(m_format));
 			m_debug = false;
 			m_odd = true;
+			m_paused = false;
 
 			// TODO
 
@@ -94,12 +101,27 @@ namespace nescc {
 		apu::on_initialize(void)
 		{
 			bool result = true;
+			SDL_AudioSpec format = { };
 
 			TRACE_ENTRY();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu initializing...");
 
-			// TODO
+			// TODO: set format
+			format.freq = APU_SAMPLE_RATE;
+			format.format = APU_AUDIO_FORMAT;
+			format.channels = APU_CHANNEL_COUNT;
+			format.samples = APU_BUFFER_SIZE;
+			format.callback = apu_callback;
+			format.userdata = this;
+			// ---
+
+			if(SDL_OpenAudio(&format, &m_format) < 0) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION_FORMAT(NESCC_CONSOLE_APU_EXCEPTION_EXTERNAL,
+					"SDL_OpenAudio failed! Error=%s", SDL_GetError());
+			}
+
+			unpause();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu initialized.");
 
@@ -114,9 +136,43 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu uninitializing...");
 
+			pause();
+			SDL_CloseAudio();
 			clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu uninitialized.");
+
+			TRACE_EXIT();
+		}
+
+		bool
+		apu::paused(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%x", m_paused);
+			return m_paused;
+		}
+
+		void
+		apu::pause(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_paused = true;
+			SDL_PauseAudio(1);
 
 			TRACE_EXIT();
 		}
@@ -176,8 +232,10 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu resetting...");
 
+			std::memset(&m_format, 0, sizeof(m_format));
 			m_debug = debug;
 			m_odd = true;
+			m_paused = false;
 
 			// TODO
 
@@ -199,6 +257,40 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		void
+		apu::toggle(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_paused = !m_paused;
+			SDL_PauseAudio(m_paused ? 1 : 0);
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::unpause(void)
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			m_paused = false;
+			SDL_PauseAudio(0);
+
+			TRACE_EXIT();
 		}
 
 		void

@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../../include/console/mapper/mmc3.h"
+#include "../../../include/console/mapper/txrom.h"
 #include "../../../include/trace.h"
-#include "./mmc3_type.h"
+#include "./txrom_type.h"
 
 namespace nescc {
 
@@ -26,7 +26,7 @@ namespace nescc {
 
 		namespace mapper {
 
-			mmc3::mmc3(void) :
+			txrom::txrom(void) :
 				m_port_bank_select({}),
 				m_port_irq_enable({}),
 				m_port_irq_latch({}),
@@ -39,8 +39,8 @@ namespace nescc {
 				TRACE_EXIT();
 			}
 
-			mmc3::mmc3(
-				__in const mmc3 &other
+			txrom::txrom(
+				__in const txrom &other
 				) :
 					m_port_bank_data(other.m_port_bank_data),
 					m_port_bank_select(other.m_port_bank_select),
@@ -55,15 +55,15 @@ namespace nescc {
 				TRACE_EXIT();
 			}
 
-			mmc3::~mmc3(void)
+			txrom::~txrom(void)
 			{
 				TRACE_ENTRY();
 				TRACE_EXIT();
 			}
 
-			mmc3 &
-			mmc3::operator=(
-				__in const mmc3 &other
+			txrom &
+			txrom::operator=(
+				__in const txrom &other
 				)
 			{
 				TRACE_ENTRY();
@@ -84,7 +84,7 @@ namespace nescc {
 			}
 
 			std::string
-			mmc3::as_string(
+			txrom::as_string(
 				__in nescc::console::cartridge &cartridge,
 				__in_opt bool verbose
 				) const
@@ -92,7 +92,7 @@ namespace nescc {
 				std::stringstream result;
 				uint8_t count, mirroring;
 				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-				std::vector<nescc::console::mapper::port_mmc3_bank_data_t>::const_iterator iter_bank;
+				std::vector<nescc::console::mapper::port_txrom_bank_data_t>::const_iterator iter_bank;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Verbose=%x", &cartridge, verbose);
 
@@ -176,7 +176,7 @@ namespace nescc {
 			}
 
 			void
-			mmc3::clear(
+			txrom::clear(
 				__in nescc::console::cartridge &cartridge
 				)
 			{
@@ -199,7 +199,7 @@ namespace nescc {
 			}
 
 			uint16_t
-			mmc3::find_bank_character(
+			txrom::find_bank_character(
 				__in uint16_t address,
 				__inout uint16_t &offset
 				)
@@ -244,8 +244,8 @@ namespace nescc {
 						offset = CHR_BANK_7_LOW;
 						break;
 					default:
-						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
-							NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+						THROW_NESCC_CONSOLE_MAPPER_TXROM_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_TXROM_EXCEPTION_UNSUPPORTED_ADDRESS,
 							"Address=%u(%04x)", address, address);
 				}
 
@@ -254,7 +254,7 @@ namespace nescc {
 			}
 
 			uint16_t
-			mmc3::find_bank_program(
+			txrom::find_bank_program(
 				__in uint16_t address,
 				__inout uint16_t &offset
 				)
@@ -283,8 +283,8 @@ namespace nescc {
 						offset = PRG_BANK_3_LOW;
 						break;
 					default:
-						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
-							NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+						THROW_NESCC_CONSOLE_MAPPER_TXROM_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_TXROM_EXCEPTION_UNSUPPORTED_ADDRESS,
 							"Address=%u(%04x)", address, address);
 				}
 
@@ -293,14 +293,14 @@ namespace nescc {
 			}
 
 			void
-			mmc3::find_banks(
+			txrom::find_banks(
 				__in nescc::console::interface::bus &bus,
 				__in nescc::console::cartridge &cartridge
 				)
 			{
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p", &bus, &cartridge);
 
-				nescc::console::mapper::port_mmc3_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
+				nescc::console::mapper::port_txrom_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
 				m_rom_program_index.at(PRG_BANK_1) = std::make_pair(entry.raw / PRG_BANK_PER_PRG_ROM_BANK,
 									(entry.raw % PRG_BANK_PER_PRG_ROM_BANK) * PRG_BANK_WIDTH); // r7
 
@@ -317,7 +317,7 @@ namespace nescc {
 				}
 
 				if(!m_port_bank_select.chr_rom_mode) {
-					nescc::console::mapper::port_mmc3_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
+					nescc::console::mapper::port_txrom_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_2_KB_CHR_0);
 					m_rom_character_index.at(CHR_BANK_0) = std::make_pair((entry.raw & 0xfe) / CHR_BANK_PER_CHR_ROM_BANK,
 										((entry.raw & 0xfe) % CHR_BANK_PER_CHR_ROM_BANK)
 										* CHR_BANK_WIDTH); // r0 & 0xfe
@@ -344,7 +344,7 @@ namespace nescc {
 					m_rom_character_index.at(CHR_BANK_7) = std::make_pair(entry.raw / CHR_BANK_PER_CHR_ROM_BANK,
 										(entry.raw % CHR_BANK_PER_CHR_ROM_BANK) * CHR_BANK_WIDTH); // r5
 				} else {
-					nescc::console::mapper::port_mmc3_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
+					nescc::console::mapper::port_txrom_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_0);
 					m_rom_character_index.at(CHR_BANK_0) = std::make_pair(entry.raw / CHR_BANK_PER_CHR_ROM_BANK,
 										(entry.raw % CHR_BANK_PER_CHR_ROM_BANK) * CHR_BANK_WIDTH); // r2
 					entry = m_port_bank_data.at(BANK_SELECT_1_KB_CHR_1);
@@ -378,7 +378,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::mirroring(
+			txrom::mirroring(
 				__in nescc::console::cartridge &cartridge
 				) const
 			{
@@ -393,7 +393,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::ram(
+			txrom::ram(
 				__inout uint16_t &address
 				)
 			{
@@ -403,7 +403,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::read_ram(
+			txrom::read_ram(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address
 				)
@@ -419,7 +419,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::read_rom_character(
+			txrom::read_rom_character(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address
 				)
@@ -438,7 +438,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::read_rom_program(
+			txrom::read_rom_program(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address
 				)
@@ -458,13 +458,13 @@ namespace nescc {
 			}
 
 			void
-			mmc3::reset(
+			txrom::reset(
 				__in nescc::console::cartridge &cartridge
 				)
 			{
 				uint8_t count;
 				std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-				std::vector<nescc::console::mapper::port_mmc3_bank_data_t>::iterator iter_bank;
+				std::vector<nescc::console::mapper::port_txrom_bank_data_t>::iterator iter_bank;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
@@ -514,7 +514,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::rom_character(
+			txrom::rom_character(
 				__inout uint16_t &address
 				)
 			{
@@ -533,7 +533,7 @@ namespace nescc {
 			}
 
 			uint8_t
-			mmc3::rom_program(
+			txrom::rom_program(
 				__inout uint16_t &address
 				)
 			{
@@ -552,7 +552,7 @@ namespace nescc {
 			}
 
 			void
-			mmc3::signal_interrupt(
+			txrom::signal_interrupt(
 				__in nescc::console::interface::bus &bus,
 				__in nescc::console::cartridge &cartridge
 				)
@@ -573,7 +573,7 @@ namespace nescc {
 			}
 
 			std::string
-			mmc3::to_string(
+			txrom::to_string(
 				__in_opt bool verbose
 				) const
 			{
@@ -581,11 +581,11 @@ namespace nescc {
 
 				TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-				result << NESCC_CONSOLE_MAPPER_MMC3_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
+				result << NESCC_CONSOLE_MAPPER_TXROM_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 				if(verbose) {
 					std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
-					std::vector<nescc::console::mapper::port_mmc3_bank_data_t>::const_iterator iter_bank;
+					std::vector<nescc::console::mapper::port_txrom_bank_data_t>::const_iterator iter_bank;
 					uint8_t mirroring = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL
 									: CARTRIDGE_MIRRORING_VERTICAL);
 
@@ -644,7 +644,7 @@ namespace nescc {
 			}
 
 			void
-			mmc3::write_ram(
+			txrom::write_ram(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address,
 				__in uint8_t value
@@ -659,7 +659,7 @@ namespace nescc {
 			}
 
 			void
-			mmc3::write_rom_character(
+			txrom::write_rom_character(
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address,
 				__in uint8_t value
@@ -678,7 +678,7 @@ namespace nescc {
 			}
 
 			void
-			mmc3::write_rom_program(
+			txrom::write_rom_program(
 				__in nescc::console::interface::bus &bus,
 				__in nescc::console::cartridge &cartridge,
 				__in uint16_t address,
@@ -719,8 +719,8 @@ namespace nescc {
 						m_port_irq_enable.raw = 1;
 						break;
 					default:
-						THROW_NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_FORMAT(
-							NESCC_CONSOLE_MAPPER_MMC3_EXCEPTION_UNSUPPORTED_ADDRESS,
+						THROW_NESCC_CONSOLE_MAPPER_TXROM_EXCEPTION_FORMAT(
+							NESCC_CONSOLE_MAPPER_TXROM_EXCEPTION_UNSUPPORTED_ADDRESS,
 							"Address=%u(%04x)", address, address);
 				}
 

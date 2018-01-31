@@ -21,9 +21,9 @@
 
 #include "./mapper/axrom.h"
 #include "./mapper/cnrom.h"
-#include "./mapper/mmc1.h"
-#include "./mapper/mmc3.h"
 #include "./mapper/nrom.h"
+#include "./mapper/sxrom.h"
+#include "./mapper/txrom.h"
 #include "./mapper/uxrom.h"
 
 namespace nescc {
@@ -125,11 +125,11 @@ namespace nescc {
 
 				nescc::console::mapper::cnrom m_mapper_cnrom;
 
-				nescc::console::mapper::mmc1 m_mapper_mmc1;
-
-				nescc::console::mapper::mmc3 m_mapper_mmc3;
-
 				nescc::console::mapper::nrom m_mapper_nrom;
+
+				nescc::console::mapper::sxrom m_mapper_sxrom;
+
+				nescc::console::mapper::txrom m_mapper_txrom;
 
 				nescc::console::mapper::uxrom m_mapper_uxrom;
 		};
