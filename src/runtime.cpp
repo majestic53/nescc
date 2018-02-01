@@ -160,6 +160,8 @@ namespace nescc {
 		} else {
 			uint32_t frame = 0, start = SDL_GetTicks();
 
+			m_bus.apu().unpause();
+
 			for(; !nescc::core::thread::stopped();) {
 				uint32_t end = SDL_GetTicks();
 
@@ -202,6 +204,8 @@ namespace nescc {
 					start = SDL_GetTicks();
 				}
 			}
+
+			m_bus.apu().pause();
 		}
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Runtime loop exited.");

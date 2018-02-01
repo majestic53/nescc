@@ -260,6 +260,10 @@ Changelog
 
 Version 0.1.1805
 ----------------
+*Updated: 1/31/2018*
+
+* Added APU ports
+
 *Updated: 1/30/2018*
 
 * Added SDL audio device to apu (incomplete)

@@ -32,13 +32,11 @@ namespace nescc {
 			__in int length
 			)
 		{
-			TRACE_ENTRY_FORMAT("Data=%p, Buffer[%i]=%p", data, length, buffer);
 
 			// TODO
 			std::memset(buffer, 0, length);
 			// ---
 
-			TRACE_EXIT();
 		}
 
 		apu::apu(void) :
@@ -62,11 +60,182 @@ namespace nescc {
 			__in_opt bool verbose
 			) const
 		{
+			uint32_t iter = 0;
 			std::stringstream result;
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			// TODO
+			result << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frequency" << (int) m_format.freq
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Samples" << (int) m_format.samples
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Channels" << (int) m_format.channels;
+
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frame"
+				<< SCALAR_AS_HEX(uint8_t, m_frame.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Inhibit Irq"
+						<< SCALAR_AS_HEX(uint8_t, m_frame.irq_inhibit)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Mode"
+						<< SCALAR_AS_HEX(uint8_t, m_frame.mode);
+			}
+
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Channel Status"
+				<< SCALAR_AS_HEX(uint8_t, m_channel_status.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Pulse 1 enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.pulse1_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Pulse 2 enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.pulse2_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Triangle enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.triangle_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Noise enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.noise_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Dmc enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.dmc_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Frame Interrupt"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.frame_interrupt)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Dmc Interrupt"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.dmc_interrupt);
+			}
+
+			for(; iter <= APU_PULSE_MAX; ++iter) {
+				std::stringstream stream;
+
+				stream << "Pulse[" << (iter + 1) << "] Timer";
+
+				result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+					<< SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(iter).raw);
+
+				if(verbose) {
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Volume"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(iter).volume)
+						<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Volume Constant"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(iter).volume_constant)
+						<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Halt"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(iter).halt)
+						<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Duty"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(iter).duty);
+				}
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "Pulse[" << (iter + 1) << "] Length";
+
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+					<< SCALAR_AS_HEX(uint8_t, m_pulse_length.at(iter).raw);
+
+				if(verbose) {
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Shift"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_length.at(iter).shift)
+						<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Negative"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_length.at(iter).negative)
+						<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Period"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_length.at(iter).period)
+						<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Enabled"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_length.at(iter).enabled);
+				}
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "Pulse[" << (iter + 1) << "] Timer Low";
+
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_PULSE_1_TIMER_LOW));
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "Pulse[" << (iter + 1) << "] Timer High";
+
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+					<< SCALAR_AS_HEX(uint8_t, m_pulse_timer_high.at(iter).raw);
+
+				if(verbose) {
+					result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- High"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_timer_high.at(iter).high)
+						<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Load"
+							<< SCALAR_AS_HEX(uint8_t, m_pulse_timer_high.at(iter).load);
+				}
+			}
+
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Triangle Timer"
+				<< SCALAR_AS_HEX(uint8_t, m_triangle_timer.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Load"
+						<< SCALAR_AS_HEX(uint8_t, m_triangle_timer.load)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_triangle_timer.enabled);
+			}
+
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Triangle Timer Low"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_TRIANGLE_TIMER_LOW))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Triangle Timer High"
+					<< SCALAR_AS_HEX(uint8_t, m_triangle_timer_high.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- High"
+						<< SCALAR_AS_HEX(uint8_t, m_triangle_timer_high.high)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Load"
+						<< SCALAR_AS_HEX(uint8_t, m_triangle_timer_high.load);
+			}
+
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Noise Timer"
+				<< SCALAR_AS_HEX(uint8_t, m_noise_timer.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Volume"
+						<< SCALAR_AS_HEX(uint8_t, m_noise_timer.volume)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Volume Constant"
+						<< SCALAR_AS_HEX(uint8_t, m_noise_timer.volume_constant)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Halt"
+						<< SCALAR_AS_HEX(uint8_t, m_noise_timer.halt);
+			}
+
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Noise Envelope"
+				<< SCALAR_AS_HEX(uint8_t, m_noise_envelope.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Period"
+						<< SCALAR_AS_HEX(uint8_t, m_noise_envelope.period)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Looping"
+						<< SCALAR_AS_HEX(uint8_t, m_noise_envelope.looping);
+			}
+
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Noise Timer High"
+				<< SCALAR_AS_HEX(uint8_t, m_noise_timer_high.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- High"
+						<< SCALAR_AS_HEX(uint8_t, m_noise_timer_high.high)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Load"
+						<< SCALAR_AS_HEX(uint8_t, m_noise_timer_high.load);
+			}
+
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Dmc Timer"
+				<< SCALAR_AS_HEX(uint8_t, m_dmc_timer.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Frequency"
+						<< SCALAR_AS_HEX(uint8_t, m_dmc_timer.frequency)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Looping"
+						<< SCALAR_AS_HEX(uint8_t, m_dmc_timer.looping)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Irq"
+						<< SCALAR_AS_HEX(uint8_t, m_dmc_timer.irq);
+			}
+
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Dmc Memory"
+				<< SCALAR_AS_HEX(uint8_t, m_dmc_memory.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Load"
+						<< SCALAR_AS_HEX(uint8_t, m_dmc_memory.load);
+			}
+
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Dmc Sample"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_SAMPLE))
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Dmc Output"
+					<< SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_OUTPUT));
 
 			TRACE_EXIT();
 			return result.str();
@@ -86,11 +255,22 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu clearing...");
 
 			std::memset(&m_format, 0, sizeof(m_format));
+			m_port.set_size(APU_PORT_MAX + 1, 0);
+			m_pulse_length.resize(APU_PULSE_MAX + 1);
+			m_pulse_timer.resize(APU_PULSE_MAX + 1);
+			m_pulse_timer_high.resize(APU_PULSE_MAX + 1);
+			m_channel_status.raw = 0;
+			m_dmc_memory.raw = 0;
+			m_dmc_timer.raw = 0;
+			m_frame.raw = 0;
+			m_noise_envelope.raw = 0;
+			m_noise_timer.raw = 0;
+			m_noise_timer_high.raw = 0;
+			m_triangle_timer.raw = 0;
+			m_triangle_timer_high.raw = 0;
 			m_debug = false;
 			m_odd = true;
 			m_paused = false;
-
-			// TODO
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu cleared.");
 
@@ -107,21 +287,22 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu initializing...");
 
-			// TODO: set format
 			format.freq = APU_SAMPLE_RATE;
 			format.format = APU_AUDIO_FORMAT;
 			format.channels = APU_CHANNEL_COUNT;
 			format.samples = APU_BUFFER_SIZE;
 			format.callback = apu_callback;
 			format.userdata = this;
-			// ---
 
 			if(SDL_OpenAudio(&format, &m_format) < 0) {
 				THROW_NESCC_CONSOLE_APU_EXCEPTION_FORMAT(NESCC_CONSOLE_APU_EXCEPTION_EXTERNAL,
 					"SDL_OpenAudio failed! Error=%s", SDL_GetError());
 			}
 
-			unpause();
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Frequency", "%u", m_format.freq);
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Format", "%0x", m_format.format);
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Channels", "%u", m_format.channels);
+			TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Samples", "%u", m_format.samples);
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu initialized.");
 
@@ -136,7 +317,6 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu uninitializing...");
 
-			pause();
 			SDL_CloseAudio();
 			clear();
 
@@ -187,7 +367,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Port=%u(%s), Verbose=%x", port, APU_PORT_STRING(port), verbose);
 
-			// TODO
+			result << m_port.as_string(port, 1, APU_OFFSET, verbose);
 
 			TRACE_EXIT();
 			return result.str();
@@ -208,9 +388,7 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			// TODO
-			result = 0;
-			// ---
+			result = m_port.read(port);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 			return result;
@@ -233,11 +411,22 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu resetting...");
 
 			std::memset(&m_format, 0, sizeof(m_format));
+			m_port.set_size(APU_PORT_MAX + 1, 0);
+			m_pulse_length.resize(APU_PULSE_MAX + 1);
+			m_pulse_timer.resize(APU_PULSE_MAX + 1);
+			m_pulse_timer_high.resize(APU_PULSE_MAX + 1);
+			m_channel_status.raw = 0;
+			m_dmc_memory.raw = 0;
+			m_dmc_timer.raw = 0;
+			m_frame.raw = 0;
+			m_noise_envelope.raw = 0;
+			m_noise_timer.raw = 0;
+			m_noise_timer_high.raw = 0;
+			m_triangle_timer.raw = 0;
+			m_triangle_timer_high.raw = 0;
 			m_debug = debug;
 			m_odd = true;
 			m_paused = false;
-
-			// TODO
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu reset.");
 
@@ -253,7 +442,39 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			// TODO
+			result << NESCC_CONSOLE_APU_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
+
+			if(verbose) {
+				result << " Base=" << nescc::core::singleton<nescc::console::apu>::to_string(verbose);
+
+				if(m_initialized) {
+					result << ", Mode=" << (m_debug ? "Debug" : "Normal")
+						<< ", State=" << (m_paused ? "Paused" : "Run")
+						<< ", Port=" << m_port.to_string(verbose)
+						<< ", Format={" << (int) m_format.freq << ", " << (int) m_format.samples
+							<< ", " << (int) m_format.channels << "}"
+						<< ", Pulse[1]={" << SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(APU_PULSE_1).raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_pulse_length.at(APU_PULSE_1).raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_PULSE_1_TIMER_LOW))
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_pulse_timer_high.at(APU_PULSE_1).raw) << "}"
+						<< ", Pulse[2]={" << SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(APU_PULSE_2).raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_pulse_length.at(APU_PULSE_2).raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_PULSE_2_TIMER_LOW))
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_pulse_timer_high.at(APU_PULSE_2).raw) << "}"
+						<< ", Triangle={" << SCALAR_AS_HEX(uint8_t, m_triangle_timer.raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_TRIANGLE_TIMER_LOW))
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_triangle_timer_high.raw) << "}"
+						<< ", Noise={" << SCALAR_AS_HEX(uint8_t, m_noise_timer.raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_noise_envelope.raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_noise_timer_high.raw) << "}"
+						<< ", Dmc={" << SCALAR_AS_HEX(uint8_t, m_dmc_timer.raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_dmc_memory.raw)
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_SAMPLE))
+							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_OUTPUT)) << "}"
+						<< ", Channel Status=" << SCALAR_AS_HEX(uint8_t, m_channel_status.raw)
+						<< ", Frame=" << SCALAR_AS_HEX(uint8_t, m_frame.raw);
+				}
+			}
 
 			TRACE_EXIT();
 			return result.str();
@@ -306,6 +527,8 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			TRACE_DEBUG_FORMAT(m_debug, "Apu update", "%s", m_odd ? "Odd" : "Even");
+
 			// TODO: clock triangle
 
 			if(m_odd) {
@@ -313,6 +536,8 @@ namespace nescc {
 			}
 
 			m_odd = !m_odd;
+
+			TRACE_DEBUG_FORMAT(m_debug, "Apu state", "\n%s", STRING_CHECK(as_string(true)));
 
 			TRACE_EXIT();
 		}
@@ -331,7 +556,76 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			// TODO
+			m_port.write(port, value);
+
+			switch(port) {
+				case APU_PORT_PULSE_1_TIMER: // 0x4000 - 0x4003
+					m_pulse_timer.at(APU_PULSE_1).raw = value;
+					break;
+				case APU_PORT_PULSE_1_LENGTH:
+					m_pulse_length.at(APU_PULSE_1).raw = value;
+					break;
+				case APU_PORT_PULSE_1_TIMER_LOW:
+					break;
+				case APU_PORT_PULSE_1_TIMER_HIGH:
+					m_pulse_timer_high.at(APU_PULSE_1).raw = value;
+					break;
+				case APU_PORT_PULSE_2_TIMER: // 0x4004 - 0x4007
+					m_pulse_timer.at(APU_PULSE_2).raw = value;
+					break;
+				case APU_PORT_PULSE_2_LENGTH:
+					m_pulse_length.at(APU_PULSE_2).raw = value;
+					break;
+				case APU_PORT_PULSE_2_TIMER_LOW:
+					break;
+				case APU_PORT_PULSE_2_TIMER_HIGH:
+					m_pulse_timer_high.at(APU_PULSE_2).raw = value;
+					break;
+				case APU_PORT_TRIANGLE_TIMER: // 0x4008 - 0x400b
+					m_triangle_timer.raw = value;
+					break;
+				case APU_PORT_TRIANGLE_UNUSED:
+					break;
+				case APU_PORT_TRIANGLE_TIMER_LOW:
+					break;
+				case APU_PORT_TRIANGLE_TIMER_HIGH:
+					m_triangle_timer_high.raw = value;
+					break;
+				case APU_PORT_NOISE_TIMER: // 0x400c - 0x400f
+					m_noise_timer.raw = value;
+					break;
+				case APU_PORT_NOISE_UNUSED:
+					break;
+				case APU_PORT_NOISE_ENVELOPE:
+					m_noise_envelope.raw = value;
+					break;
+				case APU_PORT_NOISE_TIMER_HIGH:
+					m_noise_timer_high.raw = value;
+					break;
+				case APU_PORT_DMC_TIMER: // 0x4010 - 0x4013
+					m_dmc_timer.raw = value;
+					break;
+				case APU_PORT_DMC_MEMORY:
+					m_dmc_memory.raw = value;
+					break;
+				case APU_PORT_DMC_SAMPLE:
+					break;
+				case APU_PORT_DMC_OUTPUT:
+					break;
+				case APU_PORT_INVALID_0: // 0x0x4014
+					break;
+				case APU_PORT_CHANNEL_STATUS: // 0x4015
+					m_channel_status.raw = value;
+					break;
+				case APU_PORT_INVALID_1: // 0x4016
+					break;
+				case APU_PORT_FRAME_COUNT: // 0x4017
+					m_frame.raw = value;
+					break;
+				default:
+					THROW_NESCC_CONSOLE_APU_EXCEPTION_FORMAT(NESCC_CONSOLE_APU_EXCEPTION_UNSUPPORTED,
+						"Port=%u(%s)", port, APU_PORT_STRING(port));
+			}
 
 			TRACE_EXIT();
 		}

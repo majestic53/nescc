@@ -19,6 +19,7 @@
 #ifndef NESCC_CONSOLE_APU_H_
 #define NESCC_CONSOLE_APU_H_
 
+#include "../core/memory.h"
 #include "../core/singleton.h"
 #include "./interface/bus.h"
 
@@ -40,6 +41,11 @@ namespace nescc {
 			uint8_t raw;
 		};
 
+		union port_dmc_memory_t {
+			uint8_t load : 7; // load counter
+			uint8_t raw;
+		};
+
 		union port_dmc_timer_t {
 			struct {
 				uint8_t frequency : 4; // frequency
@@ -50,16 +56,20 @@ namespace nescc {
 			uint8_t raw;
 		};
 
-		union port_dmc_memory_t {
-			uint8_t load : 7; // load counter
-			uint8_t raw;
-		};
-
 		union port_frame_t {
 			struct {
 				uint8_t unused : 6; // unused
 				uint8_t irq_inhibit : 1; // inhibit irq interrupts (0=disabled, 1=enabled)
 				uint8_t mode : 1; // frame counter mode (0=4-step, 1=5-step)
+			};
+			uint8_t raw;
+		};
+
+		union port_noise_envelope_t {
+			struct {
+				uint8_t period : 4; // noise period
+				uint8_t unused : 3; // unused
+				uint8_t looping : 1; // noise looping (0=disabled, 1=enabled)
 			};
 			uint8_t raw;
 		};
@@ -74,11 +84,12 @@ namespace nescc {
 			uint8_t raw;
 		};
 
-		union port_noise_envelope_t {
+		union port_pulse_length_t {
 			struct {
-				uint8_t period : 4; // noise period
-				uint8_t unused : 3; // unused
-				uint8_t looping : 1; // noise looping (0=disabled, 1=enabled)
+				uint8_t shift : 3; // sweep unit shift setting
+				uint8_t negative : 1; // sweep unit negative status (0=positive, 1=negative)
+				uint8_t period : 3; // sweep unit period
+				uint8_t enabled : 1; // sweep unit enabled (0=disabled, 1=enabled)
 			};
 			uint8_t raw;
 		};
@@ -89,16 +100,6 @@ namespace nescc {
 				uint8_t volume_constant : 1; // constant volume status (0=disabled, 1=enabled)
 				uint8_t halt : 1; // envelope loop/length counter status (0=disabled, 1=enabled)
 				uint8_t duty : 2; // pulse duty
-			};
-			uint8_t raw;
-		};
-
-		union port_pulse_length_t {
-			struct {
-				uint8_t shift : 3; // sweep unit shift setting
-				uint8_t negative : 1; // sweep unit negative status (0=positive, 1=negative)
-				uint8_t period : 3; // sweep unit period
-				uint8_t enabled : 1; // sweep unit enabled (0=disabled, 1=enabled)
 			};
 			uint8_t raw;
 		};
@@ -185,13 +186,39 @@ namespace nescc {
 
 				void on_uninitialize(void);
 
+				nescc::console::port_channel_status_t m_channel_status;
+
 				bool m_debug;
 
+				nescc::console::port_dmc_memory_t m_dmc_memory;
+
+				nescc::console::port_dmc_timer_t m_dmc_timer;
+
 				SDL_AudioSpec m_format;
+
+				nescc::console::port_frame_t m_frame;
+
+				nescc::console::port_noise_envelope_t m_noise_envelope;
+
+				nescc::console::port_noise_timer_t m_noise_timer;
+
+				nescc::console::port_timer_high_t m_noise_timer_high;
 
 				bool m_odd;
 
 				bool m_paused;
+
+				nescc::core::memory m_port;
+
+				std::vector<nescc::console::port_pulse_length_t> m_pulse_length;
+
+				std::vector<nescc::console::port_pulse_timer_t> m_pulse_timer;
+
+				std::vector<nescc::console::port_timer_high_t> m_pulse_timer_high;
+
+				nescc::console::port_triangle_timer_t m_triangle_timer;
+
+				nescc::console::port_timer_high_t m_triangle_timer_high;
 		};
 	}
 }
