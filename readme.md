@@ -260,6 +260,11 @@ Changelog
 
 Version 0.1.1805
 ----------------
+*Updated: 2/3/2018*
+
+* Added audio circular buffer core classes
+* Converted core memory class into a template
+
 *Updated: 1/31/2018*
 
 * Added APU ports
