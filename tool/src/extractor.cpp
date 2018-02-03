@@ -161,7 +161,7 @@ namespace nescc {
 		void
 		extractor::decode_character_bank(
 			__in const std::string &path,
-			__in std::vector<nescc::core::memory>::iterator &bank
+			__in std::vector<nescc::core::memory<uint8_t>>::iterator &bank
 			)
 		{
 			nescc::core::bitmap image;
@@ -221,7 +221,7 @@ namespace nescc {
 		void
 		extractor::decode_program_bank(
 			__in const std::string &path,
-			__in std::vector<nescc::core::memory>::iterator &bank
+			__in std::vector<nescc::core::memory<uint8_t>>::iterator &bank
 			)
 		{
 			std::ofstream file;
@@ -413,7 +413,7 @@ namespace nescc {
 			uint32_t offset;
 			std::ifstream input;
 			std::stringstream result;
-			std::vector<nescc::core::memory> bank;
+			std::vector<nescc::core::memory<uint8_t>> bank;
 			std::string directory, extension, file;
 
 			TRACE_ENTRY_FORMAT("Decode=%x", decode);
@@ -439,7 +439,7 @@ namespace nescc {
 
 			for(offset = m_character_rom_base; offset < (m_character_rom_base + m_character_rom_size);
 					offset += m_character_rom_width) {
-				bank.push_back(nescc::core::memory());
+				bank.push_back(nescc::core::memory<uint8_t>());
 
 				if(m_character_rom_width) {
 					bank.back().set_size(m_character_rom_width);
@@ -451,7 +451,7 @@ namespace nescc {
 
 			if(!bank.empty()) {
 				uint16_t count = 0;
-				std::vector<nescc::core::memory>::iterator iter;
+				std::vector<nescc::core::memory<uint8_t>>::iterator iter;
 
 				if(!extract_path(m_path, directory, file, extension)) {
 					directory = EXTRACT_DIRECTORY_DEFAULT;
@@ -501,7 +501,7 @@ namespace nescc {
 			uint32_t offset;
 			std::ifstream input;
 			std::stringstream result;
-			std::vector<nescc::core::memory> bank;
+			std::vector<nescc::core::memory<uint8_t>> bank;
 			std::string directory, extension, file;
 
 			TRACE_ENTRY_FORMAT("Decode=%x", decode);
@@ -527,7 +527,7 @@ namespace nescc {
 
 			for(offset = m_program_rom_base; offset < (m_program_rom_base + m_program_rom_size);
 					offset += m_program_rom_width) {
-				bank.push_back(nescc::core::memory());
+				bank.push_back(nescc::core::memory<uint8_t>());
 
 				if(m_program_rom_width) {
 					bank.back().set_size(m_program_rom_width);
@@ -539,7 +539,7 @@ namespace nescc {
 
 			if(!bank.empty()) {
 				uint16_t count = 0;
-				std::vector<nescc::core::memory>::iterator iter;
+				std::vector<nescc::core::memory<uint8_t>>::iterator iter;
 
 				if(!extract_path(m_path, directory, file, extension)) {
 					directory = EXTRACT_DIRECTORY_DEFAULT;

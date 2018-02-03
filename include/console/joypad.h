@@ -60,7 +60,7 @@ namespace nescc {
 					__in const SDL_KeyboardEvent &event
 					);
 
-				nescc::core::memory &port(void);
+				nescc::core::memory<uint8_t> &port(void);
 
 				uint8_t read_port(
 					__in uint16_t pad
@@ -105,7 +105,7 @@ namespace nescc {
 
 				bool m_debug;
 
-				nescc::core::memory m_port;
+				nescc::core::memory<uint8_t> m_port;
 
 				std::map<SDL_JoystickID, std::map<SDL_GameControllerButton, bool>> m_status_button;
 

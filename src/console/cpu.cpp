@@ -311,7 +311,7 @@ namespace nescc {
 
 		std::string
 		cpu::bank_as_string(
-			__in std::vector<nescc::core::memory>::iterator &bank,
+			__in std::vector<nescc::core::memory<uint8_t>>::iterator &bank,
 			__in_opt bool verbose
 			)
 		{
@@ -2821,7 +2821,7 @@ namespace nescc {
 			return result;
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		cpu::oam_dma(void)
 		{
 			TRACE_ENTRY();
@@ -2938,7 +2938,7 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		cpu::ram(void)
 		{
 			TRACE_ENTRY();

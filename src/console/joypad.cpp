@@ -303,7 +303,7 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		joypad::port(void)
 		{
 			TRACE_ENTRY();

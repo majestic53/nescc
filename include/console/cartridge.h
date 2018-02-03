@@ -178,19 +178,19 @@ namespace nescc {
 
 				uint8_t mirroring(void) const;
 
-				nescc::core::memory &ram(
+				nescc::core::memory<uint8_t> &ram(
 					__in uint8_t bank
 					);
 
 				size_t ram_banks(void) const;
 
-				nescc::core::memory &rom_character(
+				nescc::core::memory<uint8_t> &rom_character(
 					__in uint8_t bank
 					);
 
 				size_t rom_character_banks(void) const;
 
-				nescc::core::memory &rom_program(
+				nescc::core::memory<uint8_t> &rom_program(
 					__in uint8_t bank
 					);
 
@@ -224,11 +224,11 @@ namespace nescc {
 
 				uint8_t m_mirroring;
 
-				std::vector<nescc::core::memory> m_ram;
+				std::vector<nescc::core::memory<uint8_t>> m_ram;
 
-				std::vector<nescc::core::memory> m_rom_character;
+				std::vector<nescc::core::memory<uint8_t>> m_rom_character;
 
-				std::vector<nescc::core::memory> m_rom_program;
+				std::vector<nescc::core::memory<uint8_t>> m_rom_program;
 		};
 	}
 }

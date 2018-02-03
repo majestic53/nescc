@@ -73,12 +73,12 @@ namespace nescc {
 
 				void decode_character_bank(
 					__in const std::string &path,
-					__in std::vector<nescc::core::memory>::iterator &bank
+					__in std::vector<nescc::core::memory<uint8_t>>::iterator &bank
 					);
 
 				void decode_program_bank(
 					__in const std::string &path,
-					__in std::vector<nescc::core::memory>::iterator &bank
+					__in std::vector<nescc::core::memory<uint8_t>>::iterator &bank
 					);
 
 				std::string display_help(
@@ -142,7 +142,7 @@ namespace nescc {
 
 				uint32_t m_program_rom_size;
 
-				nescc::core::memory m_raw;
+				nescc::core::memory<uint8_t> m_raw;
 
 				nescc::trace &m_trace;
 

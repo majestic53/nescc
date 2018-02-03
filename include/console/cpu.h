@@ -46,7 +46,7 @@ namespace nescc {
 					) const;
 
 				static std::string bank_as_string(
-					__in std::vector<nescc::core::memory>::iterator &bank,
+					__in std::vector<nescc::core::memory<uint8_t>>::iterator &bank,
 					__in_opt bool verbose = false
 					);
 
@@ -73,11 +73,11 @@ namespace nescc {
 
 				void interrupt_non_maskable(void);
 
-				nescc::core::memory &oam_dma(void);
+				nescc::core::memory<uint8_t> &oam_dma(void);
 
 				uint16_t program_counter(void) const;
 
-				nescc::core::memory &ram(void);
+				nescc::core::memory<uint8_t> &ram(void);
 
 				void reset(
 					__in nescc::console::interface::bus &bus,
@@ -465,11 +465,11 @@ namespace nescc {
 
 				uint8_t m_index_y;
 
-				nescc::core::memory m_oam_dma;
+				nescc::core::memory<uint8_t> m_oam_dma;
 
 				uint16_t m_program_counter;
 
-				nescc::core::memory m_ram;
+				nescc::core::memory<uint8_t> m_ram;
 
 				bool m_signal_maskable;
 

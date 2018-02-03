@@ -224,7 +224,7 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		mmu::ram(
 			__inout uint16_t &address
 			)
@@ -452,7 +452,7 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		mmu::rom_character(
 			__inout uint16_t &address
 			)
@@ -496,7 +496,7 @@ namespace nescc {
 			return m_cartridge.rom_character(result);
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		mmu::rom_program(
 			__inout uint16_t &address
 			)

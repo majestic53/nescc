@@ -131,17 +131,17 @@ namespace nescc {
 
 				nescc::console::port_mask_t mask(void) const;
 
-				nescc::core::memory &nametable(void);
+				nescc::core::memory<uint8_t> &nametable(void);
 
-				nescc::core::memory &oam(void);
+				nescc::core::memory<uint8_t> &oam(void);
 
 				uint8_t oam_address(void) const;
 
 				uint8_t oam_data(void) const;
 
-				nescc::core::memory &palette(void);
+				nescc::core::memory<uint8_t> &palette(void);
 
-				nescc::core::memory &port(void);
+				nescc::core::memory<uint8_t> &port(void);
 
 				uint8_t read_nametable(
 					__in uint16_t address
@@ -390,15 +390,15 @@ namespace nescc {
 
 				uint8_t m_mirroring;
 
-				nescc::core::memory m_nametable;
+				nescc::core::memory<uint8_t> m_nametable;
 
 				uint8_t m_nametable_current;
 
-				nescc::core::memory m_oam;
+				nescc::core::memory<uint8_t> m_oam;
 
-				nescc::core::memory m_palette;
+				nescc::core::memory<uint8_t> m_palette;
 
-				nescc::core::memory m_port;
+				nescc::core::memory<uint8_t> m_port;
 
 				bool m_port_latch;
 

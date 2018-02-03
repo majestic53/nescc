@@ -636,7 +636,7 @@ namespace nescc {
 			return result;
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		ppu::nametable(void)
 		{
 			TRACE_ENTRY();
@@ -651,7 +651,7 @@ namespace nescc {
 			return m_nametable;
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		ppu::oam(void)
 		{
 			TRACE_ENTRY();
@@ -721,7 +721,7 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		ppu::palette(void)
 		{
 			TRACE_ENTRY();
@@ -736,7 +736,7 @@ namespace nescc {
 			return m_palette;
 		}
 
-		nescc::core::memory &
+		nescc::core::memory<uint8_t> &
 		ppu::port(void)
 		{
 			TRACE_ENTRY();

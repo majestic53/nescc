@@ -41,7 +41,8 @@ archive:
 			$(DIR_BUILD)console_joypad.o $(DIR_BUILD)console_mmu.o $(DIR_BUILD)console_ppu.o \
 		$(DIR_BUILD)console_mapper_axrom.o $(DIR_BUILD)console_mapper_cnrom.o $(DIR_BUILD)console_mapper_nrom.o \
 			$(DIR_BUILD)console_mapper_sxrom.o $(DIR_BUILD)console_mapper_txrom.o $(DIR_BUILD)console_mapper_uxrom.o \
-		$(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_memory.o $(DIR_BUILD)core_signal.o $(DIR_BUILD)core_thread.o \
+		$(DIR_BUILD)core_audio_buffer.o $(DIR_BUILD)core_audio_frame.o $(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_signal.o \
+			$(DIR_BUILD)core_thread.o \
 		$(DIR_BUILD)interface_display.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
@@ -111,13 +112,16 @@ console_mapper_uxrom.o: $(DIR_SRC_CONSOLE_MAPPER)uxrom.cpp $(DIR_INC_CONSOLE_MAP
 
 ### CORE ###
 
-build_core: core_bitmap.o core_memory.o core_signal.o core_thread.o
+build_core: core_audio_buffer.o core_audio_frame.o core_bitmap.o core_signal.o core_thread.o
+
+core_audio_buffer.o: $(DIR_SRC_CORE)audio_buffer.cpp $(DIR_INC_CORE)audio_buffer.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)audio_buffer.cpp -o $(DIR_BUILD)core_audio_buffer.o
+
+core_audio_frame.o: $(DIR_SRC_CORE)audio_frame.cpp $(DIR_INC_CORE)audio_frame.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)audio_frame.cpp -o $(DIR_BUILD)core_audio_frame.o
 
 core_bitmap.o: $(DIR_SRC_CORE)bitmap.cpp $(DIR_INC_CORE)bitmap.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)bitmap.cpp -o $(DIR_BUILD)core_bitmap.o
-
-core_memory.o: $(DIR_SRC_CORE)memory.cpp $(DIR_INC_CORE)memory.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)memory.cpp -o $(DIR_BUILD)core_memory.o
 
 core_signal.o: $(DIR_SRC_CORE)signal.cpp $(DIR_INC_CORE)signal.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)signal.cpp -o $(DIR_BUILD)core_signal.o

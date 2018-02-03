@@ -208,7 +208,7 @@ namespace nescc {
 
 				bool m_paused;
 
-				nescc::core::memory m_port;
+				nescc::core::memory<uint8_t> m_port;
 
 				std::vector<nescc::console::port_pulse_length_t> m_pulse_length;
 
