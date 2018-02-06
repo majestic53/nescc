@@ -28,9 +28,9 @@ namespace nescc {
 
 			txrom::txrom(void) :
 				m_port_bank_select({}),
+				m_port_irq_counter({}),
 				m_port_irq_enable({}),
-				m_port_irq_latch({}),
-				m_port_irq_reload({}),
+				m_port_irq_period({}),
 				m_port_mirroring({}),
 				m_port_ram_protect({}),
 				m_ram_index(0)
@@ -44,9 +44,9 @@ namespace nescc {
 				) :
 					m_port_bank_data(other.m_port_bank_data),
 					m_port_bank_select(other.m_port_bank_select),
+					m_port_irq_counter(other.m_port_irq_counter),
 					m_port_irq_enable(other.m_port_irq_enable),
-					m_port_irq_latch(other.m_port_irq_latch),
-					m_port_irq_reload(other.m_port_irq_reload),
+					m_port_irq_period(other.m_port_irq_period),
 					m_port_mirroring(other.m_port_mirroring),
 					m_port_ram_protect(other.m_port_ram_protect),
 					m_ram_index(other.m_ram_index)
@@ -71,9 +71,9 @@ namespace nescc {
 				if(this != &other) {
 					m_port_bank_data = other.m_port_bank_data;
 					m_port_bank_select = other.m_port_bank_select;
+					m_port_irq_counter = other.m_port_irq_counter;
 					m_port_irq_enable = other.m_port_irq_enable;
-					m_port_irq_latch = other.m_port_irq_latch;
-					m_port_irq_reload = other.m_port_irq_reload;
+					m_port_irq_period = other.m_port_irq_period;
 					m_port_mirroring = other.m_port_mirroring;
 					m_port_ram_protect = other.m_port_ram_protect;
 					m_ram_index = other.m_ram_index;
@@ -102,8 +102,8 @@ namespace nescc {
 					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "IRQ"
 						<< SCALAR_AS_HEX(uint8_t, m_port_irq_enable.raw)
 							<< " (" << (m_port_irq_enable.raw ? "Enabled" : "Disabled")
-								<< ", Latch=" << SCALAR_AS_HEX(uint8_t, m_port_irq_latch.raw)
-								<< ", Reload=" << SCALAR_AS_HEX(uint8_t, m_port_irq_reload.raw) << ")"
+								<< ", Period=" << SCALAR_AS_HEX(uint8_t, m_port_irq_period.raw)
+								<< ", Counter=" << SCALAR_AS_HEX(uint8_t, m_port_irq_counter.raw) << ")"
 					<< std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM bank selected"
 						<< (int) m_ram_index
 					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "PRG RAM Protect"
@@ -163,8 +163,8 @@ namespace nescc {
 
 					switch(count) {
 						case BANK_SELECT_8_KB_PRG_0 ... BANK_SELECT_8_KB_PRG_1:
-							result << " (" << (iter_bank->half ? "First" : "Second") << ", "
-								<< SCALAR_AS_HEX(uint8_t, iter_bank->select) << ")";
+							result << " (Select=" << SCALAR_AS_HEX(uint8_t, iter_bank->select)
+								<< ", Half=" << (iter_bank->half ? "Second" : "First") << ")";
 							break;
 						default:
 							break;
@@ -184,9 +184,9 @@ namespace nescc {
 
 				m_port_bank_data.resize(BANK_SELECT_MAX + 1, {});
 				m_port_bank_select.raw = 0;
+				m_port_irq_counter.raw = 0;
 				m_port_irq_enable.raw = 0;
-				m_port_irq_latch.raw = 0;
-				m_port_irq_reload.raw = 0;
+				m_port_irq_period.raw = 0;
 				m_port_mirroring.mode = ((cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL) ? BANK_MIRRORING_HORIZONTAL
 					: BANK_MIRRORING_VERTICAL);
 				m_port_ram_protect.raw = 0;
@@ -298,22 +298,24 @@ namespace nescc {
 				__in nescc::console::cartridge &cartridge
 				)
 			{
+				uint16_t select;
+
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p", &bus, &cartridge);
 
 				nescc::console::mapper::port_txrom_bank_data_t &entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_1);
-				m_rom_program_index.at(PRG_BANK_1) = std::make_pair(entry.raw / PRG_BANK_PER_PRG_ROM_BANK,
-									(entry.raw % PRG_BANK_PER_PRG_ROM_BANK) * PRG_BANK_WIDTH); // r7
+				select = entry.select;
+				m_rom_program_index.at(PRG_BANK_1) = std::make_pair(select, entry.half * PRG_BANK_WIDTH); // r7
 
 				if(!m_port_bank_select.prg_rom_mode) {
 					entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_0);
-					m_rom_program_index.at(PRG_BANK_0) = std::make_pair(entry.raw / PRG_BANK_PER_PRG_ROM_BANK,
-										(entry.raw % PRG_BANK_PER_PRG_ROM_BANK) * PRG_BANK_WIDTH); // r6
+					select = entry.select;
+					m_rom_program_index.at(PRG_BANK_0) = std::make_pair(select, entry.half * PRG_BANK_WIDTH); // r6
 					m_rom_program_index.at(PRG_BANK_2) = std::make_pair(cartridge.rom_program_banks() - 1, 0); // (-2)
 				} else {
 					m_rom_program_index.at(PRG_BANK_0) = std::make_pair(cartridge.rom_program_banks() - 1, 0); // (-2)
 					entry = m_port_bank_data.at(BANK_SELECT_8_KB_PRG_0);
-					m_rom_program_index.at(PRG_BANK_2) = std::make_pair(entry.raw / PRG_BANK_PER_PRG_ROM_BANK,
-										(entry.raw % PRG_BANK_PER_PRG_ROM_BANK) * PRG_BANK_WIDTH); // r6
+					select = entry.select;
+					m_rom_program_index.at(PRG_BANK_2) = std::make_pair(select, entry.half * PRG_BANK_WIDTH); // r6
 				}
 
 				if(!m_port_bank_select.chr_rom_mode) {
@@ -470,9 +472,9 @@ namespace nescc {
 
 				m_port_bank_data.resize(BANK_SELECT_MAX + 1, {});
 				m_port_bank_select.raw = 0;
+				m_port_irq_counter.raw = 0;
 				m_port_irq_enable.raw = 0;
-				m_port_irq_latch.raw = 0;
-				m_port_irq_reload.raw = 0;
+				m_port_irq_period.raw = 0;
 				m_port_mirroring.mode = ((cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL)
 					? BANK_MIRRORING_HORIZONTAL : BANK_MIRRORING_VERTICAL);
 				m_port_ram_protect.raw = 0;
@@ -505,9 +507,9 @@ namespace nescc {
 				}
 
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-PRG/CHR Bank Select", "%u", m_port_bank_select.raw);
+				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-IRQ Counter", "%u", m_port_irq_counter.raw);
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-IRQ Enable", "%u", m_port_irq_enable.raw);
-				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-IRQ Latch", "%u", m_port_irq_latch.raw);
-				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-IRQ Reload", "%u", m_port_irq_reload.raw);
+				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-IRQ Period", "%u", m_port_irq_period.raw);
 				TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "|-Mirroring", "%u", m_port_mirroring.mode);
 
 				TRACE_EXIT();
@@ -559,13 +561,13 @@ namespace nescc {
 			{
 				TRACE_ENTRY_FORMAT("Bus=%p, Cartridge=%p", &bus, &cartridge);
 
-				if(!m_port_irq_reload.raw) {
-					m_port_irq_reload.raw = m_port_irq_latch.raw;
+				if(!m_port_irq_counter.raw) {
+					m_port_irq_counter.raw = m_port_irq_period.raw;
 				} else {
-					--m_port_irq_reload.raw;
+					--m_port_irq_counter.raw;
 				}
 
-				if(m_port_irq_enable.raw && !m_port_irq_reload.raw) {
+				if(m_port_irq_enable.raw && !m_port_irq_counter.raw) {
 					bus.cpu_interrupt_maskable();
 				}
 
@@ -625,7 +627,7 @@ namespace nescc {
 						}
 
 						result << SCALAR_AS_HEX(uint8_t, iter_bank->raw)
-							<< "(" << (iter_bank->half ? "First" : "Second")
+							<< "(" << (iter_bank->half ? "Second" : "First")
 								<< ", " << SCALAR_AS_HEX(uint8_t, iter_bank->select);
 					}
 
@@ -635,8 +637,8 @@ namespace nescc {
 							<< ", " << SCALAR_AS_HEX(uint8_t, m_port_bank_select.chr_rom_mode) << ")"
 						<< ", IRQ=" << SCALAR_AS_HEX(uint8_t, m_port_irq_enable.raw)
 							<< "(" << (m_port_irq_enable.raw ? "Enabled" : "Disabled")
-								<< ", Latch=" << SCALAR_AS_HEX(uint8_t, m_port_irq_latch.raw)
-								<< ", Reload=" << SCALAR_AS_HEX(uint8_t, m_port_irq_reload.raw) << ")";
+								<< ", Period=" << SCALAR_AS_HEX(uint8_t, m_port_irq_period.raw)
+								<< ", Counter=" << SCALAR_AS_HEX(uint8_t, m_port_irq_counter.raw) << ")";
 				}
 
 				TRACE_EXIT();
@@ -701,11 +703,11 @@ namespace nescc {
 					case PORT_RAM_PROTECT: // 0x2001
 						m_port_ram_protect.raw = value;
 						break;
-					case PORT_IRQ_LATCH: // 0x4000
-						m_port_irq_latch.raw = value;
+					case PORT_IRQ_PERIOD: // 0x4000
+						m_port_irq_period.raw = value;
 						break;
-					case PORT_IRQ_RELOAD: // 0x4001
-						m_port_irq_reload.raw = 0;
+					case PORT_IRQ_COUNTER: // 0x4001
+						m_port_irq_counter.raw = 0;
 						break;
 					case PORT_IRQ_DISABLE: // 0x6000
 

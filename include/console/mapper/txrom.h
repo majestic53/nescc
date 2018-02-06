@@ -46,15 +46,15 @@ namespace nescc {
 				uint8_t raw;
 			};
 
+			union port_txrom_irq_counter_t { // 0xc001 - 0xdfff, odd
+				uint8_t raw;
+			};
+
 			union port_txrom_irq_enable_t { // 0xe001 - 0xffff, odd
 				uint8_t raw;
 			};
 
-			union port_txrom_irq_latch_t { // 0xc000 - 0xdffe, even
-				uint8_t raw;
-			};
-
-			union port_txrom_irq_reload_t { // 0xc001 - 0xdfff, odd
+			union port_txrom_irq_period_t { // 0xc000 - 0xdffe, even
 				uint8_t raw;
 			};
 
@@ -185,11 +185,11 @@ namespace nescc {
 
 					nescc::console::mapper::port_txrom_bank_select_t m_port_bank_select;
 
+					nescc::console::mapper::port_txrom_irq_counter_t m_port_irq_counter;
+
 					nescc::console::mapper::port_txrom_irq_enable_t m_port_irq_enable;
 
-					nescc::console::mapper::port_txrom_irq_latch_t m_port_irq_latch;
-
-					nescc::console::mapper::port_txrom_irq_reload_t m_port_irq_reload;
+					nescc::console::mapper::port_txrom_irq_period_t m_port_irq_period;
 
 					nescc::console::mapper::port_txrom_mirroring_t m_port_mirroring;
 

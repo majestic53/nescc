@@ -32,11 +32,21 @@ namespace nescc {
 			__in int length
 			)
 		{
+			/*uint32_t in_length = 0, out_length = (length / sizeof(nescc::core::audio_sample_t));
+			nescc::core::audio_sample_t *in = nullptr, *out = ((nescc::core::audio_sample_t *) buffer);
 
-			// TODO
-			std::memset(buffer, 0, length);
-			// ---
+			in = ((nescc::core::audio_buffer *) data)->read(in_length);
+			if(in && in_length) {
 
+				// TODO: copy samples into out buffer
+
+			} else {
+				std::memset(out, AUDIO_SAMPLE_SILENCE, out_length);
+			}*/
+
+// TODO
+			std::memset(buffer, AUDIO_SAMPLE_SILENCE, length);
+// ---
 		}
 
 		apu::apu(void) :
@@ -255,6 +265,7 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu clearing...");
 
 			std::memset(&m_format, 0, sizeof(m_format));
+			m_buffer.set_size(APU_BUFFER_SIZE, APU_BUFFER_COUNT);
 			m_port.set_size(APU_PORT_MAX + 1, 0);
 			m_pulse_length.resize(APU_PULSE_MAX + 1);
 			m_pulse_timer.resize(APU_PULSE_MAX + 1);
@@ -292,7 +303,7 @@ namespace nescc {
 			format.channels = APU_CHANNEL_COUNT;
 			format.samples = APU_BUFFER_SIZE;
 			format.callback = apu_callback;
-			format.userdata = this;
+			format.userdata = &m_buffer;
 
 			if(SDL_OpenAudio(&format, &m_format) < 0) {
 				THROW_NESCC_CONSOLE_APU_EXCEPTION_FORMAT(NESCC_CONSOLE_APU_EXCEPTION_EXTERNAL,
@@ -411,6 +422,7 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu resetting...");
 
 			std::memset(&m_format, 0, sizeof(m_format));
+			m_buffer.set_size(APU_BUFFER_SIZE, APU_BUFFER_COUNT);
 			m_port.set_size(APU_PORT_MAX + 1, 0);
 			m_pulse_length.resize(APU_PULSE_MAX + 1);
 			m_pulse_timer.resize(APU_PULSE_MAX + 1);
@@ -472,7 +484,8 @@ namespace nescc {
 							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_SAMPLE))
 							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_OUTPUT)) << "}"
 						<< ", Channel Status=" << SCALAR_AS_HEX(uint8_t, m_channel_status.raw)
-						<< ", Frame=" << SCALAR_AS_HEX(uint8_t, m_frame.raw);
+						<< ", Frame=" << SCALAR_AS_HEX(uint8_t, m_frame.raw)
+						<< ", Buffer=" << m_buffer.to_string(verbose);
 				}
 			}
 
@@ -529,15 +542,67 @@ namespace nescc {
 
 			TRACE_DEBUG_FORMAT(m_debug, "Apu update", "%s", m_odd ? "Odd" : "Even");
 
-			// TODO: clock triangle
+			update_voice_triangle(bus);
 
 			if(m_odd) {
-				// TODO: clock pulse/noise/dmc
+				update_voice_pulse(bus, APU_PULSE_1);
+				update_voice_pulse(bus, APU_PULSE_2);
+				update_voice_noise(bus);
+				update_voice_dmc(bus);
 			}
 
 			m_odd = !m_odd;
 
 			TRACE_DEBUG_FORMAT(m_debug, "Apu state", "\n%s", STRING_CHECK(as_string(true)));
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_voice_dmc(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_voice_noise(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_voice_pulse(
+			__in nescc::console::interface::bus &bus,
+			__in int pulse
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p, Pulse=%u", &bus, pulse);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_voice_triangle(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			// TODO
 
 			TRACE_EXIT();
 		}

@@ -96,7 +96,6 @@ namespace nescc {
 			#define PRG_BANK_3_LOW 0x6000
 			#define PRG_BANK_3_HIGH 0x7fff			
 			#define PRG_BANK_WIDTH 0x2000
-			#define PRG_BANK_PER_PRG_ROM_BANK (CARTRIDGE_ROM_PROGRAM_LENGTH / PRG_BANK_WIDTH)
 
 			enum {				// 0x00	0x40
 							// ---- ----
@@ -114,8 +113,8 @@ namespace nescc {
 			#define PORT_BANK_DATA 0x0001
 			#define PORT_MIRRORING 0x2000
 			#define PORT_RAM_PROTECT 0x2001
-			#define PORT_IRQ_LATCH 0x4000
-			#define PORT_IRQ_RELOAD 0x4001
+			#define PORT_IRQ_PERIOD 0x4000
+			#define PORT_IRQ_COUNTER 0x4001
 			#define PORT_IRQ_DISABLE 0x6000
 			#define PORT_IRQ_ENABLE 0x6001
 

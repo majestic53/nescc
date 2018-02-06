@@ -19,7 +19,7 @@
 #ifndef NESCC_CONSOLE_APU_H_
 #define NESCC_CONSOLE_APU_H_
 
-#include "../core/memory.h"
+#include "../core/audio_buffer.h"
 #include "../core/singleton.h"
 #include "./interface/bus.h"
 
@@ -185,6 +185,25 @@ namespace nescc {
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
+
+				void update_voice_dmc(
+					__in nescc::console::interface::bus &bus
+					);
+
+				void update_voice_noise(
+					__in nescc::console::interface::bus &bus
+					);
+
+				void update_voice_pulse(
+					__in nescc::console::interface::bus &bus,
+					__in int pulse
+					);
+
+				void update_voice_triangle(
+					__in nescc::console::interface::bus &bus
+					);
+
+				nescc::core::audio_buffer m_buffer;
 
 				nescc::console::port_channel_status_t m_channel_status;
 

@@ -33,8 +33,8 @@ namespace nescc {
 		}
 
 		audio_buffer::audio_buffer(
-			__in uint16_t frame_size,
-			__in uint16_t count
+			__in uint32_t frame_size,
+			__in uint32_t count
 			) :
 				m_position_read(0),
 				m_position_write(0)
@@ -82,7 +82,7 @@ namespace nescc {
 
 		std::string
 		audio_buffer::as_string(
-			__in uint16_t frame,
+			__in uint32_t frame,
 			__in_opt bool verbose
 			) const
 		{
@@ -116,7 +116,7 @@ namespace nescc {
 
 		nescc::core::audio_sample_t *
 		audio_buffer::read(
-			__inout uint16_t &samples
+			__inout uint32_t &samples
 			)
 		{
 			nescc::core::audio_sample_t *result = nullptr;
@@ -160,11 +160,11 @@ namespace nescc {
 
 		void
 		audio_buffer::set_size(
-			__in uint16_t frame_size,
-			__in uint16_t count
+			__in uint32_t frame_size,
+			__in uint32_t count
 			)
 		{
-			uint16_t iter = 0;
+			uint32_t iter = 0;
 
 			TRACE_ENTRY_FORMAT("Frame Size=%u, Count=%u", frame_size, count);
 

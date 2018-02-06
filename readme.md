@@ -38,10 +38,10 @@ What's there
 		* If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
 * Support for mappers
 	* Mapper #0 (NROM)
-	* Mapper #1 (MMC1)
+	* Mapper #1 (SXROM)
 	* Mapper #2 (UXROM)
 	* Mapper #3 (CNROM)
-	* Mapper #4 (MMC3) __NOTE__: Support for this mapper is limited
+	* Mapper #4 (TXROM)
 	* Mapper #7 (AXROM)
 * Support for live debugging (while in interactive mode)
 * Built-in CRT filter
@@ -258,6 +258,14 @@ Extracted roms/assembly/images can be found in the same directory as the input r
 Changelog
 =========
 
+Version 0.1.1806
+----------------
+*Updated: 2/5/2018*
+
+* Added unbuffered input to reduce input latency
+* Added apu clock routines (incomplete)
+* Fixed bug in mapper 3 (TXROM) (incomplete)
+
 Version 0.1.1805
 ----------------
 *Updated: 2/3/2018*
@@ -277,28 +285,6 @@ Version 0.1.1805
 *Updated: 1/29/2018*
 
 * Added mapper 2/3/7 (UXROM/CNROM/AXROM) support
-
-Version 0.1.1804
-----------------
-*Updated: 1/28/2018*
-
-* Added mapper 1 support (MMC1)
-
-*Updated: 1/27/2018*
-
-* Added program rom decoding to nescc-extract tool
-
-*Updated: 1/26/2018*
-
-* Added halt screen
-
-*Updated: 1/25/2018*
-
-* Added f11 fullscreen toggle
-
-*Updated: 1/22-23/2018*
-
-* Implemented mapper 4 read program rom routine
 
 *Changelog truncated (see file history for full log)*
 

@@ -32,7 +32,7 @@ namespace nescc {
 		}
 
 		audio_frame::audio_frame(
-			__in uint16_t size
+			__in uint32_t size
 			) :
 				m_position(0)
 		{
@@ -117,7 +117,7 @@ namespace nescc {
 
 		nescc::core::audio_sample_t *
 		audio_frame::read(
-			__inout uint16_t &samples
+			__inout uint32_t &samples
 			)
 		{
 			nescc::core::audio_sample_t *result = nullptr;
@@ -144,12 +144,12 @@ namespace nescc {
 
 		void
 		audio_frame::set_size(
-			__in uint16_t size
+			__in uint32_t size
 			)
 		{
 			TRACE_ENTRY_FORMAT("Size=%u", size);
 
-			nescc::core::memory<nescc::core::audio_sample_t>::set_size(size);
+			nescc::core::memory<nescc::core::audio_sample_t>::set_size(size, AUDIO_SAMPLE_SILENCE);
 
 			TRACE_EXIT();
 		}

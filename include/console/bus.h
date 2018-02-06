@@ -89,7 +89,7 @@ namespace nescc {
 					__in_opt bool debug = false
 					);
 
-				void mapper_interrupt(void);
+				void mmu_interrupt(void);
 
 				uint8_t mirroring(void) const;
 

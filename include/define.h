@@ -47,6 +47,8 @@ namespace nescc {
 	#define BACKGROUND_GREEN 0
 	#define BACKGROUND_RED 0
 
+	#define CLOCK_RATE 1789773 // 1.79 MHz
+
 	#define COLUMN_WIDTH 16
 	#define COLUMN_WIDTH_LONG 32
 
@@ -59,8 +61,8 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 4
-	#define NESCC_VERSION_WEEK 1805
+	#define NESCC_VERSION_REVISION 1
+	#define NESCC_VERSION_WEEK 1806
 
 	#define STRING_EMPTY "Empty"
 	#define STRING_INVALID "Invalid"

@@ -25,7 +25,9 @@ namespace nescc {
 
 	namespace core {
 
-		typedef uint8_t audio_sample_t;
+		#define AUDIO_SAMPLE_SILENCE 0
+
+		typedef int16_t audio_sample_t;
 
 		class audio_frame :
 				protected nescc::core::memory<nescc::core::audio_sample_t> {
@@ -35,7 +37,7 @@ namespace nescc {
 				audio_frame(void);
 
 				audio_frame(
-					__in uint16_t size
+					__in uint32_t size
 					);
 
 				audio_frame(
@@ -57,13 +59,13 @@ namespace nescc {
 				bool full(void) const;
 
 				nescc::core::audio_sample_t *read(
-					__inout uint16_t &samples
+					__inout uint32_t &samples
 					);
 
 				void reset(void);
 
 				void set_size(
-					__in uint16_t size
+					__in uint32_t size
 					);
 
 				virtual std::string to_string(
@@ -76,7 +78,7 @@ namespace nescc {
 
 			protected:
 
-				uint16_t m_position;
+				uint32_t m_position;
 		};
 	}
 }

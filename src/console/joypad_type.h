@@ -56,6 +56,8 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_CONSOLE_JOYPAD_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
+		//#define JOYPAD_BUFFERED // buffered input (might add latency)
+
 		#define JOYPAD_DATA_BUS 0x40
 		#define JOYPAD_DATA_FILL 0x80
 
@@ -139,7 +141,7 @@ namespace nescc {
 			};
 
 		#define JOYPAD_KEYBOARD_BUTTON(_TYPE_) \
-			(((_TYPE_) > (JOYPAD_BUTTON_MAX * 2)) ? SDL_SCANCODE_UNKNOWN : \
+			(((_TYPE_) > ((JOYPAD_BUTTON_MAX * 2) + 1)) ? SDL_SCANCODE_UNKNOWN : \
 				JOYPAD_KEYBOARD_BUT[_TYPE_])
 	}
 }

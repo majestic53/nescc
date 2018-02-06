@@ -437,8 +437,12 @@ namespace nescc {
 
 					iter_controller = m_status_button.find(m_controller.at(iter).first);
 					if(iter_controller != m_status_button.end()) {
+#ifndef JOYPAD_BUFFERED
+						SDL_GameController *controller = SDL_GameControllerFromInstanceID(iter_controller->first);
+#endif // JOYPAD_BUFFERED
 
 						for(int iter_button = 0; iter_button <= JOYPAD_BUTTON_MAX; ++iter_button) {
+#ifdef JOYPAD_BUFFERED
 							std::map<SDL_GameControllerButton, bool>::iterator iter_controller_button;
 
 							iter_controller_button = iter_controller->second.find(JOYPAD_CONTROLLER_BUTTON(iter_button));
@@ -446,17 +450,26 @@ namespace nescc {
 								iter_controller_button->second ? pad[iter] |= (1 << iter_button)
 										: pad[iter] &= ~(1 << iter_button);
 							}
+#else
+							(SDL_GameControllerGetButton(controller, JOYPAD_CONTROLLER_BUTTON(iter_button))
+								? pad[iter] |= (1 << iter_button) : pad[iter] &= ~(1 << iter_button));
+#endif // JOYPAD_BUFFERED
 						}
 					}
 				} else { // keyboard
-					std::map<SDL_Scancode, bool>::iterator iter_key;
 
 					for(int iter_button = 0; iter_button <= JOYPAD_BUTTON_MAX; ++iter_button) {
+#ifdef JOYPAD_BUFFERED
+						std::map<SDL_Scancode, bool>::iterator iter_key;
 
 						iter_key = m_status_key.find(JOYPAD_KEYBOARD_BUTTON(iter_button + (iter * (JOYPAD_BUTTON_MAX + 1))));
 						if(iter_key != m_status_key.end()) {
 							iter_key->second ? pad[iter] |= (1 << iter_button) : pad[iter] &= ~(1 << iter_button);
 						}
+#else
+						(SDL_GetKeyboardState(nullptr)[JOYPAD_KEYBOARD_BUTTON(iter_button + (iter * (JOYPAD_BUTTON_MAX + 1)))]
+							? pad[iter] |= (1 << iter_button) : pad[iter] &= ~(1 << iter_button));
+#endif // JOYPAD_BUFFERED
 					}
 				}
 

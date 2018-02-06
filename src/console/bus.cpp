@@ -434,7 +434,7 @@ namespace nescc {
 		}
 
 		void
-		bus::mapper_interrupt(void)
+		bus::mmu_interrupt(void)
 		{
 			TRACE_ENTRY();
 

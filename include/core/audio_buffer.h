@@ -25,8 +25,6 @@ namespace nescc {
 
 	namespace core {
 
-		typedef uint8_t audio_sample_t;
-
 		class audio_buffer {
 
 			public:
@@ -34,8 +32,8 @@ namespace nescc {
 				audio_buffer(void);
 
 				audio_buffer(
-					__in uint16_t frame_size,
-					__in uint16_t count
+					__in uint32_t frame_size,
+					__in uint32_t count
 					);
 
 				audio_buffer(
@@ -49,21 +47,21 @@ namespace nescc {
 					);
 
 				std::string as_string(
-					__in uint16_t frame,
+					__in uint32_t frame,
 					__in_opt bool verbose = false
 					) const;
 
 				void clear(void);
 
 				nescc::core::audio_sample_t *read(
-					__inout uint16_t &samples
+					__inout uint32_t &samples
 					);
 
 				void reset(void);
 
 				void set_size(
-					__in uint16_t frame_size,
-					__in uint16_t count
+					__in uint32_t frame_size,
+					__in uint32_t count
 					);
 
 				virtual std::string to_string(
@@ -80,9 +78,9 @@ namespace nescc {
 
 				std::mutex m_mutex;
 
-				uint16_t m_position_read;
+				uint32_t m_position_read;
 
-				uint16_t m_position_write;
+				uint32_t m_position_write;
 		};
 	}
 }

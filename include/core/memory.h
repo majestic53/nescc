@@ -177,11 +177,11 @@ namespace nescc {
 
 				T *raw(void)
 				{
-					uint8_t *result;
+					T *result;
 
 					TRACE_ENTRY();
 
-					result = &m_data[0];
+					result = (T *) &m_data[0];
 
 					TRACE_EXIT_FORMAT("Result=%p", result);
 					return result;
@@ -191,7 +191,7 @@ namespace nescc {
 					__in uint16_t address
 					) const
 				{
-					uint8_t result;
+					T result;
 
 					TRACE_ENTRY_FORMAT("Address=%u(%04x)", address, address);
 
@@ -218,9 +218,9 @@ namespace nescc {
 					TRACE_EXIT();
 				}
 
-				uint16_t size(void) const
+				uint32_t size(void) const
 				{
-					uint16_t result;
+					uint32_t result;
 
 					TRACE_ENTRY();
 
