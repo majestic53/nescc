@@ -42,14 +42,16 @@ namespace nescc {
 			_FORMAT_, __VA_ARGS__)
 #ifndef NDEBUG
 	#define _TRACE(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
-		nescc::trace &instance = nescc::trace::acquire(); \
-		try { \
-			if(((_LEVEL_) <= (TRACE + TRACE_ERROR)) && instance.initialized()) { \
-				instance.generate(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, \
-					_LINE_, _FORMAT_, __VA_ARGS__); \
-			} \
-		} catch(...) { } \
-		instance.release(); \
+		if((_LEVEL_) <= (TRACE + TRACE_ERROR)) { \
+			nescc::trace &instance = nescc::trace::acquire(); \
+			try { \
+				if(instance.initialized()) { \
+					instance.generate(_LEVEL_, _PREFIX_, _MESSAGE_, _FILE_, _FUNCTION_, \
+						_LINE_, _FORMAT_, __VA_ARGS__); \
+				} \
+			} catch(...) { } \
+			instance.release(); \
+		} \
 		}
 	#define _TRACE_DEBUG(_ENABLE_, _MESSAGE_, _FILE_, _FUNCTION_, _LINE_, _FORMAT_, ...) { \
 		if(_ENABLE_) { \

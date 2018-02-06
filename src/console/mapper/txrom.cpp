@@ -187,8 +187,7 @@ namespace nescc {
 				m_port_irq_counter.raw = 0;
 				m_port_irq_enable.raw = 0;
 				m_port_irq_period.raw = 0;
-				m_port_mirroring.mode = ((cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL) ? BANK_MIRRORING_HORIZONTAL
-					: BANK_MIRRORING_VERTICAL);
+				m_port_mirroring.mode = (cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL);
 				m_port_ram_protect.raw = 0;
 				m_ram_index = 0;
 				m_rom_character_index.resize(CHR_BANK_MAX + 1, std::make_pair(0, 0));
@@ -388,7 +387,7 @@ namespace nescc {
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p", &cartridge);
 
-				result = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_VERTICAL : CARTRIDGE_MIRRORING_HORIZONTAL);
+				result = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
 
 				TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
 				return result;
@@ -475,8 +474,7 @@ namespace nescc {
 				m_port_irq_counter.raw = 0;
 				m_port_irq_enable.raw = 0;
 				m_port_irq_period.raw = 0;
-				m_port_mirroring.mode = ((cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL)
-					? BANK_MIRRORING_HORIZONTAL : BANK_MIRRORING_VERTICAL);
+				m_port_mirroring.mode = (cartridge.mirroring() == CARTRIDGE_MIRRORING_HORIZONTAL);
 				m_port_ram_protect.raw = 0;
 				m_ram_index = 0;
 				m_rom_character_index.resize(CHR_BANK_MAX + 1, std::make_pair(0, 0));
@@ -588,8 +586,7 @@ namespace nescc {
 				if(verbose) {
 					std::vector<std::pair<uint8_t, uint16_t>>::const_iterator iter_rom;
 					std::vector<nescc::console::mapper::port_txrom_bank_data_t>::const_iterator iter_bank;
-					uint8_t mirroring = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL
-									: CARTRIDGE_MIRRORING_VERTICAL);
+					uint8_t mirroring = (m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
 
 					result << ", Mirroring=" << (int) mirroring << "(" << CARTRIDGE_MIRRORING_STRING(mirroring) << ")"
 						<< ", PRG RAM Bank=" << (int) m_ram_index

@@ -124,11 +124,6 @@ namespace nescc {
 			};
 
 			enum {
-				BANK_MIRRORING_VERTICAL = 0,
-				BANK_MIRRORING_HORIZONTAL,
-			};
-
-			enum {
 				BANK_PRG_ROM_MODE_0 = 0, // 0x8000 - 0x9fff: swappable, 0xc000 - 0xdfff: fixed to second-to-last bank
 				BANK_PRG_ROM_MODE_1, // 0x8000 - 0x9fff: fixed to second-to-last bank, 0xc000 - 0xdfff: swappable
 			};

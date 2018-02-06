@@ -352,7 +352,7 @@ namespace nescc {
 					if(!event.key.repeat) {
 						TRACE_MESSAGE_FORMAT(TRACE_INFORMATION, "Encountered key change event",
 							"Key=%i, State=%s", event.key.keysym.scancode,
-							(event.cbutton.state == SDL_PRESSED) ? "Pressed" : "Released");
+							(event.key.state == SDL_PRESSED) ? "Pressed" : "Released");
 
 						switch(event.key.keysym.scancode) {
 							case SDL_SCANCODE_F11:
