@@ -46,6 +46,7 @@ namespace nescc {
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
+			uint16_t value;
 			std::stringstream result;
 			std::vector<std::string> sub_arguments = arguments;
 			uint32_t type = ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS;
@@ -58,12 +59,33 @@ namespace nescc {
 			if(m_runtime.initialized()) {
 
 				switch(type) {
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE:
+
+						if(sub_arguments.empty()) {
+							result << m_runtime.bus().apu().cycle();
+						} else {
+							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP:
 
 						if(sub_arguments.empty()) {
 							result << string_help_interactive_subcommand(ARGUMENT_INTERACTIVE_APU);
 						} else {
 							result << "Unexpected command argument: " << sub_arguments.front();
+						}
+						break;
+					case ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE:
+
+						if(parse_subcommand_value(sub_arguments, value)) {
+
+							if(value && !m_runtime.bus().apu().paused()) {
+								m_runtime.bus().apu().pause();
+							} else if(!value && m_runtime.bus().apu().paused()) {
+								m_runtime.bus().apu().unpause();
+							}
+						} else {
+							result << "Invalid command arguments: <value>";
 						}
 						break;
 					case ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS:

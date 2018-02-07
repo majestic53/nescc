@@ -235,6 +235,7 @@ namespace nescc {
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_HIDE,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ,
+			ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_NMI,
 			ARGUMENT_INTERACTIVE_SUBCOMMAND_PORT,
@@ -254,7 +255,7 @@ namespace nescc {
 
 		static const std::string ARGUMENT_INTERACTIVE_SUBCOMMAND_STR[] = {
 			"crt", "cycle", "dasm", "dot", "get", "halt", "help", "hide", "irq",
-			"next", "nmi", "port", "present", "reg", "reset", "scanline",
+			"mute", "next", "nmi", "port", "present", "reg", "reset", "scanline",
 			"set", "show", "status", "strobe", "watch",
 			};
 
@@ -272,6 +273,7 @@ namespace nescc {
 			"Display help information", // help
 			"Hide display window", // hide
 			"Signal maskable interrupt", // irq
+			"Mute/Unmute audio playback", // mute
 			"Display next instructions", // next
 			"Signal non-maskable interrupt", // nmi
 			"Display/Set port value", // port
@@ -300,6 +302,7 @@ namespace nescc {
 			"", // help
 			"", // hide
 			"", // irq
+			"<value>", // mute
 			"[<value>]", // next
 			"", // nmi
 			"<port> [<value>]", // port
@@ -319,7 +322,8 @@ namespace nescc {
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STR_FORM[_TYPE_])
 
 		static const std::map<uint32_t, std::vector<uint32_t>> ARGUMENT_INTERACTIVE_SUB_MAP = {
-			std::make_pair(ARGUMENT_INTERACTIVE_APU, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP,
+			std::make_pair(ARGUMENT_INTERACTIVE_APU, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE,
+				ARGUMENT_INTERACTIVE_SUBCOMMAND_HELP, ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_STATUS, })),
 			std::make_pair(ARGUMENT_INTERACTIVE_CPU, std::vector<uint32_t>({ ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE,
 				ARGUMENT_INTERACTIVE_SUBCOMMAND_DISASSEMBLE, ARGUMENT_INTERACTIVE_SUBCOMMAND_GET,
@@ -363,7 +367,7 @@ namespace nescc {
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_CYCLE_SUPPORT[] = {
-			ARGUMENT_INTERACTIVE_CPU, ARGUMENT_INTERACTIVE_PPU,
+			ARGUMENT_INTERACTIVE_APU, ARGUMENT_INTERACTIVE_CPU, ARGUMENT_INTERACTIVE_PPU,
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_DISASSEMBLE_SUPPORT[] = {
@@ -397,6 +401,10 @@ namespace nescc {
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT[] = {
 			ARGUMENT_INTERACTIVE_CPU,
+			};
+
+		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE_SUPPORT[] = {
+			ARGUMENT_INTERACTIVE_APU,
 			};
 
 		static const uint8_t ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT_SUPPORT[] = {
@@ -493,6 +501,10 @@ namespace nescc {
 				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ, std::set<uint32_t>(
 					ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT
 						+ sizeof(ARGUMENT_INTERACTIVE_SUBCOMMAND_IRQ_SUPPORT)))),
+			std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE), // mute
+				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE, std::set<uint32_t>(
+					ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE_SUPPORT
+						+ sizeof(ARGUMENT_INTERACTIVE_SUBCOMMAND_MUTE_SUPPORT)))),
 			std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_STRING(ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT), // next
 				std::make_pair(ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT, std::set<uint32_t>(
 					ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT_SUPPORT, ARGUMENT_INTERACTIVE_SUBCOMMAND_NEXT_SUPPORT

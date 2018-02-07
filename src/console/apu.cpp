@@ -32,24 +32,22 @@ namespace nescc {
 			__in int length
 			)
 		{
-			/*uint32_t in_length = 0, out_length = (length / sizeof(nescc::core::audio_sample_t));
+			uint32_t in_length = 0, out_length = (length / sizeof(nescc::core::audio_sample_t));
 			nescc::core::audio_sample_t *in = nullptr, *out = ((nescc::core::audio_sample_t *) buffer);
 
-			in = ((nescc::core::audio_buffer *) data)->read(in_length);
-			if(in && in_length) {
+			if(data && out) {
 
-				// TODO: copy samples into out buffer
-
-			} else {
-				std::memset(out, AUDIO_SAMPLE_SILENCE, out_length);
-			}*/
-
-// TODO
-			std::memset(buffer, AUDIO_SAMPLE_SILENCE, length);
-// ---
+				in = ((nescc::core::audio_buffer *) data)->read(in_length);
+				if(in && in_length) {
+					// TODO: copy samples into out buffer
+				} else {
+					std::memset(out, AUDIO_SAMPLE_SILENCE, out_length);
+				}
+			}
 		}
 
 		apu::apu(void) :
+			m_cycle(0),
 			m_debug(false),
 			m_format({ }),
 			m_odd(true),
@@ -75,46 +73,16 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frequency" << (int) m_format.freq
-				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Samples" << (int) m_format.samples
-				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Channels" << (int) m_format.channels;
-
-			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frame"
-				<< SCALAR_AS_HEX(uint8_t, m_frame.raw);
-
-			if(verbose) {
-				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Inhibit Irq"
-						<< SCALAR_AS_HEX(uint8_t, m_frame.irq_inhibit)
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Mode"
-						<< SCALAR_AS_HEX(uint8_t, m_frame.mode);
-			}
-
-			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Channel Status"
-				<< SCALAR_AS_HEX(uint8_t, m_channel_status.raw);
-
-			if(verbose) {
-				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Pulse 1 enabled"
-						<< SCALAR_AS_HEX(uint8_t, m_channel_status.pulse1_enabled)
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Pulse 2 enabled"
-						<< SCALAR_AS_HEX(uint8_t, m_channel_status.pulse2_enabled)
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Triangle enabled"
-						<< SCALAR_AS_HEX(uint8_t, m_channel_status.triangle_enabled)
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Noise enabled"
-						<< SCALAR_AS_HEX(uint8_t, m_channel_status.noise_enabled)
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Dmc enabled"
-						<< SCALAR_AS_HEX(uint8_t, m_channel_status.dmc_enabled)
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Frame Interrupt"
-						<< SCALAR_AS_HEX(uint8_t, m_channel_status.frame_interrupt)
-					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Dmc Interrupt"
-						<< SCALAR_AS_HEX(uint8_t, m_channel_status.dmc_interrupt);
-			}
-
 			for(; iter <= APU_PULSE_MAX; ++iter) {
 				std::stringstream stream;
 
 				stream << "Pulse[" << (iter + 1) << "] Timer";
 
-				result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
+				if(iter) {
+					result << std::endl << std::endl;
+				}
+
+				result << std::left << std::setw(COLUMN_WIDTH_LONG) << stream.str()
 					<< SCALAR_AS_HEX(uint8_t, m_pulse_timer.at(iter).raw);
 
 				if(verbose) {
@@ -247,6 +215,41 @@ namespace nescc {
 				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Dmc Output"
 					<< SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_OUTPUT));
 
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frame"
+				<< SCALAR_AS_HEX(uint8_t, m_frame.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Inhibit Irq"
+						<< SCALAR_AS_HEX(uint8_t, m_frame.irq_inhibit)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Mode"
+						<< SCALAR_AS_HEX(uint8_t, m_frame.mode);
+			}
+
+			result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Channel Status"
+				<< SCALAR_AS_HEX(uint8_t, m_channel_status.raw);
+
+			if(verbose) {
+				result << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Pulse 1 enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.pulse1_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Pulse 2 enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.pulse2_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Triangle enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.triangle_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Noise enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.noise_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Dmc enabled"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.dmc_enabled)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Frame Interrupt"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.frame_interrupt)
+					<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "|- Dmc Interrupt"
+						<< SCALAR_AS_HEX(uint8_t, m_channel_status.dmc_interrupt);
+			}
+
+			result << std::endl << std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Cycle" << m_cycle
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Frequency" << (int) m_format.freq
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Samples" << (int) m_format.samples
+				<< std::endl << std::left << std::setw(COLUMN_WIDTH_LONG) << "Channels" << (int) m_format.channels;
+
 			TRACE_EXIT();
 			return result.str();
 		}
@@ -279,6 +282,7 @@ namespace nescc {
 			m_noise_timer_high.raw = 0;
 			m_triangle_timer.raw = 0;
 			m_triangle_timer_high.raw = 0;
+			m_cycle = 0;
 			m_debug = false;
 			m_odd = true;
 			m_paused = false;
@@ -286,6 +290,41 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu cleared.");
 
 			TRACE_EXIT();
+		}
+
+		void
+		apu::clock_frame_half(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::clock_frame_quarter(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		uint32_t
+		apu::cycle(void) const
+		{
+			TRACE_ENTRY();
+
+#ifndef NDEBUG
+			if(!m_initialized) {
+				THROW_NESCC_CONSOLE_APU_EXCEPTION(NESCC_CONSOLE_APU_EXCEPTION_UNINITIALIZED);
+			}
+#endif // NDEBUG
+
+			TRACE_EXIT_FORMAT("Result=%u", m_cycle);
+			return m_cycle;
 		}
 
 		bool
@@ -399,6 +438,14 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
+			switch(port) {
+				case APU_PORT_CHANNEL_STATUS: // 0x4015
+					m_channel_status.frame_interrupt = 0;
+					break;
+				default:
+					break;
+			}
+
 			result = m_port.read(port);
 
 			TRACE_EXIT_FORMAT("Result=%u(%02x)", result, result);
@@ -436,11 +483,26 @@ namespace nescc {
 			m_noise_timer_high.raw = 0;
 			m_triangle_timer.raw = 0;
 			m_triangle_timer_high.raw = 0;
+			m_cycle = 0;
 			m_debug = debug;
 			m_odd = true;
 			m_paused = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu reset.");
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::signal_interrupt(
+			__in nescc::console::interface::bus &bus
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			if(!m_frame.irq_inhibit) {
+				bus.cpu_interrupt_maskable();
+			}
 
 			TRACE_EXIT();
 		}
@@ -485,6 +547,7 @@ namespace nescc {
 							<< ", " << SCALAR_AS_HEX(uint8_t, m_port.read(APU_PORT_DMC_OUTPUT)) << "}"
 						<< ", Channel Status=" << SCALAR_AS_HEX(uint8_t, m_channel_status.raw)
 						<< ", Frame=" << SCALAR_AS_HEX(uint8_t, m_frame.raw)
+						<< ", Cycle=" << m_cycle
 						<< ", Buffer=" << m_buffer.to_string(verbose);
 				}
 			}
@@ -542,67 +605,65 @@ namespace nescc {
 
 			TRACE_DEBUG_FORMAT(m_debug, "Apu update", "%s", m_odd ? "Odd" : "Even");
 
-			update_voice_triangle(bus);
-
 			if(m_odd) {
-				update_voice_pulse(bus, APU_PULSE_1);
-				update_voice_pulse(bus, APU_PULSE_2);
-				update_voice_noise(bus);
-				update_voice_dmc(bus);
+
+				if(!m_frame.mode) { // 4-step
+
+					switch(m_cycle) {
+						case APU_MODE_4_STEP_1: // 3728
+							clock_frame_quarter();
+							break;
+						case APU_MODE_4_STEP_2: // 7456
+							clock_frame_quarter();
+							clock_frame_half();
+							break;
+						case APU_MODE_4_STEP_3: // 11185
+							clock_frame_quarter();
+							break;
+						case APU_MODE_4_STEP_4: // 14914
+							clock_frame_quarter();
+							clock_frame_half();
+							signal_interrupt(bus);
+							break;
+						case APU_MODE_4_RESET: // 14915
+							m_cycle = 0;
+							break;
+						default:
+							break;
+					}
+				} else { // 5-step
+
+					switch(m_cycle) {
+						case APU_MODE_5_STEP_1: // 3728
+							clock_frame_quarter();
+							break;
+						case APU_MODE_5_STEP_2: // 7456
+							clock_frame_quarter();
+							clock_frame_half();
+							break;
+						case APU_MODE_5_STEP_3: // 11185
+							clock_frame_quarter();
+							break;
+						case APU_MODE_5_STEP_4: // 14914
+							clock_frame_quarter();
+							clock_frame_half();
+							break;
+						case APU_MODE_5_STEP_5: // 18640
+							break;
+						case APU_MODE_5_RESET: // 18641
+							m_cycle = 0;
+							break;
+						default:
+							break;
+					}
+				}
+
+				++m_cycle;
 			}
 
 			m_odd = !m_odd;
 
 			TRACE_DEBUG_FORMAT(m_debug, "Apu state", "\n%s", STRING_CHECK(as_string(true)));
-
-			TRACE_EXIT();
-		}
-
-		void
-		apu::update_voice_dmc(
-			__in nescc::console::interface::bus &bus
-			)
-		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
-
-			// TODO
-
-			TRACE_EXIT();
-		}
-
-		void
-		apu::update_voice_noise(
-			__in nescc::console::interface::bus &bus
-			)
-		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
-
-			// TODO
-
-			TRACE_EXIT();
-		}
-
-		void
-		apu::update_voice_pulse(
-			__in nescc::console::interface::bus &bus,
-			__in int pulse
-			)
-		{
-			TRACE_ENTRY_FORMAT("Bus=%p, Pulse=%u", &bus, pulse);
-
-			// TODO
-
-			TRACE_EXIT();
-		}
-
-		void
-		apu::update_voice_triangle(
-			__in nescc::console::interface::bus &bus
-			)
-		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
-
-			// TODO
 
 			TRACE_EXIT();
 		}
@@ -681,11 +742,13 @@ namespace nescc {
 					break;
 				case APU_PORT_CHANNEL_STATUS: // 0x4015
 					m_channel_status.raw = value;
+					m_channel_status.dmc_interrupt = 0;
 					break;
 				case APU_PORT_INVALID_1: // 0x4016
 					break;
 				case APU_PORT_FRAME_COUNT: // 0x4017
 					m_frame.raw = value;
+					m_cycle = 0;
 					break;
 				default:
 					THROW_NESCC_CONSOLE_APU_EXCEPTION_FORMAT(NESCC_CONSOLE_APU_EXCEPTION_UNSUPPORTED,

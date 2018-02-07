@@ -133,6 +133,8 @@ namespace nescc {
 
 				void clear(void);
 
+				uint32_t cycle(void) const;
+
 				bool paused(void) const;
 
 				void pause(void);
@@ -182,30 +184,23 @@ namespace nescc {
 					__in const apu &other
 					) = delete;
 
+				void clock_frame_half(void);
+
+				void clock_frame_quarter(void);
+
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
-				void update_voice_dmc(
-					__in nescc::console::interface::bus &bus
-					);
-
-				void update_voice_noise(
-					__in nescc::console::interface::bus &bus
-					);
-
-				void update_voice_pulse(
-					__in nescc::console::interface::bus &bus,
-					__in int pulse
-					);
-
-				void update_voice_triangle(
+				void signal_interrupt(
 					__in nescc::console::interface::bus &bus
 					);
 
 				nescc::core::audio_buffer m_buffer;
 
 				nescc::console::port_channel_status_t m_channel_status;
+
+				uint32_t m_cycle;
 
 				bool m_debug;
 

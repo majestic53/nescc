@@ -117,7 +117,7 @@ $ nescc ../somerom.nes -c
 Launching in interactive mode allows for live debugging with the following commands:
 
 ```
-apu             [help, status]                                        Display apu state
+apu             [cycle, help, mute, status]                           Display apu state
 cpu             [cycle, get, halt, help, irq, next,
 			nmi, reg, reset, set, status, watch]          Display/Set cpu state
 debug           [help, set, status]                                   Enable/Disable debug mode
@@ -142,7 +142,9 @@ version                                                               Display ve
 ### APU Subcommands
 
 ```
+cycle                                                                 Display current cycle count
 help                                                                  Display help information
+mute            <value>                                               Mute/Unmute audio playback
 status                                                                Display status information
 ```
 
@@ -260,6 +262,10 @@ Changelog
 
 Version 0.1.1806
 ----------------
+*Updated: 2/6/2018*
+
+* Added apu cycle, mute commands
+
 *Updated: 2/5/2018*
 
 * Added unbuffered input to reduce input latency

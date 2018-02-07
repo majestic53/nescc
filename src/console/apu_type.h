@@ -58,10 +58,23 @@ namespace nescc {
 
 		#define APU_AUDIO_FORMAT AUDIO_S16
 		#define APU_BUFFER_COUNT 3
-		#define APU_BUFFER_SIZE 4000
+		#define APU_BUFFER_SIZE 1000
 		#define APU_CHANNEL_COUNT 1
 		#define APU_OFFSET 0x4000
-		#define APU_SAMPLE_RATE 96000
+		#define APU_SAMPLE_RATE 16000
+
+		#define APU_MODE_4_RESET 14915
+		#define APU_MODE_4_STEP_1 3728
+		#define APU_MODE_4_STEP_2 7456
+		#define APU_MODE_4_STEP_3 11185
+		#define APU_MODE_4_STEP_4 14914
+
+		#define APU_MODE_5_RESET 18641
+		#define APU_MODE_5_STEP_1 3728
+		#define APU_MODE_5_STEP_2 7456
+		#define APU_MODE_5_STEP_3 11185
+		#define APU_MODE_5_STEP_4 14914
+		#define APU_MODE_5_STEP_5 18640
 
 		enum {
 			APU_PORT_PULSE_1_TIMER = 0, // 0x4000 - 0x4003
