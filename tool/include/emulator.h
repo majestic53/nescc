@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_TOOL_RUNNER_H_
-#define NESCC_TOOL_RUNNER_H_
+#ifndef NESCC_TOOL_EMULATOR_H_
+#define NESCC_TOOL_EMULATOR_H_
 
 #include "../../include/runtime.h"
 
@@ -25,13 +25,13 @@ namespace nescc {
 
 	namespace tool {
 
-		class runner :
-				public nescc::core::singleton<nescc::tool::runner>,
+		class emulator :
+				public nescc::core::singleton<nescc::tool::emulator>,
 				protected nescc::core::thread {
 
 			public:
 
-				~runner(void);
+				~emulator(void);
 
 				int invoke(
 					__in const std::vector<std::string> &arguments
@@ -43,16 +43,16 @@ namespace nescc {
 
 			protected:
 
-				friend class nescc::core::singleton<nescc::tool::runner>;
+				friend class nescc::core::singleton<nescc::tool::emulator>;
 
-				runner(void);
+				emulator(void);
 
-				runner(
-					__in const runner &other
+				emulator(
+					__in const emulator &other
 					) = delete;
 
-				runner &operator=(
-					__in const runner &other
+				emulator &operator=(
+					__in const emulator &other
 					) = delete;
 
 				std::string command_apu(
@@ -183,4 +183,4 @@ namespace nescc {
 	}
 }
 
-#endif // NESCC_TOOL_RUNNER_H_
+#endif // NESCC_TOOL_EMULATOR_H_

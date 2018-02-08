@@ -25,7 +25,7 @@
 #include "./joypad.h"
 #include "./mmu.h"
 #include "./ppu.h"
-#include "../interface/display.h"
+#include "../gui/display.h"
 
 namespace nescc {
 
@@ -169,7 +169,7 @@ namespace nescc {
 
 				bool m_debug;
 
-				nescc::interface::display &m_display;
+				nescc::gui::display &m_display;
 
 				nescc::console::joypad &m_joypad;
 

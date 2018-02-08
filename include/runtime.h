@@ -34,7 +34,7 @@ namespace nescc {
 
 			nescc::console::bus &bus(void);
 
-			nescc::interface::display &display(void);
+			nescc::gui::display &display(void);
 
 			uint32_t frame(void) const;
 
@@ -108,7 +108,7 @@ namespace nescc {
 
 			bool m_debug;
 
-			nescc::interface::display &m_display;
+			nescc::gui::display &m_display;
 
 			uint32_t m_frame;
 

@@ -32,10 +32,11 @@ namespace nescc {
 			__in int length
 			)
 		{
-			uint32_t in_length = 0, out_length = (length / sizeof(nescc::core::audio_sample_t));
+			uint32_t out_length = (length / sizeof(nescc::core::audio_sample_t));
 			nescc::core::audio_sample_t *in = nullptr, *out = ((nescc::core::audio_sample_t *) buffer);
 
 			if(data && out) {
+				uint32_t in_length = 0;
 
 				in = ((nescc::core::audio_buffer *) data)->read(in_length);
 				if(in && in_length) {

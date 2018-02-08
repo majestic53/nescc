@@ -253,7 +253,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << NESCC_EXTRACTOR << display_version(verbose)
+			result << NESCC_EXTRACTOR << " " << display_version(verbose)
 				<< std::endl << NESCC_COPYRIGHT
 				<< std::endl << std::endl << display_usage();
 
@@ -602,7 +602,6 @@ namespace nescc {
 			)
 		{
 			int index = 1;
-			std::stringstream result;
 			std::vector<std::string>::const_iterator iter;
 			bool decode = false, extract_chr = false, extract_prg = false, help = false, verbose = false,
 				version = false;
@@ -682,10 +681,11 @@ namespace nescc {
 				load(m_path, decode, extract_chr, extract_prg, verbose);
 
 				if(!extract_chr && !extract_prg) {
+					std::stringstream stream;
 
-					result << as_string(verbose);
-					if(!result.str().empty()) {
-						std::cout << result.str() << std::endl;
+					stream << as_string(verbose);
+					if(!stream.str().empty()) {
+						std::cout << stream.str() << std::endl;
 					}
 				}
 			}

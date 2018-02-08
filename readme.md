@@ -11,7 +11,7 @@ Table of Contents
 1. [Features](https://github.com/majestic53/nescc#features) -- Project features
 2. [Build](https://github.com/majestic53/nescc#build) -- How to build the project
 3. [Usage](https://github.com/majestic53/nescc#usage) -- How to use the project
-	* [Nescc](https://github.com/majestic53/nescc#nescc) -- How to use the Nescc application
+	* [Nescc-emulator](https://github.com/majestic53/nescc#nescc-emulator) -- How to use the Nescc emulator
 		* [Interactive Commands](https://github.com/majestic53/nescc#interactive-commands) -- All interactive mode commands
  		* [APU Subcommands](https://github.com/majestic53/nescc#apu-subcommands) -- All interactive mode APU subcommands
 		* [CPU Subcommands](https://github.com/majestic53/nescc#cpu-subcommands) -- All interactive mode CPU subcommands
@@ -20,7 +20,8 @@ Table of Contents
 		* [Joypad Subcommands](https://github.com/majestic53/nescc#joypad-subcommands) -- All interactive mode joypad subcommands
 		* [MMU Subcommands](https://github.com/majestic53/nescc#mmu-subcommands) -- All interactive mode MMU subcommands
 		* [PPU Subcommands](https://github.com/majestic53/nescc#ppu-subcommands) -- All interactive mode PPU subcommands
-	* [Nescc-extract](https://github.com/majestic53/nescc#nescc-extract) -- How to use Nescc-extract application
+	* [Nescc-assembler](https://github.com/majestic53/nescc#nescc-assembler) -- How to use the Nescc assembler
+	* [Nescc-extractor](https://github.com/majestic53/nescc#nescc-extractor) -- How to use the Nescc extractor
 4. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
 5. [License](https://github.com/majestic53/nescc#license) -- Project license information
 
@@ -79,10 +80,10 @@ Where LEVEL corrisponds to the tracing verbosity (0=Error, 1=Warnings, 2=Informa
 Usage
 =====
 
-Nescc
------
+Nescc-emulator
+--------------
 
-Nescc is a CLI application for emulating/debugging NES roms.
+Nescc-emulator is a CLI application for emulating/debugging NES roms.
 
 ```
 Nescc [-c|--crt] [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
@@ -97,19 +98,19 @@ Nescc [-c|--crt] [-d|--debug] [-h|--help] [-i|--interactive] [-v|--version] path
 To launch __without__ the interactive mode enabled:
 
 ```
-$ nescc ../somerom.nes
+$ nescc-emulator ../somerom.nes
 ```
 
 Launch with the interactive mode enabled:
 
 ```
-$ nescc ../somerom.nes -i
+$ nescc-emulator ../somerom.nes -i
 ```
 
 Launch with the CRT filter enabled:
 
 ```
-$ nescc ../somerom.nes -c
+$ nescc-emulator ../somerom.nes -c
 ```
 
 ### Interactive Commands
@@ -214,13 +215,41 @@ status                                                                Display st
 watch           [<address> | clear]                                   Set/Clear watch memory addresses
 ```
 
-Nescc-extract
--------------
+Nescc-assembler
+---------------
 
-Nescc-extract is a CLI application for extracting various information from NES roms.
+Nescc-assembler is a CLI application for assembling NES roms from source.
 
 ```
-Nescc-extract [-d|--decode] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose]
+Nescc-assembler [-h|--help] [-l|--listing] [-a|--verbose] [-v|--version] path
+
+-h | --help                    Display help information
+-l | --listing                 Output listing file
+-a | --verbose                 Display verbose information
+-v | --version                 Display version information
+```
+
+To compile an assembly file into a rom:
+
+```
+$ nescc-assembler somefile.asm
+```
+
+To compile an assembly file into a rom and generate a listing file:
+
+```
+$ nescc-assembler -l somefile.asm
+```
+
+Compiled roms/listings can be found in the same directory as the input assembly file
+
+Nescc-extractor
+---------------
+
+Nescc-extractor is a CLI application for extracting various information from NES roms.
+
+```
+Nescc-extractor [-d|--decode] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-a|--verbose]
 		[-v|--version] path
 
 -d | --decode                                                         Decode rom banks
@@ -234,25 +263,25 @@ Nescc-extract [-d|--decode] [-c|--extract-chr] [-p|--extract-pgr] [-h|--help] [-
 To display a rom header in a human-readable form:
 
 ```
-$ nescc-extract -a ../somerom.nes
+$ nescc-extractor -a ../somerom.nes
 ```
 
 To extract PRG and CHR roms:
 
 ```
-$ nescc-extract -c -p ../somerom.nes
+$ nescc-extractor -c -p ../somerom.nes
 ```
 
 To extract PRG roms as assembly:
 
 ```
-$ nescc-extract -p -d ../somerom.nes
+$ nescc-extractor -p -d ../somerom.nes
 ```
 
 To extract CHR roms as images:
 
 ```
-$ nescc-extract -c -d ../somerom.nes
+$ nescc-extractor -c -d ../somerom.nes
 ```
 
 Extracted roms/assembly/images can be found in the same directory as the input rom
@@ -262,6 +291,11 @@ Changelog
 
 Version 0.1.1806
 ----------------
+*Updated: 2/7/2018*
+
+* Added assembler tool
+* Refactored tools folder
+
 *Updated: 2/6/2018*
 
 * Added apu cycle, mute commands
@@ -269,8 +303,8 @@ Version 0.1.1806
 *Updated: 2/5/2018*
 
 * Added unbuffered input to reduce input latency
-* Added apu clock routines (incomplete)
-* Fixed bug in mapper 3 (TXROM) (incomplete)
+* Added apu clock routines <s>(incomplete)</s>
+* <s>Fixed bug in mapper 3 (TXROM) (incomplete)</s>
 
 Version 0.1.1805
 ----------------

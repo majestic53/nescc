@@ -25,7 +25,7 @@ namespace nescc {
 		m_bus(nescc::console::bus::acquire()),
 		m_crt_filter(false),
 		m_debug(false),
-		m_display(nescc::interface::display::acquire()),
+		m_display(nescc::gui::display::acquire()),
 		m_frame(1),
 		m_step(false),
 		m_step_frame(false),
@@ -72,7 +72,7 @@ namespace nescc {
 		return m_bus;
 	}
 
-	nescc::interface::display &
+	nescc::gui::display &
 	runtime::display(void)
 	{
 		TRACE_ENTRY();

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_INTERFACE_DISPLAY_H_
-#define NESCC_INTERFACE_DISPLAY_H_
+#ifndef NESCC_GUI_DISPLAY_H_
+#define NESCC_GUI_DISPLAY_H_
 
 #include <vector>
 #include "../core/bitmap.h"
@@ -25,10 +25,10 @@
 
 namespace nescc {
 
-	namespace interface {
+	namespace gui {
 
 		class display :
-				public nescc::core::singleton<nescc::interface::display> {
+				public nescc::core::singleton<nescc::gui::display> {
 
 			public:
 
@@ -101,7 +101,7 @@ namespace nescc {
 
 			protected:
 
-				friend class nescc::core::singleton<nescc::interface::display>;
+				friend class nescc::core::singleton<nescc::gui::display>;
 
 				display(void);
 
@@ -168,4 +168,4 @@ namespace nescc {
 	}
 }
 
-#endif // NESCC_INTERFACE_DISPLAY_H_
+#endif // NESCC_GUI_DISPLAY_H_

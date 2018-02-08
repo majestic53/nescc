@@ -17,14 +17,14 @@
  */
 
 #include <climits>
-#include "../include/runner.h"
-#include "./runner_type.h"
+#include "../include/emulator.h"
+#include "./emulator_type.h"
 
 namespace nescc {
 
 	namespace tool {
 
-		runner::runner(void) :
+		emulator::emulator(void) :
 			m_crt_filter(false),
 			m_debug(false),
 			m_interactive(false),
@@ -36,13 +36,13 @@ namespace nescc {
 			return;
 		}
 
-		runner::~runner(void)
+		emulator::~emulator(void)
 		{
 			m_runtime.release();
 		}
 
 		std::string
-		runner::command_apu(
+		emulator::command_apu(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -108,7 +108,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_cpu(
+		emulator::command_cpu(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -336,7 +336,7 @@ namespace nescc {
 
 #ifndef NDEBUG
 		std::string
-		runner::command_debug(
+		emulator::command_debug(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -386,7 +386,7 @@ namespace nescc {
 #endif // NDEBUG
 
 		std::string
-		runner::command_display(
+		emulator::command_display(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -465,7 +465,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_frame(
+		emulator::command_frame(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -486,7 +486,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_joypad(
+		emulator::command_joypad(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -539,7 +539,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_mmu(
+		emulator::command_mmu(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -583,7 +583,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_pause(
+		emulator::command_pause(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -609,7 +609,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_ppu(
+		emulator::command_ppu(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -852,7 +852,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_restart(
+		emulator::command_restart(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -879,7 +879,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_run(
+		emulator::command_run(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -906,7 +906,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_status(
+		emulator::command_status(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -934,7 +934,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_step(
+		emulator::command_step(
 			__in_opt const std::vector<std::string> &arguments,
 			__in_opt bool step,
 			__in_opt bool step_frame
@@ -1014,7 +1014,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::command_stop(
+		emulator::command_stop(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
@@ -1040,20 +1040,20 @@ namespace nescc {
 		}
 
 		int
-		runner::invoke(
+		emulator::invoke(
 			__in_opt const std::vector<std::string> &arguments
 			)
 		{
 			bool help = false, version = false;
-			int index = 0, result = EXIT_SUCCESS;
+			int index = 1, result = EXIT_SUCCESS;
 			std::vector<std::string>::const_iterator iter;
 
 			if(!m_initialized) {
-				THROW_NESCC_TOOL_RUNNER_EXCEPTION(NESCC_TOOL_RUNNER_EXCEPTION_UNINITIALIZED);
+				THROW_NESCC_TOOL_EMULATOR_EXCEPTION(NESCC_TOOL_EMULATOR_EXCEPTION_UNINITIALIZED);
 			}
 
 			if(arguments.size() < ARGUMENT_MIN) {
-				THROW_NESCC_TOOL_RUNNER_EXCEPTION_FORMAT(NESCC_TOOL_RUNNER_EXCEPTION_ARGUMENT_MISSING, "%s",
+				THROW_NESCC_TOOL_EMULATOR_EXCEPTION_FORMAT(NESCC_TOOL_EMULATOR_EXCEPTION_ARGUMENT_MISSING, "%s",
 					STRING_CHECK(string_usage()));
 			}
 
@@ -1070,7 +1070,7 @@ namespace nescc {
 
 					entry = ARGUMENT_MAP.find(str);
 					if(entry == ARGUMENT_MAP.end()) {
-						THROW_NESCC_TOOL_RUNNER_EXCEPTION_FORMAT(NESCC_TOOL_RUNNER_EXCEPTION_ARGUMENT_MALFORMED,
+						THROW_NESCC_TOOL_EMULATOR_EXCEPTION_FORMAT(NESCC_TOOL_EMULATOR_EXCEPTION_ARGUMENT_MALFORMED,
 							"Argument[%u]=%s", index, (*iter).c_str());
 					}
 
@@ -1093,13 +1093,13 @@ namespace nescc {
 							version = true;
 							break;
 						default:
-							THROW_NESCC_TOOL_RUNNER_EXCEPTION_FORMAT(NESCC_TOOL_RUNNER_EXCEPTION_ARGUMENT_UNSUPPORTED,
+							THROW_NESCC_TOOL_EMULATOR_EXCEPTION_FORMAT(NESCC_TOOL_EMULATOR_EXCEPTION_ARGUMENT_UNSUPPORTED,
 								"Argument[%u]=%s", index, (*iter).c_str());
 					}
 				} else {
 
 					if(!m_path.empty()) {
-						THROW_NESCC_TOOL_RUNNER_EXCEPTION_FORMAT(NESCC_TOOL_RUNNER_EXCEPTION_PATH_REASSIGNED, "%s",
+						THROW_NESCC_TOOL_EMULATOR_EXCEPTION_FORMAT(NESCC_TOOL_EMULATOR_EXCEPTION_PATH_REASSIGNED, "%s",
 							STRING_CHECK(string_usage()));
 					}
 
@@ -1119,7 +1119,7 @@ namespace nescc {
 		}
 
 		bool
-		runner::on_run(void)
+		emulator::on_run(void)
 		{
 			bool result = true, running = true;
 
@@ -1146,7 +1146,7 @@ namespace nescc {
 					}
 				}
 
-				stream << "] " << NESCC << "> ";
+				stream << "] " << NESCC_EMULATOR << "> ";
 #ifdef TRACE_COLOR
 				stream << PROMPT_COLOR_STOP;
 #endif // TRACE_COLOR
@@ -1256,7 +1256,7 @@ namespace nescc {
 		}
 
 		void
-		runner::on_uninitialize(void)
+		emulator::on_uninitialize(void)
 		{
 
 			if(m_runtime.initialized()) {
@@ -1278,7 +1278,7 @@ namespace nescc {
 		}
 
 		uint32_t
-		runner::parse_subcommand(
+		emulator::parse_subcommand(
 			__in const std::vector<std::string> &arguments,
 			__in uint32_t command
 			)
@@ -1299,7 +1299,7 @@ namespace nescc {
 		}
 
 		bool
-		runner::parse_subcommand_port_ppu_values(
+		emulator::parse_subcommand_port_ppu_values(
 			__in const std::vector<std::string> &arguments,
 			__inout uint16_t &address,
 			__inout uint16_t &value
@@ -1341,7 +1341,7 @@ namespace nescc {
 		}
 
 		bool
-		runner::parse_subcommand_register_cpu_values(
+		emulator::parse_subcommand_register_cpu_values(
 			__in const std::vector<std::string> &arguments,
 			__inout uint16_t &address,
 			__inout uint16_t &value
@@ -1383,7 +1383,7 @@ namespace nescc {
 		}
 
 		bool
-		runner::parse_subcommand_value(
+		emulator::parse_subcommand_value(
 			__in const std::vector<std::string> &arguments,
 			__inout uint16_t &value,
 			__in_opt bool hexidecimal
@@ -1407,7 +1407,7 @@ namespace nescc {
 		}
 
 		bool
-		runner::parse_subcommand_values(
+		emulator::parse_subcommand_values(
 			__in const std::vector<std::string> &arguments,
 			__inout uint16_t &address,
 			__inout uint16_t &value
@@ -1442,12 +1442,12 @@ namespace nescc {
 		}
 
 		int
-		runner::start(void)
+		emulator::start(void)
 		{
 			int result = EXIT_SUCCESS;
 
 			if(m_path.empty()) {
-				THROW_NESCC_TOOL_RUNNER_EXCEPTION_FORMAT(NESCC_TOOL_RUNNER_EXCEPTION_PATH_UNASSIGNED, "%s",
+				THROW_NESCC_TOOL_EMULATOR_EXCEPTION_FORMAT(NESCC_TOOL_EMULATOR_EXCEPTION_PATH_UNASSIGNED, "%s",
 					STRING_CHECK(string_usage()));
 			}
 
@@ -1474,7 +1474,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::string_help(void) const
+		emulator::string_help(void) const
 		{
 			int iter = 0;
 			std::stringstream result;
@@ -1497,7 +1497,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::string_help_interactive(void) const
+		emulator::string_help_interactive(void) const
 		{
 			int iter = 0;
 			std::stringstream result;
@@ -1543,7 +1543,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::string_help_interactive_subcommand(
+		emulator::string_help_interactive_subcommand(
 			__in int command
 			) const
 		{
@@ -1575,12 +1575,12 @@ namespace nescc {
 		}
 
 		std::string
-		runner::string_usage(void) const
+		emulator::string_usage(void) const
 		{
 			int iter = 0;
 			std::stringstream result;
 
-			result << NESCC;
+			result << NESCC_EMULATOR;
 
 			for(; iter <= ARGUMENT_MAX; ++iter) {
 				result << " [" << ARGUMENT_DELIMITER << ARGUMENT_STRING(iter) << "|"
@@ -1593,14 +1593,14 @@ namespace nescc {
 		}
 
 		std::string
-		runner::string_version(
+		emulator::string_version(
 			__in_opt bool verbose
 			) const
 		{
 			std::stringstream result;
 
 			if(verbose) {
-				result << NESCC << " ";
+				result << NESCC_EMULATOR << " ";
 			}
 
 			result << nescc::runtime::version(true);
@@ -1613,7 +1613,7 @@ namespace nescc {
 		}
 
 		std::string
-		runner::to_string(
+		emulator::to_string(
 			__in_opt bool verbose
 			) const
 		{
@@ -1621,10 +1621,10 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << NESCC_TOOL_RUNNER_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
+			result << NESCC_TOOL_EMULATOR_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 			if(verbose) {
-				result << " Base=" << nescc::core::singleton<nescc::tool::runner>::to_string(verbose);
+				result << " Base=" << nescc::core::singleton<nescc::tool::emulator>::to_string(verbose);
 
 				if(m_initialized) {
 					result << ", Thread=" << nescc::core::thread::to_string(verbose)

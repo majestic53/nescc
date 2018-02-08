@@ -28,7 +28,7 @@ namespace nescc {
 			m_apu(nescc::console::apu::acquire()),
 			m_cpu(nescc::console::cpu::acquire()),
 			m_debug(false),
-			m_display(nescc::interface::display::acquire()),
+			m_display(nescc::gui::display::acquire()),
 			m_joypad(nescc::console::joypad::acquire()),
 			m_mmu(nescc::console::mmu::acquire()),
 			m_ppu(nescc::console::ppu::acquire())

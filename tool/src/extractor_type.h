@@ -58,7 +58,7 @@ namespace nescc {
 			NESCC_TOOL_EXTRACTOR_EXCEPTION_HEADER "File does not exist",
 			NESCC_TOOL_EXTRACTOR_EXCEPTION_HEADER "Path reassigned",
 			NESCC_TOOL_EXTRACTOR_EXCEPTION_HEADER "Path unassigned",
-			NESCC_TOOL_EXTRACTOR_EXCEPTION_HEADER "Rominfo is uninitialized",
+			NESCC_TOOL_EXTRACTOR_EXCEPTION_HEADER "Extractor is uninitialized",
 			};
 
 		#define NESCC_TOOL_EXTRACTOR_EXCEPTION_STRING(_TYPE_) \
@@ -71,7 +71,7 @@ namespace nescc {
 			THROW_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
 
-		#define NESCC_EXTRACTOR "Nescc-extract"
+		#define NESCC_EXTRACTOR "Nescc-extractor"
 
 		#define ARGUMENT_COLUMN_WIDTH 24
 		#define ARGUMENT_DELIMITER '-'

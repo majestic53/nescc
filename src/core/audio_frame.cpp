@@ -120,7 +120,7 @@ namespace nescc {
 			__inout uint32_t &samples
 			)
 		{
-			nescc::core::audio_sample_t *result = nullptr;
+			nescc::core::audio_sample_t *result;
 
 			TRACE_ENTRY();
 

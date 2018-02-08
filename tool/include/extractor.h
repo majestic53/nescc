@@ -41,16 +41,16 @@ namespace nescc {
 
 				nescc::console::cartridge_header header(void) const;
 
+				void invoke(
+					__in const std::vector<std::string> &arguments
+					);
+
 				void load(
 					__in const std::string &path,
 					__in_opt bool decode_chr = false,
 					__in_opt bool extract_chr = false,
 					__in_opt bool extract_prg = false,
 					__in_opt bool verbose = false
-					);
-
-				void invoke(
-					__in const std::vector<std::string> &arguments
 					);
 
 				std::string to_string(

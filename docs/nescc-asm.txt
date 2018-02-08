@@ -1,0 +1,115 @@
+block ::= [<command> | <comment> | <label> | <pragma>]*
+
+character ::= <character_escape> | .
+
+character_escape ::= \\x[0-9a-fA-F]{1,2}
+
+command ::= <command_code> <command_mode>*
+
+command_code ::=
+
+command_mode ::= <command_mode_absolute> | <command_mode_absolute_x> | <command_mode_absolute_y>
+					| <command_mode_accumulator> | <command_mode_immediate> | <command_mode_indirect>
+					| <command_mode_indirect_x> | <command_mode_indirect_y> | <command_mode_relative>
+					| <command_mode_zero_page> | <command_mode_zero_page_x> | <command_mode_zero_page_y>
+
+command_mode_absolute ::= <expression<2>>
+
+command_mode_absolute_x ::= <expression<2>> , x
+
+command_mode_absolute_y ::= <expression<2>> , y
+
+command_mode_accumulator ::= a
+
+command_mode_immediate ::= # <expression<2>>
+
+command_mode_indirect ::= ( <expression<2>> )
+
+command_mode_indirect_x ::= ( <expression<2>>, x)
+
+command_mode_indirect_y ::= ( <expression<2>> ) , y
+
+command_mode_relative ::= <expression<1>>
+
+command_mode_zero_page ::= <expression<1>>
+
+command_mode_zero_page_x ::= <expression<1>> , x
+
+command_mode_zero_page_y ::= <expression<1>> , y
+
+comment ::= #.*\n
+
+condition ::= <condition_binary> | <condition_unary>
+
+condition_binary ::= <condition_unary> condition_binary_operator> <condition_unary>
+
+condition_binary_operator ::= == | != | < | <= | > | >= | && | ||
+
+condition_unary ::= [!|~]?<expression<2>>
+
+expression<N> ::= <expression_term_binary<N>>
+
+expression_term_binary<N> ::= <expression_term_binary<N>> [& | | | ^] <expression_term_logical<N>>
+								| <expression_term_logical<N>>
+
+expression_term_logical<N> ::= <expression_term_logical<N>> % <expression_term_arithmetic_0<N>>
+								| <expression_term_arithmetic_0<N>>
+
+expression_term_arithmetic_0<N> ::= <expression_term_arithmetic_0<N>> [+ | -] <expression_term_arithmetic_1<N>>
+										| <expression_term_arithmetic_1<N>>
+
+expression_term_arithmetic_1<N> ::= <expression_term_arithmetic_1<N>> [* | /] <expression_factor<N>>
+										| <expression_factor<N>>
+
+expression_factor<N> ::= ( <expression<N>> ) | <identifier> | <scalar<N>>
+
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+
+label ::= <identifier>:
+
+literal ::= \"<character>*\"
+
+pragma ::= \.[<pragma_command> | <pragma_condition> | <pragma_data>]
+
+pragma_command ::= <pragma_command_define> | <pragma_command_include> | <pragma_command_origin>
+						| <pragma_command_page> | <pragma_command_undefine>
+
+pragma_command_define ::= def <identifier> [<literal> | <expression<2>>]
+
+pragma_command_include ::= inc <literal>
+
+pragma_command_origin ::= org <expression<2>>
+
+pragma_command_page ::= page <expression<2>>
+
+pragma_command_undefine ::= undef <identifier>
+
+pragma_condition ::= <pragma_condition_if> | <pragma_condition_ifdef>
+
+pragma_condition_if ::= if <condition> <block> [<pragma_condition_else> <block>]?
+							<pragma_condition_end>
+
+pragma_condition_ifdef ::= ifdef <identifier> <block> [<pragma_condition_else> <block>]?
+								<pragma_condition_end>
+
+pragma_condition_else ::= \.else
+
+pragma_condition_end ::= \.end
+
+pragma_data ::= <pragma_data_byte> | <pragma_data_word>
+
+pragma_data_byte ::= db <pragma_data_list<1>>
+
+pragma_data_list<N> ::= <scalar<N>> [, <pragma_data_list<N>>]*
+
+pragma_data_word ::= dw <pragma_data_list<2>>
+
+scalar<N> ::= <scalar_binary<N>> | <scalar_decimal<N>> | <scalar_hexidecimal<N>> | <scalar_octal<N>>
+
+scalar_binary<N> ::= 0b[0|1]{1,8*N}
+
+scalar_decimal<N> ::= [0-9]{1,3*N}
+
+scalar_hexidecimal<N> ::= 0x[0-9a-fA-F]{1,2*N}
+
+scalar_octal ::= 0c[0-7]{1,6}

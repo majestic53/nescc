@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "./include/runner.h"
+#include "./include/emulator.h"
 
 int
 main(
@@ -27,11 +27,14 @@ main(
 	int result = EXIT_SUCCESS;
 
 	try {
-		nescc::tool::runner &instance = nescc::tool::runner::acquire();
+		nescc::tool::emulator &instance = nescc::tool::emulator::acquire();
 		instance.initialize();
 		result = instance.invoke(std::vector<std::string>(argv, argv + argc));
 		instance.uninitialize();
 		instance.release();
+	} catch(nescc::exception &exc) {
+		std::cerr << "Error: " << exc.to_string(true) << std::endl;
+		result = EXIT_FAILURE;
 	} catch(std::exception &exc) {
 		std::cerr << "Error: " << exc.what() << std::endl;
 		result = EXIT_FAILURE;

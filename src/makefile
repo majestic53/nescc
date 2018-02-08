@@ -20,15 +20,17 @@ CC_FLAGS_EXT=
 DIR_BIN=./../bin/
 DIR_BUILD=./../build/
 DIR_INC=./../include/
+DIR_INC_ASSEMBLER=./../include/assembler/
 DIR_INC_CONSOLE=./../include/console/
 DIR_INC_CONSOLE_MAPPER=./../include/console/mapper/
 DIR_INC_CORE=./../include/core/
-DIR_INC_INTERFACE=./../include/interface/
+DIR_INC_GUI=./../include/gui/
 DIR_SRC=./
+DIR_SRC_ASSEMBLER=./assembler/
 DIR_SRC_CONSOLE=./console/
 DIR_SRC_CONSOLE_MAPPER=./console/mapper/
 DIR_SRC_CORE=./core/
-DIR_SRC_INTERFACE=./interface/
+DIR_SRC_GUI=./gui/
 LIB=libnescc.a
 
 all: build archive
@@ -37,17 +39,18 @@ archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
+		$(DIR_BUILD)assembler_stream.o \
 		$(DIR_BUILD)console_apu.o $(DIR_BUILD)console_bus.o $(DIR_BUILD)console_cartridge.o $(DIR_BUILD)console_cpu.o \
 			$(DIR_BUILD)console_joypad.o $(DIR_BUILD)console_mmu.o $(DIR_BUILD)console_ppu.o \
 		$(DIR_BUILD)console_mapper_axrom.o $(DIR_BUILD)console_mapper_cnrom.o $(DIR_BUILD)console_mapper_nrom.o \
 			$(DIR_BUILD)console_mapper_sxrom.o $(DIR_BUILD)console_mapper_txrom.o $(DIR_BUILD)console_mapper_uxrom.o \
 		$(DIR_BUILD)core_audio_buffer.o $(DIR_BUILD)core_audio_frame.o $(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_signal.o \
 			$(DIR_BUILD)core_thread.o \
-		$(DIR_BUILD)interface_display.o
+		$(DIR_BUILD)gui_display.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
 
-build: build_base build_console build_console_mapper build_core build_interface
+build: build_base build_assembler build_console build_console_mapper build_core build_gui
 
 ### BASE ###
 
@@ -61,6 +64,13 @@ base_runtime.o: $(DIR_SRC)runtime.cpp $(DIR_INC)runtime.h
 
 base_trace.o: $(DIR_SRC)trace.cpp $(DIR_INC)trace.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)trace.cpp -o $(DIR_BUILD)base_trace.o
+
+### ASSEMBLER ###
+
+build_assembler: assembler_stream.o
+
+assembler_stream.o: $(DIR_SRC_ASSEMBLER)stream.cpp $(DIR_INC_ASSEMBLER)stream.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_ASSEMBLER)stream.cpp -o $(DIR_BUILD)assembler_stream.o
 
 ### CONSOLE ###
 
@@ -129,9 +139,9 @@ core_signal.o: $(DIR_SRC_CORE)signal.cpp $(DIR_INC_CORE)signal.h
 core_thread.o: $(DIR_SRC_CORE)thread.cpp $(DIR_INC_CORE)thread.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)thread.cpp -o $(DIR_BUILD)core_thread.o
 
-### INTERFACE ###
+### GUI ###
 
-build_interface: interface_display.o
+build_gui: gui_display.o
 
-interface_display.o: $(DIR_SRC_INTERFACE)display.cpp $(DIR_INC_INTERFACE)display.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_INTERFACE)display.cpp -o $(DIR_BUILD)interface_display.o
+gui_display.o: $(DIR_SRC_GUI)display.cpp $(DIR_INC_GUI)display.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_GUI)display.cpp -o $(DIR_BUILD)gui_display.o

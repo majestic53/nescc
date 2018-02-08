@@ -36,7 +36,7 @@ namespace nescc {
 
 				audio_frame(void);
 
-				audio_frame(
+				explicit audio_frame(
 					__in uint32_t size
 					);
 
