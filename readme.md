@@ -291,6 +291,10 @@ Changelog
 
 Version 0.1.1806
 ----------------
+*Updated: 2/8/2018*
+
+* Added assembler stream class
+
 *Updated: 2/7/2018*
 
 * Added assembler tool

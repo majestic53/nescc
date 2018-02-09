@@ -19,6 +19,8 @@
 #ifndef NESCC_ASSEMBLER_STREAM_H_
 #define NESCC_ASSEMBLER_STREAM_H_
 
+#include <map>
+#include <vector>
 #include "../define.h"
 
 namespace nescc {
@@ -29,7 +31,7 @@ namespace nescc {
 			CHARACTER_ALPHA = 0,
 			CHARACTER_DIGIT,
 			CHARACTER_SYMBOL,
-			CHARACTER_WHITESPACE,
+			CHARACTER_SPACE,
 			CHARACTER_END,
 		};
 
@@ -57,12 +59,13 @@ namespace nescc {
 					);
 
 				virtual std::string as_exception(
+					__in size_t line,
 					__in_opt bool verbose = false
 					) const;
 
-				char character(void);
+				char character(void) const;
 
-				int character_type(void);
+				int character_type(void) const;
 
 				virtual void clear(void);
 
@@ -71,6 +74,8 @@ namespace nescc {
 				virtual bool has_previous(void) const;
 
 				bool has_path(void) const;
+
+				size_t line(void) const;
 
 				std::string path(void) const;
 
@@ -93,9 +98,25 @@ namespace nescc {
 
 			protected:
 
+				void enumerate_line(void);
+
+				std::string find_line(
+					__in size_t line
+					) const;
+
+				std::string format_character(
+					__in char value
+					) const;
+
+				std::string format_string(
+					__in const std::string &input
+					) const;
+
 				std::string m_path;
 
 				std::string m_stream;
+
+				std::map<size_t, std::string> m_stream_line;
 
 				size_t m_stream_position;
 
