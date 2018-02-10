@@ -20,6 +20,7 @@
 #define NESCC_TOOL_ASSEMBLER_H_
 
 #include "../../include/trace.h"
+#include "../../include/unique.h"
 
 namespace nescc {
 
@@ -83,6 +84,8 @@ namespace nescc {
 				std::string m_path;
 
 				nescc::trace &m_trace;
+
+				nescc::unique &m_unique;
 		};
 	}
 }

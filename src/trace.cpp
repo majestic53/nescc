@@ -220,7 +220,7 @@ namespace nescc {
 
 			buffer = std::get<TRACE_ENTRY_FILE>(entry);
 			if(!buffer.empty()) {
-				result << buffer << ":";
+				result << buffer << "@";
 			}
 
 			result << std::get<TRACE_ENTRY_LINE>(entry) << ")";

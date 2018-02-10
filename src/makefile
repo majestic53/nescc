@@ -21,16 +21,14 @@ DIR_BIN=./../bin/
 DIR_BUILD=./../build/
 DIR_INC=./../include/
 DIR_INC_ASSEMBLER=./../include/assembler/
-DIR_INC_CONSOLE=./../include/console/
-DIR_INC_CONSOLE_MAPPER=./../include/console/mapper/
 DIR_INC_CORE=./../include/core/
-DIR_INC_GUI=./../include/gui/
+DIR_INC_EMULATOR=./../include/emulator/
+DIR_INC_EMULATOR_MAPPER=./../include/emulator/mapper/
 DIR_SRC=./
 DIR_SRC_ASSEMBLER=./assembler/
-DIR_SRC_CONSOLE=./console/
-DIR_SRC_CONSOLE_MAPPER=./console/mapper/
 DIR_SRC_CORE=./core/
-DIR_SRC_GUI=./gui/
+DIR_SRC_EMULATOR=./emulator/
+DIR_SRC_EMULATOR_MAPPER=./emulator/mapper/
 LIB=libnescc.a
 
 all: build archive
@@ -38,23 +36,26 @@ all: build archive
 archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
-	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
+	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_display.o $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
+			$(DIR_BUILD)base_unique.o \
 		$(DIR_BUILD)assembler_stream.o \
-		$(DIR_BUILD)console_apu.o $(DIR_BUILD)console_bus.o $(DIR_BUILD)console_cartridge.o $(DIR_BUILD)console_cpu.o \
-			$(DIR_BUILD)console_joypad.o $(DIR_BUILD)console_mmu.o $(DIR_BUILD)console_ppu.o \
-		$(DIR_BUILD)console_mapper_axrom.o $(DIR_BUILD)console_mapper_cnrom.o $(DIR_BUILD)console_mapper_nrom.o \
-			$(DIR_BUILD)console_mapper_sxrom.o $(DIR_BUILD)console_mapper_txrom.o $(DIR_BUILD)console_mapper_uxrom.o \
 		$(DIR_BUILD)core_audio_buffer.o $(DIR_BUILD)core_audio_frame.o $(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_signal.o \
-			$(DIR_BUILD)core_thread.o \
-		$(DIR_BUILD)gui_display.o
+			$(DIR_BUILD)core_token.o $(DIR_BUILD)core_thread.o $(DIR_BUILD)core_unique_id.o \
+		$(DIR_BUILD)emulator_apu.o $(DIR_BUILD)emulator_bus.o $(DIR_BUILD)emulator_cartridge.o $(DIR_BUILD)emulator_cpu.o \
+			$(DIR_BUILD)emulator_joypad.o $(DIR_BUILD)emulator_mmu.o $(DIR_BUILD)emulator_ppu.o \
+		$(DIR_BUILD)emulator_mapper_axrom.o $(DIR_BUILD)emulator_mapper_cnrom.o $(DIR_BUILD)emulator_mapper_nrom.o \
+			$(DIR_BUILD)emulator_mapper_sxrom.o $(DIR_BUILD)emulator_mapper_txrom.o $(DIR_BUILD)emulator_mapper_uxrom.o
 	@echo '--- DONE -----------------------------------'
 	@echo ''
 
-build: build_base build_assembler build_console build_console_mapper build_core build_gui
+build: build_base build_assembler build_core build_emulator build_emulator_mapper
 
 ### BASE ###
 
-build_base: base_exception.o base_runtime.o base_trace.o
+build_base: base_display.o base_exception.o base_runtime.o base_trace.o base_unique.o
+
+base_display.o: $(DIR_SRC)display.cpp $(DIR_INC)display.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)display.cpp -o $(DIR_BUILD)base_display.o
 
 base_exception.o: $(DIR_SRC)exception.cpp $(DIR_INC)exception.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)exception.cpp -o $(DIR_BUILD)base_exception.o
@@ -65,6 +66,9 @@ base_runtime.o: $(DIR_SRC)runtime.cpp $(DIR_INC)runtime.h
 base_trace.o: $(DIR_SRC)trace.cpp $(DIR_INC)trace.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)trace.cpp -o $(DIR_BUILD)base_trace.o
 
+base_unique.o: $(DIR_SRC)unique.cpp $(DIR_INC)unique.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)unique.cpp -o $(DIR_BUILD)base_unique.o
+
 ### ASSEMBLER ###
 
 build_assembler: assembler_stream.o
@@ -72,57 +76,9 @@ build_assembler: assembler_stream.o
 assembler_stream.o: $(DIR_SRC_ASSEMBLER)stream.cpp $(DIR_INC_ASSEMBLER)stream.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_ASSEMBLER)stream.cpp -o $(DIR_BUILD)assembler_stream.o
 
-### CONSOLE ###
-
-build_console: console_apu.o console_bus.o console_cartridge.o console_cpu.o console_joypad.o console_mmu.o console_ppu.o
-
-console_apu.o: $(DIR_SRC_CONSOLE)apu.cpp $(DIR_INC_CONSOLE)apu.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)apu.cpp -o $(DIR_BUILD)console_apu.o
-
-console_bus.o: $(DIR_SRC_CONSOLE)bus.cpp $(DIR_INC_CONSOLE)bus.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)bus.cpp -o $(DIR_BUILD)console_bus.o
-
-console_cartridge.o: $(DIR_SRC_CONSOLE)cartridge.cpp $(DIR_INC_CONSOLE)cartridge.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)cartridge.cpp -o $(DIR_BUILD)console_cartridge.o
-
-console_cpu.o: $(DIR_SRC_CONSOLE)cpu.cpp $(DIR_INC_CONSOLE)cpu.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)cpu.cpp -o $(DIR_BUILD)console_cpu.o
-
-console_joypad.o: $(DIR_SRC_CONSOLE)joypad.cpp $(DIR_INC_CONSOLE)joypad.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)joypad.cpp -o $(DIR_BUILD)console_joypad.o
-
-console_mmu.o: $(DIR_SRC_CONSOLE)mmu.cpp $(DIR_INC_CONSOLE)mmu.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)mmu.cpp -o $(DIR_BUILD)console_mmu.o
-
-console_ppu.o: $(DIR_SRC_CONSOLE)ppu.cpp $(DIR_INC_CONSOLE)ppu.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE)ppu.cpp -o $(DIR_BUILD)console_ppu.o
-
-### CONSOLE::MAPPER ###
-
-build_console_mapper: console_mapper_axrom.o console_mapper_cnrom.o console_mapper_nrom.o console_mapper_sxrom.o console_mapper_txrom.o \
-	console_mapper_uxrom.o
-
-console_mapper_axrom.o: $(DIR_SRC_CONSOLE_MAPPER)axrom.cpp $(DIR_INC_CONSOLE_MAPPER)axrom.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)axrom.cpp -o $(DIR_BUILD)console_mapper_axrom.o
-
-console_mapper_cnrom.o: $(DIR_SRC_CONSOLE_MAPPER)cnrom.cpp $(DIR_INC_CONSOLE_MAPPER)cnrom.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)cnrom.cpp -o $(DIR_BUILD)console_mapper_cnrom.o
-
-console_mapper_nrom.o: $(DIR_SRC_CONSOLE_MAPPER)nrom.cpp $(DIR_INC_CONSOLE_MAPPER)nrom.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)nrom.cpp -o $(DIR_BUILD)console_mapper_nrom.o
-
-console_mapper_sxrom.o: $(DIR_SRC_CONSOLE_MAPPER)sxrom.cpp $(DIR_INC_CONSOLE_MAPPER)sxrom.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)sxrom.cpp -o $(DIR_BUILD)console_mapper_sxrom.o
-
-console_mapper_txrom.o: $(DIR_SRC_CONSOLE_MAPPER)txrom.cpp $(DIR_INC_CONSOLE_MAPPER)txrom.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)txrom.cpp -o $(DIR_BUILD)console_mapper_txrom.o
-
-console_mapper_uxrom.o: $(DIR_SRC_CONSOLE_MAPPER)uxrom.cpp $(DIR_INC_CONSOLE_MAPPER)uxrom.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CONSOLE_MAPPER)uxrom.cpp -o $(DIR_BUILD)console_mapper_uxrom.o
-
 ### CORE ###
 
-build_core: core_audio_buffer.o core_audio_frame.o core_bitmap.o core_signal.o core_thread.o
+build_core: core_audio_buffer.o core_audio_frame.o core_bitmap.o core_signal.o core_token.o core_thread.o core_unique_id.o
 
 core_audio_buffer.o: $(DIR_SRC_CORE)audio_buffer.cpp $(DIR_INC_CORE)audio_buffer.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)audio_buffer.cpp -o $(DIR_BUILD)core_audio_buffer.o
@@ -139,9 +95,62 @@ core_signal.o: $(DIR_SRC_CORE)signal.cpp $(DIR_INC_CORE)signal.h
 core_thread.o: $(DIR_SRC_CORE)thread.cpp $(DIR_INC_CORE)thread.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)thread.cpp -o $(DIR_BUILD)core_thread.o
 
-### GUI ###
+core_token.o: $(DIR_SRC_CORE)token.cpp $(DIR_INC_CORE)token.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)token.cpp -o $(DIR_BUILD)core_token.o
 
-build_gui: gui_display.o
+core_unique_id.o: $(DIR_SRC_CORE)unique_id.cpp $(DIR_INC_CORE)unique_id.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)unique_id.cpp -o $(DIR_BUILD)core_unique_id.o
 
-gui_display.o: $(DIR_SRC_GUI)display.cpp $(DIR_INC_GUI)display.h
-	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_GUI)display.cpp -o $(DIR_BUILD)gui_display.o
+### EMULATOR ###
+
+build_emulator: emulator_apu.o emulator_bus.o emulator_cartridge.o emulator_cpu.o emulator_joypad.o emulator_mmu.o emulator_ppu.o
+
+emulator_apu.o: $(DIR_SRC_EMULATOR)apu.cpp $(DIR_INC_EMULATOR)apu.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR)apu.cpp -o $(DIR_BUILD)emulator_apu.o
+
+emulator_bus.o: $(DIR_SRC_EMULATOR)bus.cpp $(DIR_INC_EMULATOR)bus.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR)bus.cpp -o $(DIR_BUILD)emulator_bus.o
+
+emulator_cartridge.o: $(DIR_SRC_EMULATOR)cartridge.cpp $(DIR_INC_EMULATOR)cartridge.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR)cartridge.cpp -o $(DIR_BUILD)emulator_cartridge.o
+
+emulator_cpu.o: $(DIR_SRC_EMULATOR)cpu.cpp $(DIR_INC_EMULATOR)cpu.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR)cpu.cpp -o $(DIR_BUILD)emulator_cpu.o
+
+emulator_joypad.o: $(DIR_SRC_EMULATOR)joypad.cpp $(DIR_INC_EMULATOR)joypad.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR)joypad.cpp -o $(DIR_BUILD)emulator_joypad.o
+
+emulator_mmu.o: $(DIR_SRC_EMULATOR)mmu.cpp $(DIR_INC_EMULATOR)mmu.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR)mmu.cpp -o $(DIR_BUILD)emulator_mmu.o
+
+emulator_ppu.o: $(DIR_SRC_EMULATOR)ppu.cpp $(DIR_INC_EMULATOR)ppu.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR)ppu.cpp -o $(DIR_BUILD)emulator_ppu.o
+
+### EMULATOR::MAPPER ###
+
+build_emulator_mapper: emulator_mapper_axrom.o emulator_mapper_cnrom.o emulator_mapper_nrom.o emulator_mapper_sxrom.o emulator_mapper_txrom.o \
+	emulator_mapper_uxrom.o
+
+emulator_mapper_axrom.o: $(DIR_SRC_EMULATOR_MAPPER)axrom.cpp $(DIR_INC_EMULATOR_MAPPER)axrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR_MAPPER)axrom.cpp -o \
+		$(DIR_BUILD)emulator_mapper_axrom.o
+
+emulator_mapper_cnrom.o: $(DIR_SRC_EMULATOR_MAPPER)cnrom.cpp $(DIR_INC_EMULATOR_MAPPER)cnrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR_MAPPER)cnrom.cpp -o \
+		$(DIR_BUILD)emulator_mapper_cnrom.o
+
+emulator_mapper_nrom.o: $(DIR_SRC_EMULATOR_MAPPER)nrom.cpp $(DIR_INC_EMULATOR_MAPPER)nrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR_MAPPER)nrom.cpp -o \
+		$(DIR_BUILD)emulator_mapper_nrom.o
+
+emulator_mapper_sxrom.o: $(DIR_SRC_EMULATOR_MAPPER)sxrom.cpp $(DIR_INC_EMULATOR_MAPPER)sxrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR_MAPPER)sxrom.cpp -o \
+		$(DIR_BUILD)emulator_mapper_sxrom.o
+
+emulator_mapper_txrom.o: $(DIR_SRC_EMULATOR_MAPPER)txrom.cpp $(DIR_INC_EMULATOR_MAPPER)txrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR_MAPPER)txrom.cpp -o \
+		$(DIR_BUILD)emulator_mapper_txrom.o
+
+emulator_mapper_uxrom.o: $(DIR_SRC_EMULATOR_MAPPER)uxrom.cpp $(DIR_INC_EMULATOR_MAPPER)uxrom.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_EMULATOR_MAPPER)uxrom.cpp -o \
+		$(DIR_BUILD)emulator_mapper_uxrom.o

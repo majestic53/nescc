@@ -700,9 +700,9 @@ namespace nescc {
 										break;
 								}
 							} else {
-								nescc::console::port_mask_t mask;
-								nescc::console::port_status_t status;
-								nescc::console::port_control_t control;
+								nescc::emulator::port_mask_t mask;
+								nescc::emulator::port_status_t status;
+								nescc::emulator::port_control_t control;
 
 								switch(address) {
 									case SUBCOMMAND_ARGUMENT_PORT_PPU_ADDRESS:

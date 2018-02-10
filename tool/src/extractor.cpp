@@ -18,7 +18,7 @@
 
 #include <cstring>
 #include <fstream>
-#include "../../include/console/cpu.h"
+#include "../../include/emulator/cpu.h"
 #include "../include/extractor.h"
 #include "./extractor_type.h"
 
@@ -229,7 +229,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%s, Bank=%p", path.size(), STRING_CHECK(path), &bank);
 
-			result = nescc::console::cpu::bank_as_string(bank, true);
+			result = nescc::emulator::cpu::bank_as_string(bank, true);
 
 			file = std::ofstream(path.c_str(), std::ios::out | std::ios::trunc);
 			if(!file) {
@@ -581,7 +581,7 @@ namespace nescc {
 			return result.str();
 		}
 
-		nescc::console::cartridge_header
+		nescc::emulator::cartridge_header
 		extractor::header(void) const
 		{
 			TRACE_ENTRY();

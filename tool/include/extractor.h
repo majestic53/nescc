@@ -19,7 +19,7 @@
 #ifndef NESCC_TOOL_EXTRACTOR_H_
 #define NESCC_TOOL_EXTRACTOR_H_
 
-#include "../../include/console/cartridge.h"
+#include "../../include/emulator/cartridge.h"
 #include "../../include/trace.h"
 
 namespace nescc {
@@ -39,7 +39,7 @@ namespace nescc {
 
 				void clear(void);
 
-				nescc::console::cartridge_header header(void) const;
+				nescc::emulator::cartridge_header header(void) const;
 
 				void invoke(
 					__in const std::vector<std::string> &arguments
@@ -120,7 +120,7 @@ namespace nescc {
 
 				uint32_t m_character_rom_width;
 
-				nescc::console::cartridge_header m_header;
+				nescc::emulator::cartridge_header m_header;
 
 				uint32_t m_length;
 

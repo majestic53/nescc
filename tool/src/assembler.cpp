@@ -24,7 +24,8 @@ namespace nescc {
 	namespace tool {
 
 		assembler::assembler(void) :
-			m_trace(nescc::trace::acquire())
+			m_trace(nescc::trace::acquire()),
+			m_unique(nescc::unique::acquire())
 		{
 			m_trace.initialize();
 
@@ -267,6 +268,8 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler initializing...");
 
+			m_unique.initialize();
+
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler initialized.");
 
 			TRACE_EXIT_FORMAT("Result=%x", result);
@@ -281,6 +284,7 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler uninitializing...");
 
 			clear();
+			m_unique.uninitialize();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler uninitialized.");
 

@@ -65,7 +65,7 @@ namespace nescc {
 				_FORMAT_, __VA_ARGS__)
 
 		static const std::string CHARACTER_STR[] = {
-			"Alpha", "Digit", "Symbol", "Space", "End",
+			"End", "Alpha", "Digit", "Symbol", "Space",
 			};
 
 		#define CHARACTER_STRING(_TYPE_) \

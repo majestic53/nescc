@@ -22,10 +22,10 @@
 namespace nescc {
 
 	runtime::runtime(void) :
-		m_bus(nescc::console::bus::acquire()),
+		m_bus(nescc::emulator::bus::acquire()),
 		m_crt_filter(false),
 		m_debug(false),
-		m_display(nescc::gui::display::acquire()),
+		m_display(nescc::display::acquire()),
 		m_frame(1),
 		m_step(false),
 		m_step_frame(false),
@@ -57,7 +57,7 @@ namespace nescc {
 		m_trace.release();
 	}
 
-	nescc::console::bus &
+	nescc::emulator::bus &
 	runtime::bus(void)
 	{
 		TRACE_ENTRY();
@@ -72,7 +72,7 @@ namespace nescc {
 		return m_bus;
 	}
 
-	nescc::gui::display &
+	nescc::display &
 	runtime::display(void)
 	{
 		TRACE_ENTRY();

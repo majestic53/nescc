@@ -19,7 +19,7 @@
 #ifndef NESCC_RUNTIME_H_
 #define NESCC_RUNTIME_H_
 
-#include "./console/bus.h"
+#include "./emulator/bus.h"
 #include "./trace.h"
 
 namespace nescc {
@@ -32,9 +32,9 @@ namespace nescc {
 
 			~runtime(void);
 
-			nescc::console::bus &bus(void);
+			nescc::emulator::bus &bus(void);
 
-			nescc::gui::display &display(void);
+			nescc::display &display(void);
 
 			uint32_t frame(void) const;
 
@@ -102,13 +102,13 @@ namespace nescc {
 
 			void on_uninitialize(void);
 
-			nescc::console::bus &m_bus;
+			nescc::emulator::bus &m_bus;
 
 			bool m_crt_filter;
 
 			bool m_debug;
 
-			nescc::gui::display &m_display;
+			nescc::display &m_display;
 
 			uint32_t m_frame;
 

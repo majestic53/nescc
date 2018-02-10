@@ -28,14 +28,14 @@ namespace nescc {
 	namespace assembler {
 
 		enum {
-			CHARACTER_ALPHA = 0,
+			CHARACTER_END = 0,
+			CHARACTER_ALPHA,
 			CHARACTER_DIGIT,
 			CHARACTER_SYMBOL,
 			CHARACTER_SPACE,
-			CHARACTER_END,
 		};
 
-		#define CHARACTER_MAX CHARACTER_END
+		#define CHARACTER_MAX CHARACTER_SPACE
 
 		class stream {
 
