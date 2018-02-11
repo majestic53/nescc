@@ -22,6 +22,7 @@
 #include <map>
 #include <vector>
 #include "../define.h"
+#include "../core/token.h"
 
 namespace nescc {
 
@@ -60,6 +61,10 @@ namespace nescc {
 
 				virtual std::string as_exception(
 					__in size_t line,
+					__in_opt bool verbose = false
+					) const;
+
+				virtual std::string as_string(
 					__in_opt bool verbose = false
 					) const;
 
@@ -104,14 +109,6 @@ namespace nescc {
 
 				std::string find_line(
 					__in size_t line
-					) const;
-
-				std::string format_character(
-					__in char value
-					) const;
-
-				std::string format_string(
-					__in const std::string &input
 					) const;
 
 				std::string m_path;

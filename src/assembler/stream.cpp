@@ -99,13 +99,36 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Line=%u, Verbose=%x", line, verbose);
 
-			result << "\"" << format_string(find_line(line)) << "\" (";
+			result << "\"" << nescc::core::token::format_string(find_line(line)) << "\" (";
 
 			if(verbose) {
 				result << m_path << "@";
 			}
 
 			result << line << ")";
+
+			TRACE_EXIT();
+			return result.str();
+		}
+
+		std::string
+		stream::as_string(
+			__in_opt bool verbose
+			) const
+		{
+			char value;
+			std::stringstream result;
+
+			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
+
+			if(verbose) {
+				result << "[" << m_stream_position << ", " << m_stream_position_line
+					<< ", " << m_stream_position_column << "] ";
+			}
+
+			value = character();
+			result << "{" << CHARACTER_STRING(character_type()) << "} \'" << nescc::core::token::format_character(value)
+					<< "\' (" << SCALAR_AS_HEX(uint8_t, value) << ")";
 
 			TRACE_EXIT();
 			return result.str();
@@ -220,73 +243,6 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return entry->second;
-		}
-
-		std::string
-		stream::format_character(
-			__in char value
-			) const
-		{
-			std::stringstream result;
-
-			TRACE_ENTRY_FORMAT("Input=\'%c\'(%02x)", std::isprint(value) ? value : '_', value);
-
-			if((value != CHARACTER_HORIZONTAL_SPACE) && (!std::isprint(value) || std::isspace(value))) {
-				result << "\\";
-
-				switch(value) {
-					case CHARACTER_ALERT:
-						result << "a";
-						break;
-					case CHARACTER_BACKSPACE:
-						result << "b";
-						break;
-					case CHARACTER_CARRIAGE_RETURN:
-						result << "r";
-						break;
-					case CHARACTER_FORMFEED:
-						result << "f";
-						break;
-					case CHARACTER_HORIZONTAL_TAB:
-						result << "t";
-						break;
-					case CHARACTER_NEWLINE:
-						result << "n";
-						break;
-					case CHARACTER_TERMINATOR:
-						result << "0";
-						break;
-					case CHARACTER_VERTICAL_TAB:
-						result << "v";
-						break;
-					default:
-						result << "x" << SCALAR_AS_HEX(uint8_t, value);
-						break;
-				}
-			} else {
-				result << value;
-			}
-
-			TRACE_EXIT();
-			return result.str();
-		}
-
-		std::string
-		stream::format_string(
-			__in const std::string &input
-			) const
-		{
-			std::stringstream result;
-			std::string::const_iterator iter;
-
-			TRACE_ENTRY_FORMAT("Input[%u]=%s", input.size(), STRING_CHECK(input));
-
-			for(iter = input.begin(); iter != input.end(); ++iter) {
-				result << format_character(*iter);
-			}
-
-			TRACE_EXIT();
-			return result.str();
 		}
 
 		bool
@@ -494,7 +450,7 @@ namespace nescc {
 
 				result << " Path[" << m_path.size() << "]=" << STRING_CHECK(m_path)
 					<< ", Stream[" << m_stream.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_stream)
-					<< ", Character=[" << CHARACTER_STRING(type) << "] \'" << format_character(value)
+					<< ", Character=[" << CHARACTER_STRING(type) << "] \'" << nescc::core::token::format_character(value)
 						<< "\' (" << SCALAR_AS_HEX(uint8_t, value) << ")"
 					<< ", Position=" << m_stream_position << " (" << m_stream_position_line
 						<< ", " << m_stream_position_column << ")";

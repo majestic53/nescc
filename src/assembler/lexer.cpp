@@ -97,6 +97,51 @@ namespace nescc {
 			return result.str();
 		}
 
+		std::string
+		lexer::as_string(
+			__in_opt bool verbose
+			) const
+		{
+			std::stringstream result;
+
+			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
+
+			if(verbose) {
+				result << "[" << m_token_position << "] ";
+			}
+
+			nescc::core::token entry = token();
+			result << "{" << TOKEN_STRING(entry.type());
+
+			if(entry.subtype() != TOKEN_INVALID) {
+				result << ", " << entry.subtype();
+			}
+
+			result << "}";
+
+			switch(entry.type()) {
+				case nescc::core::TOKEN_BOOLEAN:
+					result << " Value=" << (entry.as_boolean() ? "true" : "false");
+					break;
+				case nescc::core::TOKEN_IDENTIFIER:
+				case nescc::core::TOKEN_LABEL:
+				case nescc::core::TOKEN_LITERAL:
+				case nescc::core::TOKEN_PRAGMA:
+				case nescc::core::TOKEN_SYMBOL:
+					result << " Value[" << entry.as_literal().size() << "]=\""
+						<< nescc::core::token::format_string(entry.as_literal()) << "\"";
+					break;
+				case nescc::core::TOKEN_SCALAR:
+					result << " Value=" << entry.as_scalar();
+					break;
+				default:
+					break;
+			}
+
+			TRACE_EXIT();
+			return result.str();
+		}
+
 		void
 		lexer::clear(void)
 		{
@@ -270,7 +315,20 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			// TODO
+			while(nescc::assembler::stream::has_next()
+					&& (nescc::assembler::stream::character_type() == CHARACTER_SPACE)) {
+				nescc::assembler::stream::move_next();
+			}
+
+			if(nescc::assembler::stream::character() == COMMENT_BEGIN) {
+
+				while(nescc::assembler::stream::has_next()
+						&& (nescc::assembler::stream::character() != COMMENT_END)) {
+					nescc::assembler::stream::move_next();
+				}
+
+				skip_whitespace();
+			}
 
 			TRACE_EXIT();
 		}
@@ -297,7 +355,14 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			// TODO
+			result << NESCC_ASSEMBLER_LEXER_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
+
+			if(verbose) {
+				result << " Base=" << nescc::assembler::stream::to_string(verbose)
+					<< ", Tokens[" << m_token.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_token)
+					<< ", Token=" << token().to_string(verbose)
+					<< ", Position=" << m_token_position;
+			}
 
 			TRACE_EXIT();
 			return result.str();

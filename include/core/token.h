@@ -25,6 +25,16 @@ namespace nescc {
 
 	namespace core {
 
+		#define CHARACTER_ALERT '\a'
+		#define CHARACTER_BACKSPACE '\b'
+		#define CHARACTER_CARRIAGE_RETURN '\r'
+		#define CHARACTER_FORMFEED '\f'
+		#define CHARACTER_HORIZONTAL_SPACE ' '
+		#define CHARACTER_HORIZONTAL_TAB '\t'
+		#define CHARACTER_NEWLINE '\n'
+		#define CHARACTER_TERMINATOR '\0'
+		#define CHARACTER_VERTICAL_TAB '\v'
+
 		#define TOKEN_INVALID ((int) -1)
 
 		enum {
@@ -40,6 +50,15 @@ namespace nescc {
 		};
 
 		#define TOKEN_MAX TOKEN_SYMBOL
+
+		static const std::string TOKEN_STR[] = {
+			"Begin", "End", "Boolean", "Identifier", "Label", "Literal", "Pragma",
+			"Scalar", "Symbol",
+			};
+
+		#define TOKEN_STRING(_TYPE_) \
+			(((_TYPE_) > nescc::core::TOKEN_MAX) ? STRING_UNKNOWN : \
+				STRING_CHECK(nescc::core::TOKEN_STR[_TYPE_]))
 
 		class token :
 				public nescc::core::unique_id {
@@ -63,13 +82,21 @@ namespace nescc {
 
 				bool &as_boolean(void);
 
-				int32_t &as_integer(void);
-
 				std::string &as_literal(void);
+
+				int32_t &as_scalar(void);
 
 				virtual std::string as_string(
 					__in_opt bool verbose = false
 					) const;
+
+				static std::string format_character(
+					__in char value
+					);
+
+				static std::string format_string(
+					__in const std::string &input
+					);
 
 				bool has_subtype(void) const;
 
@@ -90,9 +117,9 @@ namespace nescc {
 
 				bool m_boolean;
 
-				int32_t m_integer;
-
 				std::string m_literal;
+
+				int32_t m_scalar;
 
 				int m_subtype;
 

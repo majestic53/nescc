@@ -51,15 +51,6 @@ namespace nescc {
 		#define THROW_NESCC_CORE_TOKEN_EXCEPTION_FORMAT(_EXCEPT_, _FORMAT_, ...) \
 			THROW_EXCEPTION_FORMAT(NESCC_CORE_TOKEN_EXCEPTION_STRING(_EXCEPT_), \
 				_FORMAT_, __VA_ARGS__)
-
-		static const std::string TOKEN_STR[] = {
-			"Begin", "End", "Boolean", "Identifier", "Label", "Literal", "Pragma",
-			"Scalar", "Symbol",
-			};
-
-		#define TOKEN_STRING(_TYPE_) \
-			(((_TYPE_) > TOKEN_MAX) ? STRING_UNKNOWN : \
-				STRING_CHECK(TOKEN_STR[_TYPE_]))
 	}
 }
 

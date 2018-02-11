@@ -71,16 +71,6 @@ namespace nescc {
 		#define CHARACTER_STRING(_TYPE_) \
 			(((_TYPE_) > CHARACTER_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(CHARACTER_STR[_TYPE_]))
-
-		#define CHARACTER_ALERT '\a'
-		#define CHARACTER_BACKSPACE '\b'
-		#define CHARACTER_CARRIAGE_RETURN '\r'
-		#define CHARACTER_FORMFEED '\f'
-		#define CHARACTER_HORIZONTAL_SPACE ' '
-		#define CHARACTER_HORIZONTAL_TAB '\t'
-		#define CHARACTER_NEWLINE '\n'
-		#define CHARACTER_TERMINATOR '\0'
-		#define CHARACTER_VERTICAL_TAB '\v'
 	}
 }
 

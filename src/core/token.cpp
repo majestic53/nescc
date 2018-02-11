@@ -29,7 +29,7 @@ namespace nescc {
 			__in_opt int subtype
 			) :
 				m_boolean(false),
-				m_integer(0)
+				m_scalar(0)
 		{
 			TRACE_ENTRY_FORMAT("Type=%x(%s), Subtype=%x", type, TOKEN_STRING(type), subtype);
 
@@ -43,8 +43,8 @@ namespace nescc {
 			) :
 				nescc::core::unique_id(other),
 				m_boolean(other.m_boolean),
-				m_integer(other.m_integer),
 				m_literal(other.m_literal),
+				m_scalar(other.m_scalar),
 				m_subtype(other.m_subtype),
 				m_type(other.m_type)
 		{
@@ -68,8 +68,8 @@ namespace nescc {
 			if(this != &other) {
 				nescc::core::unique_id::operator=(other);
 				m_boolean = other.m_boolean;
-				m_integer = other.m_integer;
 				m_literal = other.m_literal;
+				m_scalar = other.m_scalar;
 				m_subtype = other.m_subtype;
 				m_type = other.m_type;
 			}
@@ -86,20 +86,20 @@ namespace nescc {
 			return m_boolean;
 		}
 
-		int32_t &
-		token::as_integer(void)
-		{
-			TRACE_ENTRY();
-			TRACE_EXIT_FORMAT("Result=%i", m_integer);
-			return m_integer;
-		}
-
 		std::string &
 		token::as_literal(void)
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT_FORMAT("Result[%u]=%s", m_literal.size(), STRING_CHECK(m_literal));
 			return m_literal;
+		}
+
+		int32_t &
+		token::as_scalar(void)
+		{
+			TRACE_ENTRY();
+			TRACE_EXIT_FORMAT("Result=%i", m_scalar);
+			return m_scalar;
 		}
 
 		std::string
@@ -119,8 +119,75 @@ namespace nescc {
 			}
 
 			result << ", Boolean=" << m_boolean
-				<< ", Integer=" << m_integer
-				<< ", Literal[" << m_literal.size() << "]=" << STRING_CHECK(m_literal);
+				<< ", Literal[" << m_literal.size() << "]=" << format_string(m_literal)
+				<< ", Scalar=" << m_scalar;
+
+			TRACE_EXIT();
+			return result.str();
+		}
+
+		std::string
+		token::format_character(
+			__in char value
+			)
+		{
+			std::stringstream result;
+
+			TRACE_ENTRY_FORMAT("Input=\'%c\'(%02x)", std::isprint(value) ? value : '_', value);
+
+			if((value != CHARACTER_HORIZONTAL_SPACE) && (!std::isprint(value) || std::isspace(value))) {
+				result << "\\";
+
+				switch(value) {
+					case CHARACTER_ALERT:
+						result << "a";
+						break;
+					case CHARACTER_BACKSPACE:
+						result << "b";
+						break;
+					case CHARACTER_CARRIAGE_RETURN:
+						result << "r";
+						break;
+					case CHARACTER_FORMFEED:
+						result << "f";
+						break;
+					case CHARACTER_HORIZONTAL_TAB:
+						result << "t";
+						break;
+					case CHARACTER_NEWLINE:
+						result << "n";
+						break;
+					case CHARACTER_TERMINATOR:
+						result << "0";
+						break;
+					case CHARACTER_VERTICAL_TAB:
+						result << "v";
+						break;
+					default:
+						result << "x" << SCALAR_AS_HEX(uint8_t, value);
+						break;
+				}
+			} else {
+				result << value;
+			}
+
+			TRACE_EXIT();
+			return result.str();
+		}
+
+		std::string
+		token::format_string(
+			__in const std::string &input
+			)
+		{
+			std::stringstream result;
+			std::string::const_iterator iter;
+
+			TRACE_ENTRY_FORMAT("Input[%u]=%s", input.size(), STRING_CHECK(input));
+
+			for(iter = input.begin(); iter != input.end(); ++iter) {
+				result << format_character(*iter);
+			}
 
 			TRACE_EXIT();
 			return result.str();
@@ -153,8 +220,8 @@ namespace nescc {
 			}
 
 			m_boolean = false;
-			m_integer = 0;
 			m_literal.clear();
+			m_scalar = 0;
 			m_subtype = subtype;
 			m_type = type;
 
@@ -189,8 +256,8 @@ namespace nescc {
 				}
 
 				result << ", Boolean=" << m_boolean
-					<< ", Integer=" << m_integer
-					<< ", Literal[" << m_literal.size() << "]=" << STRING_CHECK(m_literal);
+					<< ", Literal[" << m_literal.size() << "]=" << STRING_CHECK(m_literal)
+					<< ", Scalar=" << m_scalar;
 			}
 
 			TRACE_EXIT();

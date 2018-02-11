@@ -20,7 +20,6 @@
 #define NESCC_ASSEMBLER_LEXER_H_
 
 #include <vector>
-#include "../core/token.h"
 #include "./stream.h"
 
 namespace nescc {
@@ -51,6 +50,10 @@ namespace nescc {
 
 				virtual std::string as_exception(
 					__in size_t line,
+					__in_opt bool verbose = false
+					) const;
+
+				virtual std::string as_string(
 					__in_opt bool verbose = false
 					) const;
 
