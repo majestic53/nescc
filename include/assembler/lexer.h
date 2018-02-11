@@ -16,46 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_ASSEMBLER_STREAM_H_
-#define NESCC_ASSEMBLER_STREAM_H_
+#ifndef NESCC_ASSEMBLER_LEXER_H_
+#define NESCC_ASSEMBLER_LEXER_H_
 
-#include <map>
 #include <vector>
-#include "../define.h"
+#include "../core/token.h"
+#include "./stream.h"
 
 namespace nescc {
 
 	namespace assembler {
 
-		enum {
-			CHARACTER_END = 0,
-			CHARACTER_ALPHA,
-			CHARACTER_DIGIT,
-			CHARACTER_SYMBOL,
-			CHARACTER_SPACE,
-		};
-
-		#define CHARACTER_MAX CHARACTER_SPACE
-
-		class stream {
+		class lexer :
+				public nescc::assembler::stream {
 
 			public:
 
-				stream(void);
+				lexer(void);
 
-				stream(
+				lexer(
 					__in const std::string &input,
 					__in_opt bool is_file = false
 					);
 
-				stream(
-					__in const stream &other
+				lexer(
+					__in const lexer &other
 					);
 
-				virtual ~stream(void);
+				virtual ~lexer(void);
 
-				stream &operator=(
-					__in const stream &other
+				lexer &operator=(
+					__in const lexer &other
 					);
 
 				virtual std::string as_exception(
@@ -63,21 +54,13 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
-				char character(void) const;
-
-				int character_type(void) const;
-
 				virtual void clear(void);
+
+				virtual void enumerate(void);
 
 				virtual bool has_next(void) const;
 
 				virtual bool has_previous(void) const;
-
-				bool has_path(void) const;
-
-				size_t line(void) const;
-
-				std::string path(void) const;
 
 				virtual size_t position(void) const;
 
@@ -98,35 +81,31 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				nescc::core::token token(void) const;
+
 			protected:
 
-				void enumerate_line(void);
+				void enumerate_token(void);
 
-				std::string find_line(
-					__in size_t line
-					) const;
+				void enumerate_token_alpha(
+					__inout nescc::core::token &token
+					);
 
-				std::string format_character(
-					__in char value
-					) const;
+				void enumerate_token_digit(
+					__inout nescc::core::token &token
+					);
 
-				std::string format_string(
-					__in const std::string &input
-					) const;
+				void enumerate_token_symbol(
+					__inout nescc::core::token &token
+					);
 
-				std::string m_path;
+				void skip_whitespace(void);
 
-				std::string m_stream;
+				std::vector<nescc::core::token> m_token;
 
-				std::map<size_t, std::string> m_stream_line;
-
-				size_t m_stream_position;
-
-				size_t m_stream_position_column;
-
-				size_t m_stream_position_line;
+				size_t m_token_position;
 		};
 	}
 }
 
-#endif // NESCC_ASSEMBLER_STREAM_H_
+#endif // NESCC_ASSEMBLER_LEXER_H_

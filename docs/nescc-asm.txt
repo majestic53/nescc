@@ -72,7 +72,8 @@ literal ::= \"<character>*\"
 pragma ::= \.[<pragma_command> | <pragma_condition> | <pragma_data>]
 
 pragma_command ::= <pragma_command_define> | <pragma_command_include> | <pragma_command_origin>
-						| <pragma_command_page> | <pragma_command_undefine>
+						| <pragma_command_page> | <pragma_command_page_size>
+						| <pragma_command_undefine>
 
 pragma_command_define ::= def <identifier> [<literal> | <expression<2>>]
 
@@ -80,7 +81,9 @@ pragma_command_include ::= inc <literal>
 
 pragma_command_origin ::= org <expression<2>>
 
-pragma_command_page ::= page <expression<2>>
+pragma_command_page ::= chr | prg <expression<2>>
+
+pragma_command_page_size ::= size <expression<2>>
 
 pragma_command_undefine ::= undef <identifier>
 
@@ -104,7 +107,7 @@ pragma_data_list<N> ::= <scalar<N>> [, <pragma_data_list<N>>]*
 
 pragma_data_word ::= dw <pragma_data_list<2>>
 
-scalar<N> ::= <scalar_binary<N>> | <scalar_decimal<N>> | <scalar_hexidecimal<N>> | <scalar_octal<N>>
+scalar<N> ::= -?[<scalar_binary<N>> | <scalar_decimal<N>> | <scalar_hexidecimal<N>> | <scalar_octal<N>>]
 
 scalar_binary<N> ::= 0b[0|1]{1,8*N}
 

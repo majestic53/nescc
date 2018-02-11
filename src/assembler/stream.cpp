@@ -296,7 +296,7 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-			result = (m_stream_position < (m_stream.size() - 1));
+			result = (character() != CHARACTER_END);
 
 			TRACE_EXIT_FORMAT("Result=%x", result);
 			return result;
@@ -464,6 +464,19 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		size_t
+		stream::size(void) const
+		{
+			size_t result;
+
+			TRACE_ENTRY();
+
+			result = m_stream.size();
+
+			TRACE_EXIT_FORMAT("Result=%u", result);
+			return result;
+		}
+
 		std::string
 		stream::to_string(
 			__in_opt bool verbose
@@ -476,8 +489,13 @@ namespace nescc {
 			result << NESCC_ASSEMBLER_STREAM_HEADER << "(" << SCALAR_AS_HEX(uintptr_t, this) << ")";
 
 			if(verbose) {
+				char value = character();
+				int type = character_type();
+
 				result << " Path[" << m_path.size() << "]=" << STRING_CHECK(m_path)
 					<< ", Stream[" << m_stream.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_stream)
+					<< ", Character=[" << CHARACTER_STRING(type) << "] \'" << format_character(value)
+						<< "\' (" << SCALAR_AS_HEX(uint8_t, value) << ")"
 					<< ", Position=" << m_stream_position << " (" << m_stream_position_line
 						<< ", " << m_stream_position_column << ")";
 			}

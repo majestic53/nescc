@@ -661,6 +661,7 @@ namespace nescc {
 		}
 
 		m_fullscreen = !m_fullscreen;
+		SDL_ShowCursor(!m_fullscreen ? SDL_ENABLE : SDL_DISABLE);
 
 		TRACE_EXIT();
 	}

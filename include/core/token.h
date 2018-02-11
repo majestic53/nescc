@@ -30,11 +30,16 @@ namespace nescc {
 		enum {
 			TOKEN_BEGIN = 0,
 			TOKEN_END,
-
-			// TODO
+			TOKEN_BOOLEAN,
+			TOKEN_IDENTIFIER,
+			TOKEN_LABEL,
+			TOKEN_LITERAL,
+			TOKEN_PRAGMA,
+			TOKEN_SCALAR,
+			TOKEN_SYMBOL,
 		};
 
-		#define TOKEN_MAX TOKEN_END
+		#define TOKEN_MAX TOKEN_SYMBOL
 
 		class token :
 				public nescc::core::unique_id {

@@ -53,7 +53,8 @@ namespace nescc {
 				_FORMAT_, __VA_ARGS__)
 
 		static const std::string TOKEN_STR[] = {
-			"Begin", "End",
+			"Begin", "End", "Boolean", "Identifier", "Label", "Literal", "Pragma",
+			"Scalar", "Symbol",
 			};
 
 		#define TOKEN_STRING(_TYPE_) \

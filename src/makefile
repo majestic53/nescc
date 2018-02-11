@@ -38,7 +38,7 @@ archive:
 	@echo '--- BUILDING LIBRARY -----------------------'
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_display.o $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
 			$(DIR_BUILD)base_unique.o \
-		$(DIR_BUILD)assembler_stream.o \
+		$(DIR_BUILD)assembler_lexer.o $(DIR_BUILD)assembler_stream.o \
 		$(DIR_BUILD)core_audio_buffer.o $(DIR_BUILD)core_audio_frame.o $(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_signal.o \
 			$(DIR_BUILD)core_token.o $(DIR_BUILD)core_thread.o $(DIR_BUILD)core_unique_id.o \
 		$(DIR_BUILD)emulator_apu.o $(DIR_BUILD)emulator_bus.o $(DIR_BUILD)emulator_cartridge.o $(DIR_BUILD)emulator_cpu.o \
@@ -71,7 +71,10 @@ base_unique.o: $(DIR_SRC)unique.cpp $(DIR_INC)unique.h
 
 ### ASSEMBLER ###
 
-build_assembler: assembler_stream.o
+build_assembler: assembler_lexer.o assembler_stream.o
+
+assembler_lexer.o: $(DIR_SRC_ASSEMBLER)lexer.cpp $(DIR_INC_ASSEMBLER)lexer.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_ASSEMBLER)lexer.cpp -o $(DIR_BUILD)assembler_lexer.o
 
 assembler_stream.o: $(DIR_SRC_ASSEMBLER)stream.cpp $(DIR_INC_ASSEMBLER)stream.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_ASSEMBLER)stream.cpp -o $(DIR_BUILD)assembler_stream.o

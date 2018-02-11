@@ -291,6 +291,10 @@ Changelog
 
 Version 0.1.1806
 ----------------
+*Updated: 2/11/2018*
+
+* Added assembler lexer class
+
 *Updated: 2/9/2018*
 
 * Added core token/uuid classes
