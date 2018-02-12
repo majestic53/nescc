@@ -25,6 +25,11 @@
 
 namespace nescc {
 
+	#define POST_PROCESS_DEFAULT false
+	#define POST_PROCESS_BLEED_DEFAULT true
+	#define POST_PROCESS_BORDER_DEFAULT true
+	#define POST_PROCESS_SCANLINE_DEFAULT false
+
 	class display :
 			public nescc::core::singleton<nescc::display> {
 
@@ -45,18 +50,18 @@ namespace nescc {
 
 			void reset(
 				__in_opt bool debug = false,
-				__in_opt bool crt = false,
-				__in_opt bool bleed = true,
-				__in_opt bool scanlines = true,
-				__in_opt bool border = true,
+				__in_opt bool crt = POST_PROCESS_DEFAULT,
+				__in_opt bool bleed = POST_PROCESS_BLEED_DEFAULT,
+				__in_opt bool scanlines = POST_PROCESS_SCANLINE_DEFAULT,
+				__in_opt bool border = POST_PROCESS_BORDER_DEFAULT,
 				__in_opt bool fullscreen = false
 				);
 
 			void set_filter_crt(
 				__in bool crt,
-				__in_opt bool bleed = true,
-				__in_opt bool scanlines = true,
-				__in_opt bool border = true
+				__in_opt bool bleed = POST_PROCESS_BLEED_DEFAULT,
+				__in_opt bool scanlines = POST_PROCESS_SCANLINE_DEFAULT,
+				__in_opt bool border = POST_PROCESS_BORDER_DEFAULT
 				);
 
 			void set_frame_rate(
