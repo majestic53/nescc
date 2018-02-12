@@ -22,7 +22,6 @@
 #include <map>
 #include <vector>
 #include "../define.h"
-#include "../core/token.h"
 
 namespace nescc {
 
@@ -58,6 +57,10 @@ namespace nescc {
 				stream &operator=(
 					__in const stream &other
 					);
+
+				virtual std::string as_exception(
+					__in_opt bool verbose = false
+					) const;
 
 				virtual std::string as_exception(
 					__in size_t line,

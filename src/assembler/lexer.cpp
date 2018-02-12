@@ -83,13 +83,23 @@ namespace nescc {
 
 		std::string
 		lexer::as_exception(
-			__in size_t line,
+			__in_opt bool verbose
+			) const
+		{
+			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
+			TRACE_EXIT();
+			return as_exception(m_token_position, verbose);
+		}
+
+		std::string
+		lexer::as_exception(
+			__in size_t position,
 			__in_opt bool verbose
 			) const
 		{
 			std::stringstream result;
 
-			TRACE_ENTRY_FORMAT("Line=%u, Verbose=%x", line, verbose);
+			TRACE_ENTRY_FORMAT("Position=%u, Verbose=%x", position, verbose);
 
 			// TODO
 
@@ -129,7 +139,7 @@ namespace nescc {
 				case nescc::core::TOKEN_PRAGMA:
 				case nescc::core::TOKEN_SYMBOL:
 					result << " Value[" << entry.as_literal().size() << "]=\""
-						<< nescc::core::token::format_string(entry.as_literal()) << "\"";
+						<< format_string(entry.as_literal()) << "\"";
 					break;
 				case nescc::core::TOKEN_SCALAR:
 					result << " Value=" << entry.as_scalar();
@@ -162,7 +172,7 @@ namespace nescc {
 			TRACE_ENTRY();
 
 			while(has_next()) {
-				enumerate_token();
+				move_next();
 			}
 
 			reset();
@@ -173,9 +183,26 @@ namespace nescc {
 		void
 		lexer::enumerate_token(void)
 		{
+			nescc::core::token entry;
+
 			TRACE_ENTRY();
 
-			// TODO
+			switch(nescc::assembler::stream::character_type()) {
+				case CHARACTER_ALPHA:
+					enumerate_token_alpha(entry);
+					break;
+				case CHARACTER_DIGIT:
+					enumerate_token_digit(entry);
+					break;
+				case CHARACTER_SYMBOL:
+					enumerate_token_symbol(entry);
+					break;
+				default:
+					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNEXPECTED_TYPE,
+						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(true)));
+			}
+
+			m_token.insert(m_token.begin() + (m_token_position + 1), entry);
 
 			TRACE_EXIT();
 		}

@@ -47,6 +47,16 @@ namespace nescc {
 	#define BACKGROUND_GREEN 0
 	#define BACKGROUND_RED 0
 
+	#define CHARACTER_ALERT '\a'
+	#define CHARACTER_BACKSPACE '\b'
+	#define CHARACTER_CARRIAGE_RETURN '\r'
+	#define CHARACTER_FORMFEED '\f'
+	#define CHARACTER_HORIZONTAL_SPACE ' '
+	#define CHARACTER_HORIZONTAL_TAB '\t'
+	#define CHARACTER_NEWLINE '\n'
+	#define CHARACTER_TERMINATOR '\0'
+	#define CHARACTER_VERTICAL_TAB '\v'
+
 	#define CLOCK_RATE 1789773 // 1.79 MHz
 
 	#define COLUMN_WIDTH 16
@@ -77,6 +87,14 @@ namespace nescc {
 
 	#define STRING_CHECK(_STR_) \
 		(_STR_.empty() ? STRING_EMPTY : _STR_.c_str())
+
+	std::string format_character(
+		__in char value
+		);
+
+	std::string format_string(
+		__in const std::string &input
+		);
 }
 
 #endif // NESCC_DEFINE_H_

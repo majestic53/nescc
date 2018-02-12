@@ -21,6 +21,7 @@
 
 #include <vector>
 #include "./stream.h"
+#include "../core/token.h"
 
 namespace nescc {
 
@@ -49,7 +50,11 @@ namespace nescc {
 					);
 
 				virtual std::string as_exception(
-					__in size_t line,
+					__in_opt bool verbose = false
+					) const;
+
+				virtual std::string as_exception(
+					__in size_t position,
 					__in_opt bool verbose = false
 					) const;
 

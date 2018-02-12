@@ -91,6 +91,16 @@ namespace nescc {
 
 		std::string
 		stream::as_exception(
+			__in_opt bool verbose
+			) const
+		{
+			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
+			TRACE_EXIT();
+			return as_exception(m_stream_position_line, verbose);
+		}
+
+		std::string
+		stream::as_exception(
 			__in size_t line,
 			__in_opt bool verbose
 			) const
@@ -99,7 +109,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Line=%u, Verbose=%x", line, verbose);
 
-			result << "\"" << nescc::core::token::format_string(find_line(line)) << "\" (";
+			result << "\"" << format_string(find_line(line)) << "\" (";
 
 			if(verbose) {
 				result << m_path << "@";
@@ -127,7 +137,7 @@ namespace nescc {
 			}
 
 			value = character();
-			result << "{" << CHARACTER_STRING(character_type()) << "} \'" << nescc::core::token::format_character(value)
+			result << "{" << CHARACTER_STRING(character_type()) << "} \'" << format_character(value)
 					<< "\' (" << SCALAR_AS_HEX(uint8_t, value) << ")";
 
 			TRACE_EXIT();
@@ -450,7 +460,7 @@ namespace nescc {
 
 				result << " Path[" << m_path.size() << "]=" << STRING_CHECK(m_path)
 					<< ", Stream[" << m_stream.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_stream)
-					<< ", Character=[" << CHARACTER_STRING(type) << "] \'" << nescc::core::token::format_character(value)
+					<< ", Character=[" << CHARACTER_STRING(type) << "] \'" << format_character(value)
 						<< "\' (" << SCALAR_AS_HEX(uint8_t, value) << ")"
 					<< ", Position=" << m_stream_position << " (" << m_stream_position_line
 						<< ", " << m_stream_position_column << ")";

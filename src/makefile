@@ -36,8 +36,8 @@ all: build archive
 archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
-	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_display.o $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o $(DIR_BUILD)base_trace.o \
-			$(DIR_BUILD)base_unique.o \
+	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_define.o $(DIR_BUILD)base_display.o $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o \
+			$(DIR_BUILD)base_trace.o $(DIR_BUILD)base_unique.o \
 		$(DIR_BUILD)assembler_lexer.o $(DIR_BUILD)assembler_stream.o \
 		$(DIR_BUILD)core_audio_buffer.o $(DIR_BUILD)core_audio_frame.o $(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_signal.o \
 			$(DIR_BUILD)core_token.o $(DIR_BUILD)core_thread.o $(DIR_BUILD)core_unique_id.o \
@@ -52,7 +52,10 @@ build: build_base build_assembler build_core build_emulator build_emulator_mappe
 
 ### BASE ###
 
-build_base: base_display.o base_exception.o base_runtime.o base_trace.o base_unique.o
+build_base: base_define.o base_display.o base_exception.o base_runtime.o base_trace.o base_unique.o
+
+base_define.o: $(DIR_SRC)define.cpp $(DIR_INC)define.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)define.cpp -o $(DIR_BUILD)base_define.o
 
 base_display.o: $(DIR_SRC)display.cpp $(DIR_INC)display.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC)display.cpp -o $(DIR_BUILD)base_display.o

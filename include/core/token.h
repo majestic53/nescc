@@ -25,16 +25,6 @@ namespace nescc {
 
 	namespace core {
 
-		#define CHARACTER_ALERT '\a'
-		#define CHARACTER_BACKSPACE '\b'
-		#define CHARACTER_CARRIAGE_RETURN '\r'
-		#define CHARACTER_FORMFEED '\f'
-		#define CHARACTER_HORIZONTAL_SPACE ' '
-		#define CHARACTER_HORIZONTAL_TAB '\t'
-		#define CHARACTER_NEWLINE '\n'
-		#define CHARACTER_TERMINATOR '\0'
-		#define CHARACTER_VERTICAL_TAB '\v'
-
 		#define TOKEN_INVALID ((int) -1)
 
 		enum {
@@ -65,6 +55,8 @@ namespace nescc {
 
 			public:
 
+				token(void);
+
 				token(
 					__in int type,
 					__in_opt int subtype = TOKEN_INVALID
@@ -90,15 +82,12 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
-				static std::string format_character(
-					__in char value
-					);
-
-				static std::string format_string(
-					__in const std::string &input
-					);
-
 				bool has_subtype(void) const;
+
+				void set(
+					__in int type,
+					__in_opt int subtype = TOKEN_INVALID
+					);
 
 				int subtype(void) const;
 
@@ -109,11 +98,6 @@ namespace nescc {
 				int type(void) const;
 
 			protected:
-
-				void set(
-					__in int type,
-					__in_opt int subtype = TOKEN_INVALID
-					);
 
 				bool m_boolean;
 

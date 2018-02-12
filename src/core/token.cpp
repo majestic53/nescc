@@ -24,6 +24,16 @@ namespace nescc {
 
 	namespace core {
 
+		token::token(void) :
+			m_boolean(false),
+			m_scalar(0),
+			m_subtype(TOKEN_INVALID),
+			m_type(TOKEN_BEGIN)
+		{
+			TRACE_ENTRY();
+			TRACE_EXIT();
+		}
+
 		token::token(
 			__in int type,
 			__in_opt int subtype
@@ -121,73 +131,6 @@ namespace nescc {
 			result << ", Boolean=" << m_boolean
 				<< ", Literal[" << m_literal.size() << "]=" << format_string(m_literal)
 				<< ", Scalar=" << m_scalar;
-
-			TRACE_EXIT();
-			return result.str();
-		}
-
-		std::string
-		token::format_character(
-			__in char value
-			)
-		{
-			std::stringstream result;
-
-			TRACE_ENTRY_FORMAT("Input=\'%c\'(%02x)", std::isprint(value) ? value : '_', value);
-
-			if((value != CHARACTER_HORIZONTAL_SPACE) && (!std::isprint(value) || std::isspace(value))) {
-				result << "\\";
-
-				switch(value) {
-					case CHARACTER_ALERT:
-						result << "a";
-						break;
-					case CHARACTER_BACKSPACE:
-						result << "b";
-						break;
-					case CHARACTER_CARRIAGE_RETURN:
-						result << "r";
-						break;
-					case CHARACTER_FORMFEED:
-						result << "f";
-						break;
-					case CHARACTER_HORIZONTAL_TAB:
-						result << "t";
-						break;
-					case CHARACTER_NEWLINE:
-						result << "n";
-						break;
-					case CHARACTER_TERMINATOR:
-						result << "0";
-						break;
-					case CHARACTER_VERTICAL_TAB:
-						result << "v";
-						break;
-					default:
-						result << "x" << SCALAR_AS_HEX(uint8_t, value);
-						break;
-				}
-			} else {
-				result << value;
-			}
-
-			TRACE_EXIT();
-			return result.str();
-		}
-
-		std::string
-		token::format_string(
-			__in const std::string &input
-			)
-		{
-			std::stringstream result;
-			std::string::const_iterator iter;
-
-			TRACE_ENTRY_FORMAT("Input[%u]=%s", input.size(), STRING_CHECK(input));
-
-			for(iter = input.begin(); iter != input.end(); ++iter) {
-				result << format_character(*iter);
-			}
 
 			TRACE_EXIT();
 			return result.str();
