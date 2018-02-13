@@ -289,6 +289,12 @@ Extracted roms/assembly/images can be found in the same directory as the input r
 Changelog
 =========
 
+Version 0.1.1807
+----------------
+*Updated: 2/12/2018*
+
+* Added lexer enumeration routines
+
 Version 0.1.1806
 ----------------
 *Updated: 2/11/2018*
@@ -318,26 +324,6 @@ Version 0.1.1806
 * Added unbuffered input to reduce input latency
 * Added apu clock routines <s>(incomplete)</s>
 * <s>Fixed bug in mapper 3 (TXROM) (incomplete)</s>
-
-Version 0.1.1805
-----------------
-*Updated: 2/3/2018*
-
-* Added audio circular buffer core classes
-* Converted core memory class into a template
-
-*Updated: 1/31/2018*
-
-* Added APU ports
-
-*Updated: 1/30/2018*
-
-* Added SDL audio device to apu (incomplete)
-* Renamed mmc1/mmc3 to sxrom/txrom
-
-*Updated: 1/29/2018*
-
-* Added mapper 2/3/7 (UXROM/CNROM/AXROM) support
 
 *Changelog truncated (see file history for full log)*
 

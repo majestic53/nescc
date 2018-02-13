@@ -19,6 +19,10 @@
 #include "../include/assembler.h"
 #include "./assembler_type.h"
 
+// TODO
+#include "../../include/assembler/lexer.h"
+// ---
+
 namespace nescc {
 
 	namespace tool {
@@ -255,6 +259,22 @@ namespace nescc {
 #endif // NDEBUG
 
 			// TODO
+
+// TODO
+nescc::assembler::lexer lex(input, true);
+
+while(lex.has_next()) {
+	std::cout << lex.as_string(true) << std::endl;
+	lex.move_next();
+}
+
+std::cout << lex.as_string(true) << std::endl;
+
+while(lex.has_previous()) {
+	lex.move_previous();
+	std::cout << lex.as_string(true) << std::endl;
+}
+// ---
 
 			TRACE_EXIT();
 		}

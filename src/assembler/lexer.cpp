@@ -137,7 +137,6 @@ namespace nescc {
 				case nescc::core::TOKEN_LABEL:
 				case nescc::core::TOKEN_LITERAL:
 				case nescc::core::TOKEN_PRAGMA:
-				case nescc::core::TOKEN_SYMBOL:
 					result << " Value[" << entry.as_literal().size() << "]=\""
 						<< format_string(entry.as_literal()) << "\"";
 					break;
@@ -183,23 +182,26 @@ namespace nescc {
 		void
 		lexer::enumerate_token(void)
 		{
+			size_t line;
 			nescc::core::token entry;
 
 			TRACE_ENTRY();
 
+			line = nescc::assembler::stream::line();
+
 			switch(nescc::assembler::stream::character_type()) {
 				case CHARACTER_ALPHA:
-					enumerate_token_alpha(entry);
+					enumerate_token_alpha(entry, line);
 					break;
 				case CHARACTER_DIGIT:
-					enumerate_token_digit(entry);
+					enumerate_token_digit(entry, line);
 					break;
 				case CHARACTER_SYMBOL:
-					enumerate_token_symbol(entry);
+					enumerate_token_symbol(entry, line);
 					break;
 				default:
 					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNEXPECTED_TYPE,
-						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(true)));
+						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 			}
 
 			m_token.insert(m_token.begin() + (m_token_position + 1), entry);
@@ -209,36 +211,163 @@ namespace nescc {
 
 		void
 		lexer::enumerate_token_alpha(
-			__inout nescc::core::token &token
+			__inout nescc::core::token &token,
+			__in size_t line
 			)
 		{
-			TRACE_ENTRY_FORMAT("Token=%p", &token);
+			std::string value;
+			int subtype = TOKEN_INVALID, type, value_type;
 
-			// TODO
+			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
+
+			type = token.type();
+			if(type != nescc::core::TOKEN_LITERAL) { // non-literal
+
+				if(type != nescc::core::TOKEN_PRAGMA) { // non-pragma
+					type = nescc::core::TOKEN_IDENTIFIER;
+				}
+
+				if(nescc::assembler::stream::character_type() != CHARACTER_ALPHA) {
+					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_ALPHA,
+						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+				}
+
+				value += nescc::assembler::stream::character();
+
+				while(nescc::assembler::stream::has_next()) {
+					nescc::assembler::stream::move_next();
+
+					value_type = nescc::assembler::stream::character_type();
+					if((value_type != CHARACTER_ALPHA) && (value_type != CHARACTER_DIGIT)) {
+						break;
+					}
+
+					value += nescc::assembler::stream::character();
+				}
+
+				if(type == nescc::core::TOKEN_PRAGMA) { // pragma
+
+					// TODO: enumerate/validate pragma subtype
+
+				} else if((nescc::assembler::stream::character_type() == CHARACTER_SYMBOL)
+						&& (nescc::assembler::stream::character() == LABEL_END)) { // label
+					type = nescc::core::TOKEN_LABEL;
+
+					if(nescc::assembler::stream::has_next()) {
+						nescc::assembler::stream::move_next();
+					}
+				} else if((value == BOOLEAN_FALSE) || (value == BOOLEAN_TRUE)) { // boolean
+					type = nescc::core::TOKEN_BOOLEAN;
+				}
+			} else { // literal
+
+				for(;;) {
+
+					if((nescc::assembler::stream::character_type() == CHARACTER_SYMBOL)
+							&& (nescc::assembler::stream::character() == LITERAL_END)) { // literal terminator
+						break;
+					} else if(!nescc::assembler::stream::has_next()) { // unterminated literal
+						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+							NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_UNTERMINATED_LITERAL,
+							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+					} else {
+						value += nescc::assembler::stream::character();
+						nescc::assembler::stream::move_next();
+					}
+				}
+
+				if(nescc::assembler::stream::has_next()) {
+					nescc::assembler::stream::move_next();
+				}
+			}
+
+			token.set(type, subtype);
+
+			switch(type) {
+				case nescc::core::TOKEN_BOOLEAN:
+					token.as_boolean() = ((value == BOOLEAN_TRUE) ? true : false);
+					break;
+				case nescc::core::TOKEN_IDENTIFIER:
+				case nescc::core::TOKEN_LABEL:
+				case nescc::core::TOKEN_LITERAL:
+				case nescc::core::TOKEN_PRAGMA:
+					token.as_literal() = value;
+					break;
+				default:
+					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNEXPECTED_TYPE,
+						"Type=%x(%s)", type, TOKEN_STRING(type));
+			}
 
 			TRACE_EXIT();
 		}
 
 		void
 		lexer::enumerate_token_digit(
-			__inout nescc::core::token &token
+			__inout nescc::core::token &token,
+			__in size_t line
 			)
 		{
-			TRACE_ENTRY_FORMAT("Token=%p", &token);
+			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
 
-			// TODO
+			if(nescc::assembler::stream::character_type() != CHARACTER_DIGIT) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_DIGIT,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			// TODO: enumerate digit value
 
 			TRACE_EXIT();
 		}
 
 		void
 		lexer::enumerate_token_symbol(
-			__inout nescc::core::token &token
+			__inout nescc::core::token &token,
+			__in size_t line
 			)
 		{
-			TRACE_ENTRY_FORMAT("Token=%p", &token);
+			int subtype = TOKEN_INVALID, type = nescc::core::TOKEN_SYMBOL;
 
-			// TODO
+			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
+
+			if(nescc::assembler::stream::character_type() != CHARACTER_SYMBOL) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_SYMBOL,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			switch(nescc::assembler::stream::character()) {
+				case LITERAL_BEGIN: // literal
+					type = nescc::core::TOKEN_LITERAL;
+					break;
+				case PRAGMA_BEGIN: // pragma
+					type = nescc::core::TOKEN_PRAGMA;
+					break;
+				default: // symbol
+
+					// TODO: enumerate symbol subtype
+
+					break;
+			}
+
+			if(type != nescc::core::TOKEN_SYMBOL) { // literal/pragma
+
+				if(nescc::assembler::stream::has_next()) {
+					nescc::assembler::stream::move_next();
+				}
+
+				if((type == nescc::core::TOKEN_LITERAL) && !nescc::assembler::stream::has_next()) { // unterminated literal
+					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_UNTERMINATED_LITERAL,
+						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+				} else if((type == nescc::core::TOKEN_PRAGMA) && (!nescc::assembler::stream::has_next()
+						|| (nescc::assembler::stream::character_type() != CHARACTER_ALPHA))) { // unterminated pragma
+					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_UNTERMINATED_PRAGMA,
+						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+				}
+
+				token.set(type);
+				enumerate_token_alpha(token, line);
+			} else { // symbol
+				token.set(type, subtype);
+			}
 
 			TRACE_EXIT();
 		}	

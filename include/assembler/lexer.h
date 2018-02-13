@@ -96,15 +96,18 @@ namespace nescc {
 				void enumerate_token(void);
 
 				void enumerate_token_alpha(
-					__inout nescc::core::token &token
+					__inout nescc::core::token &token,
+					__in size_t line
 					);
 
 				void enumerate_token_digit(
-					__inout nescc::core::token &token
+					__inout nescc::core::token &token,
+					__in size_t line
 					);
 
 				void enumerate_token_symbol(
-					__inout nescc::core::token &token
+					__inout nescc::core::token &token,
+					__in size_t line
 					);
 
 				void skip_whitespace(void);
