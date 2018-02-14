@@ -100,6 +100,11 @@ namespace nescc {
 					__in size_t line
 					);
 
+				void enumerate_token_alpha_literal(
+					__inout std::string &result,
+					__in size_t line
+					);
+
 				void enumerate_token_digit(
 					__inout nescc::core::token &token,
 					__in size_t line

@@ -291,7 +291,7 @@ Changelog
 
 Version 0.1.1807
 ----------------
-*Updated: 2/12/2018*
+*Updated: 2/12-13/2018*
 
 * Added lexer enumeration routines
 

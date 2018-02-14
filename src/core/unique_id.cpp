@@ -82,11 +82,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 
-			result << m_id;
-
-			if(verbose) {
-				result << "(" << SCALAR_AS_HEX(nescc::core::uuid_t, m_id) << ")";
-			}
+			result << SCALAR_AS_HEX(nescc::core::uuid_t, m_id);
 
 			TRACE_EXIT();
 			return result.str();

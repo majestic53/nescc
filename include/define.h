@@ -50,11 +50,13 @@ namespace nescc {
 	#define CHARACTER_ALERT '\a'
 	#define CHARACTER_BACKSPACE '\b'
 	#define CHARACTER_CARRIAGE_RETURN '\r'
+	#define CHARACTER_ESCAPE '\\'
 	#define CHARACTER_FORMFEED '\f'
 	#define CHARACTER_HORIZONTAL_SPACE ' '
 	#define CHARACTER_HORIZONTAL_TAB '\t'
 	#define CHARACTER_NEWLINE '\n'
 	#define CHARACTER_TERMINATOR '\0'
+	#define CHARACTER_UNDERSCORE '_'
 	#define CHARACTER_VERTICAL_TAB '\v'
 
 	#define CLOCK_RATE 1789773 // 1.79 MHz
@@ -71,7 +73,7 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 1
+	#define NESCC_VERSION_REVISION 2
 	#define NESCC_VERSION_WEEK 1807
 
 	#define STRING_EMPTY "Empty"

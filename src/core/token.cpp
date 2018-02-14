@@ -124,13 +124,39 @@ namespace nescc {
 			result << "[" << nescc::core::unique_id::as_string(verbose) << "] Type=" << m_type
 				<< "(" << TOKEN_STRING(m_type) << ")";
 
-			if(m_subtype == TOKEN_INVALID) {
+			if(m_subtype != TOKEN_INVALID) {
 				result << ", Subtype=" << m_subtype;
+
+				switch(m_type) {
+					case TOKEN_PRAGMA:
+						result << "(" << PRAGMA_STRING(m_subtype) << ")";
+						break;
+					case TOKEN_REGISTER:
+						result << "(" << REGISTER_STRING(m_subtype) << ")";
+						break;
+					case TOKEN_SYMBOL:
+						result << "(" << SYMBOL_STRING(m_subtype) << ")";
+						break;
+					default:
+						break;
+				}
 			}
 
-			result << ", Boolean=" << m_boolean
-				<< ", Literal[" << m_literal.size() << "]=" << format_string(m_literal)
-				<< ", Scalar=" << m_scalar;
+			switch(m_type) {
+				case TOKEN_BOOLEAN:
+					result << ", Value=" << (m_boolean ? "true" : "false");
+					break;
+				case TOKEN_IDENTIFIER:
+				case TOKEN_LABEL:
+				case TOKEN_LITERAL:
+					result << ", Value[" << m_literal.size() << "]=\"" << format_string(m_literal) << "\"";
+					break;
+				case TOKEN_SCALAR:
+					result << ", Value=" << m_scalar << "(" << SCALAR_AS_HEX(int32_t, m_scalar) << ")";
+					break;
+				default:
+					break;
+			}
 
 			TRACE_EXIT();
 			return result.str();
@@ -194,13 +220,39 @@ namespace nescc {
 				result << " Base=" << nescc::core::unique_id::to_string(verbose)
 					<< ", Type=" << m_type << "(" << TOKEN_STRING(m_type) << ")";
 
-				if(m_subtype == TOKEN_INVALID) {
+				if(m_subtype != TOKEN_INVALID) {
 					result << ", Subtype=" << m_subtype;
+
+					switch(m_type) {
+						case TOKEN_PRAGMA:
+							result << "(" << PRAGMA_STRING(m_subtype) << ")";
+							break;
+						case TOKEN_REGISTER:
+							result << "(" << REGISTER_STRING(m_subtype) << ")";
+							break;
+						case TOKEN_SYMBOL:
+							result << "(" << SYMBOL_STRING(m_subtype) << ")";
+							break;
+						default:
+							break;
+					}
 				}
 
-				result << ", Boolean=" << m_boolean
-					<< ", Literal[" << m_literal.size() << "]=" << STRING_CHECK(m_literal)
-					<< ", Scalar=" << m_scalar;
+				switch(m_type) {
+					case TOKEN_BOOLEAN:
+						result << ", Value=" << (m_boolean ? "true" : "false");
+						break;
+					case TOKEN_IDENTIFIER:
+					case TOKEN_LABEL:
+					case TOKEN_LITERAL:
+						result << ", Value[" << m_literal.size() << "]=\"" << format_string(m_literal) << "\"";
+						break;
+					case TOKEN_SCALAR:
+						result << ", Value=" << m_scalar << "(" << SCALAR_AS_HEX(int32_t, m_scalar) << ")";
+						break;
+					default:
+						break;
+				}
 			}
 
 			TRACE_EXIT();
