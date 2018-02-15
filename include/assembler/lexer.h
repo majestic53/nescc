@@ -107,7 +107,8 @@ namespace nescc {
 
 				void enumerate_token_digit(
 					__inout nescc::core::token &token,
-					__in size_t line
+					__in size_t line,
+					__in_opt bool negative = false
 					);
 
 				void enumerate_token_symbol(

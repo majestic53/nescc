@@ -396,17 +396,44 @@ namespace nescc {
 		void
 		lexer::enumerate_token_digit(
 			__inout nescc::core::token &token,
-			__in size_t line
+			__in size_t line,
+			__in_opt bool negative
 			)
 		{
-			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
+			std::string result;
+			std::stringstream stream;
+			int subtype = TOKEN_INVALID, type = nescc::core::TOKEN_SCALAR;
+
+			TRACE_ENTRY_FORMAT("Token=%p, Line=%u, Negative=%x", &token, line, negative);
 
 			if(nescc::assembler::stream::character_type() != CHARACTER_DIGIT) {
 				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_DIGIT,
 					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 			}
 
-			// TODO: enumerate digit value
+			// TODO: enumerate bin/hex/oct values
+			for(;;) {
+				result += nescc::assembler::stream::character();
+
+				if(!nescc::assembler::stream::has_next()) {
+					break;
+				}
+
+				nescc::assembler::stream::move_next();
+
+				if(nescc::assembler::stream::character_type() != CHARACTER_DIGIT) {
+					break;
+				}
+			}
+
+			token.set(type, subtype);
+			stream << std::dec << result;
+			stream >> token.as_scalar();
+			// ---
+
+			if(negative) {
+				token.as_scalar() *= -1;
+			}
 
 			TRACE_EXIT();
 		}
@@ -417,7 +444,6 @@ namespace nescc {
 			__in size_t line
 			)
 		{
-			bool skip_begin = false;
 			int subtype = TOKEN_INVALID, type = nescc::core::TOKEN_SYMBOL;
 
 			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
@@ -433,22 +459,57 @@ namespace nescc {
 					break;
 				case LITERAL_BEGIN: // literal
 					type = nescc::core::TOKEN_LITERAL;
-					skip_begin = true;
 					break;
 				case PRAGMA_BEGIN: // pragma
 					type = nescc::core::TOKEN_PRAGMA;
-					skip_begin = true;
 					break;
-				default: // symbol
+				default: { // symbol
+						std::string value;
+						std::map<std::string, int>::const_iterator entry;
 
-					// TODO: enumerate symbol subtype
+						value += nescc::assembler::stream::character();
 
-					break;
+						if(nescc::assembler::stream::has_next()) {
+							nescc::assembler::stream::move_next();
+
+							if(nescc::assembler::stream::character_type() == CHARACTER_SYMBOL) {
+								value += nescc::assembler::stream::character();
+
+								entry = nescc::core::SYMBOL_MAP.find(value);
+								if(entry != nescc::core::SYMBOL_MAP.end()) {
+
+									if(nescc::assembler::stream::has_next()) {
+										nescc::assembler::stream::move_next();
+									}
+								} else {
+									value = value.substr(0, value.size() - 1);
+								}
+							}
+						}
+
+						entry = nescc::core::SYMBOL_MAP.find(value);
+						if(entry == nescc::core::SYMBOL_MAP.end()) {
+							THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNSUPPORTED_SYMBOL,
+								"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+						}
+
+						subtype = entry->second;
+						if((subtype == nescc::core::SYMBOL_ARITHMETIC_SUBTRACT)
+								&& (nescc::assembler::stream::character_type() == CHARACTER_DIGIT)) { // scalar
+							type = nescc::core::TOKEN_SCALAR;
+							token.set(type);
+							enumerate_token_digit(token, line, true);
+						}
+					} break;
 			}
 
-			if(type != nescc::core::TOKEN_SYMBOL) { // identifier/literal/pragma
-
-				if(skip_begin) { // literal/pragma
+			switch(type) {
+				case nescc::core::TOKEN_IDENTIFIER:
+					token.set(type);
+					enumerate_token_alpha(token, line);
+					break;
+				case nescc::core::TOKEN_LITERAL:
+				case nescc::core::TOKEN_PRAGMA:
 
 					if(nescc::assembler::stream::has_next()) {
 						nescc::assembler::stream::move_next();
@@ -462,12 +523,15 @@ namespace nescc {
 						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_PRAGMA,
 							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 					}
-				}
 
-				token.set(type);
-				enumerate_token_alpha(token, line);
-			} else { // symbol
-				token.set(type, subtype);
+					token.set(type);
+					enumerate_token_alpha(token, line);
+					break;
+				case nescc::core::TOKEN_SYMBOL:
+					token.set(type, subtype);
+					break;
+				default:
+					break;
 			}
 
 			TRACE_EXIT();
