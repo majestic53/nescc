@@ -26,6 +26,7 @@ namespace nescc {
 
 		token::token(void) :
 			m_boolean(false),
+			m_line(0),
 			m_scalar(0),
 			m_subtype(TOKEN_INVALID),
 			m_type(TOKEN_BEGIN)
@@ -36,14 +37,16 @@ namespace nescc {
 
 		token::token(
 			__in int type,
-			__in_opt int subtype
+			__in_opt int subtype,
+			__in_opt size_t line
 			) :
 				m_boolean(false),
+				m_line(0),
 				m_scalar(0)
 		{
-			TRACE_ENTRY_FORMAT("Type=%x(%s), Subtype=%x", type, TOKEN_STRING(type), subtype);
+			TRACE_ENTRY_FORMAT("Type=%x(%s), Subtype=%x, Line=%u", type, TOKEN_STRING(type), subtype, line);
 
-			set(type, subtype);
+			set(type, subtype, line);
 
 			TRACE_EXIT();
 		}
@@ -53,6 +56,7 @@ namespace nescc {
 			) :
 				nescc::core::unique_id(other),
 				m_boolean(other.m_boolean),
+				m_line(other.m_line),
 				m_literal(other.m_literal),
 				m_scalar(other.m_scalar),
 				m_subtype(other.m_subtype),
@@ -78,6 +82,7 @@ namespace nescc {
 			if(this != &other) {
 				nescc::core::unique_id::operator=(other);
 				m_boolean = other.m_boolean;
+				m_line = other.m_line;
 				m_literal = other.m_literal;
 				m_scalar = other.m_scalar;
 				m_subtype = other.m_subtype;
@@ -158,6 +163,8 @@ namespace nescc {
 					break;
 			}
 
+			result << ", Line=" << m_line;
+
 			TRACE_EXIT();
 			return result.str();
 		}
@@ -175,13 +182,22 @@ namespace nescc {
 			return result;
 		}
 
+		size_t
+		token::line(void) const
+		{
+			TRACE_ENTRY();
+			TRACE_EXIT_FORMAT("Result=%u", m_line);
+			return m_line;
+		}
+
 		void
 		token::set(
 			__in int type,
-			__in_opt int subtype
+			__in_opt int subtype,
+			__in_opt size_t line
 			)
 		{
-			TRACE_ENTRY_FORMAT("Type=%x(%s), Subtype=%x", type, TOKEN_STRING(type), subtype);
+			TRACE_ENTRY_FORMAT("Type=%x(%s), Subtype=%x, Line=%u", type, TOKEN_STRING(type), subtype, line);
 
 			if(type > TOKEN_MAX) {
 				THROW_NESCC_CORE_TOKEN_EXCEPTION_FORMAT(NESCC_CORE_TOKEN_EXCEPTION_TYPE_INVALID,
@@ -189,6 +205,7 @@ namespace nescc {
 			}
 
 			m_boolean = false;
+			m_line = line;
 			m_literal.clear();
 			m_scalar = 0;
 			m_subtype = subtype;
@@ -254,6 +271,8 @@ namespace nescc {
 						break;
 				}
 			}
+
+			result << ", Line=" << m_line;
 
 			TRACE_EXIT();
 			return result.str();

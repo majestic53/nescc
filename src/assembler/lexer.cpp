@@ -101,7 +101,12 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Position=%u, Verbose=%x", position, verbose);
 
-			// TODO
+			if(position >= m_token.size()) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_POSITION,
+					"Position=%u", position);
+			}
+
+			result << nescc::assembler::stream::as_exception(m_token.at(position).line(), verbose);
 
 			TRACE_EXIT();
 			return result.str();
@@ -257,7 +262,7 @@ namespace nescc {
 				enumerate_token_alpha_literal(result, line);
 			}
 
-			token.set(type, subtype);
+			token.set(type, subtype, line);
 
 			switch(type) {
 				case nescc::core::TOKEN_BOOLEAN:
@@ -402,6 +407,7 @@ namespace nescc {
 		{
 			std::string result;
 			std::stringstream stream;
+			char scalar_type = SCALAR_DECIMAL;
 			int subtype = TOKEN_INVALID, type = nescc::core::TOKEN_SCALAR;
 
 			TRACE_ENTRY_FORMAT("Token=%p, Line=%u, Negative=%x", &token, line, negative);
@@ -411,7 +417,70 @@ namespace nescc {
 					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 			}
 
-			// TODO: enumerate bin/hex/oct values
+			if(nescc::assembler::stream::character() == SCALAR_BEGIN) {
+
+				if(nescc::assembler::stream::has_next()) {
+					nescc::assembler::stream::move_next();
+
+					if(nescc::assembler::stream::character_type() == CHARACTER_ALPHA) {
+
+						scalar_type = nescc::assembler::stream::character();
+						switch(scalar_type) {
+							case SCALAR_BINARY:
+							case SCALAR_HEXIDECIMAL:
+							case SCALAR_OCTAL: // binary/hexidecimal/octal
+
+								if(!nescc::assembler::stream::has_next()) {
+									THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+										NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_SCALAR,
+										"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+								}
+
+								nescc::assembler::stream::move_next();
+
+								if(nescc::assembler::stream::character_type() != CHARACTER_DIGIT) {
+									THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+										NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_SCALAR,
+										"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+								}
+								break;
+							default:
+								THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+									NESCC_ASSEMBLER_LEXER_EXCEPTION_UNSUPPORTED_SCALAR,
+									"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+						}
+					} else { // decimal
+						nescc::assembler::stream::move_previous();
+					}
+				}
+			}
+
+			switch(scalar_type) {
+				case SCALAR_BINARY:
+
+					if(nescc::assembler::stream::character() > SCALAR_BINARY_MAX) {
+						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_SCALAR,
+							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+					}
+					break;
+				case SCALAR_HEXIDECIMAL:
+
+					if(!std::isxdigit(nescc::assembler::stream::character())) {
+						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_SCALAR,
+							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+					}
+					break;
+				case SCALAR_OCTAL:
+
+					if(nescc::assembler::stream::character() > SCALAR_OCTAL_MAX) {
+						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_SCALAR,
+							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+					}
+					break;
+				default: // decimal
+					break;
+			}
+
 			for(;;) {
 				result += nescc::assembler::stream::character();
 
@@ -421,15 +490,43 @@ namespace nescc {
 
 				nescc::assembler::stream::move_next();
 
-				if(nescc::assembler::stream::character_type() != CHARACTER_DIGIT) {
+				if(((scalar_type == SCALAR_BINARY) && (nescc::assembler::stream::character() > SCALAR_BINARY_MAX))
+						|| ((scalar_type == SCALAR_HEXIDECIMAL) && !std::isxdigit(nescc::assembler::stream::character()))
+						|| ((scalar_type == SCALAR_OCTAL) && (nescc::assembler::stream::character() > SCALAR_OCTAL_MAX))
+						|| (nescc::assembler::stream::character_type() != CHARACTER_DIGIT)) {
 					break;
 				}
 			}
 
-			token.set(type, subtype);
-			stream << std::dec << result;
-			stream >> token.as_scalar();
-			// ---
+			token.set(type, subtype, line);
+
+			switch(scalar_type) {
+				case SCALAR_BINARY: {
+						int count = 0;
+
+						token.as_scalar() = 0;
+
+						for(std::string::reverse_iterator iter = result.rbegin(); iter != result.rend();
+								++count, ++iter) {
+
+							if(*iter == SCALAR_BINARY_MAX) {
+								token.as_scalar() |= (1 << count);
+							}
+						}
+					} break;
+				case SCALAR_HEXIDECIMAL:
+					stream << std::hex << result;
+					stream >> token.as_scalar();
+					break;
+				case SCALAR_OCTAL:
+					stream << std::oct << result;
+					stream >> token.as_scalar();
+					break;
+				default: // decimal
+					stream << std::dec << result;
+					stream >> token.as_scalar();
+					break;
+			}
 
 			if(negative) {
 				token.as_scalar() *= -1;
@@ -497,7 +594,7 @@ namespace nescc {
 						if((subtype == nescc::core::SYMBOL_ARITHMETIC_SUBTRACT)
 								&& (nescc::assembler::stream::character_type() == CHARACTER_DIGIT)) { // scalar
 							type = nescc::core::TOKEN_SCALAR;
-							token.set(type);
+							token.set(type, subtype, line);
 							enumerate_token_digit(token, line, true);
 						}
 					} break;
@@ -505,7 +602,7 @@ namespace nescc {
 
 			switch(type) {
 				case nescc::core::TOKEN_IDENTIFIER:
-					token.set(type);
+					token.set(type, subtype, line);
 					enumerate_token_alpha(token, line);
 					break;
 				case nescc::core::TOKEN_LITERAL:
@@ -524,11 +621,11 @@ namespace nescc {
 							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 					}
 
-					token.set(type);
+					token.set(type, subtype, line);
 					enumerate_token_alpha(token, line);
 					break;
 				case nescc::core::TOKEN_SYMBOL:
-					token.set(type, subtype);
+					token.set(type, subtype, line);
 					break;
 				default:
 					break;

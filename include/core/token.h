@@ -194,7 +194,8 @@ namespace nescc {
 
 				token(
 					__in int type,
-					__in_opt int subtype = TOKEN_INVALID
+					__in_opt int subtype = TOKEN_INVALID,
+					__in_opt size_t line = 0
 					);
 
 				token(
@@ -219,9 +220,12 @@ namespace nescc {
 
 				bool has_subtype(void) const;
 
+				size_t line(void) const;
+
 				void set(
 					__in int type,
-					__in_opt int subtype = TOKEN_INVALID
+					__in_opt int subtype = TOKEN_INVALID,
+					__in_opt size_t line = 0
 					);
 
 				int subtype(void) const;
@@ -235,6 +239,8 @@ namespace nescc {
 			protected:
 
 				bool m_boolean;
+
+				size_t m_line;
 
 				std::string m_literal;
 
