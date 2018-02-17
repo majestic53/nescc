@@ -31,26 +31,39 @@ Features
 What's there
 ------------
 
-* Support for two controllers (keyboard or controller)
-	* Keyboard
-		* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
-		* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
-	* NES USB controller
-		* If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
-* Support for mappers
+### Emulator
+
+* Live debugging (while in interactive mode)
+* Various common Mappers
 	* Mapper #0 (NROM)
 	* Mapper #1 (SXROM)
 	* Mapper #2 (UXROM)
 	* Mapper #3 (CNROM)
 	* Mapper #4 (TXROM)
 	* Mapper #7 (AXROM)
-* Support for live debugging (while in interactive mode)
 * Built-in CRT filter
+* Two controllers (keyboard or controller)
+	* Keyboard
+		* Joypad 1: A=X, B=Z, Start=W, Select=Q, Up=Up Arrow, Down=Down Arrow, Left=left Arrow, Right=Right Arrow
+		* Joypad 2: A=M, B=N, Start=U, Select=Y, Up=Up Num, Down=Down Num, Left=left Num, Right=Right Num
+	* NES USB controller
+		* If controllers are being used, the order in which they are plugged in will dictate which is player 1 and 2
+
+### Extractor
+
+* Extracting program and character roms
+* Decoding program roms into assembly
+* Decoding character roms into images
+
+### Assembler
+
+Nothing yet
 
 What's Missing
 --------------
 
-* No sound yet :(
+* Assembler is a work-in-progress
+* APU is not fully implemented in the emulator
 
 Build
 =====
