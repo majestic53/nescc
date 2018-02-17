@@ -12,14 +12,6 @@ Table of Contents
 2. [Build](https://github.com/majestic53/nescc#build) -- How to build the project
 3. [Usage](https://github.com/majestic53/nescc#usage) -- How to use the project
 	* [Nescc-emulator](https://github.com/majestic53/nescc#nescc-emulator) -- How to use the Nescc emulator
-		* [Interactive Commands](https://github.com/majestic53/nescc#interactive-commands) -- All interactive mode commands
- 		* [APU Subcommands](https://github.com/majestic53/nescc#apu-subcommands) -- All interactive mode APU subcommands
-		* [CPU Subcommands](https://github.com/majestic53/nescc#cpu-subcommands) -- All interactive mode CPU subcommands
-		* [Debug Subcommands](https://github.com/majestic53/nescc#debug-subcommands) -- All interactive mode debug subcommands
-		* [Display Subcommands](https://github.com/majestic53/nescc#display-subcommands) -- All interactive mode display subcommands
-		* [Joypad Subcommands](https://github.com/majestic53/nescc#joypad-subcommands) -- All interactive mode joypad subcommands
-		* [MMU Subcommands](https://github.com/majestic53/nescc#mmu-subcommands) -- All interactive mode MMU subcommands
-		* [PPU Subcommands](https://github.com/majestic53/nescc#ppu-subcommands) -- All interactive mode PPU subcommands
 	* [Nescc-assembler](https://github.com/majestic53/nescc#nescc-assembler) -- How to use the Nescc assembler
 	* [Nescc-extractor](https://github.com/majestic53/nescc#nescc-extractor) -- How to use the Nescc extractor
 4. [Changelog](https://github.com/majestic53/nescc#changelog) -- Project changelist information
@@ -34,12 +26,12 @@ What's there
 ### Emulator
 
 * Live debugging (while in interactive mode)
-* Various common Mappers
+* Various common mappers
 	* Mapper #0 (NROM)
 	* Mapper #1 (SXROM)
 	* Mapper #2 (UXROM)
 	* Mapper #3 (CNROM)
-	* Mapper #4 (TXROM)
+	* Mapper #4 (TXROM) (__NOTE__: buggy!)
 	* Mapper #7 (AXROM)
 * Built-in CRT filter
 * Two controllers (keyboard or controller)
