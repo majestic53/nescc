@@ -4,9 +4,18 @@ character ::= <character_escape> | .
 
 character_escape ::= \\x[0-9a-fA-F]{1,2}
 
-command ::= <command_code> <command_mode>*
+command ::= [<command_code> | \?<command_code_illegal>] <command_mode>?
 
-command_code ::=
+command_code ::= adc | and | asl | bcc | bcs | beq | bit | bmi | bne | bpl
+			brk | bvc | bvs | clc | cld | cli | clv | cmp | cpx | cpy
+			dec | dex | dey | eor | inc | inx | iny | jmp | jsr | lda
+			ldx | ldy | lsr | nop | ora | pha | php | pla | plp | rol
+			ror | rti | rts | sbc | sec | sed | sei | sta | stx | sty
+			tax | tay | tsx | txa | txs | tya
+
+command_code_illegal ::= ahx | alr | anc | arr | axs | dcp | isc | kil | las
+				lax | nop | rla | rra | sax | sbc | shx | shy | slo
+				sre | tas | xaa
 
 command_mode ::= <command_mode_absolute> | <command_mode_absolute_x> | <command_mode_absolute_y>
 			| <command_mode_accumulator> | <command_mode_immediate> | <command_mode_indirect>

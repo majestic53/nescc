@@ -133,6 +133,9 @@ namespace nescc {
 				result << ", Subtype=" << m_subtype;
 
 				switch(m_type) {
+					case TOKEN_COMMAND:
+						result << "(" << COMMAND_STRING(m_subtype) << ")";
+						break;
 					case TOKEN_PRAGMA:
 						result << "(" << PRAGMA_STRING(m_subtype) << ")";
 						break;
@@ -241,6 +244,9 @@ namespace nescc {
 					result << ", Subtype=" << m_subtype;
 
 					switch(m_type) {
+						case TOKEN_COMMAND:
+							result << "(" << COMMAND_STRING(m_subtype) << ")";
+							break;
 						case TOKEN_PRAGMA:
 							result << "(" << PRAGMA_STRING(m_subtype) << ")";
 							break;

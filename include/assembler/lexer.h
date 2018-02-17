@@ -100,7 +100,7 @@ namespace nescc {
 					__in size_t line
 					);
 
-				void enumerate_token_alpha_literal(
+				void enumerate_token_alpha_escape(
 					__inout std::string &result,
 					__in size_t line
 					);

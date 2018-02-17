@@ -203,12 +203,13 @@ namespace nescc {
 			type = token.type();
 			if(type != nescc::core::TOKEN_LITERAL) { // non-literal
 
-				if(type != nescc::core::TOKEN_PRAGMA) { // non-pragma
+				if((type != nescc::core::TOKEN_COMMAND) && (type != nescc::core::TOKEN_PRAGMA)) { // non-pragma
 					type = nescc::core::TOKEN_IDENTIFIER;
 				}
 
 				if((nescc::assembler::stream::character_type() != CHARACTER_ALPHA)
-						&& (nescc::assembler::stream::character() != CHARACTER_UNDERSCORE)) {
+						&& (nescc::assembler::stream::character() != CHARACTER_UNDERSCORE)
+						&& (nescc::assembler::stream::character() != COMMAND_ILLEGAL_BEGIN)) {
 					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_ALPHA,
 						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 				}
@@ -232,10 +233,18 @@ namespace nescc {
 					result += value;
 				}
 
-				std::map<std::string, int>::const_iterator entry = nescc::core::REGISTER_MAP.find(result);
-				if(entry != nescc::core::REGISTER_MAP.end()) { // register
-					type = nescc::core::TOKEN_REGISTER;
+				std::map<std::string, int>::const_iterator entry = nescc::core::COMMAND_MAP.find(result);
+				if((type == nescc::core::TOKEN_COMMAND) && (entry == nescc::core::COMMAND_MAP.end())) { // unsupported command
+					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNSUPPORTED_COMMAND,
+						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+				}
+
+				if(entry != nescc::core::COMMAND_MAP.end()) { // command
+					type = nescc::core::TOKEN_COMMAND;
 					subtype = entry->second;
+				} else if(nescc::core::REGISTER_MAP.find(result) != nescc::core::REGISTER_MAP.end()) { // register
+					type = nescc::core::TOKEN_REGISTER;
+					subtype = nescc::core::REGISTER_MAP.find(result)->second;
 				} else if(type == nescc::core::TOKEN_PRAGMA) { // pragma
 
 					std::map<std::string, int>::const_iterator entry = nescc::core::PRAGMA_MAP.find(result);
@@ -259,7 +268,27 @@ namespace nescc {
 					}
 				}
 			} else { // literal
-				enumerate_token_alpha_literal(result, line);
+
+				for(;;) {
+
+					if((nescc::assembler::stream::character_type() == CHARACTER_SYMBOL)
+							&& (nescc::assembler::stream::character() == LITERAL_END)) { // literal terminator
+						break;
+					} else if(!nescc::assembler::stream::has_next()) { // unterminated literal
+						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+							NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_LITERAL,
+							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+					} else if(nescc::assembler::stream::character() == CHARACTER_ESCAPE) { // escape character
+						enumerate_token_alpha_escape(result, line);
+					} else {
+						result += nescc::assembler::stream::character();
+						nescc::assembler::stream::move_next();
+					}
+				}
+
+				if(nescc::assembler::stream::has_next()) {
+					nescc::assembler::stream::move_next();
+				}
 			}
 
 			token.set(type, subtype, line);
@@ -273,6 +302,7 @@ namespace nescc {
 				case nescc::core::TOKEN_LITERAL:
 					token.as_literal() = result;
 					break;
+				case nescc::core::TOKEN_COMMAND:
 				case nescc::core::TOKEN_PRAGMA:
 				case nescc::core::TOKEN_REGISTER:
 					break;
@@ -285,115 +315,96 @@ namespace nescc {
 		}
 
 		void
-		lexer::enumerate_token_alpha_literal(
+		lexer::enumerate_token_alpha_escape(
 			__inout std::string &result,
 			__in size_t line
 			)
 		{
+			char value;
+
 			TRACE_ENTRY_FORMAT("Result=%p, Line=%u", &result, line);
 
-			for(;;) {
+			if(!nescc::assembler::stream::has_next()) { // unterminated escape character
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+					NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_CHARACTER_ESCAPE,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
 
-				if((nescc::assembler::stream::character_type() == CHARACTER_SYMBOL)
-						&& (nescc::assembler::stream::character() == LITERAL_END)) { // literal terminator
+			nescc::assembler::stream::move_next();
+
+			value = nescc::assembler::stream::character();
+			switch(value) {
+				case CHARACTER_ESCAPE_ALERT: // \a
+					result += CHARACTER_ALERT;
 					break;
-				} else if(!nescc::assembler::stream::has_next()) { // unterminated literal
+				case CHARACTER_ESCAPE_BACKSPACE: // \b
+					result += CHARACTER_BACKSPACE;
+					break;
+				case CHARACTER_ESCAPE_CARRIAGE_RETURN: // \r
+					result += CHARACTER_CARRIAGE_RETURN;
+					break;
+				case CHARACTER_ESCAPE_FORMFEED: // \f
+					result += CHARACTER_FORMFEED;
+					break;
+				case CHARACTER_ESCAPE_HEXIDECIMAL: { // \x<HH>
+						uint16_t output;
+						std::string input;
+						std::stringstream stream;
+
+						for(int iter = 0; iter < CHARACTER_ESCAPE_HEXIDECIMAL_LENGTH; ++iter) {
+
+							if(!nescc::assembler::stream::has_next()) { // unterminated escape character
+								THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+									NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_CHARACTER_ESCAPE,
+									"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line,
+									true)));
+							}
+
+							nescc::assembler::stream::move_next();
+
+							value = nescc::assembler::stream::character();
+							if(!std::isxdigit(value)) {
+								THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+									NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_DIGIT_HEXIDECIMAL,
+									"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line,
+									true)));
+							}
+
+							input += value;
+						}
+
+						stream << std::hex << input;
+						stream >> output;
+						result += ((uint8_t) output);
+					} break;
+				case CHARACTER_ESCAPE_HORIZONTAL_TAB: // \t
+					result += CHARACTER_HORIZONTAL_TAB;
+					break;
+				case CHARACTER_ESCAPE_LITERAL: // \"
+					result += value;
+					break;
+				case CHARACTER_ESCAPE_NEWLINE: // \n
+					result += CHARACTER_NEWLINE;
+					break;
+				case CHARACTER_ESCAPE_TERMINATOR: // \0
+					result += CHARACTER_TERMINATOR;
+					break;
+				case CHARACTER_ESCAPE_VERTICAL_TAB: // \v
+					result += CHARACTER_VERTICAL_TAB;
+					break;
+				default:
 					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
-						NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_LITERAL,
+						NESCC_ASSEMBLER_LEXER_EXCEPTION_UNSUPPORTED_CHARACTER_ESCAPE,
 						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
-				} else if(nescc::assembler::stream::character() == CHARACTER_ESCAPE) { // escape character
-					char value;
-
-					if(!nescc::assembler::stream::has_next()) { // unterminated escape character
-						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
-							NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_CHARACTER_ESCAPE,
-							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
-					}
-
-					nescc::assembler::stream::move_next();
-
-					value = nescc::assembler::stream::character();
-					switch(value) {
-						case CHARACTER_ESCAPE_ALERT: // \a
-							result += CHARACTER_ALERT;
-							break;
-						case CHARACTER_ESCAPE_BACKSPACE: // \b
-							result += CHARACTER_BACKSPACE;
-							break;
-						case CHARACTER_ESCAPE_CARRIAGE_RETURN: // \r
-							result += CHARACTER_CARRIAGE_RETURN;
-							break;
-						case CHARACTER_ESCAPE_FORMFEED: // \f
-							result += CHARACTER_FORMFEED;
-							break;
-						case CHARACTER_ESCAPE_HEXIDECIMAL: { // \x<HH>
-								uint16_t output;
-								std::string input;
-								std::stringstream stream;
-
-								for(int iter = 0; iter < CHARACTER_ESCAPE_HEXIDECIMAL_LENGTH; ++iter) {
-
-									if(!nescc::assembler::stream::has_next()) { // unterminated escape character
-										THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
-											NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_CHARACTER_ESCAPE,
-											"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line,
-											true)));
-									}
-
-									nescc::assembler::stream::move_next();
-
-									value = nescc::assembler::stream::character();
-									if(!std::isxdigit(value)) {
-										THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
-											NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_DIGIT_HEXIDECIMAL,
-											"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line,
-											true)));
-									}
-
-									input += value;
-								}
-
-								stream << std::hex << input;
-								stream >> output;
-								result += ((uint8_t) output);
-							} break;
-						case CHARACTER_ESCAPE_HORIZONTAL_TAB: // \t
-							result += CHARACTER_HORIZONTAL_TAB;
-							break;
-						case CHARACTER_ESCAPE_LITERAL: // \"
-							result += value;
-							break;
-						case CHARACTER_ESCAPE_NEWLINE: // \n
-							result += CHARACTER_NEWLINE;
-							break;
-						case CHARACTER_ESCAPE_TERMINATOR: // \0
-							result += CHARACTER_TERMINATOR;
-							break;
-						case CHARACTER_ESCAPE_VERTICAL_TAB: // \v
-							result += CHARACTER_VERTICAL_TAB;
-							break;
-						default:
-							THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
-								NESCC_ASSEMBLER_LEXER_EXCEPTION_UNSUPPORTED_CHARACTER_ESCAPE,
-								"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
-					}
-
-					if(!nescc::assembler::stream::has_next()) { // unterminated literal
-						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
-							NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_LITERAL,
-							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
-					}
-
-					nescc::assembler::stream::move_next();
-				} else {
-					result += nescc::assembler::stream::character();
-					nescc::assembler::stream::move_next();
-				}
 			}
 
-			if(nescc::assembler::stream::has_next()) {
-				nescc::assembler::stream::move_next();
+			if(!nescc::assembler::stream::has_next()) { // unterminated literal
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
+					NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_LITERAL,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 			}
+
+			nescc::assembler::stream::move_next();
 
 			TRACE_EXIT();
 		}
@@ -554,6 +565,9 @@ namespace nescc {
 				case CHARACTER_UNDERSCORE: // identifier
 					type = nescc::core::TOKEN_IDENTIFIER;
 					break;
+				case COMMAND_ILLEGAL_BEGIN: // command
+					type = nescc::core::TOKEN_COMMAND;
+					break;
 				case LITERAL_BEGIN: // literal
 					type = nescc::core::TOKEN_LITERAL;
 					break;
@@ -601,6 +615,16 @@ namespace nescc {
 			}
 
 			switch(type) {
+				case nescc::core::TOKEN_COMMAND:
+
+					if(!nescc::assembler::stream::has_next()) { // unterminated command
+						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_COMMAND,
+							"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+					}
+
+					token.set(type, subtype, line);
+					enumerate_token_alpha(token, line);
+					break;
 				case nescc::core::TOKEN_IDENTIFIER:
 					token.set(type, subtype, line);
 					enumerate_token_alpha(token, line);
