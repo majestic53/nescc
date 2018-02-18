@@ -237,7 +237,6 @@ namespace nescc {
 					value_left.blue = 0;
 					value_left.green = 0;
 					value_right.red = 0;
-					value_right.blue = 0;
 				}
 			}
 
@@ -283,12 +282,9 @@ namespace nescc {
 					index = ((pixel_y * DISPLAY_WIDTH) + pixel_x);
 					nescc::core::pixel_t &value = m_pixel.at(index), &value_left = pixel_left.at(index),
 						&value_right = pixel_right.at(index);
-					value.red = PIXEL_BLEND(value.red, PIXEL_BLEND(value_left.red, value_right.red,
-						POST_PROCESS_BLEED_BLEND_RATIO), POST_PROCESS_BLEED_SWEEP_RATIO);
-					value.green = PIXEL_BLEND(value.green, PIXEL_BLEND(value_left.green, value_right.green,
-						POST_PROCESS_BLEED_BLEND_RATIO), POST_PROCESS_BLEED_SWEEP_RATIO);
-					value.blue = PIXEL_BLEND(value.blue, PIXEL_BLEND(value_left.blue, value_right.blue,
-						POST_PROCESS_BLEED_BLEND_RATIO), POST_PROCESS_BLEED_SWEEP_RATIO);
+					value.red = PIXEL_BLEND(value.red, value_left.red + value_right.red, POST_PROCESS_BLEED_SWEEP_RATIO);
+					value.green = PIXEL_BLEND(value.green, value_left.green + value_right.green, POST_PROCESS_BLEED_SWEEP_RATIO);
+					value.blue = PIXEL_BLEND(value.blue, value_left.blue + value_right.blue, POST_PROCESS_BLEED_SWEEP_RATIO);
 				}
 			}
 

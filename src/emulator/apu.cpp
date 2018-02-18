@@ -51,6 +51,7 @@ namespace nescc {
 			m_cycle(0),
 			m_debug(false),
 			m_format({ }),
+			m_frame_step(0),
 			m_odd(true),
 			m_paused(false)
 		{
@@ -285,30 +286,11 @@ namespace nescc {
 			m_triangle_timer_high.raw = 0;
 			m_cycle = 0;
 			m_debug = false;
+			m_frame_step = 0;
 			m_odd = true;
 			m_paused = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu cleared.");
-
-			TRACE_EXIT();
-		}
-
-		void
-		apu::clock_frame_half(void)
-		{
-			TRACE_ENTRY();
-
-			// TODO
-
-			TRACE_EXIT();
-		}
-
-		void
-		apu::clock_frame_quarter(void)
-		{
-			TRACE_ENTRY();
-
-			// TODO
 
 			TRACE_EXIT();
 		}
@@ -486,24 +468,11 @@ namespace nescc {
 			m_triangle_timer_high.raw = 0;
 			m_cycle = 0;
 			m_debug = debug;
+			m_frame_step = 0;
 			m_odd = true;
 			m_paused = false;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Apu reset.");
-
-			TRACE_EXIT();
-		}
-
-		void
-		apu::signal_interrupt(
-			__in nescc::emulator::interface::bus &bus
-			)
-		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
-
-			if(!m_frame.irq_inhibit) {
-				bus.cpu_interrupt_maskable();
-			}
 
 			TRACE_EXIT();
 		}
@@ -596,6 +565,8 @@ namespace nescc {
 			__in nescc::emulator::interface::bus &bus
 			)
 		{
+			uint32_t frame, frame_previous, sample, sample_previous;
+
 			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
 
 #ifndef NDEBUG
@@ -606,65 +577,259 @@ namespace nescc {
 
 			TRACE_DEBUG_FORMAT(m_debug, "Apu update", "%s", m_odd ? "Odd" : "Even");
 
-			if(m_odd) {
+			update_timer();
+			frame_previous = (m_cycle / (float) APU_UPDATE_FRAME_RATE);
+			sample_previous = (m_cycle / (float) APU_UPDATE_SAMPLE_RATE);
+			++m_cycle;
+			frame = (m_cycle / (float) APU_UPDATE_FRAME_RATE);
+			sample = (m_cycle / (float) APU_UPDATE_SAMPLE_RATE);
 
-				if(!m_frame.mode) { // 4-step
-
-					switch(m_cycle) {
-						case APU_MODE_4_STEP_1: // 3728
-							clock_frame_quarter();
-							break;
-						case APU_MODE_4_STEP_2: // 7456
-							clock_frame_quarter();
-							clock_frame_half();
-							break;
-						case APU_MODE_4_STEP_3: // 11185
-							clock_frame_quarter();
-							break;
-						case APU_MODE_4_STEP_4: // 14914
-							clock_frame_quarter();
-							clock_frame_half();
-							signal_interrupt(bus);
-							break;
-						case APU_MODE_4_RESET: // 14915
-							m_cycle = 0;
-							break;
-						default:
-							break;
-					}
-				} else { // 5-step
-
-					switch(m_cycle) {
-						case APU_MODE_5_STEP_1: // 3728
-							clock_frame_quarter();
-							break;
-						case APU_MODE_5_STEP_2: // 7456
-							clock_frame_quarter();
-							clock_frame_half();
-							break;
-						case APU_MODE_5_STEP_3: // 11185
-							clock_frame_quarter();
-							break;
-						case APU_MODE_5_STEP_4: // 14914
-							clock_frame_quarter();
-							clock_frame_half();
-							break;
-						case APU_MODE_5_STEP_5: // 18640
-							break;
-						case APU_MODE_5_RESET: // 18641
-							m_cycle = 0;
-							break;
-						default:
-							break;
-					}
-				}
-
-				++m_cycle;
+			if(frame != frame_previous) {
+				update_frame(bus);
 			}
 
-			m_odd = !m_odd;
+			if(sample != sample_previous) {
+				update_sample();
+			}
 
 			TRACE_DEBUG_FORMAT(m_debug, "Apu state", "\n%s", STRING_CHECK(as_string(true)));
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame(
+			__in nescc::emulator::interface::bus &bus
+			)
+		{
+			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
+
+			if(!m_frame.mode) { // 4-step
+
+				m_frame_step = ((m_frame_step + 1) % (APU_FRAME_STEP_4_MAX + 1));
+				switch(m_frame_step) {
+					case APU_FRAME_STEP_4_0:
+					case APU_FRAME_STEP_4_2:
+						update_frame_envelope();
+						break;
+					case APU_FRAME_STEP_4_1:
+						update_frame_envelope();
+						update_frame_sweep();
+						update_frame_length();
+						break;
+					case APU_FRAME_STEP_4_3:
+						update_frame_envelope();
+						update_frame_sweep();
+						update_frame_length();
+
+						if(!m_frame.irq_inhibit) {
+							bus.cpu_interrupt_maskable();
+						}
+						break;
+					default:
+						break;
+				}
+			} else { // 5-step
+
+				m_frame_step = ((m_frame_step + 1) % (APU_FRAME_STEP_5_MAX + 1));
+				switch(m_frame_step) {
+					case APU_FRAME_STEP_5_0:
+					case APU_FRAME_STEP_5_2:
+						update_frame_envelope();
+						update_frame_sweep();
+						update_frame_length();
+						break;
+					case APU_FRAME_STEP_5_1:
+					case APU_FRAME_STEP_5_3:
+						update_frame_envelope();
+						break;
+					default:
+						break;
+				}
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_envelope(void)
+		{
+			TRACE_ENTRY();
+
+			update_frame_envelope_pulse(APU_PULSE_1);
+			update_frame_envelope_pulse(APU_PULSE_2);
+			update_frame_envelope_triangle();
+			update_frame_envelope_noise();
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_envelope_noise(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_envelope_pulse(
+			__in int channel
+			)
+		{
+			TRACE_ENTRY_FORMAT("Channel=%i", channel);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_envelope_triangle(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_length(void)
+		{
+			TRACE_ENTRY();
+
+			update_frame_length_pulse(APU_PULSE_1);
+			update_frame_length_pulse(APU_PULSE_2);
+			update_frame_length_triangle();
+			update_frame_length_noise();
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_length_noise(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_length_pulse(
+			__in int channel
+			)
+		{
+			TRACE_ENTRY_FORMAT("Channel=%i", channel);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_length_triangle(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_sweep(void)
+		{
+			TRACE_ENTRY();
+
+			update_frame_sweep_pulse(APU_PULSE_1);
+			update_frame_sweep_pulse(APU_PULSE_2);
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_frame_sweep_pulse(
+			__in int channel
+			)
+		{
+			TRACE_ENTRY_FORMAT("Channel=%i", channel);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_sample(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_timer(void)
+		{
+			TRACE_ENTRY();
+
+			if(m_odd) {
+				update_timer_pulse(APU_PULSE_1);
+				update_timer_pulse(APU_PULSE_2);
+				update_timer_noise();
+				update_timer_dmc();
+			}
+
+			update_timer_triangle();
+			m_odd = !m_odd;
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_timer_dmc(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_timer_noise(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_timer_pulse(
+			__in int channel
+			)
+		{
+			TRACE_ENTRY_FORMAT("Channel=%i", channel);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		apu::update_timer_triangle(void)
+		{
+			TRACE_ENTRY();
+
+			// TODO
 
 			TRACE_EXIT();
 		}
@@ -749,7 +914,6 @@ namespace nescc {
 					break;
 				case APU_PORT_FRAME_COUNT: // 0x4017
 					m_frame.raw = value;
-					m_cycle = 0;
 					break;
 				default:
 					THROW_NESCC_EMULATOR_APU_EXCEPTION_FORMAT(NESCC_EMULATOR_APU_EXCEPTION_UNSUPPORTED,

@@ -184,17 +184,53 @@ namespace nescc {
 					__in const apu &other
 					) = delete;
 
-				void clock_frame_half(void);
-
-				void clock_frame_quarter(void);
-
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
-				void signal_interrupt(
+				void update_frame(
 					__in nescc::emulator::interface::bus &bus
 					);
+
+				void update_frame_envelope(void);
+
+				void update_frame_envelope_noise(void);
+
+				void update_frame_envelope_pulse(
+					__in int channel
+					);
+
+				void update_frame_envelope_triangle(void);
+
+				void update_frame_length(void);
+
+				void update_frame_length_noise(void);
+
+				void update_frame_length_pulse(
+					__in int channel
+					);
+
+				void update_frame_length_triangle(void);
+
+				void update_frame_sweep(void);
+
+				void update_frame_sweep_pulse(
+					__in int channel
+					);
+
+				void update_sample(void);
+
+				void update_timer(void);
+
+				void update_timer_dmc(void);
+
+				void update_timer_noise(void);
+
+				void update_timer_pulse(
+					__in int channel
+					);
+
+				void update_timer_triangle(void);
 
 				nescc::core::audio_buffer m_buffer;
 
@@ -211,6 +247,8 @@ namespace nescc {
 				SDL_AudioSpec m_format;
 
 				nescc::emulator::port_frame_t m_frame;
+
+				uint32_t m_frame_step;
 
 				nescc::emulator::port_noise_envelope_t m_noise_envelope;
 

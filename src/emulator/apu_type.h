@@ -62,19 +62,8 @@ namespace nescc {
 		#define APU_CHANNEL_COUNT 1
 		#define APU_OFFSET 0x4000
 		#define APU_SAMPLE_RATE 16000
-
-		#define APU_MODE_4_RESET 14915
-		#define APU_MODE_4_STEP_1 3728
-		#define APU_MODE_4_STEP_2 7456
-		#define APU_MODE_4_STEP_3 11185
-		#define APU_MODE_4_STEP_4 14914
-
-		#define APU_MODE_5_RESET 18641
-		#define APU_MODE_5_STEP_1 3728
-		#define APU_MODE_5_STEP_2 7456
-		#define APU_MODE_5_STEP_3 11185
-		#define APU_MODE_5_STEP_4 14914
-		#define APU_MODE_5_STEP_5 18640
+		#define APU_UPDATE_FRAME_RATE (CLOCK_RATE / 240.f)
+		#define APU_UPDATE_SAMPLE_RATE (CLOCK_RATE / (float) APU_SAMPLE_RATE)
 
 		enum {
 			APU_PORT_PULSE_1_TIMER = 0, // 0x4000 - 0x4003
@@ -117,6 +106,25 @@ namespace nescc {
 		#define APU_PORT_STRING(_TYPE_) \
 			(((_TYPE_) > APU_PORT_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(APU_PORT_STR[_TYPE_]))
+
+		enum {
+			APU_FRAME_STEP_4_0 = 0,
+			APU_FRAME_STEP_4_1,
+			APU_FRAME_STEP_4_2,
+			APU_FRAME_STEP_4_3,
+		};
+
+		#define APU_FRAME_STEP_4_MAX APU_FRAME_STEP_4_3
+
+		enum {
+			APU_FRAME_STEP_5_0 = 0,
+			APU_FRAME_STEP_5_1,
+			APU_FRAME_STEP_5_2,
+			APU_FRAME_STEP_5_3,
+			APU_FRAME_STEP_5_4,
+		};
+
+		#define APU_FRAME_STEP_5_MAX APU_FRAME_STEP_5_4
 
 		enum {
 			APU_PULSE_1 = 0,
