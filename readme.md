@@ -299,6 +299,7 @@ Version 0.1.1807
 *Updated: 2/16/2018*
 
 * Added lexer command enumeration
+* Added ines/data pragmas
 
 *Updated: 2/12-15/2018*
 

@@ -29,7 +29,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			clear();
+			nescc::assembler::lexer::clear();
 
 			TRACE_EXIT();
 		}
@@ -42,7 +42,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Input[%u]=%s, File=%x", input.size(), STRING_CHECK(input), is_file);
 
-			set(input, is_file);
+			nescc::assembler::lexer::set(input, is_file);
 
 			TRACE_EXIT();
 		}
@@ -150,11 +150,11 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			while(has_next()) {
-				move_next();
+			while(nescc::assembler::lexer::has_next()) {
+				nescc::assembler::lexer::move_next();
 			}
 
-			reset();
+			nescc::assembler::lexer::reset();
 
 			TRACE_EXIT();
 		}
@@ -449,7 +449,10 @@ namespace nescc {
 
 								nescc::assembler::stream::move_next();
 
-								if(nescc::assembler::stream::character_type() != CHARACTER_DIGIT) {
+								if(((scalar_type == SCALAR_HEXIDECIMAL)
+										&& !std::isxdigit(nescc::assembler::stream::character()))
+										|| ((scalar_type != SCALAR_HEXIDECIMAL)
+										&& (nescc::assembler::stream::character_type() != CHARACTER_DIGIT))) {
 									THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
 										NESCC_ASSEMBLER_LEXER_EXCEPTION_UNTERMINATED_SCALAR,
 										"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
@@ -501,10 +504,15 @@ namespace nescc {
 
 				nescc::assembler::stream::move_next();
 
-				if(((scalar_type == SCALAR_BINARY) && (nescc::assembler::stream::character() > SCALAR_BINARY_MAX))
-						|| ((scalar_type == SCALAR_HEXIDECIMAL) && !std::isxdigit(nescc::assembler::stream::character()))
-						|| ((scalar_type == SCALAR_OCTAL) && (nescc::assembler::stream::character() > SCALAR_OCTAL_MAX))
-						|| (nescc::assembler::stream::character_type() != CHARACTER_DIGIT)) {
+				if((nescc::assembler::stream::character_type() == CHARACTER_SPACE)
+						|| ((scalar_type == SCALAR_BINARY)
+							&& (nescc::assembler::stream::character() > SCALAR_BINARY_MAX))
+						|| ((scalar_type == SCALAR_DECIMAL)
+							&& (nescc::assembler::stream::character_type() != CHARACTER_DIGIT))
+						|| ((scalar_type == SCALAR_HEXIDECIMAL)
+							&& !std::isxdigit(nescc::assembler::stream::character()))
+						|| ((scalar_type == SCALAR_OCTAL)
+							&& (nescc::assembler::stream::character() > SCALAR_OCTAL_MAX))) {
 					break;
 				}
 			}
@@ -697,7 +705,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			if(!has_next()) {
+			if(!nescc::assembler::lexer::has_next()) {
 				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_POSITION_NEXT,
 					"Position=%u", m_token_position);
 			}
@@ -718,7 +726,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			if(!has_previous()) {
+			if(!nescc::assembler::lexer::has_previous()) {
 				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_POSITION_PREVIOUS,
 					"Position=%u", m_token_position);
 			}

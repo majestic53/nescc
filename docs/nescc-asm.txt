@@ -78,7 +78,7 @@ label ::= <identifier>:
 
 literal ::= \"<character>*\"
 
-pragma ::= \.[<pragma_command> | <pragma_condition> | <pragma_data>]
+pragma ::= \.[<pragma_command> | <pragma_condition> | <pragma_data> | <pragma_ines>]
 
 pragma_command ::= | <pragma_command_bank> | <pragma_command_bank_size> | <pragma_command_define>
 			| <pragma_command_include> | <pragma_command_origin> | <pragma_command_undefine>
@@ -105,13 +105,19 @@ pragma_condition_if ::= if <condition> <block> [<pragma_condition_else> <block>]
 
 pragma_condition_ifdef ::= ifdef <identifier> <block> [<pragma_condition_else> <block>]? <pragma_condition_end>
 
-pragma_data ::= <pragma_data_byte> | <pragma_data_word>
+pragma_data ::= <pragma_data_byte> | <pragma_data_part> | <pragma_data_reserve> | <pragma_data_word>
 
 pragma_data_byte ::= db <pragma_data_list<1>>
 
-pragma_data_list<N> ::= <scalar<N>> [, <pragma_data_list<N>>]*
+pragma_data_list<N> ::= <expression<N>> [, <pragma_data_list<N>>]*
+
+pragma_data_part ::= [high | low] <expression<2>>
+
+pragma_data_reserve ::= rs <expression<1>>
 
 pragma_data_word ::= dw <pragma_data_list<2>>
+
+pragma_ines ::= [inesmap | inesmir | ineschr | inesprg] <scalar<1>>
 
 scalar<N> ::= -?[<scalar_binary<N>> | <scalar_decimal<N>> | <scalar_hexidecimal<N>> | <scalar_octal<N>>]
 

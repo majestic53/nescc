@@ -44,7 +44,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Input[%u]=%s, File=%x", input.size(), STRING_CHECK(input), is_file);
 
-			set(input, is_file);
+			nescc::assembler::stream::set(input, is_file);
 
 			TRACE_EXIT();
 		}
@@ -325,7 +325,7 @@ namespace nescc {
 
 			TRACE_ENTRY();
 
-			if(!has_next()) {
+			if(!nescc::assembler::stream::has_next()) {
 				THROW_NESCC_ASSEMBLER_STREAM_EXCEPTION_FORMAT(NESCC_ASSEMBLER_STREAM_EXCEPTION_POSITION_NEXT,
 					"Position=%u", m_stream_position);
 			}
@@ -352,7 +352,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY();
 
-			if(!has_previous()) {
+			if(!nescc::assembler::stream::has_previous()) {
 				THROW_NESCC_ASSEMBLER_STREAM_EXCEPTION_FORMAT(NESCC_ASSEMBLER_STREAM_EXCEPTION_POSITION_PREVIOUS,
 					"Position=%u", m_stream_position);
 			}

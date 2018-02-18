@@ -269,11 +269,6 @@ while(lex.has_next()) {
 }
 
 std::cout << lex.as_string(true) << std::endl;
-
-while(lex.has_previous()) {
-	lex.move_previous();
-	std::cout << lex.as_string(true) << std::endl;
-}
 // ---
 
 			TRACE_EXIT();
