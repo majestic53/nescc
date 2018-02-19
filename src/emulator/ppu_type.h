@@ -86,6 +86,7 @@ namespace nescc {
 		#define PPU_NAMETABLE_BASE 0x2000
 
 		#define PPU_PALETTE_TABLE_BASE 0x3f00
+		#define PPU_PALETTE_TABLE_INIT 0x3f
 		#define PPU_PALETTE_TABLE_OFFSET 0x10
 
 		#define PPU_SCANLINE_MAX 261
@@ -113,7 +114,7 @@ namespace nescc {
 			0xfff8d878, 0xffd8f878, 0xffb8f8b8, 0xffb8f8d8, 0xff00fcfc, 0xfff8d8f8, 0xff000000, 0xff000000,
 			};
 
-		#define PPU_PALETTE_COL_MAX 0x64
+		#define PPU_PALETTE_COL_MAX 64
 
 		#define PPU_PALETTE_COLOR(_IDX_) \
 			(((_IDX_) > PPU_PALETTE_COL_MAX) ? 0 : \

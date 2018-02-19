@@ -378,10 +378,6 @@ namespace nescc {
 			switch(m_dot) {
 				case PPU_DOT_VBLANK_CLEAR: // 1
 					m_address = calculate_nametable_address();
-
-					if(type == PPU_RENDER_PRE_RENDER) {
-						m_status.vertical_blank = 0;
-					}
 					break;
 				case PPU_DOT_RENDER_PIXEL_LOW_MIN ... PPU_DOT_RENDER_PIXEL_LOW_MAX: // 2 - 255
 				case PPU_DOT_RENDER_PIXEL_HIGH_MIN ... PPU_DOT_RENDER_PIXEL_HIGH_MAX: // 322 - 337
@@ -489,24 +485,6 @@ namespace nescc {
 					break;
 				default:
 					break;
-			}
-
-			TRACE_EXIT();
-		}
-
-		void
-		ppu::execute_vblank(
-			__in nescc::emulator::interface::bus &bus
-			)
-		{
-			TRACE_ENTRY_FORMAT("Bus=%p", &bus);
-
-			if(m_dot == PPU_DOT_VBLANK) {
-				m_status.vertical_blank = 1;
-
-				if(m_control.nmi) {
-					bus.cpu_interrupt_non_maskable();
-				}
 			}
 
 			TRACE_EXIT();
@@ -954,11 +932,26 @@ namespace nescc {
 			m_sprite.resize(PPU_SPRITE_LENGTH, PPU_SPRITE_INIT);
 			m_sprite_secondary.resize(PPU_SPRITE_LENGTH, PPU_SPRITE_INIT);
 			m_status.raw = 0;
+			reset_palette();
 
 			TRACE_DEBUG(m_debug, "Ppu reset");
 			TRACE_DEBUG_FORMAT(m_debug, "Ppu state", "\n%s", STRING_CHECK(as_string(true)));
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Ppu reset.");
+
+			TRACE_EXIT();
+		}
+
+		void
+		ppu::reset_palette(void)
+		{
+			uint16_t iter = 0;
+
+			TRACE_ENTRY();
+
+			for(; iter < PPU_PALETTE_LENGTH; ++iter) {
+				write_palette(iter, PPU_PALETTE_TABLE_INIT);
+			}
 
 			TRACE_EXIT();
 		}
@@ -1254,9 +1247,21 @@ namespace nescc {
 					execute_post_render(bus);
 					break;
 				case PPU_SCANLINE_VBLANK_START: // 241
-					execute_vblank(bus);
+
+					if(m_dot == PPU_DOT_VBLANK) {
+						m_status.vertical_blank = 1;
+
+						if(m_control.nmi) {
+							bus.cpu_interrupt_non_maskable();
+						}
+					}
 					break;
 				case PPU_SCANLINE_PRE_RENDER: // 261
+
+					if(m_dot == PPU_DOT_VBLANK_CLEAR) {
+						m_status.vertical_blank = 0;
+					}
+
 					execute_render(bus, PPU_RENDER_PRE_RENDER);
 					break;
 				default:
@@ -1405,7 +1410,7 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			m_oam.write(address, value);
+			write_port_oam_data(value);
 
 			TRACE_DEBUG_FORMAT(m_debug, "Ppu oam write", "[%04x] <- %u(%02x)", address, value, value);
 

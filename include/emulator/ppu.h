@@ -273,10 +273,6 @@ namespace nescc {
 					__in int type
 					);
 
-				void execute_vblank(
-					__in nescc::emulator::interface::bus &bus
-					);
-
 				void generate_pixel(
 					__in nescc::emulator::interface::bus &bus
 					);
@@ -304,6 +300,8 @@ namespace nescc {
 				uint8_t read_port_oam_data(void);
 
 				uint8_t read_port_status(void);
+
+				void reset_palette(void);
 
 				void sprite_evaluate(void);
 

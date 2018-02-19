@@ -373,8 +373,6 @@ namespace nescc {
 										* CHR_BANK_WIDTH); // r1 | 0x01
 				}
 
-				bus.ppu_set_mirroring(m_port_mirroring.mode ? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
-
 				TRACE_EXIT();
 			}
 
@@ -445,12 +443,11 @@ namespace nescc {
 				)
 			{
 				uint8_t result = 0;
-				uint16_t bank, bank_offset = 0;
+				uint16_t bank_offset = 0;
 
 				TRACE_ENTRY_FORMAT("Cartridge=%p, Address=%u(%04x)", &cartridge, address, address);
 
-				bank = find_bank_program(address, bank_offset);
-				std::pair<uint8_t, uint16_t> &entry = m_rom_program_index.at(bank);
+				std::pair<uint8_t, uint16_t> &entry = m_rom_program_index.at(find_bank_program(address, bank_offset));
 
 				result = cartridge.rom_program(entry.first).read((address - bank_offset) + entry.second);
 
@@ -694,9 +691,15 @@ namespace nescc {
 					case PORT_BANK_DATA: // 0x0001
 						m_port_bank_data.at(m_port_bank_select.select).raw = value;
 						break;
-					case PORT_MIRRORING: // 0x2000
-						m_port_mirroring.raw = value;
-						break;
+					case PORT_MIRRORING: { // 0x2000
+							uint8_t previous = m_port_mirroring.raw;
+							m_port_mirroring.raw = value;
+
+							if(previous != value) {
+								bus.ppu_set_mirroring(m_port_mirroring.mode
+									? CARTRIDGE_MIRRORING_HORIZONTAL : CARTRIDGE_MIRRORING_VERTICAL);
+							}
+						} break;
 					case PORT_RAM_PROTECT: // 0x2001
 						m_port_ram_protect.raw = value;
 						break;

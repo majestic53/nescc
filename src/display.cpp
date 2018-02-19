@@ -313,21 +313,23 @@ namespace nescc {
 		m_pixel_previous.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, {});
 		create_window();
 
-		m_bitmap_border.load(POST_PROCESS_BORDER_PATH);
+		try {
+			m_bitmap_border.load(POST_PROCESS_BORDER_PATH);
 
-		m_texture_border = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_border.surface());
-		if(!m_texture_border) {
-			THROW_NESCC_DISPLAY_EXCEPTION_FORMAT(NESCC_DISPLAY_EXCEPTION_EXTERNAL,
-				"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
-		}
+			m_texture_border = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_border.surface());
+			if(!m_texture_border) {
+				TRACE_MESSAGE_FORMAT(TRACE_WARNING, "SDL_CreateTextureFromSurface failed!", "Error=%s", SDL_GetError());
+			}
+		} catch(...) { }
 
-		m_bitmap_halt.load(POST_PROCESS_HALT_PATH);
+		try {
+			m_bitmap_halt.load(POST_PROCESS_HALT_PATH);
 
-		m_texture_halt = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_halt.surface());
-		if(!m_texture_halt) {
-			THROW_NESCC_DISPLAY_EXCEPTION_FORMAT(NESCC_DISPLAY_EXCEPTION_EXTERNAL,
-				"SDL_CreateTextureFromSurface failed! Error=%s", SDL_GetError());
-		}
+			m_texture_halt = SDL_CreateTextureFromSurface(m_renderer, m_bitmap_halt.surface());
+			if(!m_texture_halt) {
+				TRACE_MESSAGE_FORMAT(TRACE_WARNING, "SDL_CreateTextureFromSurface failed!", "Error=%s", SDL_GetError());
+			}
+		} catch(...) { }
 
 		TRACE_MESSAGE(TRACE_INFORMATION, "Display initialized.");
 
@@ -426,59 +428,6 @@ namespace nescc {
 	}
 
 	void
-	display::set_frame_rate(
-		__in float rate
-		)
-	{
-		std::stringstream result;
-
-		TRACE_ENTRY_FORMAT("Rate=%.02f", rate);
-
-#ifndef NDEBUG
-		if(!m_initialized) {
-			THROW_NESCC_DISPLAY_EXCEPTION(NESCC_DISPLAY_EXCEPTION_UNINITIALIZED);
-		}
-#endif // NDEBUG
-
-		result << NESCC << " -- " << m_title << " (" << FLOAT_PRECISION(DISPLAY_FRAME_RATE_PRECISION, rate)
-			<< " FPS)";
-		SDL_SetWindowTitle(m_window, result.str().c_str());
-
-		TRACE_EXIT();
-	}
-
-	void
-	display::set_icon(
-		__in const std::string &path
-		)
-	{
-		SDL_Surface *surface;
-
-		TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
-
-#ifndef NDEBUG
-		if(!m_initialized) {
-			THROW_NESCC_DISPLAY_EXCEPTION(NESCC_DISPLAY_EXCEPTION_UNINITIALIZED);
-		}
-#endif // NDEBUG
-
-		surface = SDL_LoadBMP(path.c_str());
-		if(!surface) {
-			THROW_NESCC_DISPLAY_EXCEPTION_FORMAT(NESCC_DISPLAY_EXCEPTION_EXTERNAL,
-				"SDL_LoadBMP failed! Error=%s", SDL_GetError());
-		}
-
-		SDL_SetWindowIcon(m_window, surface);
-
-		if(surface) {
-			SDL_FreeSurface(surface);
-			surface = nullptr;
-		}
-
-		TRACE_EXIT();
-	}
-
-	void
 	display::set_filter_crt(
 		__in bool crt,
 		__in_opt bool bleed,
@@ -517,6 +466,28 @@ namespace nescc {
 	}
 
 	void
+	display::set_frame_rate(
+		__in float rate
+		)
+	{
+		std::stringstream result;
+
+		TRACE_ENTRY_FORMAT("Rate=%.02f", rate);
+
+#ifndef NDEBUG
+		if(!m_initialized) {
+			THROW_NESCC_DISPLAY_EXCEPTION(NESCC_DISPLAY_EXCEPTION_UNINITIALIZED);
+		}
+#endif // NDEBUG
+
+		result << NESCC << " -- " << m_title << " (" << FLOAT_PRECISION(DISPLAY_FRAME_RATE_PRECISION, rate)
+			<< " FPS)";
+		SDL_SetWindowTitle(m_window, result.str().c_str());
+
+		TRACE_EXIT();
+	}
+
+	void
 	display::set_halted(
 		__in bool halted
 		)
@@ -530,6 +501,36 @@ namespace nescc {
 #endif // NDEBUG
 
 		m_halted = halted;
+
+		TRACE_EXIT();
+	}
+
+	void
+	display::set_icon(
+		__in const std::string &path
+		)
+	{
+		SDL_Surface *surface;
+
+		TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
+
+#ifndef NDEBUG
+		if(!m_initialized) {
+			THROW_NESCC_DISPLAY_EXCEPTION(NESCC_DISPLAY_EXCEPTION_UNINITIALIZED);
+		}
+#endif // NDEBUG
+
+		surface = SDL_LoadBMP(path.c_str());
+		if(surface) {
+			SDL_SetWindowIcon(m_window, surface);
+
+			if(surface) {
+				SDL_FreeSurface(surface);
+				surface = nullptr;
+			}
+		} else {
+			TRACE_MESSAGE_FORMAT(TRACE_WARNING, "SDL_LoadBMP failed!", "Error=%s", SDL_GetError());
+		}
 
 		TRACE_EXIT();
 	}
@@ -684,9 +685,12 @@ namespace nescc {
 						"SDL_RenderClear failed! Error=%s", SDL_GetError());
 				}
 
-				if(SDL_RenderCopy(m_renderer, m_texture_halt, nullptr, nullptr)) {
-					THROW_NESCC_DISPLAY_EXCEPTION_FORMAT(NESCC_DISPLAY_EXCEPTION_EXTERNAL,
-						"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+				if(m_texture_halt) {
+
+					if(SDL_RenderCopy(m_renderer, m_texture_halt, nullptr, nullptr)) {
+						THROW_NESCC_DISPLAY_EXCEPTION_FORMAT(NESCC_DISPLAY_EXCEPTION_EXTERNAL,
+							"SDL_RenderCopy failed! Error=%s", SDL_GetError());
+					}
 				}
 			} else if(!paused) {
 
