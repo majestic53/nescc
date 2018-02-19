@@ -52,6 +52,7 @@ namespace nescc {
 			) :
 				nescc::assembler::stream(other),
 				m_token(other.m_token),
+				m_token_map(other.m_token_map),
 				m_token_position(other.m_token_position)
 		{
 			TRACE_ENTRY();
@@ -74,11 +75,32 @@ namespace nescc {
 			if(this != &other) {
 				nescc::assembler::stream::operator=(other);
 				m_token = other.m_token;
+				m_token_map = other.m_token_map;
 				m_token_position = other.m_token_position;
 			}
 
 			TRACE_EXIT_FORMAT("Result=%p", this);
 			return *this;
+		}
+
+		void
+		lexer::add_token(
+			__in size_t position,
+			__in const nescc::core::token &entry
+			)
+		{
+			TRACE_ENTRY_FORMAT("Position=%u, Entry=%p", position, &entry);
+
+			if(position < m_token.size()) {
+				m_token.insert(m_token.begin() + position, entry);
+			} else {
+				position = m_token.size();
+				m_token.push_back(entry);
+			}
+
+			m_token_map.insert(std::make_pair(entry.id(), position));
+
+			TRACE_EXIT();
 		}
 
 		std::string
@@ -138,8 +160,9 @@ namespace nescc {
 
 			nescc::assembler::stream::reset();
 			m_token.clear();
-			m_token.push_back(nescc::core::token(nescc::core::TOKEN_BEGIN));
-			m_token.push_back(nescc::core::token(nescc::core::TOKEN_END));
+			m_token_map.clear();
+			add_token(m_token.size(), nescc::core::token(nescc::core::TOKEN_BEGIN));
+			add_token(m_token.size(), nescc::core::token(nescc::core::TOKEN_END));
 			m_token_position = 0;
 
 			TRACE_EXIT();
@@ -184,7 +207,7 @@ namespace nescc {
 						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 			}
 
-			m_token.insert(m_token.begin() + (m_token_position + 1), entry);
+			add_token(m_token_position + 1, entry);
 
 			TRACE_EXIT();
 		}
@@ -819,17 +842,32 @@ namespace nescc {
 		}
 
 		nescc::core::token
-		lexer::token(void) const
+		lexer::token(
+			__in_opt nescc::core::uuid_t id
+			) const
 		{
-			TRACE_ENTRY();
+			size_t position = m_token_position;
 
-			if(m_token_position >= m_token.size()) {
+			TRACE_ENTRY_FORMAT("Id=%u(%x)", id, id);
+
+			if(id != UNIQUE_ID_INVALID) {
+
+				std::map<nescc::core::uuid_t, size_t>::const_iterator entry = m_token_map.find(id);
+				if(entry == m_token_map.end()) {
+					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_TOKEN_NOT_FOUND,
+						"Id=%u(%x)", id, id);
+				}
+
+				position = entry->second;
+			}
+
+			if(position >= m_token.size()) {
 				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_POSITION,
 					"Position=%u", m_token_position);
 			}
 
 			TRACE_EXIT();
-			return m_token.at(m_token_position);
+			return m_token.at(position);
 		}
 	}
 }

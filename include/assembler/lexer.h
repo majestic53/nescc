@@ -89,9 +89,16 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
-				nescc::core::token token(void) const;
+				nescc::core::token token(
+					__in_opt nescc::core::uuid_t id = UNIQUE_ID_INVALID
+					) const;
 
 			protected:
+
+				void add_token(
+					__in size_t position,
+					__in const nescc::core::token &entry
+					);
 
 				void enumerate_token(void);
 
@@ -119,6 +126,8 @@ namespace nescc {
 				void skip_whitespace(void);
 
 				std::vector<nescc::core::token> m_token;
+
+				std::map<nescc::core::uuid_t, size_t> m_token_map;
 
 				size_t m_token_position;
 		};
