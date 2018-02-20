@@ -39,8 +39,8 @@ archive:
 	ar rcs $(DIR_BIN)$(LIB) $(DIR_BUILD)base_define.o $(DIR_BUILD)base_display.o $(DIR_BUILD)base_exception.o $(DIR_BUILD)base_runtime.o \
 			$(DIR_BUILD)base_trace.o $(DIR_BUILD)base_unique.o \
 		$(DIR_BUILD)assembler_lexer.o $(DIR_BUILD)assembler_stream.o \
-		$(DIR_BUILD)core_audio_buffer.o $(DIR_BUILD)core_audio_frame.o $(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_signal.o \
-			$(DIR_BUILD)core_token.o $(DIR_BUILD)core_thread.o $(DIR_BUILD)core_unique_id.o \
+		$(DIR_BUILD)core_audio_buffer.o $(DIR_BUILD)core_audio_frame.o $(DIR_BUILD)core_bitmap.o $(DIR_BUILD)core_node.o \
+			$(DIR_BUILD)core_signal.o $(DIR_BUILD)core_token.o $(DIR_BUILD)core_thread.o $(DIR_BUILD)core_unique_id.o \
 		$(DIR_BUILD)emulator_apu.o $(DIR_BUILD)emulator_bus.o $(DIR_BUILD)emulator_cartridge.o $(DIR_BUILD)emulator_cpu.o \
 			$(DIR_BUILD)emulator_joypad.o $(DIR_BUILD)emulator_mmu.o $(DIR_BUILD)emulator_ppu.o \
 		$(DIR_BUILD)emulator_mapper_axrom.o $(DIR_BUILD)emulator_mapper_cnrom.o $(DIR_BUILD)emulator_mapper_nrom.o \
@@ -84,7 +84,7 @@ assembler_stream.o: $(DIR_SRC_ASSEMBLER)stream.cpp $(DIR_INC_ASSEMBLER)stream.h
 
 ### CORE ###
 
-build_core: core_audio_buffer.o core_audio_frame.o core_bitmap.o core_signal.o core_token.o core_thread.o core_unique_id.o
+build_core: core_audio_buffer.o core_audio_frame.o core_bitmap.o core_node.o core_signal.o core_token.o core_thread.o core_unique_id.o
 
 core_audio_buffer.o: $(DIR_SRC_CORE)audio_buffer.cpp $(DIR_INC_CORE)audio_buffer.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)audio_buffer.cpp -o $(DIR_BUILD)core_audio_buffer.o
@@ -94,6 +94,9 @@ core_audio_frame.o: $(DIR_SRC_CORE)audio_frame.cpp $(DIR_INC_CORE)audio_frame.h
 
 core_bitmap.o: $(DIR_SRC_CORE)bitmap.cpp $(DIR_INC_CORE)bitmap.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)bitmap.cpp -o $(DIR_BUILD)core_bitmap.o
+
+core_node.o: $(DIR_SRC_CORE)node.cpp $(DIR_INC_CORE)node.h
+	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)node.cpp -o $(DIR_BUILD)core_node.o
 
 core_signal.o: $(DIR_SRC_CORE)signal.cpp $(DIR_INC_CORE)signal.h
 	$(CC) $(CC_FLAGS) $(CC_FLAGS_EXT) $(CC_BUILD_FLAGS) $(CC_TRACE_FLAGS) -c $(DIR_SRC_CORE)signal.cpp -o $(DIR_BUILD)core_signal.o

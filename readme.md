@@ -294,6 +294,12 @@ Extracted roms/assembly/images can be found in the same directory as the input r
 Changelog
 =========
 
+Version 0.1.1808
+----------------
+*Updated: 2/19/2018*
+
+* Added parser node class
+
 Version 0.1.1807
 ----------------
 *Updated: 2/18/2018*
@@ -309,36 +315,6 @@ Version 0.1.1807
 *Updated: 2/12-15/2018*
 
 * Added lexer enumeration routines
-
-Version 0.1.1806
-----------------
-*Updated: 2/11/2018*
-
-* Added assembler lexer class
-
-*Updated: 2/9/2018*
-
-* Added core token/uuid classes
-* Refactored console namespace
-
-*Updated: 2/8/2018*
-
-* Added assembler stream class
-
-*Updated: 2/7/2018*
-
-* Added assembler tool
-* Refactored tools folder
-
-*Updated: 2/6/2018*
-
-* Added apu cycle, mute commands
-
-*Updated: 2/5/2018*
-
-* Added unbuffered input to reduce input latency
-* Added apu clock routines <s>(incomplete)</s>
-* <s>Fixed bug in mapper 3 (TXROM) (incomplete)</s>
 
 *Changelog truncated (see file history for full log)*
 
