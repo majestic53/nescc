@@ -296,6 +296,10 @@ Changelog
 
 Version 0.1.1808
 ----------------
+*Updated: 2/21/2018*
+
+* Added assembler parser class
+
 *Updated: 2/19/2018*
 
 * Added parser node class

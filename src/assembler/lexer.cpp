@@ -83,6 +83,16 @@ namespace nescc {
 			return *this;
 		}
 
+		nescc::core::token
+		lexer::operator[](
+			__in size_t position
+			)
+		{
+			TRACE_ENTRY_FORMAT("Position=%u", position);
+			TRACE_EXIT();
+			return at(position);
+		}
+
 		void
 		lexer::add_token(
 			__in size_t position,
@@ -90,6 +100,11 @@ namespace nescc {
 			)
 		{
 			TRACE_ENTRY_FORMAT("Position=%u, Entry=%p", position, &entry);
+
+			if(m_token_map.find(entry.id()) != m_token_map.end()) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_DUPLICATE,
+					"Id=%x", entry.id());
+			}
 
 			if(position < m_token.size()) {
 				m_token.insert(m_token.begin() + position, entry);
@@ -110,7 +125,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
 			TRACE_EXIT();
-			return as_exception(m_token_position, verbose);
+			return nescc::assembler::lexer::as_exception(m_token_position, verbose);
 		}
 
 		std::string
@@ -151,6 +166,22 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		nescc::core::token
+		lexer::at(
+			__in size_t position
+			)
+		{
+			TRACE_ENTRY_FORMAT("Position=%u", position);
+
+			if(position >= m_token.size()) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_POSITION,
+					"Position=%u", position);
+			}
+
+			TRACE_EXIT();
+			return m_token.at(position);
 		}
 
 		void
@@ -778,7 +809,7 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Input[%u]=%s, File=%x", input.size(), STRING_CHECK(input), is_file);
 
 			nescc::assembler::stream::set(input, is_file);
-			clear();
+			nescc::assembler::lexer::clear();
 
 			TRACE_EXIT();
 		}
@@ -833,8 +864,8 @@ namespace nescc {
 			if(verbose) {
 				result << " Base=" << nescc::assembler::stream::to_string(verbose)
 					<< ", Tokens[" << m_token.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_token)
-					<< ", Token=" << token().to_string(verbose)
-					<< ", Position=" << m_token_position;
+					<< ", Token Position=" << m_token_position
+					<< ", Token=" << token().to_string(verbose);
 			}
 
 			TRACE_EXIT();

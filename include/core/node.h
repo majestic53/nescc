@@ -31,12 +31,16 @@ namespace nescc {
 		enum {
 			NODE_BEGIN = 0,
 			NODE_END,
+			NODE_COMMAND,
+			NODE_EXPRESSION,
+			NODE_LABEL,
+			NODE_PRAGMA,
 		};
 
-		#define NODE_MAX NODE_END
+		#define NODE_MAX NODE_PRAGMA
 
 		static const std::string NODE_STR[] = {
-			"Begin", "End",
+			"Begin", "End", "Command", "Expression", "Label", "Pragma",
 			};
 
 		#define NODE_STRING(_TYPE_) \
@@ -69,6 +73,8 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				std::vector<nescc::core::uuid_t> &children(void);
+
 				bool has_subtype(void) const;
 
 				bool has_token(void) const;
@@ -86,17 +92,15 @@ namespace nescc {
 
 				nescc::core::uuid_t &token(void);
 
-				std::vector<nescc::core::uuid_t> &token_children(void);
-
 				int type(void) const;
 
 			protected:
 
+				std::vector<nescc::core::uuid_t> m_children;
+
 				int m_subtype;
 
 				nescc::core::uuid_t m_token;
-
-				std::vector<nescc::core::uuid_t> m_token_child;
 
 				int m_type;
 		};

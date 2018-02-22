@@ -89,6 +89,21 @@ namespace nescc {
 			return *this;
 		}
 
+		char
+		stream::operator[](
+			__in size_t position
+			)
+		{
+			char result;
+
+			TRACE_ENTRY_FORMAT("Position=%u", position);
+
+			result = at(position);
+
+			TRACE_EXIT_FORMAT("Result=\'%c\'(%02x)", std::isprint(result) ? result : '_', result);
+			return result;
+		}
+
 		std::string
 		stream::as_exception(
 			__in_opt bool verbose
@@ -142,6 +157,26 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		char
+		stream::at(
+			__in size_t position
+			)
+		{
+			char result;
+
+			TRACE_ENTRY_FORMAT("Position=%u", position);
+
+			if(position >= m_stream.size()) {
+				THROW_NESCC_ASSEMBLER_STREAM_EXCEPTION_FORMAT(NESCC_ASSEMBLER_STREAM_EXCEPTION_POSITION,
+					"Position=%u", position);
+			}
+
+			result = m_stream.at(position);
+
+			TRACE_EXIT_FORMAT("Result=\'%c\'(%02x)", std::isprint(result) ? result : '_', result);
+			return result;
 		}
 
 		char
@@ -390,7 +425,7 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Input[%u]=%s, File=%x", input.size(), STRING_CHECK(input), is_file);
 
-			clear();
+			nescc::assembler::stream::clear();
 
 			if(is_file) {
 				int length;
@@ -462,7 +497,7 @@ namespace nescc {
 					<< ", Stream[" << m_stream.size() << "]=" << SCALAR_AS_HEX(uintptr_t, &m_stream)
 					<< ", Character=[" << CHARACTER_STRING(type) << "] \'" << format_character(value)
 						<< "\' (" << SCALAR_AS_HEX(uint8_t, value) << ")"
-					<< ", Position=" << m_stream_position << " (" << m_stream_position_line
+					<< ", Character Position=" << m_stream_position << " (" << m_stream_position_line
 						<< ", " << m_stream_position_column << ")";
 			}
 

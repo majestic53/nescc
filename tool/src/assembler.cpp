@@ -20,7 +20,7 @@
 #include "./assembler_type.h"
 
 // TODO
-#include "../../include/assembler/lexer.h"
+#include "../../include/assembler/parser.h"
 // ---
 
 namespace nescc {
@@ -261,14 +261,19 @@ namespace nescc {
 			// TODO
 
 // TODO
-nescc::assembler::lexer lex(input, true);
+nescc::assembler::parser par(input, true);
 
-while(lex.has_next()) {
-	std::cout << lex.as_string(true) << std::endl;
-	lex.move_next();
+while(par.has_next()) {
+	std::cout << par.as_string(true) << std::endl;
+	par.move_next();
 }
 
-std::cout << lex.as_string(true) << std::endl;
+std::cout << par.as_string(true) << std::endl;
+
+/*while(par.has_previous()) {
+	par.move_previous();
+	std::cout << par.as_string(true) << std::endl;
+}*/
 // ---
 
 			TRACE_EXIT();

@@ -28,7 +28,7 @@ namespace nescc {
 	namespace assembler {
 
 		class lexer :
-				public nescc::assembler::stream {
+				protected nescc::assembler::stream {
 
 			public:
 
@@ -49,6 +49,10 @@ namespace nescc {
 					__in const lexer &other
 					);
 
+				nescc::core::token operator[](
+					__in size_t position
+					);
+
 				virtual std::string as_exception(
 					__in_opt bool verbose = false
 					) const;
@@ -61,6 +65,10 @@ namespace nescc {
 				virtual std::string as_string(
 					__in_opt bool verbose = false
 					) const;
+
+				nescc::core::token at(
+					__in size_t position
+					);
 
 				virtual void clear(void);
 

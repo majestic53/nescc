@@ -52,9 +52,9 @@ namespace nescc {
 			__in const node &other
 			) :
 				nescc::core::unique_id(other),
+				m_children(other.m_children),
 				m_subtype(other.m_subtype),
 				m_token(other.m_token),
-				m_token_child(other.m_token_child),
 				m_type(other.m_type)
 		{
 			TRACE_ENTRY();
@@ -76,9 +76,9 @@ namespace nescc {
 
 			if(this != &other) {
 				nescc::core::unique_id::operator=(other);
+				m_children = other.m_children;
 				m_subtype = other.m_subtype;
 				m_token = other.m_token;
-				m_token_child = other.m_token_child;
 				m_type = other.m_type;
 			}
 
@@ -102,9 +102,12 @@ namespace nescc {
 				result << ", Subtype=" << m_subtype;
 
 				switch(m_type) {
-					
-					// TODO
-
+					case NODE_COMMAND:
+						// TODO
+						break;
+					case NODE_PRAGMA:
+						// TODO
+						break;
 					default:
 						break;
 				}
@@ -114,13 +117,13 @@ namespace nescc {
 				result << ", Token=" << SCALAR_AS_HEX(nescc::core::uuid_t, m_token);
 			}
 
-			if(!m_token_child.empty()) {
-				result << ", Child[" << m_token_child.size() << "]={";
+			if(!m_children.empty()) {
+				result << ", Children[" << m_children.size() << "]={";
 
-				for(std::vector<nescc::core::uuid_t>::const_iterator iter = m_token_child.begin();
-						iter != m_token_child.end(); ++iter) {
+				for(std::vector<nescc::core::uuid_t>::const_iterator iter = m_children.begin();
+						iter != m_children.end(); ++iter) {
 
-					if(iter != m_token_child.begin()) {
+					if(iter != m_children.begin()) {
 						result << ", ";
 					}
 
@@ -132,6 +135,14 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		std::vector<nescc::core::uuid_t> &
+		node::children(void)
+		{
+			TRACE_ENTRY();
+			TRACE_EXIT();
+			return m_children;
 		}
 
 		bool
@@ -175,7 +186,7 @@ namespace nescc {
 
 			m_subtype = subtype;
 			m_token = UNIQUE_ID_INVALID;
-			m_token_child.clear();
+			m_children.clear();
 			m_type = type;
 
 			TRACE_EXIT();
@@ -208,9 +219,12 @@ namespace nescc {
 					result << ", Subtype=" << m_subtype;
 
 					switch(m_type) {
-
-						// TODO
-
+						case NODE_COMMAND:
+							// TODO
+							break;
+						case NODE_PRAGMA:
+							// TODO
+							break;
 						default:
 							break;
 					}
@@ -220,13 +234,13 @@ namespace nescc {
 					result << ", Token=" << SCALAR_AS_HEX(nescc::core::uuid_t, m_token);
 				}
 
-				if(!m_token_child.empty()) {
-					result << ", Child[" << m_token_child.size() << "]={";
+				if(!m_children.empty()) {
+					result << ", Children[" << m_children.size() << "]={";
 
-					for(std::vector<nescc::core::uuid_t>::const_iterator iter = m_token_child.begin();
-							iter != m_token_child.end(); ++iter) {
+					for(std::vector<nescc::core::uuid_t>::const_iterator iter = m_children.begin();
+							iter != m_children.end(); ++iter) {
 
-						if(iter != m_token_child.begin()) {
+						if(iter != m_children.begin()) {
 							result << ", ";
 						}
 
@@ -247,14 +261,6 @@ namespace nescc {
 			TRACE_ENTRY();
 			TRACE_EXIT();
 			return m_token;
-		}
-
-		std::vector<nescc::core::uuid_t> &
-		node::token_children(void)
-		{
-			TRACE_ENTRY();
-			TRACE_EXIT();
-			return m_token_child;
 		}
 
 		int

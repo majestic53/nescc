@@ -16,49 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NESCC_ASSEMBLER_STREAM_H_
-#define NESCC_ASSEMBLER_STREAM_H_
+#ifndef NESCC_ASSEMBLER_PARSER_H_
+#define NESCC_ASSEMBLER_PARSER_H_
 
 #include <map>
-#include <vector>
-#include "../define.h"
+#include "./lexer.h"
+#include "../core/node.h"
 
 namespace nescc {
 
 	namespace assembler {
 
-		enum {
-			CHARACTER_END = 0,
-			CHARACTER_ALPHA,
-			CHARACTER_DIGIT,
-			CHARACTER_SYMBOL,
-			CHARACTER_SPACE,
-		};
-
-		#define CHARACTER_MAX CHARACTER_SPACE
-
-		class stream {
+		class parser :
+				protected nescc::assembler::lexer {
 
 			public:
 
-				stream(void);
+				parser(void);
 
-				stream(
+				parser(
 					__in const std::string &input,
 					__in_opt bool is_file = false
 					);
 
-				stream(
-					__in const stream &other
+				parser(
+					__in const parser &other
 					);
 
-				virtual ~stream(void);
+				virtual ~parser(void);
 
-				stream &operator=(
-					__in const stream &other
+				parser &operator=(
+					__in const parser &other
 					);
 
-				char operator[](
+				nescc::core::node operator[](
 					__in size_t position
 					);
 
@@ -67,7 +58,7 @@ namespace nescc {
 					) const;
 
 				virtual std::string as_exception(
-					__in size_t line,
+					__in size_t position,
 					__in_opt bool verbose = false
 					) const;
 
@@ -75,31 +66,27 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
-				char at(
+				nescc::core::node at(
 					__in size_t position
 					);
 
-				char character(void) const;
-
-				int character_type(void) const;
-
 				virtual void clear(void);
+
+				virtual void enumerate(void);
 
 				virtual bool has_next(void) const;
 
 				virtual bool has_previous(void) const;
-
-				bool has_path(void) const;
-
-				size_t line(void) const;
-
-				std::string path(void) const;
 
 				virtual size_t position(void) const;
 
 				virtual void move_next(void);
 
 				virtual void move_previous(void);
+
+				nescc::core::node node(
+					__in_opt nescc::core::uuid_t id = UNIQUE_ID_INVALID
+					) const;
 
 				virtual void reset(void);
 
@@ -116,25 +103,27 @@ namespace nescc {
 
 			protected:
 
-				void enumerate_line(void);
+				void add_node(
+					__in size_t position,
+					__in const nescc::core::node &entry
+					);
 
-				std::string find_line(
-					__in size_t line
+				void enumerate_node(void);
+
+				void node_as_string(
+					__in std::stringstream &stream,
+					__in_opt nescc::core::uuid_t id = UNIQUE_ID_INVALID,
+					__in_opt size_t tab = 0,
+					__in_opt bool verbose = false
 					) const;
 
-				std::string m_path;
+				std::vector<nescc::core::uuid_t> m_node;
 
-				std::string m_stream;
+				std::map<nescc::core::uuid_t, nescc::core::node> m_node_map;
 
-				std::map<size_t, std::string> m_stream_line;
-
-				size_t m_stream_position;
-
-				size_t m_stream_position_column;
-
-				size_t m_stream_position_line;
+				size_t m_node_position;
 		};
 	}
 }
 
-#endif // NESCC_ASSEMBLER_STREAM_H_
+#endif // NESCC_ASSEMBLER_PARSER_H_
