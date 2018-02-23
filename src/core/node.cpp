@@ -185,8 +185,6 @@ namespace nescc {
 			}
 
 			m_subtype = subtype;
-			m_token = UNIQUE_ID_INVALID;
-			m_children.clear();
 			m_type = type;
 
 			TRACE_EXIT();

@@ -32,7 +32,6 @@ namespace nescc {
 			NODE_BEGIN = 0,
 			NODE_END,
 			NODE_COMMAND,
-			NODE_EXPRESSION,
 			NODE_LABEL,
 			NODE_PRAGMA,
 		};
@@ -40,7 +39,7 @@ namespace nescc {
 		#define NODE_MAX NODE_PRAGMA
 
 		static const std::string NODE_STR[] = {
-			"Begin", "End", "Command", "Expression", "Label", "Pragma",
+			"Begin", "End", "Command", "Label", "Pragma",
 			};
 
 		#define NODE_STRING(_TYPE_) \

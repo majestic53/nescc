@@ -207,10 +207,7 @@ namespace nescc {
 					"Type=%x", type);
 			}
 
-			m_boolean = false;
 			m_line = line;
-			m_literal.clear();
-			m_scalar = 0;
 			m_subtype = subtype;
 			m_type = type;
 

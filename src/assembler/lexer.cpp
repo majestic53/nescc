@@ -86,7 +86,7 @@ namespace nescc {
 		nescc::core::token
 		lexer::operator[](
 			__in size_t position
-			)
+			) const
 		{
 			TRACE_ENTRY_FORMAT("Position=%u", position);
 			TRACE_EXIT();
@@ -171,7 +171,7 @@ namespace nescc {
 		nescc::core::token
 		lexer::at(
 			__in size_t position
-			)
+			) const
 		{
 			TRACE_ENTRY_FORMAT("Position=%u", position);
 

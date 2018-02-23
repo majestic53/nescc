@@ -51,7 +51,7 @@ namespace nescc {
 
 				nescc::core::node operator[](
 					__in size_t position
-					);
+					) const;
 
 				virtual std::string as_exception(
 					__in_opt bool verbose = false
@@ -68,7 +68,7 @@ namespace nescc {
 
 				nescc::core::node at(
 					__in size_t position
-					);
+					) const;
 
 				virtual void clear(void);
 
@@ -108,7 +108,24 @@ namespace nescc {
 					__in const nescc::core::node &entry
 					);
 
+				size_t add_node_child(
+					__in nescc::core::uuid_t id,
+					__in const nescc::core::node &entry
+					);
+
 				void enumerate_node(void);
+
+				size_t enumerate_node_command(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_label(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_pragma(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
 
 				void node_as_string(
 					__in std::stringstream &stream,

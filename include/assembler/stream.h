@@ -60,7 +60,7 @@ namespace nescc {
 
 				char operator[](
 					__in size_t position
-					);
+					) const;
 
 				virtual std::string as_exception(
 					__in_opt bool verbose = false
@@ -77,7 +77,7 @@ namespace nescc {
 
 				char at(
 					__in size_t position
-					);
+					) const;
 
 				char character(void) const;
 

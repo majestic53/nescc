@@ -51,7 +51,7 @@ namespace nescc {
 
 				nescc::core::token operator[](
 					__in size_t position
-					);
+					) const;
 
 				virtual std::string as_exception(
 					__in_opt bool verbose = false
@@ -68,7 +68,7 @@ namespace nescc {
 
 				nescc::core::token at(
 					__in size_t position
-					);
+					) const;
 
 				virtual void clear(void);
 

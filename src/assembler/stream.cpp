@@ -92,7 +92,7 @@ namespace nescc {
 		char
 		stream::operator[](
 			__in size_t position
-			)
+			) const
 		{
 			char result;
 
@@ -162,7 +162,7 @@ namespace nescc {
 		char
 		stream::at(
 			__in size_t position
-			)
+			) const
 		{
 			char result;
 

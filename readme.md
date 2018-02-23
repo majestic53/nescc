@@ -296,6 +296,10 @@ Changelog
 
 Version 0.1.1808
 ----------------
+*Updated: 2/22/2018*
+
+* Added assembler parser enumeration routines
+
 *Updated: 2/21/2018*
 
 * Added assembler parser class
