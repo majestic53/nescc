@@ -240,19 +240,21 @@ namespace nescc {
 		}
 
 		void
-		parser::enumerate_node(void)
+		parser::enumerate_node(
+			__in_opt nescc::core::uuid_t parent
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			switch(nescc::assembler::lexer::token().type()) {
 				case nescc::core::TOKEN_COMMAND:
-					enumerate_node_command();
+					enumerate_node_command(parent);
 					break;
 				case nescc::core::TOKEN_LABEL:
-					enumerate_node_label();
+					enumerate_node_label(parent);
 					break;
 				case nescc::core::TOKEN_PRAGMA:
-					enumerate_node_pragma();
+					enumerate_node_pragma(parent);
 					break;
 				default:
 					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_STATEMENT,
@@ -262,27 +264,35 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_block(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
+			nescc::core::token tok;
+			nescc::core::node entry;
 
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
-			// TODO
+			entry.set(nescc::core::NODE_BLOCK);
+			add_node_child(parent, entry);
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			tok = nescc::assembler::lexer::token();
+			while((tok.type() != nescc::core::TOKEN_PRAGMA)
+					|| ((tok.subtype() != nescc::core::PRAGMA_CONDITION_END)
+						&& (tok.subtype() != nescc::core::PRAGMA_CONDITION_ELSE))) {
+				enumerate_node(entry.id());
+				tok = nescc::assembler::lexer::token();
+			}
+
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_command(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
 			nescc::core::node entry;
 
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
@@ -297,7 +307,7 @@ namespace nescc {
 			entry.token() = tok.id();
 
 			if(parent != UNIQUE_ID_INVALID) {
-				result = add_node_child(parent, entry);
+				add_node_child(parent, entry);
 			} else {
 				add_node(m_node_position + 1, entry);
 			}
@@ -311,61 +321,50 @@ namespace nescc {
 
 			// TODO
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_condition(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
-
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			// TODO
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_data_list(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
-
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			// TODO
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_expression(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
-
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			// TODO
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_label(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
 			nescc::core::node entry;
 
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
@@ -380,7 +379,7 @@ namespace nescc {
 			entry.token() = tok.id();
 
 			if(parent != UNIQUE_ID_INVALID) {
-				result = add_node_child(parent, entry);
+				add_node_child(parent, entry);
 			} else {
 				add_node(m_node_position + 1, entry);
 			}
@@ -389,17 +388,15 @@ namespace nescc {
 				nescc::assembler::lexer::move_next();
 			}
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_pragma(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
 			int subtype;
-			size_t result = 0;
 			nescc::core::node entry;
 
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
@@ -424,7 +421,7 @@ namespace nescc {
 			entry.token() = tok.id();
 
 			if(parent != UNIQUE_ID_INVALID) {
-				result = add_node_child(parent, entry);
+				add_node_child(parent, entry);
 			} else {
 				add_node(m_node_position + 1, entry);
 			}
@@ -468,16 +465,14 @@ namespace nescc {
 						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 			}
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_pragma_command(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
 			nescc::core::token tok;
 
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
@@ -506,7 +501,7 @@ namespace nescc {
 						nescc::assembler::lexer::move_next();
 
 						tok = nescc::assembler::lexer::token();
-						if(tok.type() == nescc::core::TOKEN_LITERAL) { // [<literal> | <expression<2>>]
+						if(tok.type() == nescc::core::TOKEN_LITERAL) { // [<literal> | <expression>]
 							nescc::core::node entry;
 
 							entry.set(nescc::core::NODE_LEAF);
@@ -567,16 +562,14 @@ namespace nescc {
 						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 			}
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_pragma_condition(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
 			nescc::core::token tok;
 
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
@@ -611,7 +604,7 @@ namespace nescc {
 			enumerate_node_block(parent); // <block>
 
 			tok = nescc::assembler::lexer::token(); // [<pragma_condition_else> <block>]?
-			if((tok.type() == nescc::core::TOKEN_PRAGMA) || (tok.subtype() == nescc::core::PRAGMA_CONDITION_ELSE)) {
+			if((tok.type() == nescc::core::TOKEN_PRAGMA) && (tok.subtype() == nescc::core::PRAGMA_CONDITION_ELSE)) {
 
 				if(!nescc::assembler::lexer::has_next()) {
 					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_PRAGMA_CONDITIONAL,
@@ -632,17 +625,14 @@ namespace nescc {
 				nescc::assembler::lexer::move_next();
 			}
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_pragma_data(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
-
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			switch(nescc::assembler::lexer::token(nescc::assembler::parser::node(parent).token()).subtype()) {
@@ -660,17 +650,14 @@ namespace nescc {
 						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 			}
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
-		size_t
+		void
 		parser::enumerate_node_pragma_ines(
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			size_t result = 0;
-
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			switch(nescc::assembler::lexer::token(nescc::assembler::parser::node(parent).token()).subtype()) {
@@ -701,8 +688,7 @@ namespace nescc {
 						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 			}
 
-			TRACE_EXIT_FORMAT("Result=%u", result);
-			return result;
+			TRACE_EXIT();
 		}
 
 		bool
@@ -823,15 +809,18 @@ namespace nescc {
 				stream << std::endl;
 
 				for(size_t iter = 0; iter < tab; ++iter) {
-					stream << "   ";
+					stream << "     ";
 				}
 
 				stream << "|- ";
 			}
 
 			parent = node(id);
-			stream << parent.as_string(verbose) << ", {" << nescc::assembler::lexer::token(parent.token()).as_string(verbose)
-				<< "}";
+			stream << parent.as_string(verbose);
+
+			if(parent.token() != UNIQUE_ID_INVALID) {
+				stream << ", {" << nescc::assembler::lexer::token(parent.token()).as_string(verbose) << "}";
+			}
 
 			for(child = parent.children().begin(); child != parent.children().end(); ++child) {
 				node_as_string(stream, *child, tab + 1, verbose);

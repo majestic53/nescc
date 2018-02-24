@@ -113,49 +113,51 @@ namespace nescc {
 					__in const nescc::core::node &entry
 					);
 
-				void enumerate_node(void);
-
-				size_t enumerate_node_block(
+				void enumerate_node(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_command(
+				void enumerate_node_block(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_condition(
+				void enumerate_node_command(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_data_list(
+				void enumerate_node_condition(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_expression(
+				void enumerate_node_data_list(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_label(
+				void enumerate_node_expression(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_pragma(
+				void enumerate_node_label(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_pragma_command(
+				void enumerate_node_pragma(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_pragma_condition(
+				void enumerate_node_pragma_command(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_pragma_data(
+				void enumerate_node_pragma_condition(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
-				size_t enumerate_node_pragma_ines(
+				void enumerate_node_pragma_data(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				void enumerate_node_pragma_ines(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
