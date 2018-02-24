@@ -73,7 +73,7 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 2
+	#define NESCC_VERSION_REVISION 3
 	#define NESCC_VERSION_WEEK 1808
 
 	#define STRING_EMPTY "Empty"

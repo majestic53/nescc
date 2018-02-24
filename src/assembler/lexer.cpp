@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include "../../include/assembler/lexer.h"
 #include "../../include/trace.h"
 #include "./lexer_type.h"
@@ -249,7 +250,7 @@ namespace nescc {
 			__in size_t line
 			)
 		{
-			std::string result;
+			std::string result, result_lower;
 			int subtype = TOKEN_INVALID, type;
 
 			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
@@ -287,21 +288,18 @@ namespace nescc {
 					result += value;
 				}
 
-				std::map<std::string, int>::const_iterator entry = nescc::core::COMMAND_MAP.find(result);
+				result_lower = result;
+				std::transform(result_lower.begin(), result_lower.end(), result_lower.begin(), ::tolower);
+
+				std::map<std::string, int>::const_iterator entry = nescc::core::COMMAND_MAP.find(result_lower);
 				if((type == nescc::core::TOKEN_COMMAND) && (entry == nescc::core::COMMAND_MAP.end())) { // unsupported command
 					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNSUPPORTED_COMMAND,
 						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 				}
 
-				if(entry != nescc::core::COMMAND_MAP.end()) { // command
-					type = nescc::core::TOKEN_COMMAND;
-					subtype = entry->second;
-				} else if(nescc::core::REGISTER_MAP.find(result) != nescc::core::REGISTER_MAP.end()) { // register
-					type = nescc::core::TOKEN_REGISTER;
-					subtype = nescc::core::REGISTER_MAP.find(result)->second;
-				} else if(type == nescc::core::TOKEN_PRAGMA) { // pragma
+				if(type == nescc::core::TOKEN_PRAGMA) { // pragma
 
-					std::map<std::string, int>::const_iterator entry = nescc::core::PRAGMA_MAP.find(result);
+					std::map<std::string, int>::const_iterator entry = nescc::core::PRAGMA_MAP.find(result_lower);
 					if(entry == nescc::core::PRAGMA_MAP.end()) {
 						THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(
 							NESCC_ASSEMBLER_LEXER_EXCEPTION_UNSUPPORTED_PRAGMA,
@@ -309,7 +307,13 @@ namespace nescc {
 					}
 
 					subtype = entry->second;
-				} else if((result == BOOLEAN_FALSE) || (result == BOOLEAN_TRUE)) { // boolean
+				} else if(entry != nescc::core::COMMAND_MAP.end()) { // command
+					type = nescc::core::TOKEN_COMMAND;
+					subtype = entry->second;
+				} else if(nescc::core::REGISTER_MAP.find(result_lower) != nescc::core::REGISTER_MAP.end()) { // register
+					type = nescc::core::TOKEN_REGISTER;
+					subtype = nescc::core::REGISTER_MAP.find(result_lower)->second;
+				} else if((result_lower == BOOLEAN_FALSE) || (result_lower == BOOLEAN_TRUE)) { // boolean
 					type = nescc::core::TOKEN_BOOLEAN;
 				}
 
@@ -349,7 +353,7 @@ namespace nescc {
 
 			switch(type) {
 				case nescc::core::TOKEN_BOOLEAN:
-					token.as_boolean() = ((result == BOOLEAN_TRUE) ? true : false);
+					token.as_boolean() = ((result_lower == BOOLEAN_TRUE) ? true : false);
 					break;
 				case nescc::core::TOKEN_IDENTIFIER:
 				case nescc::core::TOKEN_LABEL:

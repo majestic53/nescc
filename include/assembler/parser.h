@@ -115,7 +115,23 @@ namespace nescc {
 
 				void enumerate_node(void);
 
+				size_t enumerate_node_block(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
 				size_t enumerate_node_command(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_condition(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_data_list(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_expression(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
@@ -124,6 +140,22 @@ namespace nescc {
 					);
 
 				size_t enumerate_node_pragma(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_pragma_command(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_pragma_condition(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_pragma_data(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				size_t enumerate_node_pragma_ines(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
