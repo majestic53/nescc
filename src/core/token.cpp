@@ -166,7 +166,7 @@ namespace nescc {
 					break;
 			}
 
-			result << ", Line=" << m_line;
+			result << ", Line=" << (m_line + 1);
 
 			TRACE_EXIT();
 			return result.str();
@@ -275,7 +275,7 @@ namespace nescc {
 				}
 			}
 
-			result << ", Line=" << m_line;
+			result << ", Line=" << (m_line + 1);
 
 			TRACE_EXIT();
 			return result.str();

@@ -296,10 +296,11 @@ Changelog
 
 Version 0.1.1808
 ----------------
-*Updated: 2/22-23/2018*
+*Updated: 2/22-25/2018*
 
 * Added assembler parser enumeration routines
 	* Added pragma enumeration routines
+	* Added expression enumeration routines
 
 *Updated: 2/21/2018*
 

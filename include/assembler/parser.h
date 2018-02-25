@@ -137,6 +137,26 @@ namespace nescc {
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
+				void enumerate_node_expression_arithmetic_0(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				void enumerate_node_expression_arithmetic_1(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				void enumerate_node_expression_binary(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				void enumerate_node_expression_factor(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				void enumerate_node_expression_logical(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
 				void enumerate_node_label(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
@@ -167,6 +187,11 @@ namespace nescc {
 					__in_opt size_t tab = 0,
 					__in_opt bool verbose = false
 					) const;
+
+				void node_rebalance(
+					__in nescc::core::uuid_t id,
+					__in nescc::core::node &entry
+					);
 
 				void node_set_token(
 					__in nescc::core::uuid_t id,

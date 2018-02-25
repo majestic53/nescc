@@ -409,26 +409,239 @@ namespace nescc {
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
-			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
-
-			// TODO
-			nescc::core::token tok;
 			nescc::core::node entry;
 
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
+
+			entry.set(nescc::core::NODE_EXPRESSION);
+			add_node_child(parent, entry);
+			enumerate_node_expression_binary(entry.id());
+
+			TRACE_EXIT();
+		}
+
+		void
+		parser::enumerate_node_expression_arithmetic_0(
+			__in_opt nescc::core::uuid_t parent
+			)
+		{
+			nescc::core::token tok;
+
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
+
+			enumerate_node_expression_arithmetic_1(parent);
+
 			tok = nescc::assembler::lexer::token();
-			if(tok.type() != nescc::core::TOKEN_SCALAR) {
-				THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_SCALAR,
+			if((tok.type() == nescc::core::TOKEN_SYMBOL)
+					&& ((tok.subtype() == nescc::core::SYMBOL_ARITHMETIC_ADD)
+						|| (tok.subtype() == nescc::core::SYMBOL_ARITHMETIC_SUBTRACT))) { // + | -
+				nescc::core::node entry;
+
+				entry.set(nescc::core::NODE_OPERATOR);
+				entry.token() = tok.id();
+				node_rebalance(parent, entry);
+				add_node_child(parent, entry);
+				parent = entry.id();
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+				enumerate_node_expression_arithmetic_1(parent);
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		parser::enumerate_node_expression_arithmetic_1(
+			__in_opt nescc::core::uuid_t parent
+			)
+		{
+			nescc::core::token tok;
+
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
+
+			enumerate_node_expression_factor(parent);
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_SYMBOL)
+					&& ((tok.subtype() == nescc::core::SYMBOL_ARITHMETIC_DIVIDE)
+						|| (tok.subtype() == nescc::core::SYMBOL_ARITHMETIC_MODULUS)
+						|| (tok.subtype() == nescc::core::SYMBOL_ARITHMETIC_MULTIPLY))) { // / | % | *
+				nescc::core::node entry;
+
+				entry.set(nescc::core::NODE_OPERATOR);
+				entry.token() = tok.id();
+				node_rebalance(parent, entry);
+				add_node_child(parent, entry);
+				parent = entry.id();
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+				enumerate_node_expression_factor(parent);
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		parser::enumerate_node_expression_binary(
+			__in_opt nescc::core::uuid_t parent
+			)
+		{
+			nescc::core::token tok;
+
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
+
+			enumerate_node_expression_logical(parent);
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_SYMBOL)
+					&& ((tok.subtype() == nescc::core::SYMBOL_BINARY_AND)
+						|| (tok.subtype() == nescc::core::SYMBOL_BINARY_OR)
+						|| (tok.subtype() == nescc::core::SYMBOL_BINARY_XOR))) { // & | | | ^
+				nescc::core::node entry;
+
+				entry.set(nescc::core::NODE_OPERATOR);
+				entry.token() = tok.id();
+				node_rebalance(parent, entry);
+				add_node_child(parent, entry);
+				parent = entry.id();
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+				enumerate_node_expression_logical(parent);
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		parser::enumerate_node_expression_factor(
+			__in_opt nescc::core::uuid_t parent
+			)
+		{
+			nescc::core::token tok;
+
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_SYMBOL)
+					&& ((tok.subtype() == nescc::core::SYMBOL_UNARY_NEGATE)
+						|| (tok.subtype() == nescc::core::SYMBOL_UNARY_NOT))) { // ! | ~
+				nescc::core::node entry;
+
+				entry.set(nescc::core::NODE_MODIFIER);
+				entry.token() = tok.id();
+				add_node_child(parent, entry);
+				parent = entry.id();
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+			}
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_PRAGMA)
+					&& ((tok.subtype() == nescc::core::PRAGMA_DATA_PART_HIGH)
+						|| (tok.subtype() == nescc::core::PRAGMA_DATA_PART_LOW))) { // .high | .low
+				nescc::core::node entry;
+
+				entry.set(nescc::core::NODE_PRAGMA);
+				entry.token() = tok.id();
+				add_node_child(parent, entry);
+				parent = entry.id();
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+			}
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_SYMBOL) && (tok.subtype() == nescc::core::SYMBOL_PARENTHESIS_OPEN)) { // (
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+				enumerate_node_expression(parent);
+
+				tok = nescc::assembler::lexer::token();
+				if((tok.type() != nescc::core::TOKEN_SYMBOL) || (tok.subtype() != nescc::core::SYMBOL_PARENTHESIS_CLOSE)) { // )
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+			} else if((tok.type() == nescc::core::TOKEN_IDENTIFIER)
+					|| (tok.type() == nescc::core::TOKEN_SCALAR)) { // <identifier> | <scalar>
+				nescc::core::node entry;
+
+				entry.set(nescc::core::NODE_LEAF);
+				entry.token() = tok.id();
+				add_node_child(parent, entry);
+
+				if(nescc::assembler::lexer::has_next()) {
+					nescc::assembler::lexer::move_next();
+				}
+			} else {
+				THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_EXPRESSION_FACTOR,
 					"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 			}
 
-			entry.set(nescc::core::NODE_EXPRESSION);
-			entry.token() = tok.id();
-			add_node_child(parent, entry);
+			TRACE_EXIT();
+		}
 
-			if(nescc::assembler::lexer::has_next()) {
+		void
+		parser::enumerate_node_expression_logical(
+			__in_opt nescc::core::uuid_t parent
+			)
+		{
+			nescc::core::token tok;
+
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
+
+			enumerate_node_expression_arithmetic_0(parent);
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_SYMBOL)
+					&& ((tok.subtype() == nescc::core::SYMBOL_LOGICAL_SHIFT_LEFT)
+						|| (tok.subtype() == nescc::core::SYMBOL_LOGICAL_SHIFT_RIGHT))) { // << | >>
+				nescc::core::node entry;
+
+				entry.set(nescc::core::NODE_OPERATOR);
+				entry.token() = tok.id();
+				node_rebalance(parent, entry);
+				add_node_child(parent, entry);
+				parent = entry.id();
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
 				nescc::assembler::lexer::move_next();
+				enumerate_node_expression_arithmetic_0(parent);
 			}
-			// ---
 
 			TRACE_EXIT();
 		}
@@ -897,6 +1110,28 @@ namespace nescc {
 
 			for(child = parent.children().begin(); child != parent.children().end(); ++child) {
 				node_as_string(stream, *child, tab + 1, verbose);
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		parser::node_rebalance(
+			__in nescc::core::uuid_t id,
+			__in nescc::core::node &entry
+			)
+		{
+			TRACE_ENTRY_FORMAT("Id=%u(%x), Entry=%p", id, id, &entry);
+
+			std::map<nescc::core::uuid_t, nescc::core::node>::iterator iter = m_node_map.find(id);
+			if(iter == m_node_map.end()) {
+				THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_NODE_NOT_FOUND,
+					"Id=%u(%x)", id, id);
+			}
+
+			if(!iter->second.children().empty()) {
+				entry.children().push_back(iter->second.children().back());
+				iter->second.children().erase(iter->second.children().end() - 1);
 			}
 
 			TRACE_EXIT();

@@ -52,21 +52,21 @@ condition ::= <expression<2>> <condition_operator> <expression<2>>
 
 condition_operator ::= == | != | < | <= | > | >= | && | ||
 
-expression<N> ::= <pragma_data_part<N>>? <expression_term_binary<N>>
+expression<N> ::= <expression_term_binary<N>>
 
-expression_term_binary<N> ::= <expression_term_binary<N>> [& | | | ^] <expression_term_logical<N>>
+expression_term_binary<N> ::= <expression_term_logical<N>> [& | | | ^] <expression_term_logical<N>>
 				| <expression_term_logical<N>>
 
-expression_term_logical<N> ::= <expression_term_logical<N>> [>> | <<] <expression_term_arithmetic_0<N>>
+expression_term_logical<N> ::= <expression_term_arithmetic_0<N>> [<< | >>] <expression_term_arithmetic_0<N>>
 				| <expression_term_arithmetic_0<N>>
 
-expression_term_arithmetic_0<N> ::= <expression_term_arithmetic_0<N>> [+ | -] <expression_term_arithmetic_1<N>>
+expression_term_arithmetic_0<N> ::= <expression_term_arithmetic_1<N>> [+ | -] <expression_term_arithmetic_1<N>>
 					| <expression_term_arithmetic_1<N>>
 
-expression_term_arithmetic_1<N> ::= <expression_term_arithmetic_1<N>> [* | / | %] <expression_factor<N>>
+expression_term_arithmetic_1<N> ::= <expression_factor<N>> [/ | % | *] <expression_factor<N>>
 					| <expression_factor<N>>
 
-expression_factor<N> ::= [!|~]?[( <expression<N>> ) | <identifier> | <scalar<N>>]
+expression_factor<N> ::= [!|~]? <pragma_data_part<N>>? [( <expression<N>> ) | <identifier> | <scalar<N>>]
 
 identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
 
