@@ -329,9 +329,50 @@ namespace nescc {
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node entry;
+
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
-			// TODO
+			entry.set(nescc::core::NODE_CONDITION);
+			add_node_child(parent, entry);
+
+			enumerate_node_expression(entry.id());
+
+			tok = nescc::assembler::lexer::token();
+			if(tok.type() == nescc::core::TOKEN_SYMBOL) {
+
+				switch(tok.subtype()) {
+					case nescc::core::SYMBOL_OPERATOR_AND:
+					case nescc::core::SYMBOL_OPERATOR_EQUALS:
+					case nescc::core::SYMBOL_OPERATOR_GREATER_THAN:
+					case nescc::core::SYMBOL_OPERATOR_GREATER_THAN_EQUALS:
+					case nescc::core::SYMBOL_OPERATOR_LESS_THAN:
+					case nescc::core::SYMBOL_OPERATOR_LESS_THAN_EQUALS:
+					case nescc::core::SYMBOL_OPERATOR_NOT_EQUALS:
+					case nescc::core::SYMBOL_OPERATOR_OR: // == | != | < | <= | > | >= | && | ||
+						node_set_token(entry.id(), tok);
+
+						if(!nescc::assembler::lexer::has_next()) {
+							THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+								NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_PRAGMA_CONDITIONAL,
+								"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+						}
+
+						nescc::assembler::lexer::move_next();
+						break;
+					default:
+						THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+							NESCC_ASSEMBLER_PARSER_EXCEPTION_UNSUPPORTED_PRAGMA_CONDITIONAL_OPERATOR,
+							"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+			} else {
+				THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+					NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_PRAGMA_CONDITIONAL_OPERATOR,
+					"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+			}
+
+			enumerate_node_expression(entry.id());
 
 			TRACE_EXIT();
 		}
@@ -341,9 +382,24 @@ namespace nescc {
 			__in_opt nescc::core::uuid_t parent
 			)
 		{
+			nescc::core::token tok;
+
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
-			// TODO
+			enumerate_node_expression(parent);
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_SYMBOL)
+					&& (tok.subtype() == nescc::core::SYMBOL_SEPERATOR)) { // , <pragma_data_list>
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_EXPRESSION,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+				enumerate_node_data_list(parent);
+			}
 
 			TRACE_EXIT();
 		}
@@ -356,6 +412,23 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			// TODO
+			nescc::core::token tok;
+			nescc::core::node entry;
+
+			tok = nescc::assembler::lexer::token();
+			if(tok.type() != nescc::core::TOKEN_SCALAR) {
+				THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_SCALAR,
+					"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+			}
+
+			entry.set(nescc::core::NODE_EXPRESSION);
+			entry.token() = tok.id();
+			add_node_child(parent, entry);
+
+			if(nescc::assembler::lexer::has_next()) {
+				nescc::assembler::lexer::move_next();
+			}
+			// ---
 
 			TRACE_EXIT();
 		}
@@ -411,7 +484,11 @@ namespace nescc {
 			switch(subtype) {
 				case nescc::core::PRAGMA_CONDITION_ELSE: // .else
 				case nescc::core::PRAGMA_CONDITION_END: // .end
-					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_PRAGMA_CONDITION,
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_PRAGMA_CONDITIONAL,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				case nescc::core::PRAGMA_DATA_PART_HIGH: // .high
+				case nescc::core::PRAGMA_DATA_PART_LOW: // .low
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_PRAGMA_EXPRESSION,
 						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 				default:
 					break;
@@ -448,8 +525,6 @@ namespace nescc {
 					enumerate_node_pragma_condition(entry.id());
 					break;
 				case nescc::core::PRAGMA_DATA_BYTE: // .db
-				case nescc::core::PRAGMA_DATA_PART_HIGH: // .high
-				case nescc::core::PRAGMA_DATA_PART_LOW: // .low
 				case nescc::core::PRAGMA_DATA_RESERVE: // .rs
 				case nescc::core::PRAGMA_DATA_WORD: // .dw
 					enumerate_node_pragma_data(entry.id());
@@ -501,7 +576,7 @@ namespace nescc {
 						nescc::assembler::lexer::move_next();
 
 						tok = nescc::assembler::lexer::token();
-						if(tok.type() == nescc::core::TOKEN_LITERAL) { // [<literal> | <expression>]
+						if(tok.type() == nescc::core::TOKEN_LITERAL) { // <literal> | <expression>
 							nescc::core::node entry;
 
 							entry.set(nescc::core::NODE_LEAF);
@@ -603,7 +678,7 @@ namespace nescc {
 
 			enumerate_node_block(parent); // <block>
 
-			tok = nescc::assembler::lexer::token(); // [<pragma_condition_else> <block>]?
+			tok = nescc::assembler::lexer::token(); // <pragma_condition_else> <block>
 			if((tok.type() == nescc::core::TOKEN_PRAGMA) && (tok.subtype() == nescc::core::PRAGMA_CONDITION_ELSE)) {
 
 				if(!nescc::assembler::lexer::has_next()) {
@@ -640,8 +715,6 @@ namespace nescc {
 				case nescc::core::PRAGMA_DATA_WORD: // .dw <pragma_data_list>
 					enumerate_node_data_list(parent);
 					break;
-				case nescc::core::PRAGMA_DATA_PART_HIGH: // .high <expression>
-				case nescc::core::PRAGMA_DATA_PART_LOW: // .low <expression>
 				case nescc::core::PRAGMA_DATA_RESERVE: // .rs <expression>
 					enumerate_node_expression(parent);
 					break;
@@ -825,6 +898,25 @@ namespace nescc {
 			for(child = parent.children().begin(); child != parent.children().end(); ++child) {
 				node_as_string(stream, *child, tab + 1, verbose);
 			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		parser::node_set_token(
+			__in nescc::core::uuid_t id,
+			__in const nescc::core::token &entry
+			)
+		{
+			TRACE_ENTRY_FORMAT("Id=%u(%x), Entry=%p", id, id, &entry);
+
+			std::map<nescc::core::uuid_t, nescc::core::node>::iterator iter = m_node_map.find(id);
+			if(iter == m_node_map.end()) {
+				THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_NODE_NOT_FOUND,
+					"Id=%u(%x)", id, id);
+			}
+
+			iter->second.token() = entry.id();
 
 			TRACE_EXIT();
 		}

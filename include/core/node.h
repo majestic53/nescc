@@ -31,6 +31,7 @@ namespace nescc {
 		enum {
 			NODE_BEGIN = 0,
 			NODE_BLOCK,
+			NODE_CONDITION,
 			NODE_END,
 			NODE_EXPRESSION,
 			NODE_COMMAND,
@@ -42,8 +43,8 @@ namespace nescc {
 		#define NODE_MAX NODE_PRAGMA
 
 		static const std::string NODE_STR[] = {
-			"Begin", "Block", "End", "Expression", "Command", "Label", "Leaf",
-			"Pragma",
+			"Begin", "Block", "Condition", "End", "Expression", "Command", "Label",
+			"Leaf", "Pragma",
 			};
 
 		#define NODE_STRING(_TYPE_) \

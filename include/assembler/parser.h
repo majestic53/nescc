@@ -168,6 +168,11 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				void node_set_token(
+					__in nescc::core::uuid_t id,
+					__in const nescc::core::token &entry
+					);
+
 				std::vector<nescc::core::uuid_t> m_node;
 
 				std::map<nescc::core::uuid_t, nescc::core::node> m_node_map;

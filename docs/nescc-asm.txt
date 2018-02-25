@@ -48,15 +48,11 @@ command_mode_zero_page_y ::= <expression<1>> , y
 
 comment ::= #.*\n
 
-condition ::= <condition_binary> | <condition_unary>
+condition ::= <expression<2>> <condition_operator> <expression<2>>
 
-condition_binary ::= <condition_unary> condition_binary_operator> <condition_unary>
+condition_operator ::= == | != | < | <= | > | >= | && | ||
 
-condition_binary_operator ::= == | != | < | <= | > | >= | && | ||
-
-condition_unary ::= [!|~]?<expression<2>>
-
-expression<N> ::= <expression_term_binary<N>>
+expression<N> ::= <pragma_data_part<N>>? <expression_term_binary<N>>
 
 expression_term_binary<N> ::= <expression_term_binary<N>> [& | | | ^] <expression_term_logical<N>>
 				| <expression_term_logical<N>>
@@ -70,7 +66,7 @@ expression_term_arithmetic_0<N> ::= <expression_term_arithmetic_0<N>> [+ | -] <e
 expression_term_arithmetic_1<N> ::= <expression_term_arithmetic_1<N>> [* | / | %] <expression_factor<N>>
 					| <expression_factor<N>>
 
-expression_factor<N> ::= ( <expression<N>> ) | <identifier> | <scalar<N>>
+expression_factor<N> ::= [!|~]?[( <expression<N>> ) | <identifier> | <scalar<N>>]
 
 identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
 
@@ -105,13 +101,13 @@ pragma_condition_if ::= if <condition> <block> [<pragma_condition_else> <block>]
 
 pragma_condition_ifdef ::= ifdef <identifier> <block> [<pragma_condition_else> <block>]? <pragma_condition_end>
 
-pragma_data ::= <pragma_data_byte> | <pragma_data_part> | <pragma_data_reserve> | <pragma_data_word>
+pragma_data ::= <pragma_data_byte> | <pragma_data_part<N>> | <pragma_data_reserve> | <pragma_data_word>
 
 pragma_data_byte ::= db <pragma_data_list<1>>
 
 pragma_data_list<N> ::= <expression<N>> [, <pragma_data_list<N>>]*
 
-pragma_data_part ::= [high | low] <expression<2>>
+pragma_data_part<N> ::= [high | low] <expression<N>>
 
 pragma_data_reserve ::= rs <expression<1>>
 

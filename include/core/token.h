@@ -306,16 +306,16 @@ namespace nescc {
 			SYMBOL_PRAENTHESIS_CLOSE,
 			SYMBOL_PARENTHESIS_OPEN,
 			SYMBOL_SEPERATOR,
-			SYMBOL_UNARY_NOT,
 			SYMBOL_UNARY_NEGATE,
+			SYMBOL_UNARY_NOT,
 		};
 
-		#define SYMBOL_MAX SYMBOL_UNARY_NEGATE
+		#define SYMBOL_MAX SYMBOL_UNARY_NOT
 
 		static const std::string SYMBOL_STR[] = {
 			"+", "/", "%", "*", "-", "&", "|", "^", "@", "<<", ">>",
 			"&&", "==", ">", ">=", "<", "<=", "!=", "||", ")", "(",
-			",", "!", "~",
+			",", "~", "!",
 			};
 
 		#define SYMBOL_STRING(_TYPE_) \
