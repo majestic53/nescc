@@ -125,6 +125,22 @@ namespace nescc {
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
+				int enumerate_node_command_address_mode(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				int enumerate_node_command_address_mode_accumulator(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				int enumerate_node_command_address_mode_immediate(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
+				int enumerate_node_command_address_mode_indirect(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
 				void enumerate_node_condition(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
@@ -191,6 +207,11 @@ namespace nescc {
 				void node_rebalance(
 					__in nescc::core::uuid_t id,
 					__in nescc::core::node &entry
+					);
+
+				void node_set_subtype(
+					__in nescc::core::uuid_t id,
+					__in int subtype
 					);
 
 				void node_set_token(

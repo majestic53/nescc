@@ -294,6 +294,12 @@ Extracted roms/assembly/images can be found in the same directory as the input r
 Changelog
 =========
 
+Version 0.1.1809
+----------------
+*Updated: 2/26/2018*
+
+* Added assembler parser command address mode routines (incomplete)
+
 Version 0.1.1808
 ----------------
 *Updated: 2/22-25/2018*
@@ -309,22 +315,6 @@ Version 0.1.1808
 *Updated: 2/19/2018*
 
 * Added parser node class
-
-Version 0.1.1807
-----------------
-*Updated: 2/18/2018*
-
-* Added APU frame/timer routines
-* Fixed display crt filter
-
-*Updated: 2/16/2018*
-
-* Added lexer command enumeration
-* Added ines/data pragmas
-
-*Updated: 2/12-15/2018*
-
-* Added lexer enumeration routines
 
 *Changelog truncated (see file history for full log)*
 

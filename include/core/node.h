@@ -53,6 +53,32 @@ namespace nescc {
 			(((_TYPE_) > nescc::core::NODE_MAX) ? STRING_UNKNOWN : \
 				STRING_CHECK(nescc::core::NODE_STR[_TYPE_]))
 
+		enum {
+			ADDRESS_MODE_ABSOLUTE = 0, // <expression>
+			ADDRESS_MODE_ABSOLUTE_X, // <expression> , x
+			ADDRESS_MODE_ABSOLUTE_Y, // <expression> , y
+			ADDRESS_MODE_ACCUMULATOR, // a
+			ADDRESS_MODE_IMMEDIATE, // @ <expression>
+			ADDRESS_MODE_IMPLIED,
+			ADDRESS_MODE_INDIRECT, // ( <expression> )
+			ADDRESS_MODE_INDIRECT_X, // ( <expression> , x )
+			ADDRESS_MODE_INDIRECT_Y, // ( <expression> ) , y
+			ADDRESS_MODE_ZERO_PAGE, // <expression>
+			ADDRESS_MODE_ZERO_PAGE_X, // <expression> , x
+			ADDRESS_MODE_ZERO_PAGE_Y, // <expression> , y
+		};
+
+		#define ADDRESS_MODE_MAX ADDRESS_MODE_ZERO_PAGE_Y
+
+		static const std::string ADDRESS_MODE_STR[] = {
+			"Absolute", "Absolute-X", "Absolute-Y", "Accumulator", "Immediate", "Implied", "Indirect",
+			"Indirect-X", "Indirect-Y", "Zero-Page", "Zero-Page-X", "Zero-Page-Y",
+			};
+
+		#define ADDRESS_MODE_STRING(_TYPE_) \
+			(((_TYPE_) > nescc::core::ADDRESS_MODE_MAX) ? STRING_UNKNOWN : \
+				STRING_CHECK(nescc::core::ADDRESS_MODE_STR[_TYPE_]))
+
 		class node :
 				public nescc::core::unique_id {
 

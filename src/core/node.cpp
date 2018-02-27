@@ -103,10 +103,7 @@ namespace nescc {
 
 				switch(m_type) {
 					case NODE_COMMAND:
-						// TODO
-						break;
-					case NODE_PRAGMA:
-						// TODO
+						result << "(" << ADDRESS_MODE_STRING(m_subtype) << ")";
 						break;
 					default:
 						break;
@@ -218,10 +215,7 @@ namespace nescc {
 
 					switch(m_type) {
 						case NODE_COMMAND:
-							// TODO
-							break;
-						case NODE_PRAGMA:
-							// TODO
+							result << "(" << ADDRESS_MODE_STRING(m_subtype) << ")";
 							break;
 						default:
 							break;
