@@ -292,6 +292,8 @@ namespace nescc {
 			SYMBOL_BINARY_AND,
 			SYMBOL_BINARY_OR,
 			SYMBOL_BINARY_XOR,
+			SYMBOL_BRACE_CLOSE,
+			SYMBOL_BRACE_OPEN,
 			SYMBOL_IMMEDIATE,
 			SYMBOL_LOGICAL_SHIFT_LEFT,
 			SYMBOL_LOGICAL_SHIFT_RIGHT,
@@ -313,9 +315,9 @@ namespace nescc {
 		#define SYMBOL_MAX SYMBOL_UNARY_NOT
 
 		static const std::string SYMBOL_STR[] = {
-			"+", "/", "%", "*", "-", "&", "|", "^", "@", "<<", ">>",
-			"&&", "==", ">", ">=", "<", "<=", "!=", "||", ")", "(",
-			",", "~", "!",
+			"+", "/", "%", "*", "-", "&", "|", "^", "]", "[", "@",
+			"<<", ">>", "&&", "==", ">", ">=", "<", "<=", "!=", "||",
+			")", "(", ",", "~", "!",
 			};
 
 		#define SYMBOL_STRING(_TYPE_) \
@@ -331,6 +333,8 @@ namespace nescc {
 			std::make_pair(SYMBOL_STR[SYMBOL_BINARY_AND], SYMBOL_BINARY_AND), // SYMBOL_BINARY_AND
 			std::make_pair(SYMBOL_STR[SYMBOL_BINARY_OR], SYMBOL_BINARY_OR), // SYMBOL_BINARY_OR
 			std::make_pair(SYMBOL_STR[SYMBOL_BINARY_XOR], SYMBOL_BINARY_XOR), // SYMBOL_BINARY_XOR
+			std::make_pair(SYMBOL_STR[SYMBOL_BRACE_CLOSE], SYMBOL_BRACE_CLOSE), // SYMBOL_BRACE_CLOSE
+			std::make_pair(SYMBOL_STR[SYMBOL_BRACE_OPEN], SYMBOL_BRACE_OPEN), // SYMBOL_BRACE_OPEN
 			std::make_pair(SYMBOL_STR[SYMBOL_IMMEDIATE], SYMBOL_IMMEDIATE), // SYMBOL_IMMEDIATE
 			std::make_pair(SYMBOL_STR[SYMBOL_LOGICAL_SHIFT_LEFT], SYMBOL_LOGICAL_SHIFT_LEFT), // SYMBOL_LOGICAL_SHIFT_LEFT
 			std::make_pair(SYMBOL_STR[SYMBOL_LOGICAL_SHIFT_RIGHT], SYMBOL_LOGICAL_SHIFT_RIGHT), // SYMBOL_LOGICAL_SHIFT_RIGHT

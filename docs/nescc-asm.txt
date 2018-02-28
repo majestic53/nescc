@@ -32,11 +32,11 @@ command_mode_accumulator ::= a
 
 command_mode_immediate ::= @ <expression<2>>
 
-command_mode_indirect ::= ( <expression<2>> )
+command_mode_indirect ::= [ <expression<2>> ]
 
-command_mode_indirect_x ::= ( <expression<2>>, x)
+command_mode_indirect_x ::= [ <expression<2>>, x]
 
-command_mode_indirect_y ::= ( <expression<2>> ) , y
+command_mode_indirect_y ::= [ <expression<2>> ] , y
 
 command_mode_relative ::= <expression<1>>
 

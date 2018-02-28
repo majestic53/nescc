@@ -296,9 +296,9 @@ Changelog
 
 Version 0.1.1809
 ----------------
-*Updated: 2/26/2018*
+*Updated: 2/26-27/2018*
 
-* Added assembler parser command address mode routines (incomplete)
+* Added assembler parser command address mode routines <s>(incomplete)</s>
 
 Version 0.1.1808
 ----------------

@@ -129,6 +129,10 @@ namespace nescc {
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);
 
+				int enumerate_node_command_address_mode_absolute(
+					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
+					);
+
 				int enumerate_node_command_address_mode_accumulator(
 					__in_opt nescc::core::uuid_t parent = UNIQUE_ID_INVALID
 					);

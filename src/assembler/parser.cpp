@@ -332,27 +332,97 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			tok = nescc::assembler::lexer::token();
-			if(tok.type() == nescc::core::TOKEN_REGISTER) { // a
-				result = enumerate_node_command_address_mode_accumulator(parent);
-			} else if(tok.type() == nescc::core::TOKEN_SYMBOL) {
+			switch(tok.type()) {
+				case nescc::core::TOKEN_REGISTER: // a
+					result = enumerate_node_command_address_mode_accumulator(parent);
+					break;
+				case nescc::core::TOKEN_IDENTIFIER:
+				case nescc::core::TOKEN_SCALAR:
+					result = enumerate_node_command_address_mode_absolute(parent);
+					break;
+				case nescc::core::TOKEN_PRAGMA:
+
+					switch(tok.subtype()) {
+						case nescc::core::PRAGMA_DATA_PART_HIGH: // .high
+						case nescc::core::PRAGMA_DATA_PART_LOW: // .low
+							result = enumerate_node_command_address_mode_absolute(parent);
+							break;
+						default:
+							break;
+					}
+					break;
+				case nescc::core::TOKEN_SYMBOL:
+
+					switch(tok.subtype()) {
+						case nescc::core::SYMBOL_IMMEDIATE: // @
+							result = enumerate_node_command_address_mode_immediate(parent);
+							break;
+						case nescc::core::SYMBOL_BRACE_OPEN: // [
+							result = enumerate_node_command_address_mode_indirect(parent);
+							break;
+						case nescc::core::SYMBOL_PARENTHESIS_OPEN: // (
+						case nescc::core::SYMBOL_UNARY_NEGATE: // ~
+						case nescc::core::SYMBOL_UNARY_NOT: // !
+							result = enumerate_node_command_address_mode_absolute(parent);
+							break;
+						default:
+							break;
+					}
+					break;
+				default:
+					break;
+			}
+
+			TRACE_EXIT_FORMAT("Result=%u(%s)", result, ADDRESS_MODE_STRING(result));
+			return result;
+		}
+
+		int
+		parser::enumerate_node_command_address_mode_absolute(
+			__in_opt nescc::core::uuid_t parent
+			)
+		{
+			nescc::core::token tok;
+			int result = nescc::core::ADDRESS_MODE_ABSOLUTE;
+
+			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
+
+			enumerate_node_expression(parent);
+
+			tok = nescc::assembler::lexer::token();
+			if((tok.type() == nescc::core::TOKEN_SYMBOL) && (tok.subtype() == nescc::core::SYMBOL_SEPERATOR)) { // ,
+
+				if(!nescc::assembler::lexer::has_next()) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+						NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_COMMAND,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
+
+				nescc::assembler::lexer::move_next();
+
+				tok = nescc::assembler::lexer::token();
+				if(tok.type() != nescc::core::TOKEN_REGISTER) {
+					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+						NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_REGISTER_INDEX,
+						"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+				}
 
 				switch(tok.subtype()) {
-					case nescc::core::SYMBOL_IMMEDIATE: // @
-						result = enumerate_node_command_address_mode_immediate(parent);
+					case nescc::core::REGISTER_INDEX_X: // x
+						result = nescc::core::ADDRESS_MODE_ABSOLUTE_X;
 						break;
-					case nescc::core::SYMBOL_PARENTHESIS_OPEN: // (
-						result = enumerate_node_command_address_mode_indirect(parent);
+					case nescc::core::REGISTER_INDEX_Y: // y
+						result = nescc::core::ADDRESS_MODE_ABSOLUTE_Y;
 						break;
 					default:
 						THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
-							NESCC_ASSEMBLER_PARSER_EXCEPTION_UNSUPPORTED_SYMBOL,
+							NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_REGISTER_INDEX,
 							"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 				}
-			} else {
-				// TODO: handle additional command cases:
-					// <expression>
-					// <expression> , x/y
-					// implied
+
+				if(nescc::assembler::lexer::has_next()) {
+					nescc::assembler::lexer::move_next();
+				}
 			}
 
 			TRACE_EXIT_FORMAT("Result=%u(%s)", result, ADDRESS_MODE_STRING(result));
@@ -437,10 +507,37 @@ namespace nescc {
 			}
 
 			switch(tok.subtype()) {
-				case nescc::core::SYMBOL_PARENTHESIS_CLOSE: // )
+				case nescc::core::SYMBOL_BRACE_CLOSE: // ]
 
 					if(nescc::assembler::lexer::has_next()) {
 						nescc::assembler::lexer::move_next();
+
+						tok = nescc::assembler::lexer::token();
+						if((tok.type() == nescc::core::TOKEN_SYMBOL)
+								|| (tok.subtype() == nescc::core::SYMBOL_SEPERATOR)) { // ,
+							nescc::assembler::lexer::move_next();
+
+							tok = nescc::assembler::lexer::token();
+							if(tok.type() != nescc::core::TOKEN_REGISTER) {
+								THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+									NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_REGISTER_INDEX,
+									"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+							}
+
+							switch(tok.subtype()) {
+								case nescc::core::REGISTER_INDEX_Y: // y
+									result = nescc::core::ADDRESS_MODE_INDIRECT_Y;
+									break;
+								default:
+									THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+										NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_REGISTER_INDEX,
+										"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+							}
+
+							if(nescc::assembler::lexer::has_next()) {
+								nescc::assembler::lexer::move_next();
+							}
+						}
 					}
 					break;
 				case nescc::core::SYMBOL_SEPERATOR: // ,
@@ -464,9 +561,6 @@ namespace nescc {
 						case nescc::core::REGISTER_INDEX_X: // x
 							result = nescc::core::ADDRESS_MODE_INDIRECT_X;
 							break;
-						case nescc::core::REGISTER_INDEX_Y: // y
-							result = nescc::core::ADDRESS_MODE_INDIRECT_Y;
-							break;
 						default:
 							THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
 								NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_REGISTER_INDEX,
@@ -481,9 +575,9 @@ namespace nescc {
 
 					nescc::assembler::lexer::move_next();
 
-					tok = nescc::assembler::lexer::token(); // )
+					tok = nescc::assembler::lexer::token(); // ]
 					if((tok.type() != nescc::core::TOKEN_SYMBOL)
-							|| (tok.subtype() != nescc::core::SYMBOL_PARENTHESIS_CLOSE)) {
+							|| (tok.subtype() != nescc::core::SYMBOL_BRACE_CLOSE)) {
 						THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
 							NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_COMMAND,
 							"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
