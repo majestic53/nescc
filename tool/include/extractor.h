@@ -45,7 +45,7 @@ namespace nescc {
 					__in const std::vector<std::string> &arguments
 					);
 
-				void load(
+				void run(
 					__in const std::string &path,
 					__in_opt bool decode_chr = false,
 					__in_opt bool extract_chr = false,
@@ -92,13 +92,6 @@ namespace nescc {
 					) const;
 
 				void extract_header(void);
-
-				bool extract_path(
-					__in const std::string &path,
-					__inout std::string &directory,
-					__inout std::string &file,
-					__inout std::string &extension
-					);
 
 				std::string extract_rom_character(
 					__in_opt bool decode = false

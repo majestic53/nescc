@@ -21,6 +21,8 @@
 
 #include "../../include/trace.h"
 #include "../../include/unique.h"
+#include "../../include/assembler/parser.h"
+#include "../../include/emulator/cartridge.h"
 
 namespace nescc {
 
@@ -33,18 +35,14 @@ namespace nescc {
 
 				~assembler(void);
 
-				std::string as_string(
-					__in_opt bool verbose = false
-					) const;
-
 				void clear(void);
 
 				void invoke(
 					__in const std::vector<std::string> &arguments
 					);
 
-				void load(
-					__in const std::string &input,
+				void run(
+					__in const std::string &path,
 					__in_opt bool listing = true,
 					__in_opt bool verbose = false
 					);
@@ -77,11 +75,55 @@ namespace nescc {
 					__in_opt bool verbose = false
 					) const;
 
+				void evaluate_statement(
+					__in nescc::assembler::parser &instance,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_command(
+					__in nescc::assembler::parser &instance,
+					__in_opt bool verbose = false
+					);
+
+				int evaluate_statement_expression(
+					__in nescc::assembler::parser &instance,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_label(
+					__in nescc::assembler::parser &instance,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_pragma(
+					__in nescc::assembler::parser &instance,
+					__in_opt bool verbose = false
+					);
+
+				void form_output_file(
+					__in_opt bool listing = true,
+					__in_opt bool verbose = false
+					);
+
 				bool on_initialize(void);
 
 				void on_uninitialize(void);
 
+				void reset(void);
+
+				std::map<uint16_t, std::vector<uint8_t>> m_bank_map;
+
+				std::map<std::string, nescc::core::uuid_t> m_identifier_map;
+
+				nescc::emulator::cartridge_header m_header;
+
+				std::stringstream m_listing;
+
+				uint16_t m_origin;
+
 				std::string m_path;
+
+				uint16_t m_position;
 
 				nescc::trace &m_trace;
 

@@ -366,45 +366,6 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		bool
-		extractor::extract_path(
-			__in const std::string &path,
-			__inout std::string &directory,
-			__inout std::string &file,
-			__inout std::string &extension
-			)
-		{
-			size_t position;
-			bool result = false;
-			std::string input_path = path;
-
-			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING_CHECK(path));
-
-			directory.clear();
-			file.clear();
-			extension.clear();
-
-			if(!input_path.empty()) {
-
-				position = input_path.find_last_of(EXTRACT_DIRECTORY_DELIMITER);
-				if(position != input_path.npos) {
-					directory = input_path.substr(0, position);
-					input_path = input_path.substr(position + 1, input_path.size());
-
-					position = input_path.find_last_of(EXTRACT_EXTENSION_DELIMITER);
-					if(position != input_path.npos) {
-						file = input_path.substr(0, position);
-						extension = input_path.substr(position + 1, input_path.size());
-						result = true;
-					}
-				}
-			}
-
-			TRACE_EXIT_FORMAT("Result=%x, Directory[%u]=%s, File[%u]=%s, Extension[%u]=%s", result, directory.size(),
-				STRING_CHECK(directory), file.size(), STRING_CHECK(file), extension.size(), STRING_CHECK(extension));
-			return result;
-		}
-
 		std::string
 		extractor::extract_rom_character(
 			__in_opt bool decode
@@ -453,9 +414,9 @@ namespace nescc {
 				uint16_t count = 0;
 				std::vector<nescc::core::memory<uint8_t>>::iterator iter;
 
-				if(!extract_path(m_path, directory, file, extension)) {
-					directory = EXTRACT_DIRECTORY_DEFAULT;
-					file = EXTRACT_FILE_DEFAULT;
+				if(!nescc::decompose_path(m_path, directory, file, extension)) {
+					directory = PATH_DIRECTORY_DEFAULT;
+					file = PATH_FILE_DEFAULT;
 				}
 
 				for(iter = bank.begin(); iter != bank.end(); ++count, ++iter) {
@@ -541,9 +502,9 @@ namespace nescc {
 				uint16_t count = 0;
 				std::vector<nescc::core::memory<uint8_t>>::iterator iter;
 
-				if(!extract_path(m_path, directory, file, extension)) {
-					directory = EXTRACT_DIRECTORY_DEFAULT;
-					file = EXTRACT_FILE_DEFAULT;
+				if(!nescc::decompose_path(m_path, directory, file, extension)) {
+					directory = PATH_DIRECTORY_DEFAULT;
+					file = PATH_FILE_DEFAULT;
 				}
 
 				for(iter = bank.begin(); iter != bank.end(); ++count, ++iter) {
@@ -678,7 +639,7 @@ namespace nescc {
 				THROW_NESCC_TOOL_EXTRACTOR_EXCEPTION_FORMAT(NESCC_TOOL_EXTRACTOR_EXCEPTION_PATH_UNASSIGNED, "%s",
 					STRING_CHECK(display_usage()));
 			} else {
-				load(m_path, decode, extract_chr, extract_prg, verbose);
+				run(m_path, decode, extract_chr, extract_prg, verbose);
 
 				if(!extract_chr && !extract_prg) {
 					std::stringstream stream;
@@ -694,7 +655,7 @@ namespace nescc {
 		}
 
 		void
-		extractor::load(
+		extractor::run(
 			__in const std::string &path,
 			__in_opt bool decode,
 			__in_opt bool extract_chr,

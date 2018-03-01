@@ -48,21 +48,37 @@ namespace nescc {
 	#define BACKGROUND_RED 0
 
 	#define CHARACTER_ALERT '\a'
+	#define CHARACTER_ALERT_FORMAT "a"
 	#define CHARACTER_BACKSPACE '\b'
+	#define CHARACTER_BACKSPACE_FORMAT "b"
 	#define CHARACTER_CARRIAGE_RETURN '\r'
+	#define CHARACTER_CARRIAGE_RETURN_FORMAT "r"
 	#define CHARACTER_ESCAPE '\\'
+	#define CHARACTER_ESCAPE_FORMAT "\\"
 	#define CHARACTER_FORMFEED '\f'
+	#define CHARACTER_FORMFEED_FORMAT "f"
+	#define CHARACTER_HEXIDECIMAL_FORMAT "x"
 	#define CHARACTER_HORIZONTAL_SPACE ' '
+	#define CHARACTER_HORIZONTAL_SPACE_FORMAT " "
 	#define CHARACTER_HORIZONTAL_TAB '\t'
+	#define CHARACTER_HORIZONTAL_TAB_FORMAT "t"
 	#define CHARACTER_NEWLINE '\n'
+	#define CHARACTER_NEWLINE_FORMAT "n"
 	#define CHARACTER_TERMINATOR '\0'
+	#define CHARACTER_TERMINATOR_FORMAT "0"
 	#define CHARACTER_UNDERSCORE '_'
+	#define CHARACTER_UNDERSCORE_FORMAT "_"
 	#define CHARACTER_VERTICAL_TAB '\v'
+	#define CHARACTER_VERTICAL_TAB_FORMAT "v"
 
 	#define CLOCK_RATE 1789773 // 1.79 MHz
 
 	#define COLUMN_WIDTH 16
 	#define COLUMN_WIDTH_LONG 32
+
+	#define DIRECTORY_DELIMITER "/"
+
+	#define EXTENSION_DELIMITER "."
 
 	#define KILOBYTE 1024.f
 
@@ -73,8 +89,13 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 2
+	#define NESCC_VERSION_REVISION 3
 	#define NESCC_VERSION_WEEK 1809
+
+	#define PATH_DIRECTORY_DEFAULT "./"
+	#define PATH_DIRECTORY_DELIMITER "/\\"
+	#define PATH_EXTENSION_DELIMITER "."
+	#define PATH_FILE_DEFAULT "rom"
 
 	#define STRING_EMPTY "Empty"
 	#define STRING_INVALID "Invalid"
@@ -89,6 +110,13 @@ namespace nescc {
 
 	#define STRING_CHECK(_STR_) \
 		(_STR_.empty() ? STRING_EMPTY : _STR_.c_str())
+
+	bool decompose_path(
+		__in const std::string &path,
+		__inout std::string &directory,
+		__inout std::string &file,
+		__inout std::string &extension
+		);
 
 	std::string format_character(
 		__in char value

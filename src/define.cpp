@@ -20,6 +20,41 @@
 
 namespace nescc {
 
+	bool
+	decompose_path(
+		__in const std::string &path,
+		__inout std::string &directory,
+		__inout std::string &file,
+		__inout std::string &extension
+		)
+	{
+		size_t position;
+		bool result = false;
+		std::string input_path = path;
+
+		directory.clear();
+		file.clear();
+		extension.clear();
+
+		if(!input_path.empty()) {
+
+			position = input_path.find_last_of(PATH_DIRECTORY_DELIMITER);
+			if(position != input_path.npos) {
+				directory = input_path.substr(0, position);
+				input_path = input_path.substr(position + 1, input_path.size());
+
+				position = input_path.find_last_of(PATH_EXTENSION_DELIMITER);
+				if(position != input_path.npos) {
+					file = input_path.substr(0, position);
+					extension = input_path.substr(position + 1, input_path.size());
+					result = true;
+				}
+			}
+		}
+
+		return result;
+	}
+
 	std::string
 	format_character(
 		__in char value
@@ -32,31 +67,31 @@ namespace nescc {
 
 			switch(value) {
 				case CHARACTER_ALERT:
-					result << "a";
+					result << CHARACTER_ALERT_FORMAT;
 					break;
 				case CHARACTER_BACKSPACE:
-					result << "b";
+					result << CHARACTER_BACKSPACE_FORMAT;
 					break;
 				case CHARACTER_CARRIAGE_RETURN:
-					result << "r";
+					result << CHARACTER_CARRIAGE_RETURN_FORMAT;
 					break;
 				case CHARACTER_FORMFEED:
-					result << "f";
+					result << CHARACTER_FORMFEED_FORMAT;
 					break;
 				case CHARACTER_HORIZONTAL_TAB:
-					result << "t";
+					result << CHARACTER_HORIZONTAL_TAB_FORMAT;
 					break;
 				case CHARACTER_NEWLINE:
-					result << "n";
+					result << CHARACTER_NEWLINE_FORMAT;
 					break;
 				case CHARACTER_TERMINATOR:
-					result << "0";
+					result << CHARACTER_TERMINATOR_FORMAT;
 					break;
 				case CHARACTER_VERTICAL_TAB:
-					result << "v";
+					result << CHARACTER_VERTICAL_TAB_FORMAT;
 					break;
 				default:
-					result << "x" << SCALAR_AS_HEX(uint8_t, value);
+					result << CHARACTER_HEXIDECIMAL_FORMAT << SCALAR_AS_HEX(uint8_t, value);
 					break;
 			}
 		} else {

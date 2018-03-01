@@ -16,18 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
+#include <fstream>
 #include "../include/assembler.h"
 #include "./assembler_type.h"
-
-// TODO
-#include "../../include/assembler/parser.h"
-// ---
 
 namespace nescc {
 
 	namespace tool {
 
 		assembler::assembler(void) :
+			m_header({}),
+			m_origin(0),
+			m_position(0),
 			m_trace(nescc::trace::acquire()),
 			m_unique(nescc::unique::acquire())
 		{
@@ -46,21 +47,6 @@ namespace nescc {
 			m_trace.release();
 		}
 
-		std::string
-		assembler::as_string(
-			__in_opt bool verbose
-			) const
-		{
-			std::stringstream result;
-
-			TRACE_ENTRY_FORMAT("Verbose=%x", verbose);
-
-			// TODO
-
-			TRACE_EXIT();
-			return result.str();
-		}
-
 		void
 		assembler::clear(void)
 		{
@@ -74,7 +60,14 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler clearing...");
 
+			m_bank_map.clear();
+			std::memset(&m_header, 0, sizeof(m_header));
+			m_identifier_map.clear();
+			m_listing.clear();
+			m_listing.str(std::string());
+			m_origin = 0;
 			m_path.clear();
+			m_position = 0;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler cleared.");
 
@@ -156,6 +149,152 @@ namespace nescc {
 		}
 
 		void
+		assembler::evaluate_statement(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+			std::cout << instance.as_string(true) << std::endl;
+			instance.move_next();
+			// ---
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		int
+		assembler::evaluate_statement_expression(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			int result;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+			result = 0;
+			// ---
+
+			TRACE_EXIT_FORMAT("Result=%i", result);
+			return result;
+		}
+
+		void
+		assembler::evaluate_statement_label(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_pragma(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::form_output_file(
+			__in_opt bool listing,
+			__in_opt bool verbose
+			)
+		{
+			size_t size;
+			std::ofstream output;
+			std::stringstream path;
+			std::string directory, file, extension;
+
+			TRACE_ENTRY_FORMAT("Listing=%x, Verbose=%x", listing, verbose);
+
+			if(verbose) {
+				// TODO
+			}
+
+			// TODO
+			size = 0;
+			// ---
+
+			if(!nescc::decompose_path(m_path, directory, file, extension)) {
+				directory = PATH_DIRECTORY_DEFAULT;
+				file = PATH_FILE_DEFAULT;
+			}
+
+			path << directory << DIRECTORY_DELIMITER << file << EXTENSION_DELIMITER << ASSEMBLE_BINARY_EXTENSION;
+			std::cout << "Writing binary file" << ", " << FLOAT_PRECISION(1, size / KILOBYTE)
+				<< " KB (" << size << " bytes) to " << path.str() << "...";
+
+			output = std::ofstream(path.str().c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+			if(!output) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_FILE_NOT_CREATED,
+					"Path[%u]=%s", path.str().size(), STRING_CHECK(path.str()));
+			}
+
+			if(size) {
+				// TODO: write to file
+			}
+
+			output.close();
+			std::cout << " Done." << std::endl;
+
+			if(listing) {
+
+				if(verbose) {
+					// TODO
+				}
+
+				path.clear();
+				path.str(std::string());
+				path << directory << DIRECTORY_DELIMITER << file << EXTENSION_DELIMITER << ASSEMBLE_LIST_EXTENSION;
+				size = m_listing.str().size();
+				std::cout << "Writing listing file" << ", " << FLOAT_PRECISION(1, size / KILOBYTE)
+					<< " KB (" << size << " bytes) to " << path.str() << "...";
+
+				output = std::ofstream(path.str().c_str(), std::ios::out | std::ios::trunc);
+				if(!output) {
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_FILE_NOT_CREATED,
+						"Path[%u]=%s", path.str().size(), STRING_CHECK(path.str()));
+				}
+
+				if(size) {
+					output.write((char *) m_listing.str().c_str(), size);
+				}
+
+				output.close();
+				std::cout << " Done." << std::endl;
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
 		assembler::invoke(
 			__in const std::vector<std::string> &arguments
 			)
@@ -230,27 +369,42 @@ namespace nescc {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_PATH_UNASSIGNED, "%s",
 					STRING_CHECK(display_usage()));
 			} else {
-				std::stringstream stream;
-
-				load(m_path, listing, verbose);
-
-				stream << as_string(verbose);
-				if(!stream.str().empty()) {
-					std::cout << stream.str() << std::endl;
-				}
+				run(m_path, listing, verbose);
 			}
 
 			TRACE_EXIT();
 		}
 
 		void
-		assembler::load(
-			__in const std::string &input,
+		assembler::reset(void)
+		{
+			TRACE_ENTRY();
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler resetting...");
+
+			m_bank_map.clear();
+			std::memset(&m_header, 0, sizeof(m_header));
+			m_identifier_map.clear();
+			m_listing.clear();
+			m_listing.str(std::string());
+			m_origin = 0;
+			m_position = 0;
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler reset.");
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::run(
+			__in const std::string &path,
 			__in_opt bool listing,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Input[%u]=%s, Listing=%x, Verbose=%x", input.size(), STRING_CHECK(input), listing, verbose);
+			nescc::assembler::parser instance;
+
+			TRACE_ENTRY_FORMAT("Path[%u]=%s, Listing=%x, Verbose=%x", path.size(), STRING_CHECK(path), listing, verbose);
 
 #ifndef NDEBUG
 			if(!m_initialized) {
@@ -258,23 +412,15 @@ namespace nescc {
 			}
 #endif // NDEBUG
 
-			// TODO
+			std::cout << "Assembling " << path << std::endl;
+			reset();
+			instance.set(path, true);
 
-// TODO
-nescc::assembler::parser par(input, true);
+			while(instance.has_next()) {
+				evaluate_statement(instance, verbose);
+			}
 
-while(par.has_next()) {
-	std::cout << par.as_string(true) << std::endl;
-	par.move_next();
-}
-
-std::cout << par.as_string(true) << std::endl;
-
-/*while(par.has_previous()) {
-	par.move_previous();
-	std::cout << par.as_string(true) << std::endl;
-}*/
-// ---
+			form_output_file(listing, verbose);
 
 			TRACE_EXIT();
 		}
