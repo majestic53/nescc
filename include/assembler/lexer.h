@@ -28,7 +28,7 @@ namespace nescc {
 	namespace assembler {
 
 		class lexer :
-				protected nescc::assembler::stream {
+				public nescc::assembler::stream {
 
 			public:
 

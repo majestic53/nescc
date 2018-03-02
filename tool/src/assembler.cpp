@@ -60,14 +60,8 @@ namespace nescc {
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler clearing...");
 
-			m_bank_map.clear();
-			std::memset(&m_header, 0, sizeof(m_header));
-			m_identifier_map.clear();
-			m_listing.clear();
-			m_listing.str(std::string());
-			m_origin = 0;
+			reset();
 			m_path.clear();
-			m_position = 0;
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler cleared.");
 
@@ -156,16 +150,144 @@ namespace nescc {
 		{
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
 
-			// TODO
-			std::cout << instance.as_string(true) << std::endl;
-			instance.move_next();
-			// ---
+			switch(instance.node().type()) {
+				case nescc::core::NODE_COMMAND:
+					evaluate_statement_command(instance, verbose);
+					break;
+				case nescc::core::NODE_LABEL:
+					evaluate_statement_label(instance, verbose);
+					break;
+				case nescc::core::NODE_PRAGMA:
+					evaluate_statement_pragma(instance, verbose);
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(instance.has_next()) {
+				instance.move_next();
+			}
 
 			TRACE_EXIT();
 		}
 
 		void
 		assembler::evaluate_statement_command(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::node entry;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			entry = instance.node();
+			if(entry.type() != nescc::core::NODE_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			switch(entry.subtype()) {
+				case nescc::core::ADDRESS_MODE_ABSOLUTE:
+				case nescc::core::ADDRESS_MODE_ABSOLUTE_X:
+				case nescc::core::ADDRESS_MODE_ABSOLUTE_Y:
+					evaluate_statement_command_absolute(instance, verbose);
+					break;
+				case nescc::core::ADDRESS_MODE_ACCUMULATOR:
+					evaluate_statement_command_accumulator(instance, verbose);
+					break;
+				case nescc::core::ADDRESS_MODE_IMMEDIATE:
+					evaluate_statement_command_immediate(instance, verbose);
+					break;
+				case nescc::core::ADDRESS_MODE_IMPLIED:
+					evaluate_statement_command_implied(instance, verbose);
+					break;
+				case nescc::core::ADDRESS_MODE_INDIRECT:
+				case nescc::core::ADDRESS_MODE_INDIRECT_X:
+				case nescc::core::ADDRESS_MODE_INDIRECT_Y:
+					evaluate_statement_command_indirect(instance, verbose);
+					break;
+				case nescc::core::ADDRESS_MODE_ZERO_PAGE:
+				case nescc::core::ADDRESS_MODE_ZERO_PAGE_X:
+				case nescc::core::ADDRESS_MODE_ZERO_PAGE_Y:
+					evaluate_statement_command_zero_page(instance, verbose);
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_COMMAND,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_absolute(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_accumulator(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_immediate(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_implied(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_indirect(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_zero_page(
 			__in nescc::assembler::parser &instance,
 			__in_opt bool verbose
 			)
@@ -201,7 +323,15 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::node entry;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			entry = instance.node();
+			if(entry.type() != nescc::core::NODE_LABEL) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_LABEL,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			// TODO
 
@@ -210,6 +340,94 @@ namespace nescc {
 
 		void
 		assembler::evaluate_statement_pragma(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::node entry;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			entry = instance.node();
+			if(entry.type() != nescc::core::NODE_PRAGMA) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_PRAGMA,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			switch(instance.token(entry.token()).subtype()) {
+				case nescc::core::PRAGMA_COMMAND_DEFINE:
+				case nescc::core::PRAGMA_COMMAND_INCLUDE:
+				case nescc::core::PRAGMA_COMMAND_ORIGIN:
+				case nescc::core::PRAGMA_COMMAND_PAGE_CHARACTER:
+				case nescc::core::PRAGMA_COMMAND_PAGE_PROGRAM:
+				case nescc::core::PAAGMA_COMMAND_PAGE_SIZE:
+				case nescc::core::PRAGMA_COMMAND_UNDEFINE:
+					evaluate_statement_pragma_define(instance, verbose);
+					break;
+				case nescc::core::PRAGMA_CONDITION_IF:
+				case nescc::core::PRAGMA_CONDITION_IF_DEFINE:
+					evaluate_statement_pragma_condition(instance, verbose);
+					break;
+				case nescc::core::PRAGMA_DATA_BYTE:
+				case nescc::core::PRAGMA_DATA_RESERVE:
+				case nescc::core::PRAGMA_DATA_WORD:
+					evaluate_statement_pragma_data(instance, verbose);
+					break;
+				case nescc::core::PRAGMA_INES_MAPPER:
+				case nescc::core::PRAGMA_INES_MIRRORING:
+				case nescc::core::PRAGMA_INES_ROM_CHARACTER:
+				case nescc::core::PRAGMA_INES_ROM_PROGRAM:
+					evaluate_statement_pragma_ines(instance, verbose);
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_pragma_condition(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_pragma_data(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_pragma_define(
+			__in nescc::assembler::parser &instance,
+			__in_opt bool verbose
+			)
+		{
+			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_pragma_ines(
 			__in nescc::assembler::parser &instance,
 			__in_opt bool verbose
 			)
@@ -223,6 +441,7 @@ namespace nescc {
 
 		void
 		assembler::form_output_file(
+			__in nescc::assembler::parser &instance,
 			__in_opt bool listing,
 			__in_opt bool verbose
 			)
@@ -230,17 +449,34 @@ namespace nescc {
 			size_t size;
 			std::ofstream output;
 			std::stringstream path;
+			std::vector<uint8_t> binary;
 			std::string directory, file, extension;
 
-			TRACE_ENTRY_FORMAT("Listing=%x, Verbose=%x", listing, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Listing=%x, Verbose=%x", &instance, listing, verbose);
 
 			if(verbose) {
+				uint8_t mapper = ((m_header.mapper_high << NIBBLE) | m_header.mapper_low);
+
+				std::cout << std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << "|- Mapper: "
+						<< (int)mapper << " (" << CARTRIDGE_MAPPER_STRING(mapper) << ")"
+					<< std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << "|- Mirroring: "
+						<< (int)m_header.mirroring << " (" << CARTRIDGE_MIRRORING_STRING(m_header.mirroring) << ")"
+					<< std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << "|- ROM CHR: "
+						<< (int)m_header.rom_character << " ("
+						<< FLOAT_PRECISION(1, (m_header.rom_character * CARTRIDGE_ROM_CHARACTER_LENGTH) / KILOBYTE) << " KB)"
+					<< std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << "|- ROM PRG: "
+						<< (int)m_header.rom_program << " ("
+						<< FLOAT_PRECISION(1, (m_header.rom_program * CARTRIDGE_ROM_PROGRAM_LENGTH) / KILOBYTE) << " KB)"
+					<< std::endl << std::endl;
+
 				// TODO
 			}
 
+			binary.insert(binary.begin(), (char *) &m_header, ((char *) &m_header) + sizeof(m_header));
+
 			// TODO
-			size = 0;
-			// ---
+
+			size = binary.size();
 
 			if(!nescc::decompose_path(m_path, directory, file, extension)) {
 				directory = PATH_DIRECTORY_DEFAULT;
@@ -258,7 +494,7 @@ namespace nescc {
 			}
 
 			if(size) {
-				// TODO: write to file
+				output.write((char *) &binary[0], size);
 			}
 
 			output.close();
@@ -385,6 +621,7 @@ namespace nescc {
 			m_bank_map.clear();
 			std::memset(&m_header, 0, sizeof(m_header));
 			m_identifier_map.clear();
+			m_label_set.clear();
 			m_listing.clear();
 			m_listing.str(std::string());
 			m_origin = 0;
@@ -416,11 +653,15 @@ namespace nescc {
 			reset();
 			instance.set(path, true);
 
+			if(instance.node().type() == nescc::core::NODE_BEGIN) {
+				instance.move_next();
+			}
+
 			while(instance.has_next()) {
 				evaluate_statement(instance, verbose);
 			}
 
-			form_output_file(listing, verbose);
+			form_output_file(instance, listing, verbose);
 
 			TRACE_EXIT();
 		}

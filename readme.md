@@ -296,7 +296,7 @@ Changelog
 
 Version 0.1.1809
 ----------------
-*Updated: 2/28/2018*
+*Updated: 2/28 - 3/1/2018*
 
 * Added assembler evaluation routines
 

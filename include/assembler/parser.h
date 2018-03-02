@@ -28,7 +28,7 @@ namespace nescc {
 	namespace assembler {
 
 		class parser :
-				protected nescc::assembler::lexer {
+				public nescc::assembler::lexer {
 
 			public:
 
