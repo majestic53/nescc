@@ -1075,8 +1075,8 @@ namespace nescc {
 							enumerate_node_expression(parent);
 						}
 					} break;
-				case nescc::core::PRAGMA_COMMAND_INCLUDE: { // .inc <literal>
-						nescc::core::node entry;
+				case nescc::core::PRAGMA_COMMAND_INCLUDE: { // .inc <literal> { <block> }
+						nescc::core::node entry_block, entry_literal;
 
 						tok = nescc::assembler::lexer::token();
 						if(tok.type() != nescc::core::TOKEN_LITERAL) {
@@ -1085,9 +1085,50 @@ namespace nescc {
 								"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
 						}
 
-						entry.set(nescc::core::NODE_LEAF);
-						entry.token() = tok.id();
-						add_node_child(parent, entry);
+						entry_literal.set(nescc::core::NODE_LEAF);
+						entry_literal.token() = tok.id();
+						add_node_child(parent, entry_literal);
+
+						if(!nescc::assembler::lexer::has_next()) {
+							THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+								NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_INCLUDE,
+								"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+						}
+
+						nescc::assembler::lexer::move_next();
+
+						tok = nescc::assembler::lexer::token();
+						if((tok.type() != nescc::core::TOKEN_SYMBOL)
+								|| (tok.subtype() != nescc::core::SYMBOL_BLOCK_OPEN)) { // {
+							THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+								NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_BLOCK,
+								"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+						}
+
+						if(!nescc::assembler::lexer::has_next()) {
+							THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+								NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_BLOCK,
+								"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+						}
+
+						nescc::assembler::lexer::move_next();
+						entry_block.set(nescc::core::NODE_BLOCK);
+						add_node_child(parent, entry_block);
+
+						tok = nescc::assembler::lexer::token();
+						while((tok.type() != nescc::core::TOKEN_SYMBOL)
+								|| (tok.subtype() != nescc::core::SYMBOL_BLOCK_CLOSE)) { // <block>
+							enumerate_node(entry_block.id());
+							tok = nescc::assembler::lexer::token();
+						}
+
+						tok = nescc::assembler::lexer::token();
+						if((tok.type() != nescc::core::TOKEN_SYMBOL)
+								|| (tok.subtype() != nescc::core::SYMBOL_BLOCK_CLOSE)) { // }
+							THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
+								NESCC_ASSEMBLER_PARSER_EXCEPTION_UNTERMINATED_BLOCK,
+								"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
+						}
 
 						if(nescc::assembler::lexer::has_next()) {
 							nescc::assembler::lexer::move_next();
@@ -1219,27 +1260,11 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Parent=%u(%x)", parent, parent);
 
 			switch(nescc::assembler::lexer::token(nescc::assembler::parser::node(parent).token()).subtype()) {
-				case nescc::core::PRAGMA_INES_MAPPER: // .inesmap <scalar>
-				case nescc::core::PRAGMA_INES_MIRRORING: // .inesmir <scalar>
-				case nescc::core::PRAGMA_INES_ROM_CHARACTER: // .ineschr <scalar>
-				case nescc::core::PRAGMA_INES_ROM_PROGRAM: { // .inesprg <scalar>
-						nescc::core::token tok;
-						nescc::core::node entry;
-
-						tok = nescc::assembler::lexer::token();
-						if(tok.type() != nescc::core::TOKEN_SCALAR) {
-							THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(
-								NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_SCALAR,
-								"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
-						}
-
-						entry.set(nescc::core::NODE_LEAF);
-						entry.token() = tok.id();
-						add_node_child(parent, entry);
-
-						if(nescc::assembler::lexer::has_next()) {
-							nescc::assembler::lexer::move_next();
-						}
+				case nescc::core::PRAGMA_INES_MAPPER: // .inesmap <expression>
+				case nescc::core::PRAGMA_INES_MIRRORING: // .inesmir <expression>
+				case nescc::core::PRAGMA_INES_ROM_CHARACTER: // .ineschr <expression>
+				case nescc::core::PRAGMA_INES_ROM_PROGRAM: { // .inesprg <expression>
+						enumerate_node_expression(parent);
 					} break;
 				default:
 					THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_UNSUPPORTED_PRAGMA_INES,

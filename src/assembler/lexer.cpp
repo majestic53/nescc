@@ -488,7 +488,7 @@ namespace nescc {
 			int length;
 			std::ifstream input;
 			std::stringstream path, stream;
-			std::string buffer, directory, extension, file;
+			std::string directory, extension, file;
 
 			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
 
@@ -519,15 +519,20 @@ namespace nescc {
 			input.seekg(0, std::ios::beg);
 
 			if(length > 0) {
-				buffer.resize(length + 1, CHARACTER_TERMINATOR);
+				std::string buffer;
+
+				buffer.resize(length, CHARACTER_TERMINATOR);
 				input.read((char *) &buffer[0], length);
+				stream << std::endl << SYMBOL_STRING(nescc::core::SYMBOL_BLOCK_OPEN);
 
 				if(extension != EXTENSION_ASSEMBLY) { // binary
-					stream << PRAGMA_BEGIN << PRAGMA_STRING(nescc::core::PRAGMA_DATA_BYTE);
+					size_t count = 0;
 
-					for(std::string::iterator iter = buffer.begin(); iter != buffer.end(); ++iter) {
+					for(std::string::iterator iter = buffer.begin(); iter != buffer.end(); ++count, ++iter) {
 
-						if(iter != buffer.begin()) {
+						if(!(count % BLOCK_SIZE)) {
+							stream << std::endl << PRAGMA_BEGIN << PRAGMA_STRING(nescc::core::PRAGMA_DATA_BYTE);
+						} else {
 							stream << ",";
 						}
 
@@ -535,8 +540,10 @@ namespace nescc {
 							<< SCALAR_AS_HEX(uint8_t, *iter);
 					}
 				} else { // assembly
-					stream << buffer;
+					stream << std::endl << buffer;
 				}
+
+				stream << std::endl << SYMBOL_STRING(nescc::core::SYMBOL_BLOCK_CLOSE);
 			}
 
 			input.close();
@@ -551,10 +558,7 @@ namespace nescc {
 					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
 			}
 
-			buffer.clear();
-			buffer += CHARACTER_NEWLINE;
-			buffer += stream.str();
-			nescc::assembler::stream::insert(buffer);
+			nescc::assembler::stream::insert(stream.str());
 
 			TRACE_EXIT();
 		}

@@ -47,6 +47,8 @@ namespace nescc {
 	#define BACKGROUND_GREEN 0
 	#define BACKGROUND_RED 0
 
+	#define BLOCK_SIZE 16
+
 	#define CHARACTER_ALERT '\a'
 	#define CHARACTER_ALERT_FORMAT "a"
 	#define CHARACTER_BACKSPACE '\b'
@@ -89,7 +91,7 @@ namespace nescc {
 	#define NESCC_VERSION_MAJOR 0
 	#define NESCC_VERSION_MINOR 1
 	#define NESCC_VERSION_RELEASE "alpha"
-	#define NESCC_VERSION_REVISION 5
+	#define NESCC_VERSION_REVISION 6
 	#define NESCC_VERSION_WEEK 1809
 
 	#define PATH_DIRECTORY_DEFAULT "./"

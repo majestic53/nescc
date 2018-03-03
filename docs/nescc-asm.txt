@@ -113,7 +113,7 @@ pragma_data_reserve ::= rs <expression<1>>
 
 pragma_data_word ::= dw <pragma_data_list<2>>
 
-pragma_ines ::= [inesmap | inesmir | ineschr | inesprg] <scalar<1>>
+pragma_ines ::= [inesmap | inesmir | ineschr | inesprg] <expression<1>>
 
 scalar<N> ::= -?[<scalar_binary<N>> | <scalar_decimal<N>> | <scalar_hexidecimal<N>> | <scalar_octal<N>>]
 
