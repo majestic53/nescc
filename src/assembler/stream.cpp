@@ -329,28 +329,54 @@ namespace nescc {
 			return result;
 		}
 
+		void
+		stream::insert(
+			__in const std::string &input
+			)
+		{
+			size_t position;
+			std::map<size_t, std::string>::iterator entry;
+
+			TRACE_ENTRY_FORMAT("Input[%u]=%s", input.size(), STRING_CHECK(input));
+
+			m_stream.insert(m_stream.begin() + m_stream_position, input.begin(), input.end());
+
+			entry = m_stream_line.find(m_stream_position_line);
+			if(entry == m_stream_line.end()) {
+				m_stream_line.insert(std::make_pair(m_stream_position_line, std::string()));
+
+				entry = m_stream_line.find(m_stream_position_line);
+				if(entry == m_stream_line.end()) {
+					THROW_NESCC_ASSEMBLER_STREAM_EXCEPTION_FORMAT(NESCC_ASSEMBLER_STREAM_EXCEPTION_LINE_INSERT,
+						"Line=%u", m_stream_position_line);
+				}
+			} else {
+				entry->second.clear();
+			}
+
+			for(position = (m_stream_position - m_stream_position_column); position < m_stream.size(); ++position) {
+
+				char value = m_stream.at(position);
+				if(value == CHARACTER_TERMINATOR) {
+					break;
+				}
+
+				entry->second += value;
+
+				if(value == CHARACTER_NEWLINE) {
+					break;
+				}
+			}
+
+			TRACE_EXIT();
+		}
+
 		size_t
 		stream::line(void) const
 		{
 			TRACE_ENTRY();
 			TRACE_EXIT_FORMAT("Result=%u", m_stream_position_line);
 			return m_stream_position_line;
-		}
-
-		std::string
-		stream::path(void) const
-		{
-			TRACE_ENTRY();
-			TRACE_EXIT();
-			return m_path;
-		}
-
-		size_t
-		stream::position(void) const
-		{
-			TRACE_ENTRY();
-			TRACE_EXIT_FORMAT("Result=%u", m_stream_position);
-			return m_stream_position;
 		}
 
 		void
@@ -401,6 +427,37 @@ namespace nescc {
 			}
 
 			TRACE_EXIT();
+		}
+
+		std::string
+		stream::path(void) const
+		{
+			TRACE_ENTRY();
+			TRACE_EXIT();
+			return m_path;
+		}
+
+		std::string
+		stream::path_base(void) const
+		{
+			std::string extension, file, result;
+
+			TRACE_ENTRY();
+
+			if(!m_path.empty()) {
+				nescc::decompose_path(m_path, result, file, extension);
+			}
+
+			TRACE_EXIT();
+			return result;
+		}
+
+		size_t
+		stream::position(void) const
+		{
+			TRACE_ENTRY();
+			TRACE_EXIT_FORMAT("Result=%u", m_stream_position);
+			return m_stream_position;
 		}
 
 		void

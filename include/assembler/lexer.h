@@ -120,6 +120,11 @@ namespace nescc {
 					__in size_t line
 					);
 
+				void enumerate_token_alpha_include(
+					__inout nescc::core::token &token,
+					__in size_t line
+					);
+
 				void enumerate_token_digit(
 					__inout nescc::core::token &token,
 					__in size_t line,
@@ -132,6 +137,8 @@ namespace nescc {
 					);
 
 				void skip_whitespace(void);
+
+				bool m_include;
 
 				std::vector<nescc::core::token> m_token;
 

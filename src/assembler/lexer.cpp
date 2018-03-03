@@ -17,6 +17,7 @@
  */
 
 #include <algorithm>
+#include <fstream>
 #include "../../include/assembler/lexer.h"
 #include "../../include/trace.h"
 #include "./lexer_type.h"
@@ -26,6 +27,7 @@ namespace nescc {
 	namespace assembler {
 
 		lexer::lexer(void) :
+			m_include(false),
 			m_token_position(0)
 		{
 			TRACE_ENTRY();
@@ -39,6 +41,7 @@ namespace nescc {
 			__in const std::string &input,
 			__in_opt bool is_file
 			) :
+				m_include(false),
 				m_token_position(0)
 		{
 			TRACE_ENTRY_FORMAT("Input[%u]=%s, File=%x", input.size(), STRING_CHECK(input), is_file);
@@ -52,6 +55,7 @@ namespace nescc {
 			__in const lexer &other
 			) :
 				nescc::assembler::stream(other),
+				m_include(other.m_include),
 				m_token(other.m_token),
 				m_token_map(other.m_token_map),
 				m_token_position(other.m_token_position)
@@ -75,6 +79,7 @@ namespace nescc {
 
 			if(this != &other) {
 				nescc::assembler::stream::operator=(other);
+				m_include = other.m_include;
 				m_token = other.m_token;
 				m_token_map = other.m_token_map;
 				m_token_position = other.m_token_position;
@@ -237,6 +242,13 @@ namespace nescc {
 				default:
 					THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_UNEXPECTED_TYPE,
 						"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			if(m_include) {
+				enumerate_token_alpha_include(entry, line);
+				m_include = false;
+			} else if((entry.type() == nescc::core::TOKEN_PRAGMA) && (entry.subtype() == nescc::core::PRAGMA_COMMAND_INCLUDE)) {
+				m_include = true;
 			}
 
 			add_token(m_token_position + 1, entry);
@@ -463,6 +475,86 @@ namespace nescc {
 			}
 
 			nescc::assembler::stream::move_next();
+
+			TRACE_EXIT();
+		}
+
+		void
+		lexer::enumerate_token_alpha_include(
+			__inout nescc::core::token &token,
+			__in size_t line
+			)
+		{
+			int length;
+			std::ifstream input;
+			std::stringstream path, stream;
+			std::string buffer, directory, extension, file;
+
+			TRACE_ENTRY_FORMAT("Token=%p, Line=%u", &token, line);
+
+			if(token.type() != nescc::core::TOKEN_LITERAL) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EXPECTING_INCLUDE_PATH,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			path << nescc::assembler::stream::path_base() << DIRECTORY_DELIMITER << token.as_literal();
+			if(path.str().empty()) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EMPTY_INCLUDE_PATH,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			if(!nescc::decompose_path(path.str(), directory, file, extension)) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_MALFORMED_INCLUDE_PATH,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			input = std::ifstream(path.str(), std::ios::in | std::ios::binary);
+			if(!input) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_INCLUDE_NOT_FOUND,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			input.seekg(0, std::ios::end);
+			length = input.tellg();
+			input.seekg(0, std::ios::beg);
+
+			if(length > 0) {
+				buffer.resize(length + 1, CHARACTER_TERMINATOR);
+				input.read((char *) &buffer[0], length);
+
+				if(extension != EXTENSION_ASSEMBLY) { // binary
+					stream << PRAGMA_BEGIN << PRAGMA_STRING(nescc::core::PRAGMA_DATA_BYTE);
+
+					for(std::string::iterator iter = buffer.begin(); iter != buffer.end(); ++iter) {
+
+						if(iter != buffer.begin()) {
+							stream << ",";
+						}
+
+						stream << " " << SCALAR_BEGIN << CHARACTER_HEXIDECIMAL_FORMAT
+							<< SCALAR_AS_HEX(uint8_t, *iter);
+					}
+				} else { // assembly
+					stream << buffer;
+				}
+			}
+
+			input.close();
+
+			if(length < 0) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_MALFORMED_INCLUDE_FILE,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			if(stream.str().empty()) {
+				THROW_NESCC_ASSEMBLER_LEXER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_LEXER_EXCEPTION_EMPTY_INCLUDE_FILE,
+					"%s", STRING_CHECK(nescc::assembler::stream::as_exception(line, true)));
+			}
+
+			buffer.clear();
+			buffer += CHARACTER_NEWLINE;
+			buffer += stream.str();
+			nescc::assembler::stream::insert(buffer);
 
 			TRACE_EXIT();
 		}
@@ -722,7 +814,7 @@ namespace nescc {
 			}
 
 			TRACE_EXIT();
-		}	
+		}
 
 		bool
 		lexer::has_next(void) const

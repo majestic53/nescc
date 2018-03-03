@@ -296,6 +296,10 @@ Changelog
 
 Version 0.1.1809
 ----------------
+*Updated: 3/2/2018*
+
+* Added assembler include pre-processing
+
 *Updated: 2/28 - 3/1/2018*
 
 * Added assembler evaluation routines

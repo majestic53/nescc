@@ -91,9 +91,15 @@ namespace nescc {
 
 				bool has_path(void) const;
 
+				void insert(
+					__in const std::string &input
+					);
+
 				size_t line(void) const;
 
 				std::string path(void) const;
+
+				std::string path_base(void) const;
 
 				virtual size_t position(void) const;
 
