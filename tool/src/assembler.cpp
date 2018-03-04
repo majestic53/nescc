@@ -302,19 +302,168 @@ namespace nescc {
 		int
 		assembler::evaluate_statement_expression(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			int result;
+			int result = 0;
+			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			// TODO
-			result = 0;
-			// ---
+			entry = instance.node(id);
+			if(entry.type() != nescc::core::NODE_EXPRESSION) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_EXPRESSION,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(entry.children().empty()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_EXPRESSION,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			evaluate_statement_expression_begin(instance, entry.children().front(), result, verbose);
 
 			TRACE_EXIT_FORMAT("Result=%i", result);
 			return result;
+		}
+
+		void
+		assembler::evaluate_statement_expression_begin(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout int &value,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::node entry;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Value=%i, Verbose=%x", &instance, id, value, verbose);
+
+			entry = instance.node(id);
+			switch(entry.type()) {
+				case nescc::core::NODE_EXPRESSION:
+
+					if(entry.children().empty()) {
+						THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_EXPRESSION,
+							"%s", STRING_CHECK(instance.as_exception(true)));
+					}
+
+					evaluate_statement_expression_begin(instance, entry.children().front(), value, verbose);
+					break;
+				case nescc::core::NODE_LEAF:
+				case nescc::core::NODE_MODIFIER:
+					evaluate_statement_expression_operand(instance, id, value, verbose);
+					break;
+				case nescc::core::NODE_OPERATOR:
+					evaluate_statement_expression_operator(instance, id, value, verbose);
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_EXPRESSION,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_expression_operand(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout int &value,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node entry;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Value=%i, Verbose=%x", &instance, id, value, verbose);
+
+			entry = instance.node(id);
+			tok = instance.token(entry.token());
+
+			switch(entry.type()) {
+				case nescc::core::NODE_LEAF:
+
+					switch(tok.type()) {
+						case nescc::core::TOKEN_IDENTIFIER:
+							// TODO
+							break;
+						case nescc::core::TOKEN_SCALAR:
+							value = tok.as_scalar();
+							break;
+						default:
+							THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_SCALAR,
+								"%s", STRING_CHECK(instance.as_exception(true)));
+					}
+					break;
+				case nescc::core::NODE_MODIFIER:
+
+					if(entry.children().empty()) {
+						THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_EXPRESSION,
+							"%s", STRING_CHECK(instance.as_exception(true)));
+					}
+
+					switch(tok.type()) {
+						case nescc::core::TOKEN_PRAGMA:
+
+							switch(tok.subtype()) {
+								case nescc::core::PRAGMA_DATA_PART_HIGH:
+									// TODO
+									break;
+								case nescc::core::PRAGMA_DATA_PART_LOW:
+									// TODO
+									break;
+								default:
+									THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
+										NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_PRAGMA_MODIFIER,
+										"%s", STRING_CHECK(instance.as_exception(true)));
+							}
+							break;
+						case nescc::core::TOKEN_SYMBOL:
+
+							switch(tok.subtype()) {
+								case nescc::core::SYMBOL_UNARY_NEGATE:
+									// TODO
+									break;
+								case nescc::core::SYMBOL_UNARY_NOT:
+									// TODO
+									break;
+								default:
+									THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
+										NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_MODIFIER_UNARY,
+										"%s", STRING_CHECK(instance.as_exception(true)));
+							}
+							break;
+						default:
+							THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_MODIFIER,
+								"%s", STRING_CHECK(instance.as_exception(true)));
+					}
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_OPERAND,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_expression_operator(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout int &value,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::node entry;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Value=%i, Verbose=%x", &instance, id, value, verbose);
+
+			entry = instance.node(id);
+			// TODO
+
+			TRACE_EXIT();
 		}
 
 		void
@@ -393,9 +542,26 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node entry;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
 
-			// TODO
+			entry = instance.node();
+
+			tok = instance.token(entry.token());
+			switch(tok.subtype()) {
+				case nescc::core::PRAGMA_CONDITION_IF:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_CONDITION_IF_DEFINE:
+					// TODO
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
+						NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA_CONDITION,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			TRACE_EXIT();
 		}
@@ -406,9 +572,28 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node entry;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
 
-			// TODO
+			entry = instance.node();
+
+			tok = instance.token(entry.token());
+			switch(tok.subtype()) {
+				case nescc::core::PRAGMA_DATA_BYTE:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_DATA_RESERVE:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_DATA_WORD:
+					// TODO
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA_DATA,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			TRACE_EXIT();
 		}
@@ -419,9 +604,40 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node entry;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
 
-			// TODO
+			entry = instance.node();
+
+			tok = instance.token(entry.token());
+			switch(tok.subtype()) {
+				case nescc::core::PRAGMA_COMMAND_DEFINE:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_COMMAND_INCLUDE:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_COMMAND_ORIGIN:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_COMMAND_PAGE_CHARACTER:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_COMMAND_PAGE_PROGRAM:
+					// TODO
+					break;
+				case nescc::core::PAAGMA_COMMAND_PAGE_SIZE:
+					// TODO
+					break;
+				case nescc::core::PRAGMA_COMMAND_UNDEFINE:
+					// TODO
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA_DEFINE,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			TRACE_EXIT();
 		}
@@ -432,9 +648,39 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			uint8_t value;
+			nescc::core::token tok;
+			nescc::core::node entry;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
 
-			// TODO
+			entry = instance.node();
+			if(entry.children().empty()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_STATEMENT,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			value = (uint8_t) evaluate_statement_expression(instance, entry.children().front(), verbose);
+
+			tok = instance.token(entry.token());
+			switch(tok.subtype()) {
+				case nescc::core::PRAGMA_INES_MAPPER:
+					m_header.mapper_high = (value >> NIBBLE);
+					m_header.mapper_low = value;
+					break;
+				case nescc::core::PRAGMA_INES_MIRRORING:
+					m_header.mirroring = value;
+					break;
+				case nescc::core::PRAGMA_INES_ROM_CHARACTER:
+					m_header.rom_character = value;
+					break;
+				case nescc::core::PRAGMA_INES_ROM_PROGRAM:
+					m_header.rom_program = value;
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA_INES,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			TRACE_EXIT();
 		}
@@ -620,6 +866,7 @@ namespace nescc {
 
 			m_bank_map.clear();
 			std::memset(&m_header, 0, sizeof(m_header));
+			std::memcpy(m_header.magic, CARTRIDGE_MAGIC, CARTRIDGE_MAGIC_LENGTH);
 			m_identifier_map.clear();
 			m_label_set.clear();
 			m_listing.clear();

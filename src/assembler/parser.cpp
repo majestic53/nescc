@@ -833,7 +833,7 @@ namespace nescc {
 						|| (tok.subtype() == nescc::core::PRAGMA_DATA_PART_LOW))) { // .high | .low
 				nescc::core::node entry;
 
-				entry.set(nescc::core::NODE_PRAGMA);
+				entry.set(nescc::core::NODE_MODIFIER);
 				entry.token() = tok.id();
 				add_node_child(parent, entry);
 				parent = entry.id();
