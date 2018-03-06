@@ -28,7 +28,7 @@ namespace nescc {
 	#define POST_PROCESS_DEFAULT false
 	#define POST_PROCESS_BLEED_DEFAULT true
 	#define POST_PROCESS_BORDER_DEFAULT true
-	#define POST_PROCESS_SCANLINE_DEFAULT true
+	#define POST_PROCESS_SCANLINE_DEFAULT false
 
 	class display :
 			public nescc::core::singleton<nescc::display> {

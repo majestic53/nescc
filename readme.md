@@ -294,6 +294,12 @@ Extracted roms/assembly/images can be found in the same directory as the input r
 Changelog
 =========
 
+Version 0.1.1810
+----------------
+*Updated: 3/5/2018*
+
+* Implemented assembler expression evaluation
+
 Version 0.1.1809
 ----------------
 *Updated: 3/2/2018*
@@ -307,22 +313,6 @@ Version 0.1.1809
 *Updated: 2/26-27/2018*
 
 * Added assembler parser command address mode routines
-
-Version 0.1.1808
-----------------
-*Updated: 2/22-25/2018*
-
-* Added assembler parser enumeration routines
-	* Added pragma enumeration routines
-	* Added expression enumeration routines
-
-*Updated: 2/21/2018*
-
-* Added assembler parser class
-
-*Updated: 2/19/2018*
-
-* Added parser node class
 
 *Changelog truncated (see file history for full log)*
 

@@ -115,30 +115,27 @@ namespace nescc {
 					__in_opt bool verbose = false
 					);
 
-				int evaluate_statement_expression(
+				int32_t evaluate_statement_expression(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
-				void evaluate_statement_expression_begin(
+				int32_t evaluate_statement_expression_begin(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
-					__inout int &value,
 					__in_opt bool verbose = false
 					);
 
-				void evaluate_statement_expression_operand(
+				int32_t evaluate_statement_expression_operand(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
-					__inout int &value,
 					__in_opt bool verbose = false
 					);
 
-				void evaluate_statement_expression_operator(
+				int32_t evaluate_statement_expression_operator(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
-					__inout int &value,
 					__in_opt bool verbose = false
 					);
 
