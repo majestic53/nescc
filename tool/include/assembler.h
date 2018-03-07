@@ -118,24 +118,28 @@ namespace nescc {
 				int32_t evaluate_statement_expression(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
 
 				int32_t evaluate_statement_expression_begin(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
 
 				int32_t evaluate_statement_expression_operand(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
 
 				int32_t evaluate_statement_expression_operator(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
 

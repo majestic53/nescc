@@ -28,7 +28,6 @@ namespace nescc {
 		__inout std::string &extension
 		)
 	{
-		size_t position;
 		bool result = false;
 		std::string input_path = path;
 
@@ -37,6 +36,7 @@ namespace nescc {
 		extension.clear();
 
 		if(!input_path.empty()) {
+			size_t position;
 
 			position = input_path.find_last_of(PATH_DIRECTORY_DELIMITER);
 			if(position != input_path.npos) {

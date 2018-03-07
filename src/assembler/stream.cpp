@@ -280,7 +280,7 @@ namespace nescc {
 
 			TRACE_ENTRY_FORMAT("Line=%u", line);
 
-			entry = m_stream_line.find(m_stream_position_line);
+			entry = m_stream_line.find(line);
 			if(entry == m_stream_line.end()) {
 				THROW_NESCC_ASSEMBLER_STREAM_EXCEPTION_FORMAT(NESCC_ASSEMBLER_STREAM_EXCEPTION_LINE_NOT_FOUND,
 					"Line=%u", m_stream_position_line);
