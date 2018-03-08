@@ -173,6 +173,10 @@ namespace nescc {
 					__in_opt bool verbose = false
 					);
 
+				std::pair<std::vector<uint8_t>, uint16_t> &find_bank(
+					__in nescc::assembler::parser &instance
+					);
+
 				void form_output_file(
 					__in nescc::assembler::parser &instance,
 					__in_opt bool listing = true,
@@ -185,7 +189,9 @@ namespace nescc {
 
 				void reset(void);
 
-				std::map<uint16_t, std::vector<uint8_t>> m_bank_map;
+				std::vector<std::pair<std::vector<uint8_t>, uint16_t>> m_bank_character;
+
+				std::vector<std::pair<std::vector<uint8_t>, uint16_t>> m_bank_program;
 
 				nescc::emulator::cartridge_header m_header;
 
@@ -195,11 +201,15 @@ namespace nescc {
 
 				std::stringstream m_listing;
 
+				bool m_mode_character;
+
 				uint16_t m_origin;
 
 				std::string m_path;
 
-				uint16_t m_position;
+				uint16_t m_position_character;
+
+				uint16_t m_position_program;
 
 				nescc::trace &m_trace;
 

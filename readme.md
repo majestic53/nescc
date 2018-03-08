@@ -296,9 +296,9 @@ Changelog
 
 Version 0.1.1810
 ----------------
-*Updated: 3/6/2018*
+*Updated: 3/6-7/2018*
 
-* Implemented pragma define/undefine
+* Implemented pragma define/undefine/origin/program/character/size
 * Minor bug fix in stream exception routine
 
 *Updated: 3/5/2018*
