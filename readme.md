@@ -296,6 +296,10 @@ Changelog
 
 Version 0.1.1810
 ----------------
+*Updated: 3/8/2018*
+
+* Implemented conditional/data pragmas
+
 *Updated: 3/6-7/2018*
 
 * Implemented pragma define/undefine/origin/program/character/size

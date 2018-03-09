@@ -302,6 +302,67 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
+		bool
+		assembler::evaluate_statement_condition(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__in_opt bool verbose
+			)
+		{
+			bool result = false;
+			int32_t left, right;
+			nescc::core::node entry;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
+
+			entry = instance.node(id);
+			if(entry.type() != nescc::core::NODE_CONDITION) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_CONDITION,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(entry.children().size() != CONDITION_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_CONDITION,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			left = evaluate_statement_expression_begin(instance, entry.children().front(), std::set<std::string>(), verbose);
+			right = evaluate_statement_expression_begin(instance, entry.children().back(), std::set<std::string>(), verbose);
+
+			switch(instance.token(entry.token()).subtype()) {
+				case nescc::core::SYMBOL_OPERATOR_AND: // &&
+					result = (left && right);
+					break;
+				case nescc::core::SYMBOL_OPERATOR_EQUALS: // ==
+					result = (left == right);
+					break;
+				case nescc::core::SYMBOL_OPERATOR_GREATER_THAN: // >
+					result = (left > right);
+					break;
+				case nescc::core::SYMBOL_OPERATOR_GREATER_THAN_EQUALS: // >=
+					result = (left >= right);
+					break;
+				case nescc::core::SYMBOL_OPERATOR_LESS_THAN: // <
+					result = (left < right);
+					break;
+				case nescc::core::SYMBOL_OPERATOR_LESS_THAN_EQUALS: // <=
+					result = (left <= right);
+					break;
+				case nescc::core::SYMBOL_OPERATOR_NOT_EQUALS: // !=
+					result = (left != right);
+					break;
+				case nescc::core::SYMBOL_OPERATOR_OR: // ||
+					result = (left || right);
+					break;
+				default:
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_CONDITION_OPERATOR,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			TRACE_EXIT_FORMAT("Result=%x", result);
+			return result;
+		}
+
 		int32_t
 		assembler::evaluate_statement_expression(
 			__in nescc::assembler::parser &instance,
@@ -642,20 +703,55 @@ namespace nescc {
 			)
 		{
 			nescc::core::token tok;
-			nescc::core::node entry;
+			nescc::core::node parent;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
 
-			entry = instance.node();
+			parent = instance.node();
+			if(parent.children().empty()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_CONDITION,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
-			tok = instance.token(entry.token());
+			tok = instance.token(parent.token());
 			switch(tok.subtype()) {
 				case nescc::core::PRAGMA_CONDITION_IF:
-					// TODO: <condition> <block> <block>?
+
+					if(evaluate_statement_condition(instance, parent.children().front(), verbose)) { // .if
+
+						// TODO: <block>
+
+					} else { // .else
+
+						// TODO: <block>?
+
+					}
 					break;
-				case nescc::core::PRAGMA_CONDITION_IF_DEFINE:
-					// TODO: <condition> <block> <block>?
-					break;
+				case nescc::core::PRAGMA_CONDITION_IF_DEFINE: {
+						nescc::core::node child;
+
+						child = parent.children().front();
+						if(child.type() != nescc::core::NODE_LEAF) {
+							THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_CONDITION,
+								"%s", STRING_CHECK(instance.as_exception(true)));
+						}
+
+						tok = instance.token(child.token());
+						if(tok.type() != nescc::core::TOKEN_IDENTIFIER) {
+							THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_IDENTIFIER,
+								"%s", STRING_CHECK(instance.as_exception(true)));
+						}
+
+						if(m_identifier_map.find(tok.as_literal()) != m_identifier_map.end()) { // .ifdef
+
+							// TODO: <block>
+
+						} else { // .else
+
+							// TODO: <block>?
+
+						}
+					} break;
 				default:
 					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
 						NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA_CONDITION,
@@ -671,8 +767,12 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			size_t iter;
+			int32_t value;
+			uint16_t offset;
 			nescc::core::token tok;
 			nescc::core::node entry;
+			std::vector<uint8_t> data;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
 
@@ -680,19 +780,46 @@ namespace nescc {
 
 			tok = instance.token(entry.token());
 			switch(tok.subtype()) {
-				case nescc::core::PRAGMA_DATA_BYTE:
-					// TODO: <expression>+
+				case nescc::core::PRAGMA_DATA_BYTE: // .db
+
+					for(std::vector<nescc::core::uuid_t>::iterator iter = entry.children().begin();
+							iter != entry.children().end(); ++iter) { // <expression>+
+						value = evaluate_statement_expression(instance, *iter, std::set<std::string>(), verbose);
+						data.push_back(value);
+					}
 					break;
-				case nescc::core::PRAGMA_DATA_RESERVE:
-					// TODO: <expression>
+				case nescc::core::PRAGMA_DATA_RESERVE: // .rs
+					value = evaluate_statement_expression(instance, entry.children().front(), std::set<std::string>(),
+										verbose);
+					data.resize(value, MEMORY_FILL);
 					break;
-				case nescc::core::PRAGMA_DATA_WORD:
-					// TODO: <expression>+
+				case nescc::core::PRAGMA_DATA_WORD: // .dw
+
+					for(std::vector<nescc::core::uuid_t>::iterator iter = entry.children().begin();
+							iter != entry.children().end(); ++iter) { // <expression>+
+						value = evaluate_statement_expression(instance, *iter, std::set<std::string>(), verbose);
+						data.push_back(value);
+						data.push_back(value >> CHAR_BIT);
+					}
 					break;
 				default:
 					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA_DATA,
 						"%s", STRING_CHECK(instance.as_exception(true)));
 			}
+
+			nescc::core::memory<uint8_t> &bank = find_bank(instance);
+
+			offset = (m_origin % bank.size());
+			if((bank.size() - offset) < data.size()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_BANK_FULL,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			for(iter = 0; iter < data.size(); ++iter) {
+				bank.write(iter + offset, data.at(iter));
+			}
+
+			m_origin += data.size();
 
 			TRACE_EXIT();
 		}
@@ -766,10 +893,12 @@ namespace nescc {
 
 						m_identifier_map.insert(std::make_pair(identifier, child.id()));
 					} break;
-				case nescc::core::PRAGMA_COMMAND_INCLUDE:
-					// TODO: block
+				case nescc::core::PRAGMA_COMMAND_INCLUDE: // .inc
+
+					// TODO: <block>
+
 					break;
-				case nescc::core::PRAGMA_COMMAND_ORIGIN:
+				case nescc::core::PRAGMA_COMMAND_ORIGIN: // .org
 
 					if(parent.children().empty()) {
 						THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_PRAGMA,
@@ -779,7 +908,7 @@ namespace nescc {
 					m_origin = (uint16_t) evaluate_statement_expression(instance, parent.children().front(),
 								std::set<std::string>(), verbose); // <expression>
 					break;
-				case nescc::core::PRAGMA_COMMAND_PAGE_CHARACTER: {
+				case nescc::core::PRAGMA_COMMAND_PAGE_CHARACTER: { // .chr
 						uint16_t value;
 
 						if(parent.children().empty()) {
@@ -797,14 +926,14 @@ namespace nescc {
 						}
 
 						if(value == m_bank_character.size()) {
-							m_bank_character.push_back(std::make_pair(std::vector<uint8_t>(), 0));
-							m_bank_character.back().first.resize(CARTRIDGE_ROM_CHARACTER_LENGTH, MEMORY_FILL);
+							m_bank_character.push_back(nescc::core::memory<uint8_t>());
+							m_bank_character.back().set_size(CARTRIDGE_ROM_CHARACTER_LENGTH);
 						}
 
 						m_position_character = value;
 						m_mode_character = true;
 					} break;
-				case nescc::core::PRAGMA_COMMAND_PAGE_PROGRAM: {
+				case nescc::core::PRAGMA_COMMAND_PAGE_PROGRAM: { // .prg
 						uint16_t value;
 
 						if(parent.children().empty()) {
@@ -822,14 +951,14 @@ namespace nescc {
 						}
 
 						if(value == m_bank_program.size()) {
-							m_bank_program.push_back(std::make_pair(std::vector<uint8_t>(), 0));
-							m_bank_program.back().first.resize(CARTRIDGE_ROM_PROGRAM_LENGTH, MEMORY_FILL);
+							m_bank_program.push_back(nescc::core::memory<uint8_t>());
+							m_bank_program.back().set_size(CARTRIDGE_ROM_PROGRAM_LENGTH);
 						}
 
 						m_position_program = value;
 						m_mode_character = false;
 					} break;
-				case nescc::core::PAAGMA_COMMAND_PAGE_SIZE: {
+				case nescc::core::PAAGMA_COMMAND_PAGE_SIZE: { // .size
 						uint16_t value;
 
 						if(parent.children().empty()) {
@@ -856,9 +985,8 @@ namespace nescc {
 							}
 						}
 
-						std::pair<std::vector<uint8_t>, uint16_t> &bank = find_bank(instance);
-						bank.first.resize(value, MEMORY_FILL);
-						bank.second = 0;
+						nescc::core::memory<uint8_t> &bank = find_bank(instance);
+						bank.set_size(value);
 					} break;
 				case nescc::core::PRAGMA_COMMAND_UNDEFINE: { // .undef
 						std::string identifier;
@@ -922,17 +1050,17 @@ namespace nescc {
 
 			tok = instance.token(entry.token());
 			switch(tok.subtype()) {
-				case nescc::core::PRAGMA_INES_MAPPER:
+				case nescc::core::PRAGMA_INES_MAPPER: // .inesmap
 					m_header.mapper_high = (value >> NIBBLE);
 					m_header.mapper_low = value;
 					break;
-				case nescc::core::PRAGMA_INES_MIRRORING:
+				case nescc::core::PRAGMA_INES_MIRRORING: // .inesmir
 					m_header.mirroring = value;
 					break;
-				case nescc::core::PRAGMA_INES_ROM_CHARACTER:
+				case nescc::core::PRAGMA_INES_ROM_CHARACTER: // .ineschr
 					m_header.rom_character = value;
 					break;
-				case nescc::core::PRAGMA_INES_ROM_PROGRAM:
+				case nescc::core::PRAGMA_INES_ROM_PROGRAM: // .inesprg
 					m_header.rom_program = value;
 					break;
 				default:
@@ -943,7 +1071,7 @@ namespace nescc {
 			TRACE_EXIT();
 		}
 
-		std::pair<std::vector<uint8_t>, uint16_t> &
+		nescc::core::memory<uint8_t> &
 		assembler::find_bank(
 			__in nescc::assembler::parser &instance
 			)

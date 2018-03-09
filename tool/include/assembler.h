@@ -115,6 +115,12 @@ namespace nescc {
 					__in_opt bool verbose = false
 					);
 
+				bool evaluate_statement_condition(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__in_opt bool verbose = false
+					);
+
 				int32_t evaluate_statement_expression(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
@@ -173,7 +179,7 @@ namespace nescc {
 					__in_opt bool verbose = false
 					);
 
-				std::pair<std::vector<uint8_t>, uint16_t> &find_bank(
+				nescc::core::memory<uint8_t> &find_bank(
 					__in nescc::assembler::parser &instance
 					);
 
@@ -189,9 +195,9 @@ namespace nescc {
 
 				void reset(void);
 
-				std::vector<std::pair<std::vector<uint8_t>, uint16_t>> m_bank_character;
+				std::vector<nescc::core::memory<uint8_t>> m_bank_character;
 
-				std::vector<std::pair<std::vector<uint8_t>, uint16_t>> m_bank_program;
+				std::vector<nescc::core::memory<uint8_t>> m_bank_program;
 
 				nescc::emulator::cartridge_header m_header;
 
