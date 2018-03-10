@@ -296,6 +296,10 @@ Changelog
 
 Version 0.1.1810
 ----------------
+*Updated: 3/10/2018*
+
+* Implemented assembler block/label evaluation
+
 *Updated: 3/8/2018*
 
 * Implemented conditional/data pragmas

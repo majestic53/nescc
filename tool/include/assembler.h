@@ -77,41 +77,55 @@ namespace nescc {
 
 				void evaluate_statement(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_block(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_absolute(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_accumulator(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_immediate(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_implied(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_indirect(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_zero_page(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
@@ -151,31 +165,37 @@ namespace nescc {
 
 				void evaluate_statement_label(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_pragma(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_pragma_condition(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_pragma_data(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_pragma_define(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_pragma_ines(
 					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
 					__in_opt bool verbose = false
 					);
 
@@ -203,7 +223,7 @@ namespace nescc {
 
 				std::map<std::string, nescc::core::uuid_t> m_identifier_map;
 
-				std::set<std::string> m_label_set;
+				std::map<std::string, uint16_t> m_label_map;
 
 				std::stringstream m_listing;
 

@@ -148,28 +148,50 @@ namespace nescc {
 		void
 		assembler::evaluate_statement(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			switch(instance.node().type()) {
+			switch(instance.node(id).type()) {
 				case nescc::core::NODE_COMMAND:
-					evaluate_statement_command(instance, verbose);
+					evaluate_statement_command(instance, id, verbose);
 					break;
 				case nescc::core::NODE_LABEL:
-					evaluate_statement_label(instance, verbose);
+					evaluate_statement_label(instance, id, verbose);
 					break;
 				case nescc::core::NODE_PRAGMA:
-					evaluate_statement_pragma(instance, verbose);
+					evaluate_statement_pragma(instance, id, verbose);
 					break;
 				default:
 					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT,
 						"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			if(instance.has_next()) {
-				instance.move_next();
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_block(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::node parent;
+			std::vector<nescc::core::uuid_t>::iterator child;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
+
+			parent = instance.node(id);
+			if(parent.type() != nescc::core::NODE_BLOCK) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_BLOCK,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			for(child = parent.children().begin(); child != parent.children().end(); ++child) {
+				evaluate_statement(instance, *child, verbose);
 			}
 
 			TRACE_EXIT();
@@ -178,14 +200,15 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_command(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			entry = instance.node();
+			entry = instance.node(id);
 			if(entry.type() != nescc::core::NODE_COMMAND) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_COMMAND,
 					"%s", STRING_CHECK(instance.as_exception(true)));
@@ -195,26 +218,26 @@ namespace nescc {
 				case nescc::core::ADDRESS_MODE_ABSOLUTE:
 				case nescc::core::ADDRESS_MODE_ABSOLUTE_X:
 				case nescc::core::ADDRESS_MODE_ABSOLUTE_Y:
-					evaluate_statement_command_absolute(instance, verbose);
+					evaluate_statement_command_absolute(instance, id, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_ACCUMULATOR:
-					evaluate_statement_command_accumulator(instance, verbose);
+					evaluate_statement_command_accumulator(instance, id, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_IMMEDIATE:
-					evaluate_statement_command_immediate(instance, verbose);
+					evaluate_statement_command_immediate(instance, id, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_IMPLIED:
-					evaluate_statement_command_implied(instance, verbose);
+					evaluate_statement_command_implied(instance, id, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_INDIRECT:
 				case nescc::core::ADDRESS_MODE_INDIRECT_X:
 				case nescc::core::ADDRESS_MODE_INDIRECT_Y:
-					evaluate_statement_command_indirect(instance, verbose);
+					evaluate_statement_command_indirect(instance, id, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_ZERO_PAGE:
 				case nescc::core::ADDRESS_MODE_ZERO_PAGE_X:
 				case nescc::core::ADDRESS_MODE_ZERO_PAGE_Y:
-					evaluate_statement_command_zero_page(instance, verbose);
+					evaluate_statement_command_zero_page(instance, id, verbose);
 					break;
 				default:
 					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_COMMAND,
@@ -227,10 +250,11 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_command_absolute(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
 			// TODO
 
@@ -240,10 +264,11 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_command_accumulator(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
 			// TODO
 
@@ -253,10 +278,11 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_command_immediate(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
 			// TODO
 
@@ -266,10 +292,11 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_command_implied(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
 			// TODO
 
@@ -279,10 +306,11 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_command_indirect(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
 			// TODO
 
@@ -292,10 +320,11 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_command_zero_page(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
 			// TODO
 
@@ -455,8 +484,11 @@ namespace nescc {
 
 					switch(tok.type()) {
 						case nescc::core::TOKEN_IDENTIFIER: { // <identifier>
-								std::string name = tok.as_literal();
+								std::string name;
+								std::map<std::string, uint16_t>::iterator iter_label;
+								std::map<std::string, nescc::core::uuid_t>::iterator iter_identifier;
 
+								name = tok.as_literal();
 								if(disallow.find(name) != disallow.end()) {
 									THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
 										NESCC_TOOL_ASSEMBLER_EXCEPTION_IDENTIFIER_REDEFINED,
@@ -464,36 +496,39 @@ namespace nescc {
 										STRING_CHECK(instance.as_exception(true)));
 								}
 
-								std::map<std::string, nescc::core::uuid_t>::iterator iter = m_identifier_map.find(name);
+								iter_label = m_label_map.find(name);
+								iter_identifier = m_identifier_map.find(name);
 
-								if(iter == m_identifier_map.end()) {
+								if(iter_identifier != m_identifier_map.end()) { // <expression>
+									entry = instance.node(iter_identifier->second);
+									switch(entry.type()) {
+										case nescc::core::NODE_EXPRESSION: // <expression>
+											result = evaluate_statement_expression_begin(instance,
+													iter_identifier->second, disallow, verbose);
+											break;
+										case nescc::core::NODE_LEAF: // <literal>
+
+											tok = instance.token(entry.token());
+											if(tok.type() != nescc::core::TOKEN_LITERAL) {
+												THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
+												NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_LITERAL,
+												"%s", STRING_CHECK(instance.as_exception(true)));
+											}
+
+											result = (int32_t) tok.as_literal().front();
+											break;
+										default:
+											THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
+												NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_EXPRESSION,
+												"%s", STRING_CHECK(instance.as_exception(true)));
+									}
+								} else if(iter_label != m_label_map.end()) { // <label>
+									result = (int32_t) iter_label->second;
+								} else {
 									THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
 										NESCC_TOOL_ASSEMBLER_EXCEPTION_IDENTIFIER_NOT_FOUND,
 										"%s, %s", STRING_CHECK(name),
 										STRING_CHECK(instance.as_exception(true)));
-								}
-
-								entry = instance.node(iter->second);
-								switch(entry.type()) {
-									case nescc::core::NODE_EXPRESSION: // <expression>
-										result = evaluate_statement_expression_begin(instance, iter->second,
-												disallow, verbose);
-										break;
-									case nescc::core::NODE_LEAF: // <literal>
-
-										tok = instance.token(entry.token());
-										if(tok.type() != nescc::core::TOKEN_LITERAL) {
-											THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
-												NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_LITERAL,
-												"%s", STRING_CHECK(instance.as_exception(true)));
-										}
-
-										result = (int32_t) tok.as_literal().front();
-										break;
-									default:
-										THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
-											NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_EXPRESSION,
-											"%s", STRING_CHECK(instance.as_exception(true)));
 								}
 							} break;
 						case nescc::core::TOKEN_SCALAR: // <scalar>
@@ -629,20 +664,35 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_label(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
+			std::string literal;
+			nescc::core::token tok;
 			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			entry = instance.node();
+			entry = instance.node(id);
 			if(entry.type() != nescc::core::NODE_LABEL) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_LABEL,
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			tok = instance.token(entry.token());
+			if(tok.type() != nescc::core::TOKEN_LABEL) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_LABEL,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			literal = tok.as_literal();
+			if(m_label_map.find(literal) != m_label_map.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_LABEL_REDEFINED,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			m_label_map.insert(std::make_pair(literal, m_origin));
 
 			TRACE_EXIT();
 		}
@@ -650,14 +700,15 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_pragma(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			entry = instance.node();
+			entry = instance.node(id);
 			if(entry.type() != nescc::core::NODE_PRAGMA) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_EXPECTING_PRAGMA,
 					"%s", STRING_CHECK(instance.as_exception(true)));
@@ -671,22 +722,22 @@ namespace nescc {
 				case nescc::core::PRAGMA_COMMAND_PAGE_PROGRAM:
 				case nescc::core::PAAGMA_COMMAND_PAGE_SIZE:
 				case nescc::core::PRAGMA_COMMAND_UNDEFINE:
-					evaluate_statement_pragma_define(instance, verbose);
+					evaluate_statement_pragma_define(instance, id, verbose);
 					break;
 				case nescc::core::PRAGMA_CONDITION_IF:
 				case nescc::core::PRAGMA_CONDITION_IF_DEFINE:
-					evaluate_statement_pragma_condition(instance, verbose);
+					evaluate_statement_pragma_condition(instance, id, verbose);
 					break;
 				case nescc::core::PRAGMA_DATA_BYTE:
 				case nescc::core::PRAGMA_DATA_RESERVE:
 				case nescc::core::PRAGMA_DATA_WORD:
-					evaluate_statement_pragma_data(instance, verbose);
+					evaluate_statement_pragma_data(instance, id, verbose);
 					break;
 				case nescc::core::PRAGMA_INES_MAPPER:
 				case nescc::core::PRAGMA_INES_MIRRORING:
 				case nescc::core::PRAGMA_INES_ROM_CHARACTER:
 				case nescc::core::PRAGMA_INES_ROM_PROGRAM:
-					evaluate_statement_pragma_ines(instance, verbose);
+					evaluate_statement_pragma_ines(instance, id, verbose);
 					break;
 				default:
 					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_PRAGMA,
@@ -699,15 +750,16 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_pragma_condition(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			parent = instance.node();
+			parent = instance.node(id);
 			if(parent.children().empty()) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_CONDITION,
 					"%s", STRING_CHECK(instance.as_exception(true)));
@@ -715,22 +767,18 @@ namespace nescc {
 
 			tok = instance.token(parent.token());
 			switch(tok.subtype()) {
-				case nescc::core::PRAGMA_CONDITION_IF:
+				case nescc::core::PRAGMA_CONDITION_IF: // .if
 
-					if(evaluate_statement_condition(instance, parent.children().front(), verbose)) { // .if
-
-						// TODO: <block>
-
-					} else { // .else
-
-						// TODO: <block>?
-
+					if(evaluate_statement_condition(instance, parent.children().front(), verbose)) {
+						evaluate_statement_block(instance, parent.children().at(PRAGMA_CONDITION_BLOCK_IF), verbose);
+					} else if(parent.children().size() == (PRAGMA_CONDITION_MAX + 1)) { // .else
+						evaluate_statement_block(instance, parent.children().at(PRAGMA_CONDITION_BLOCK_ELSE), verbose);
 					}
 					break;
-				case nescc::core::PRAGMA_CONDITION_IF_DEFINE: {
+				case nescc::core::PRAGMA_CONDITION_IF_DEFINE: { // .ifdef
 						nescc::core::node child;
 
-						child = parent.children().front();
+						child = instance.node(parent.children().front());
 						if(child.type() != nescc::core::NODE_LEAF) {
 							THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_CONDITION,
 								"%s", STRING_CHECK(instance.as_exception(true)));
@@ -742,14 +790,10 @@ namespace nescc {
 								"%s", STRING_CHECK(instance.as_exception(true)));
 						}
 
-						if(m_identifier_map.find(tok.as_literal()) != m_identifier_map.end()) { // .ifdef
-
-							// TODO: <block>
-
-						} else { // .else
-
-							// TODO: <block>?
-
+						if(m_identifier_map.find(tok.as_literal()) != m_identifier_map.end()) {
+							evaluate_statement_block(instance, parent.children().at(PRAGMA_CONDITION_BLOCK_IF), verbose);
+						} else if(parent.children().size() == (PRAGMA_CONDITION_MAX + 1)) { // .else
+							evaluate_statement_block(instance, parent.children().at(PRAGMA_CONDITION_BLOCK_ELSE), verbose);
 						}
 					} break;
 				default:
@@ -764,6 +808,7 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_pragma_data(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
@@ -774,9 +819,9 @@ namespace nescc {
 			nescc::core::node entry;
 			std::vector<uint8_t> data;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			entry = instance.node();
+			entry = instance.node(id);
 
 			tok = instance.token(entry.token());
 			switch(tok.subtype()) {
@@ -827,15 +872,16 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_pragma_define(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			parent = instance.node();
+			parent = instance.node(id);
 
 			tok = instance.token(parent.token());
 			switch(tok.subtype()) {
@@ -894,9 +940,7 @@ namespace nescc {
 						m_identifier_map.insert(std::make_pair(identifier, child.id()));
 					} break;
 				case nescc::core::PRAGMA_COMMAND_INCLUDE: // .inc
-
-					// TODO: <block>
-
+					evaluate_statement_block(instance, parent.children().at(INCLUDE_BLOCK_CHILD), verbose);
 					break;
 				case nescc::core::PRAGMA_COMMAND_ORIGIN: // .org
 
@@ -1031,6 +1075,7 @@ namespace nescc {
 		void
 		assembler::evaluate_statement_pragma_ines(
 			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
 			__in_opt bool verbose
 			)
 		{
@@ -1038,9 +1083,9 @@ namespace nescc {
 			nescc::core::token tok;
 			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Verbose=%x", &instance, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
-			entry = instance.node();
+			entry = instance.node(id);
 			if(entry.children().empty()) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_STATEMENT,
 					"%s", STRING_CHECK(instance.as_exception(true)));
@@ -1285,7 +1330,7 @@ namespace nescc {
 			std::memset(&m_header, 0, sizeof(m_header));
 			std::memcpy(m_header.magic, CARTRIDGE_MAGIC, CARTRIDGE_MAGIC_LENGTH);
 			m_identifier_map.clear();
-			m_label_set.clear();
+			m_label_map.clear();
 			m_listing.clear();
 			m_listing.str(std::string());
 			m_mode_character = false;
@@ -1319,15 +1364,38 @@ namespace nescc {
 			reset();
 			instance.set(path, true);
 
+#ifndef DISPLAY_SYNTAX_TREES
 			if(instance.node().type() == nescc::core::NODE_BEGIN) {
 				instance.move_next();
 			}
 
 			while(instance.has_next()) {
-				evaluate_statement(instance, verbose);
+				evaluate_statement(instance, instance.node().id(), verbose);
+
+				if(instance.has_next()) {
+					instance.move_next();
+				}
+			}
+
+			if(m_header.rom_program != m_bank_program.size()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_BANK_PROGRAM_MISMATCH,
+					"Banks=%u (expected=%u)", m_header.rom_program, m_bank_program.size());
+			}
+
+			if(m_header.rom_character != m_bank_character.size()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_BANK_CHARACTER_MISMATCH,
+					"Banks=%u (expected=%u)", m_header.rom_character, m_bank_character.size());
 			}
 
 			form_output_file(instance, listing, verbose);
+#else
+			while(instance.has_next()) {
+				std::cout << instance.as_string(true) << std::endl;
+				instance.move_next();
+			}
+
+			std::cout << instance.as_string(true) << std::endl;
+#endif // DISPLAY_SYNTAX_TREES
 
 			TRACE_EXIT();
 		}
