@@ -254,9 +254,35 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
-			// TODO
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_ABSOLUTE_SET.find(tok.subtype()) != nescc::core::COMMAND_ABSOLUTE_SET.end()) {
+
+				// TODO
+
+			} else if(nescc::core::COMMAND_ABSOLUTE_X_SET.find(tok.subtype()) != nescc::core::COMMAND_ABSOLUTE_X_SET.end()) {
+
+				// TODO
+
+			} else if(nescc::core::COMMAND_ABSOLUTE_Y_SET.find(tok.subtype()) != nescc::core::COMMAND_ABSOLUTE_Y_SET.end()) {
+
+				// TODO
+
+			} else {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			TRACE_EXIT();
 		}
@@ -268,7 +294,23 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_ACCUMULATOR_SET.find(tok.subtype()) == nescc::core::COMMAND_ACCUMULATOR_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			// TODO
 
@@ -282,7 +324,23 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_IMMEDIATE_SET.find(tok.subtype()) == nescc::core::COMMAND_IMMEDIATE_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			// TODO
 
@@ -296,7 +354,23 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_IMPLIED_SET.find(tok.subtype()) == nescc::core::COMMAND_IMPLIED_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			// TODO
 
@@ -310,9 +384,35 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
-			// TODO
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_INDIRECT_SET.find(tok.subtype()) != nescc::core::COMMAND_INDIRECT_SET.end()) {
+
+				// TODO
+
+			} else if(nescc::core::COMMAND_INDIRECT_X_SET.find(tok.subtype()) != nescc::core::COMMAND_INDIRECT_X_SET.end()) {
+
+				// TODO
+
+			} else if(nescc::core::COMMAND_INDIRECT_Y_SET.find(tok.subtype()) != nescc::core::COMMAND_INDIRECT_Y_SET.end()) {
+
+				// TODO
+
+			} else {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			TRACE_EXIT();
 		}
@@ -324,9 +424,35 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
 
-			// TODO
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_ZERO_PAGE_SET.find(tok.subtype()) != nescc::core::COMMAND_ZERO_PAGE_SET.end()) {
+
+				// TODO
+
+			} else if(nescc::core::COMMAND_ZERO_PAGE_X_SET.find(tok.subtype()) != nescc::core::COMMAND_ZERO_PAGE_X_SET.end()) {
+
+				// TODO
+
+			} else if(nescc::core::COMMAND_ZERO_PAGE_Y_SET.find(tok.subtype()) != nescc::core::COMMAND_ZERO_PAGE_Y_SET.end()) {
+
+				// TODO
+
+			} else {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			TRACE_EXIT();
 		}
