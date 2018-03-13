@@ -205,6 +205,7 @@ namespace nescc {
 			)
 		{
 			nescc::core::node entry;
+			std::vector<uint8_t> data;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
@@ -215,33 +216,59 @@ namespace nescc {
 			}
 
 			switch(entry.subtype()) {
-				case nescc::core::ADDRESS_MODE_ABSOLUTE:
+				case nescc::core::ADDRESS_MODE_ABSOLUTE: {
+						nescc::core::token tok;
+
+						tok = instance.token(entry.token());
+						if(nescc::core::COMMAND_RELATIVE_SET.find(tok.subtype()) == nescc::core::COMMAND_RELATIVE_SET.end()) {
+							evaluate_statement_command_absolute(instance, id, data, verbose);
+						} else {
+							evaluate_statement_command_relative(instance, id, data, verbose);
+						}
+					} break;
 				case nescc::core::ADDRESS_MODE_ABSOLUTE_X:
+					evaluate_statement_command_absolute_x(instance, id, data, verbose);
+					break;
 				case nescc::core::ADDRESS_MODE_ABSOLUTE_Y:
-					evaluate_statement_command_absolute(instance, id, verbose);
+					evaluate_statement_command_absolute_y(instance, id, data, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_ACCUMULATOR:
-					evaluate_statement_command_accumulator(instance, id, verbose);
+					evaluate_statement_command_accumulator(instance, id, data, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_IMMEDIATE:
-					evaluate_statement_command_immediate(instance, id, verbose);
+					evaluate_statement_command_immediate(instance, id, data, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_IMPLIED:
-					evaluate_statement_command_implied(instance, id, verbose);
+					evaluate_statement_command_implied(instance, id, data, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_INDIRECT:
+					evaluate_statement_command_indirect(instance, id, data, verbose);
+					break;
 				case nescc::core::ADDRESS_MODE_INDIRECT_X:
+					evaluate_statement_command_indirect_x(instance, id, data, verbose);
+					break;
 				case nescc::core::ADDRESS_MODE_INDIRECT_Y:
-					evaluate_statement_command_indirect(instance, id, verbose);
+					evaluate_statement_command_indirect_y(instance, id, data, verbose);
+					break;
+				case nescc::core::ADDRESS_MODE_RELATIVE:
+					evaluate_statement_command_relative(instance, id, data, verbose);
 					break;
 				case nescc::core::ADDRESS_MODE_ZERO_PAGE:
+					evaluate_statement_command_zero_page(instance, id, data, verbose);
+					break;
 				case nescc::core::ADDRESS_MODE_ZERO_PAGE_X:
+					evaluate_statement_command_zero_page_x(instance, id, data, verbose);
+					break;
 				case nescc::core::ADDRESS_MODE_ZERO_PAGE_Y:
-					evaluate_statement_command_zero_page(instance, id, verbose);
+					evaluate_statement_command_zero_page_y(instance, id, data, verbose);
 					break;
 				default:
 					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_STATEMENT_COMMAND,
 						"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(!data.empty()) {
+				write(instance, data);
 			}
 
 			TRACE_EXIT();
@@ -251,13 +278,14 @@ namespace nescc {
 		assembler::evaluate_statement_command_absolute(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
 
@@ -267,22 +295,74 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			if(nescc::core::COMMAND_ABSOLUTE_SET.find(tok.subtype()) != nescc::core::COMMAND_ABSOLUTE_SET.end()) {
-
-				// TODO
-
-			} else if(nescc::core::COMMAND_ABSOLUTE_X_SET.find(tok.subtype()) != nescc::core::COMMAND_ABSOLUTE_X_SET.end()) {
-
-				// TODO
-
-			} else if(nescc::core::COMMAND_ABSOLUTE_Y_SET.find(tok.subtype()) != nescc::core::COMMAND_ABSOLUTE_Y_SET.end()) {
-
-				// TODO
-
-			} else {
+			if(nescc::core::COMMAND_ABSOLUTE_SET.find(tok.subtype()) == nescc::core::COMMAND_ABSOLUTE_SET.end()) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_absolute_x(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_ABSOLUTE_X_SET.find(tok.subtype()) == nescc::core::COMMAND_ABSOLUTE_X_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_absolute_y(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_ABSOLUTE_Y_SET.find(tok.subtype()) == nescc::core::COMMAND_ABSOLUTE_Y_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			// TODO
 
 			TRACE_EXIT();
 		}
@@ -291,13 +371,14 @@ namespace nescc {
 		assembler::evaluate_statement_command_accumulator(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
 
@@ -321,13 +402,14 @@ namespace nescc {
 		assembler::evaluate_statement_command_immediate(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
 
@@ -351,13 +433,15 @@ namespace nescc {
 		assembler::evaluate_statement_command_implied(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
 
@@ -372,7 +456,15 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_IMPLIED));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+
+std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 
 			TRACE_EXIT();
 		}
@@ -381,13 +473,14 @@ namespace nescc {
 		assembler::evaluate_statement_command_indirect(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
 
@@ -397,22 +490,105 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			if(nescc::core::COMMAND_INDIRECT_SET.find(tok.subtype()) != nescc::core::COMMAND_INDIRECT_SET.end()) {
-
-				// TODO
-
-			} else if(nescc::core::COMMAND_INDIRECT_X_SET.find(tok.subtype()) != nescc::core::COMMAND_INDIRECT_X_SET.end()) {
-
-				// TODO
-
-			} else if(nescc::core::COMMAND_INDIRECT_Y_SET.find(tok.subtype()) != nescc::core::COMMAND_INDIRECT_Y_SET.end()) {
-
-				// TODO
-
-			} else {
+			if(nescc::core::COMMAND_INDIRECT_SET.find(tok.subtype()) == nescc::core::COMMAND_INDIRECT_SET.end()) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_indirect_x(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_INDIRECT_X_SET.find(tok.subtype()) == nescc::core::COMMAND_INDIRECT_X_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_indirect_y(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_INDIRECT_Y_SET.find(tok.subtype()) == nescc::core::COMMAND_INDIRECT_Y_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_relative(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_RELATIVE_SET.find(tok.subtype()) == nescc::core::COMMAND_RELATIVE_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			// TODO
 
 			TRACE_EXIT();
 		}
@@ -421,13 +597,14 @@ namespace nescc {
 		assembler::evaluate_statement_command_zero_page(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
 			__in_opt bool verbose
 			)
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Verbose=%x", &instance, id, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
 
@@ -437,22 +614,74 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			if(nescc::core::COMMAND_ZERO_PAGE_SET.find(tok.subtype()) != nescc::core::COMMAND_ZERO_PAGE_SET.end()) {
-
-				// TODO
-
-			} else if(nescc::core::COMMAND_ZERO_PAGE_X_SET.find(tok.subtype()) != nescc::core::COMMAND_ZERO_PAGE_X_SET.end()) {
-
-				// TODO
-
-			} else if(nescc::core::COMMAND_ZERO_PAGE_Y_SET.find(tok.subtype()) != nescc::core::COMMAND_ZERO_PAGE_Y_SET.end()) {
-
-				// TODO
-
-			} else {
+			if(nescc::core::COMMAND_ZERO_PAGE_SET.find(tok.subtype()) == nescc::core::COMMAND_ZERO_PAGE_SET.end()) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_zero_page_x(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_ZERO_PAGE_X_SET.find(tok.subtype()) == nescc::core::COMMAND_ZERO_PAGE_X_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			// TODO
+
+			TRACE_EXIT();
+		}
+
+		void
+		assembler::evaluate_statement_command_zero_page_y(
+			__in nescc::assembler::parser &instance,
+			__in nescc::core::uuid_t id,
+			__inout std::vector<uint8_t> &data,
+			__in_opt bool verbose
+			)
+		{
+			nescc::core::token tok;
+			nescc::core::node parent;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
+
+			parent = instance.node(id);
+
+			tok = instance.token(parent.token());
+			if(tok.type() != nescc::core::TOKEN_COMMAND) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			if(nescc::core::COMMAND_ZERO_PAGE_Y_SET.find(tok.subtype()) == nescc::core::COMMAND_ZERO_PAGE_Y_SET.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND_ADDRESS_MODE,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			// TODO
 
 			TRACE_EXIT();
 		}
@@ -938,9 +1167,7 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
-			size_t iter;
 			int32_t value;
-			uint16_t offset;
 			nescc::core::token tok;
 			nescc::core::node entry;
 			std::vector<uint8_t> data;
@@ -978,19 +1205,7 @@ namespace nescc {
 						"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			nescc::core::memory<uint8_t> &bank = find_bank(instance);
-
-			offset = (m_origin % bank.size());
-			if((bank.size() - offset) < data.size()) {
-				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_BANK_FULL,
-					"%s", STRING_CHECK(instance.as_exception(true)));
-			}
-
-			for(iter = 0; iter < data.size(); ++iter) {
-				bank.write(iter + offset, data.at(iter));
-			}
-
-			m_origin += data.size();
+			write(instance, data);
 
 			TRACE_EXIT();
 		}
@@ -1579,6 +1794,34 @@ namespace nescc {
 
 			TRACE_EXIT();
 			return result.str();
+		}
+
+		void
+		assembler::write(
+			__in nescc::assembler::parser &instance,
+			__in const std::vector<uint8_t> &data
+			)
+		{
+			size_t iter;
+			uint16_t offset;
+
+			TRACE_ENTRY_FORMAT("Instance=%p, Data=%p", &instance, &data);
+
+			nescc::core::memory<uint8_t> &bank = find_bank(instance);
+
+			offset = (m_origin % bank.size());
+			if((bank.size() - offset) < data.size()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_BANK_FULL,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			for(iter = 0; iter < data.size(); ++iter) {
+				bank.write(iter + offset, data.at(iter));
+			}
+
+			m_origin += data.size();
+
+			TRACE_EXIT();
 		}
 	}
 }

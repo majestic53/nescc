@@ -96,36 +96,93 @@ namespace nescc {
 				void evaluate_statement_command_absolute(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_command_absolute_x(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_command_absolute_y(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_accumulator(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_immediate(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_implied(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_indirect(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_command_indirect_x(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
+					__in_opt bool verbose = false
+					);
+
+
+				void evaluate_statement_command_indirect_y(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
+					__in_opt bool verbose = false
+					);
+
+
+				void evaluate_statement_command_relative(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
 					__in_opt bool verbose = false
 					);
 
 				void evaluate_statement_command_zero_page(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_command_zero_page_x(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
+					__in_opt bool verbose = false
+					);
+
+				void evaluate_statement_command_zero_page_y(
+					__in nescc::assembler::parser &instance,
+					__in nescc::core::uuid_t id,
+					__inout std::vector<uint8_t> &data,
 					__in_opt bool verbose = false
 					);
 
@@ -214,6 +271,11 @@ namespace nescc {
 				void on_uninitialize(void);
 
 				void reset(void);
+
+				void write(
+					__in nescc::assembler::parser &instance,
+					__in const std::vector<uint8_t> &data
+					);
 
 				std::vector<nescc::core::memory<uint8_t>> m_bank_character;
 
