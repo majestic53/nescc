@@ -123,7 +123,7 @@ namespace nescc {
 			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Path unassigned",
 			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Assembler is uninitialized",
 			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Unsupported command",
-			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Unsupported comamnd address mode",
+			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Unsupported command address mode",
 			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Unsupported condition operator",
 			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Unsupported expression operator",
 			NESCC_TOOL_ASSEMBLER_EXCEPTION_HEADER "Unsupported statement",
@@ -152,6 +152,8 @@ namespace nescc {
 
 		#define ASSEMBLE_BINARY_EXTENSION "nes"
 		#define ASSEMBLE_LIST_EXTENSION "lst"
+
+		#define COMMAND_OPERAND_COUNT 1
 
 		#define CONDITION_OPERAND_COUNT 2
 

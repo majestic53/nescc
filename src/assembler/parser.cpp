@@ -469,13 +469,6 @@ namespace nescc {
 			}
 
 			nescc::assembler::lexer::move_next();
-
-			tok = nescc::assembler::lexer::token();
-			if(tok.type() != nescc::core::TOKEN_SCALAR) {
-				THROW_NESCC_ASSEMBLER_PARSER_EXCEPTION_FORMAT(NESCC_ASSEMBLER_PARSER_EXCEPTION_EXPECTING_SCALAR,
-					"%s", STRING_CHECK(nescc::assembler::parser::as_exception(true)));
-			}
-
 			enumerate_node_expression(parent);
 
 			TRACE_EXIT_FORMAT("Result=%u(%s)", result, ADDRESS_MODE_STRING(result));

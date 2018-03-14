@@ -195,6 +195,7 @@ namespace nescc {
 				int32_t evaluate_statement_expression(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout bool &contains_label,
 					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
@@ -202,6 +203,7 @@ namespace nescc {
 				int32_t evaluate_statement_expression_begin(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout bool &contains_label,
 					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
@@ -209,6 +211,7 @@ namespace nescc {
 				int32_t evaluate_statement_expression_operand(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout bool &contains_label,
 					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
@@ -216,6 +219,7 @@ namespace nescc {
 				int32_t evaluate_statement_expression_operator(
 					__in nescc::assembler::parser &instance,
 					__in nescc::core::uuid_t id,
+					__inout bool &contains_label,
 					__in_opt const std::set<std::string> &disallow = std::set<std::string>(),
 					__in_opt bool verbose = false
 					);
@@ -292,6 +296,8 @@ namespace nescc {
 				bool m_mode_character;
 
 				uint16_t m_origin;
+
+				bool m_pass_second;
 
 				std::string m_path;
 

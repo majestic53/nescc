@@ -296,6 +296,11 @@ Changelog
 
 Version 0.1.1811
 ----------------
+*Updated: 3/13/2018*
+
+* Added assembler second pass
+* Added assembler command evaluation
+
 *Updated: 3/12/2018*
 
 * Added assembler command mapping

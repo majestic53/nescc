@@ -30,6 +30,7 @@ namespace nescc {
 			m_header({}),
 			m_mode_character(false),
 			m_origin(0),
+			m_pass_second(false),
 			m_position_character(0),
 			m_position_program(0),
 			m_trace(nescc::trace::acquire()),
@@ -64,6 +65,7 @@ namespace nescc {
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler clearing...");
 
 			reset();
+			m_pass_second = false;
 			m_path.clear();
 
 			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler cleared.");
@@ -284,10 +286,15 @@ namespace nescc {
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -300,7 +307,24 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_ABSOLUTE));
+			if(entry != nescc::core::COMMAND_VALUE_MAP.end()) {
+				uint16_t value;
+				bool contains_label = false;
+
+				value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+										std::set<std::string>(), verbose);
+
+				if((value > UINT8_MAX) || contains_label) {
+					data.push_back(entry->second);
+					data.push_back(value);
+					data.push_back(value >> CHAR_BIT);
+				} else {
+					evaluate_statement_command_zero_page(instance, id, data, verbose);
+				}
+			} else {
+				evaluate_statement_command_zero_page(instance, id, data, verbose);
+			}
 
 			TRACE_EXIT();
 		}
@@ -315,10 +339,15 @@ namespace nescc {
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -331,7 +360,24 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_ABSOLUTE_X));
+			if(entry != nescc::core::COMMAND_VALUE_MAP.end()) {
+				uint16_t value;
+				bool contains_label = false;
+
+				value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+										std::set<std::string>(), verbose);
+
+				if((value > UINT8_MAX) || contains_label) {
+					data.push_back(entry->second);
+					data.push_back(value);
+					data.push_back(value >> CHAR_BIT);
+				} else {
+					evaluate_statement_command_zero_page_x(instance, id, data, verbose);
+				}
+			} else {
+				evaluate_statement_command_zero_page_x(instance, id, data, verbose);
+			}
 
 			TRACE_EXIT();
 		}
@@ -346,10 +392,15 @@ namespace nescc {
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -362,7 +413,24 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_ABSOLUTE_Y));
+			if(entry != nescc::core::COMMAND_VALUE_MAP.end()) {
+				uint16_t value;
+				bool contains_label = false;
+
+				value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+										std::set<std::string>(), verbose);
+
+				if((value > UINT8_MAX) || contains_label) {
+					data.push_back(entry->second);
+					data.push_back(value);
+					data.push_back(value >> CHAR_BIT);
+				} else {
+					evaluate_statement_command_zero_page_y(instance, id, data, verbose);
+				}
+			} else {
+				evaluate_statement_command_zero_page_y(instance, id, data, verbose);
+			}
 
 			TRACE_EXIT();
 		}
@@ -377,10 +445,15 @@ namespace nescc {
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(!parent.children().empty()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -393,7 +466,13 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_ACCUMULATOR));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
 
 			TRACE_EXIT();
 		}
@@ -408,10 +487,16 @@ namespace nescc {
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -424,7 +509,15 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_IMMEDIATE));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+					std::set<std::string>(), verbose));
 
 			TRACE_EXIT();
 		}
@@ -444,6 +537,10 @@ namespace nescc {
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(!parent.children().empty()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -464,8 +561,6 @@ namespace nescc {
 
 			data.push_back(entry->second);
 
-std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
-
 			TRACE_EXIT();
 		}
 
@@ -477,12 +572,19 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			__in_opt bool verbose
 			)
 		{
+			uint16_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -495,7 +597,18 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_INDIRECT));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
+			data.push_back(entry->second);
+			data.push_back(value);
+			data.push_back(value >> CHAR_BIT);
 
 			TRACE_EXIT();
 		}
@@ -510,10 +623,16 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -526,7 +645,15 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_INDIRECT_X));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+					std::set<std::string>(), verbose));
 
 			TRACE_EXIT();
 		}
@@ -541,10 +668,16 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -557,7 +690,15 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_INDIRECT_Y));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+					std::set<std::string>(), verbose));
 
 			TRACE_EXIT();
 		}
@@ -570,12 +711,19 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			__in_opt bool verbose
 			)
 		{
+			uint16_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -588,7 +736,22 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_RELATIVE));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+					verbose);
+
+			if(value > m_origin) {
+				data.push_back(value - m_origin);
+			} else {
+				data.push_back((UINT8_MAX + 1) - (m_origin - value));
+			}
 
 			TRACE_EXIT();
 		}
@@ -603,10 +766,16 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -619,7 +788,15 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_ZERO_PAGE));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+					std::set<std::string>(), verbose));
 
 			TRACE_EXIT();
 		}
@@ -634,10 +811,16 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -650,7 +833,15 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_ZERO_PAGE_X));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+					std::set<std::string>(), verbose));
 
 			TRACE_EXIT();
 		}
@@ -665,10 +856,16 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
+			std::map<std::pair<uint8_t, uint8_t>, uint8_t>::const_iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, id=%x, Data=%p, Verbose=%x", &instance, id, &data, verbose);
 
 			parent = instance.node(id);
+			if(parent.children().size() != COMMAND_OPERAND_COUNT) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
 
 			tok = instance.token(parent.token());
 			if(tok.type() != nescc::core::TOKEN_COMMAND) {
@@ -681,7 +878,15 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			// TODO
+			entry = nescc::core::COMMAND_VALUE_MAP.find(std::make_pair(tok.subtype(), nescc::core::ADDRESS_MODE_ZERO_PAGE_Y));
+			if(entry == nescc::core::COMMAND_VALUE_MAP.end()) {
+				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_UNSUPPORTED_COMMAND,
+					"%s", STRING_CHECK(instance.as_exception(true)));
+			}
+
+			data.push_back(entry->second);
+			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
+					std::set<std::string>(), verbose));
 
 			TRACE_EXIT();
 		}
@@ -693,9 +898,9 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			__in_opt bool verbose
 			)
 		{
-			bool result = false;
 			int32_t left, right;
 			nescc::core::node entry;
+			bool contains_label = false, result = false;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
@@ -710,8 +915,11 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			left = evaluate_statement_expression_begin(instance, entry.children().front(), std::set<std::string>(), verbose);
-			right = evaluate_statement_expression_begin(instance, entry.children().back(), std::set<std::string>(), verbose);
+			left = evaluate_statement_expression_begin(instance, entry.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
+			right = evaluate_statement_expression_begin(instance, entry.children().back(), contains_label, std::set<std::string>(),
+									verbose);
 
 			switch(instance.token(entry.token()).subtype()) {
 				case nescc::core::SYMBOL_OPERATOR_AND: // &&
@@ -751,6 +959,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		assembler::evaluate_statement_expression(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout bool &contains_label,
 			__in_opt const std::set<std::string> &disallow,
 			__in_opt bool verbose
 			)
@@ -758,7 +967,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			int32_t result = 0;
 			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, disallow.size(), &disallow, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Contains Label=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, contains_label,
+						disallow.size(), &disallow, verbose);
 
 			entry = instance.node(id);
 			if(entry.type() != nescc::core::NODE_EXPRESSION) {
@@ -771,9 +981,9 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			result = evaluate_statement_expression_begin(instance, entry.children().front(), disallow, verbose);
+			result = evaluate_statement_expression_begin(instance, entry.children().front(), contains_label, disallow, verbose);
 
-			TRACE_EXIT_FORMAT("Result=%i", result);
+			TRACE_EXIT_FORMAT("Result[%s]=%i", contains_label ? "Label" : "", result);
 			return result;
 		}
 
@@ -781,6 +991,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		assembler::evaluate_statement_expression_begin(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout bool &contains_label,
 			__in_opt const std::set<std::string> &disallow,
 			__in_opt bool verbose
 			)
@@ -788,7 +999,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			int32_t result = 0;
 			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, disallow.size(), &disallow, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Contains Label=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, contains_label,
+						disallow.size(), &disallow, verbose);
 
 			entry = instance.node(id);
 			switch(entry.type()) {
@@ -799,21 +1011,22 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 							"%s", STRING_CHECK(instance.as_exception(true)));
 					}
 
-					result = evaluate_statement_expression_begin(instance, entry.children().front(), disallow, verbose);
+					result = evaluate_statement_expression_begin(instance, entry.children().front(), contains_label, disallow,
+											verbose);
 					break;
 				case nescc::core::NODE_LEAF:
 				case nescc::core::NODE_MODIFIER:
-					result = evaluate_statement_expression_operand(instance, id, disallow, verbose);
+					result = evaluate_statement_expression_operand(instance, id, contains_label, disallow, verbose);
 					break;
 				case nescc::core::NODE_OPERATOR:
-					result = evaluate_statement_expression_operator(instance, id, disallow, verbose);
+					result = evaluate_statement_expression_operator(instance, id, contains_label, disallow, verbose);
 					break;
 				default:
 					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_MALFORMED_EXPRESSION,
 						"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			TRACE_EXIT_FORMAT("Result=%i", result);
+			TRACE_EXIT_FORMAT("Result[%s]=%i", contains_label ? "Label" : "", result);
 			return result;
 		}
 
@@ -821,6 +1034,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		assembler::evaluate_statement_expression_operand(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout bool &contains_label,
 			__in_opt const std::set<std::string> &disallow,
 			__in_opt bool verbose
 			)
@@ -829,7 +1043,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			nescc::core::token tok;
 			nescc::core::node entry;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, disallow.size(), &disallow, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Contains Label=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, contains_label,
+						disallow.size(), &disallow, verbose);
 
 			entry = instance.node(id);
 			tok = instance.token(entry.token());
@@ -855,11 +1070,13 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 								iter_identifier = m_identifier_map.find(name);
 
 								if(iter_identifier != m_identifier_map.end()) { // <expression>
+
 									entry = instance.node(iter_identifier->second);
 									switch(entry.type()) {
 										case nescc::core::NODE_EXPRESSION: // <expression>
 											result = evaluate_statement_expression_begin(instance,
-													iter_identifier->second, disallow, verbose);
+													iter_identifier->second, contains_label,
+													disallow, verbose);
 											break;
 										case nescc::core::NODE_LEAF: // <literal>
 
@@ -879,6 +1096,10 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 									}
 								} else if(iter_label != m_label_map.end()) { // <label>
 									result = (int32_t) iter_label->second;
+									contains_label = true;
+								} else if(!m_pass_second) {
+									result = 0;
+									contains_label = true;
 								} else {
 									THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
 										NESCC_TOOL_ASSEMBLER_EXCEPTION_IDENTIFIER_NOT_FOUND,
@@ -901,7 +1122,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 							"%s", STRING_CHECK(instance.as_exception(true)));
 					}
 
-					result = evaluate_statement_expression_begin(instance, entry.children().front(), disallow, verbose);
+					result = evaluate_statement_expression_begin(instance, entry.children().front(), contains_label, disallow,
+											verbose);
 
 					switch(tok.type()) {
 						case nescc::core::TOKEN_PRAGMA:
@@ -945,7 +1167,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 						"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			TRACE_EXIT_FORMAT("Result=%i", result);
+			TRACE_EXIT_FORMAT("Result[%s]=%i", contains_label ? "Label" : "", result);
 			return result;
 		}
 
@@ -953,6 +1175,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		assembler::evaluate_statement_expression_operator(
 			__in nescc::assembler::parser &instance,
 			__in nescc::core::uuid_t id,
+			__inout bool &contains_label,
 			__in_opt const std::set<std::string> &disallow,
 			__in_opt bool verbose
 			)
@@ -960,7 +1183,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			nescc::core::node entry;
 			int32_t left, right, result = 0;
 
-			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, disallow.size(), &disallow, verbose);
+			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Contains Label=%x, Disallow[%u]=%p, Verbose=%x", &instance, id, contains_label,
+						disallow.size(), &disallow, verbose);
 
 			entry = instance.node(id);
 			if(entry.type() != nescc::core::NODE_OPERATOR) {
@@ -973,8 +1197,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			left = evaluate_statement_expression_begin(instance, entry.children().front(), disallow, verbose);
-			right = evaluate_statement_expression_begin(instance, entry.children().back(), disallow, verbose);
+			left = evaluate_statement_expression_begin(instance, entry.children().front(), contains_label, disallow, verbose);
+			right = evaluate_statement_expression_begin(instance, entry.children().back(), contains_label, disallow, verbose);
 
 			switch(instance.token(entry.token()).subtype()) {
 				case nescc::core::SYMBOL_ARITHMETIC_ADD: // +
@@ -1012,7 +1236,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 						"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			TRACE_EXIT_FORMAT("Result=%i", result);
+			TRACE_EXIT_FORMAT("Result[%s]=%i", contains_label ? "Label" : "", result);
 			return result;
 		}
 
@@ -1041,13 +1265,16 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			literal = tok.as_literal();
-			if(m_label_map.find(literal) != m_label_map.end()) {
-				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_LABEL_REDEFINED,
-					"%s", STRING_CHECK(instance.as_exception(true)));
-			}
+			if(!m_pass_second) {
 
-			m_label_map.insert(std::make_pair(literal, m_origin));
+				literal = tok.as_literal();
+				if(m_label_map.find(literal) != m_label_map.end()) {
+					THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_LABEL_REDEFINED,
+						"%s", STRING_CHECK(instance.as_exception(true)));
+				}
+
+				m_label_map.insert(std::make_pair(literal, m_origin));
+			}
 
 			TRACE_EXIT();
 		}
@@ -1171,6 +1398,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			nescc::core::token tok;
 			nescc::core::node entry;
 			std::vector<uint8_t> data;
+			bool contains_label = false;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
@@ -1182,20 +1410,24 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 
 					for(std::vector<nescc::core::uuid_t>::iterator iter = entry.children().begin();
 							iter != entry.children().end(); ++iter) { // <expression>+
-						value = evaluate_statement_expression(instance, *iter, std::set<std::string>(), verbose);
+						value = evaluate_statement_expression(instance, *iter, contains_label, std::set<std::string>(),
+											verbose);
+
 						data.push_back(value);
 					}
 					break;
 				case nescc::core::PRAGMA_DATA_RESERVE: // .rs
-					value = evaluate_statement_expression(instance, entry.children().front(), std::set<std::string>(),
-										verbose);
+					value = evaluate_statement_expression(instance, entry.children().front(), contains_label,
+										std::set<std::string>(), verbose);
 					data.resize(value, MEMORY_FILL);
 					break;
 				case nescc::core::PRAGMA_DATA_WORD: // .dw
 
 					for(std::vector<nescc::core::uuid_t>::iterator iter = entry.children().begin();
 							iter != entry.children().end(); ++iter) { // <expression>+
-						value = evaluate_statement_expression(instance, *iter, std::set<std::string>(), verbose);
+						value = evaluate_statement_expression(instance, *iter, contains_label, std::set<std::string>(),
+											verbose);
+
 						data.push_back(value);
 						data.push_back(value >> CHAR_BIT);
 					}
@@ -1219,6 +1451,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 		{
 			nescc::core::token tok;
 			nescc::core::node parent;
+			bool contains_label = false;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
@@ -1262,7 +1495,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 									std::set<std::string> disallow;
 
 									disallow.insert(identifier);
-									evaluate_statement_expression(instance, child.id(), disallow, verbose);
+									evaluate_statement_expression(instance, child.id(), contains_label, disallow,
+													verbose);
 								} break;
 							case nescc::core::NODE_LEAF:
 
@@ -1291,7 +1525,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					}
 
 					m_origin = (uint16_t) evaluate_statement_expression(instance, parent.children().front(),
-								std::set<std::string>(), verbose); // <expression>
+								contains_label, std::set<std::string>(), verbose); // <expression>
 					break;
 				case nescc::core::PRAGMA_COMMAND_PAGE_CHARACTER: { // .chr
 						uint16_t value;
@@ -1302,7 +1536,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 						}
 
 						value = (uint16_t) evaluate_statement_expression(instance, parent.children().front(),
-									std::set<std::string>(), verbose); // <expression>
+									contains_label, std::set<std::string>(), verbose); // <expression>
 
 						if(value > m_bank_character.size()) {
 							THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
@@ -1327,7 +1561,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 						}
 
 						value = (uint16_t) evaluate_statement_expression(instance, parent.children().front(),
-									std::set<std::string>(), verbose); // <expression>
+									contains_label, std::set<std::string>(), verbose); // <expression>
 
 						if(value > m_bank_program.size()) {
 							THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(
@@ -1352,7 +1586,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 						}
 
 						value = (uint16_t) evaluate_statement_expression(instance, parent.children().front(),
-									std::set<std::string>(), verbose); // <expression>
+									contains_label, std::set<std::string>(), verbose); // <expression>
 
 						if(m_mode_character) {
 
@@ -1423,6 +1657,7 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			uint8_t value;
 			nescc::core::token tok;
 			nescc::core::node entry;
+			bool contains_label = false;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Id=%x, Verbose=%x", &instance, id, verbose);
 
@@ -1432,7 +1667,8 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
-			value = (uint8_t) evaluate_statement_expression(instance, entry.children().front(), std::set<std::string>(), verbose);
+			value = (uint8_t) evaluate_statement_expression(instance, entry.children().front(), contains_label, std::set<std::string>(),
+									verbose);
 
 			tok = instance.token(entry.token());
 			switch(tok.subtype()) {
@@ -1659,6 +1895,38 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			TRACE_EXIT();
 		}
 
+		bool
+		assembler::on_initialize(void)
+		{
+			bool result = true;
+
+			TRACE_ENTRY();
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler initializing...");
+
+			m_unique.initialize();
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler initialized.");
+
+			TRACE_EXIT_FORMAT("Result=%x", result);
+			return result;
+		}
+
+		void
+		assembler::on_uninitialize(void)
+		{
+			TRACE_ENTRY();
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler uninitializing...");
+
+			clear();
+			m_unique.uninitialize();
+
+			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler uninitialized.");
+
+			TRACE_EXIT();
+		}
+
 		void
 		assembler::reset(void)
 		{
@@ -1671,7 +1939,11 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 			std::memset(&m_header, 0, sizeof(m_header));
 			std::memcpy(m_header.magic, CARTRIDGE_MAGIC, CARTRIDGE_MAGIC_LENGTH);
 			m_identifier_map.clear();
-			m_label_map.clear();
+
+			if(!m_pass_second) {
+				m_label_map.clear();
+			}
+
 			m_listing.clear();
 			m_listing.str(std::string());
 			m_mode_character = false;
@@ -1718,6 +1990,22 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 				}
 			}
 
+			m_pass_second = true;
+			reset();
+			instance.reset();
+
+			if(instance.node().type() == nescc::core::NODE_BEGIN) {
+				instance.move_next();
+			}
+
+			while(instance.has_next()) {
+				evaluate_statement(instance, instance.node().id(), verbose);
+
+				if(instance.has_next()) {
+					instance.move_next();
+				}
+			}
+
 			if(m_header.rom_program != m_bank_program.size()) {
 				THROW_NESCC_TOOL_ASSEMBLER_EXCEPTION_FORMAT(NESCC_TOOL_ASSEMBLER_EXCEPTION_BANK_PROGRAM_MISMATCH,
 					"Banks=%u (expected=%u)", m_header.rom_program, m_bank_program.size());
@@ -1737,38 +2025,6 @@ std::cout << SCALAR_AS_HEX(uint8_t, entry->second) << std::endl;
 
 			std::cout << instance.as_string(true) << std::endl;
 #endif // DISPLAY_SYNTAX_TREES
-
-			TRACE_EXIT();
-		}
-
-		bool
-		assembler::on_initialize(void)
-		{
-			bool result = true;
-
-			TRACE_ENTRY();
-
-			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler initializing...");
-
-			m_unique.initialize();
-
-			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler initialized.");
-
-			TRACE_EXIT_FORMAT("Result=%x", result);
-			return result;
-		}
-
-		void
-		assembler::on_uninitialize(void)
-		{
-			TRACE_ENTRY();
-
-			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler uninitializing...");
-
-			clear();
-			m_unique.uninitialize();
-
-			TRACE_MESSAGE(TRACE_INFORMATION, "Assembler uninitialized.");
 
 			TRACE_EXIT();
 		}
