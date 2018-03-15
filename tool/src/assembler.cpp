@@ -319,6 +319,29 @@ namespace nescc {
 					data.push_back(entry->second);
 					data.push_back(value);
 					data.push_back(value >> CHAR_BIT);
+
+					if(m_pass_second) {
+						std::stringstream stream;
+
+						stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+						m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+						stream.clear();
+						stream.str(std::string());
+						stream << "0x" << SCALAR_AS_HEX(uint16_t, value);
+
+						m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+							<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+						for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+							if(iter != data.begin()) {
+								m_listing << " ";
+							}
+
+							m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+						}
+					}
 				} else {
 					evaluate_statement_command_zero_page(instance, id, data, verbose);
 				}
@@ -372,6 +395,29 @@ namespace nescc {
 					data.push_back(entry->second);
 					data.push_back(value);
 					data.push_back(value >> CHAR_BIT);
+
+					if(m_pass_second) {
+						std::stringstream stream;
+
+						stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+						m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+						stream.clear();
+						stream.str(std::string());
+						stream << "0x" << SCALAR_AS_HEX(uint16_t, value) << ", x";
+
+						m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+							<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+						for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+							if(iter != data.begin()) {
+								m_listing << " ";
+							}
+
+							m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+						}
+					}
 				} else {
 					evaluate_statement_command_zero_page_x(instance, id, data, verbose);
 				}
@@ -425,6 +471,29 @@ namespace nescc {
 					data.push_back(entry->second);
 					data.push_back(value);
 					data.push_back(value >> CHAR_BIT);
+
+					if(m_pass_second) {
+						std::stringstream stream;
+
+						stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+						m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+						stream.clear();
+						stream.str(std::string());
+						stream << "0x" << SCALAR_AS_HEX(uint16_t, value) << ", y";
+
+						m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+							<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+						for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+							if(iter != data.begin()) {
+								m_listing << " ";
+							}
+
+							m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+						}
+					}
 				} else {
 					evaluate_statement_command_zero_page_y(instance, id, data, verbose);
 				}
@@ -474,6 +543,23 @@ namespace nescc {
 
 			data.push_back(entry->second);
 
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str()
+					<< COMMAND_STRING(tok.subtype()) << " a" << std::left << std::setw(LISTING_COLUMN_WIDTH) << " ";
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
+
 			TRACE_EXIT();
 		}
 
@@ -485,6 +571,7 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			uint8_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
 			bool contains_label = false;
@@ -515,9 +602,34 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
 			data.push_back(entry->second);
-			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
-					std::set<std::string>(), verbose));
+			data.push_back(value);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "@0x" << SCALAR_AS_HEX(uint8_t, value);
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -560,6 +672,23 @@ namespace nescc {
 			}
 
 			data.push_back(entry->second);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str()
+					<< COMMAND_STRING(tok.subtype()) << " " << std::left << std::setw(LISTING_COLUMN_WIDTH) << " ";
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -610,6 +739,29 @@ namespace nescc {
 			data.push_back(value);
 			data.push_back(value >> CHAR_BIT);
 
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "[0x" << SCALAR_AS_HEX(uint16_t, value) << "]";
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
+
 			TRACE_EXIT();
 		}
 
@@ -621,6 +773,7 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			uint8_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
 			bool contains_label = false;
@@ -651,9 +804,34 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
 			data.push_back(entry->second);
-			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
-					std::set<std::string>(), verbose));
+			data.push_back(value);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "[0x" << SCALAR_AS_HEX(uint8_t, value) << ", x]";
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -666,6 +844,7 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			uint8_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
 			bool contains_label = false;
@@ -696,9 +875,34 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
 			data.push_back(entry->second);
-			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
-					std::set<std::string>(), verbose));
+			data.push_back(value);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "[0x" << SCALAR_AS_HEX(uint8_t, value) << "], y";
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -748,9 +952,34 @@ namespace nescc {
 					verbose);
 
 			if(value > m_origin) {
-				data.push_back(value - m_origin);
+				value -= m_origin;
 			} else {
-				data.push_back((UINT8_MAX + 1) - (m_origin - value));
+				value = ((UINT8_MAX + 1) - (m_origin - value));
+			}
+
+			data.push_back(value);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "0x" << SCALAR_AS_HEX(uint8_t, value);
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
 			}
 
 			TRACE_EXIT();
@@ -764,6 +993,7 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			uint8_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
 			bool contains_label = false;
@@ -794,9 +1024,34 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
 			data.push_back(entry->second);
-			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
-					std::set<std::string>(), verbose));
+			data.push_back(value);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "0x" << SCALAR_AS_HEX(uint8_t, value);
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -809,6 +1064,7 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			uint8_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
 			bool contains_label = false;
@@ -839,9 +1095,34 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
 			data.push_back(entry->second);
-			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
-					std::set<std::string>(), verbose));
+			data.push_back(value);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "0x" << SCALAR_AS_HEX(uint8_t, value) << ", x";
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -854,6 +1135,7 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
+			uint8_t value;
 			nescc::core::token tok;
 			nescc::core::node parent;
 			bool contains_label = false;
@@ -884,9 +1166,34 @@ namespace nescc {
 					"%s", STRING_CHECK(instance.as_exception(true)));
 			}
 
+			value = evaluate_statement_expression_begin(instance, parent.children().front(), contains_label, std::set<std::string>(),
+									verbose);
+
 			data.push_back(entry->second);
-			data.push_back(evaluate_statement_expression_begin(instance, parent.children().front(), contains_label,
-					std::set<std::string>(), verbose));
+			data.push_back(value);
+
+			if(m_pass_second) {
+				std::stringstream stream;
+
+				stream << "0x" << SCALAR_AS_HEX(uint16_t, m_origin);
+				m_listing << std::endl << std::left << std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				stream.clear();
+				stream.str(std::string());
+				stream << "0x" << SCALAR_AS_HEX(uint8_t, value) << ", y";
+
+				m_listing << COMMAND_STRING(tok.subtype()) << " " << std::left
+					<< std::setw(LISTING_COLUMN_WIDTH) << stream.str();
+
+				for(std::vector<uint8_t>::iterator iter = data.begin(); iter != data.end(); ++iter) {
+
+					if(iter != data.begin()) {
+						m_listing << " ";
+					}
+
+					m_listing << SCALAR_AS_HEX(uint8_t, *iter);
+				}
+			}
 
 			TRACE_EXIT();
 		}
@@ -1053,6 +1360,9 @@ namespace nescc {
 				case nescc::core::NODE_LEAF:
 
 					switch(tok.type()) {
+						case nescc::core::TOKEN_BOOLEAN: // <boolean>
+							result = tok.as_boolean();
+							break;
 						case nescc::core::TOKEN_IDENTIFIER: { // <identifier>
 								std::string name;
 								std::map<std::string, uint16_t>::iterator iter_label;
@@ -1730,11 +2040,12 @@ namespace nescc {
 			__in_opt bool verbose
 			)
 		{
-			size_t size;
+			size_t count = 0, size;
 			std::ofstream output;
 			std::stringstream path;
 			std::vector<uint8_t> binary;
 			std::string directory, file, extension;
+			std::vector<nescc::core::memory<uint8_t>>::iterator entry;
 
 			TRACE_ENTRY_FORMAT("Instance=%p, Listing=%x, Verbose=%x", &instance, listing, verbose);
 
@@ -1751,14 +2062,46 @@ namespace nescc {
 					<< std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << "|- ROM CHR: "
 						<< (int)m_header.rom_character << " ("
 						<< FLOAT_PRECISION(1, (m_header.rom_character * CARTRIDGE_ROM_CHARACTER_LENGTH) / KILOBYTE) << " KB)"
-					<< std::endl << std::endl;
-
-				// TODO
+					<< std::endl;
 			}
 
 			binary.insert(binary.begin(), (char *) &m_header, ((char *) &m_header) + sizeof(m_header));
 
-			// TODO
+			for(entry = m_bank_program.begin(); entry != m_bank_program.end(); ++count, ++entry) {
+
+				if(verbose) {
+					std::stringstream stream;
+
+					stream << "|- Program Bank[" << count << "]: ";
+					std::cout << std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << stream.str()
+						<< entry->size() << " (" << FLOAT_PRECISION(1, (entry->size() / KILOBYTE)) << " KB)";
+				}
+
+				binary.insert(binary.end(), (char *) entry->raw(), ((char *) entry->raw()) + entry->size());
+			}
+
+			count = 0;
+
+			if(!m_bank_program.empty() && verbose) {
+				std::cout << std::endl;
+			}
+
+			for(entry = m_bank_character.begin(); entry != m_bank_character.end(); ++count, ++entry) {
+
+				if(verbose) {
+					std::stringstream stream;
+
+					stream << "|- Character Bank[" << count << "]: ";
+					std::cout << std::endl << std::left << std::setw(ARGUMENT_COLUMN_WIDTH) << stream.str()
+						<< entry->size() << " (" << FLOAT_PRECISION(1, (entry->size() / KILOBYTE)) << " KB)";
+				}
+
+				binary.insert(binary.end(), (char *) entry->raw(), ((char *) entry->raw()) + entry->size());
+			}
+
+			if(!m_bank_character.empty() && verbose) {
+				std::cout << std::endl;
+			}
 
 			size = binary.size();
 
@@ -1768,7 +2111,7 @@ namespace nescc {
 			}
 
 			path << directory << DIRECTORY_DELIMITER << file << EXTENSION_DELIMITER << ASSEMBLE_BINARY_EXTENSION;
-			std::cout << "Writing binary file" << ", " << FLOAT_PRECISION(1, size / KILOBYTE)
+			std::cout << std::endl << "Writing binary file" << ", " << FLOAT_PRECISION(1, size / KILOBYTE)
 				<< " KB (" << size << " bytes) to " << path.str() << "...";
 
 			output = std::ofstream(path.str().c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
@@ -1785,11 +2128,6 @@ namespace nescc {
 			std::cout << " Done." << std::endl;
 
 			if(listing) {
-
-				if(verbose) {
-					// TODO
-				}
-
 				path.clear();
 				path.str(std::string());
 				path << directory << DIRECTORY_DELIMITER << file << EXTENSION_DELIMITER << ASSEMBLE_LIST_EXTENSION;
@@ -1993,6 +2331,14 @@ namespace nescc {
 			m_pass_second = true;
 			reset();
 			instance.reset();
+			m_listing << "Listing produced by " << NESCC << " " << NESCC_VERSION_MAJOR << "." << NESCC_VERSION_MINOR
+				<< "." << NESCC_VERSION_WEEK << "." << NESCC_VERSION_REVISION;
+
+			if(verbose) {
+				m_listing << "-" << NESCC_VERSION_RELEASE;
+			}
+
+			m_listing << std::endl << "Path: \"" << STRING_CHECK(path) << "\"" << std::endl;
 
 			if(instance.node().type() == nescc::core::NODE_BEGIN) {
 				instance.move_next();

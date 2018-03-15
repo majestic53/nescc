@@ -336,6 +336,7 @@ namespace nescc {
 				case nescc::core::TOKEN_REGISTER: // a
 					result = enumerate_node_command_address_mode_accumulator(parent);
 					break;
+				case nescc::core::TOKEN_BOOLEAN:
 				case nescc::core::TOKEN_IDENTIFIER:
 				case nescc::core::TOKEN_SCALAR:
 					result = enumerate_node_command_address_mode_absolute(parent);
@@ -857,8 +858,9 @@ namespace nescc {
 				}
 
 				nescc::assembler::lexer::move_next();
-			} else if((tok.type() == nescc::core::TOKEN_IDENTIFIER)
-					|| (tok.type() == nescc::core::TOKEN_SCALAR)) { // <identifier> | <scalar>
+			} else if((tok.type() == nescc::core::TOKEN_BOOLEAN)
+					|| (tok.type() == nescc::core::TOKEN_IDENTIFIER)
+					|| (tok.type() == nescc::core::TOKEN_SCALAR)) { // <boolean> | <identifier> | <scalar>
 				nescc::core::node entry;
 
 				entry.set(nescc::core::NODE_LEAF);

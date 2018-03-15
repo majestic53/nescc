@@ -296,6 +296,10 @@ Changelog
 
 Version 0.1.1811
 ----------------
+*Updated: 3/14/2018*
+
+* Added listing generation
+
 *Updated: 3/13/2018*
 
 * Added assembler second pass
