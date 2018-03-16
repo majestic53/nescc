@@ -1452,7 +1452,7 @@ namespace nescc {
 			}
 
 			try {
-				
+
 				if(m_interactive) {
 					nescc::core::thread::start(true);
 					nescc::core::thread::wait();

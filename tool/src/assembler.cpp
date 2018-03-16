@@ -952,9 +952,9 @@ namespace nescc {
 					verbose);
 
 			if(value > m_origin) {
-				value -= m_origin;
+				value -= (m_origin + ADDRESS_MODE_RELATIVE_LENGTH);
 			} else {
-				value = ((UINT8_MAX + 1) - (m_origin - value));
+				value = ((UINT8_MAX + 1) - ((m_origin + ADDRESS_MODE_RELATIVE_LENGTH) - value));
 			}
 
 			data.push_back(value);
@@ -1729,7 +1729,7 @@ namespace nescc {
 				case nescc::core::PRAGMA_DATA_RESERVE: // .rs
 					value = evaluate_statement_expression(instance, entry.children().front(), contains_label,
 										std::set<std::string>(), verbose);
-					data.resize(value, MEMORY_FILL);
+					data.resize(value, BANK_MEMORY_FILL);
 					break;
 				case nescc::core::PRAGMA_DATA_WORD: // .dw
 
@@ -1856,7 +1856,7 @@ namespace nescc {
 
 						if(value == m_bank_character.size()) {
 							m_bank_character.push_back(nescc::core::memory<uint8_t>());
-							m_bank_character.back().set_size(CARTRIDGE_ROM_CHARACTER_LENGTH);
+							m_bank_character.back().set_size(CARTRIDGE_ROM_CHARACTER_LENGTH, BANK_MEMORY_FILL);
 						}
 
 						m_position_character = value;
@@ -1881,7 +1881,7 @@ namespace nescc {
 
 						if(value == m_bank_program.size()) {
 							m_bank_program.push_back(nescc::core::memory<uint8_t>());
-							m_bank_program.back().set_size(CARTRIDGE_ROM_PROGRAM_LENGTH);
+							m_bank_program.back().set_size(CARTRIDGE_ROM_PROGRAM_LENGTH, BANK_MEMORY_FILL);
 						}
 
 						m_position_program = value;
@@ -1915,7 +1915,7 @@ namespace nescc {
 						}
 
 						nescc::core::memory<uint8_t> &bank = find_bank(instance);
-						bank.set_size(value);
+						bank.set_size(value, BANK_MEMORY_FILL);
 					} break;
 				case nescc::core::PRAGMA_COMMAND_UNDEFINE: { // .undef
 						std::string identifier;

@@ -542,7 +542,7 @@ namespace nescc {
 						stream << "A=" << SCALAR_AS_HEX(uint8_t, m_accumulator);
 						break;
 					case CPU_MODE_IMMEDIATE:
-						stream << "#=" << SCALAR_AS_HEX(uint8_t, bus.cpu_read(program_counter++));
+						stream << "@=" << SCALAR_AS_HEX(uint8_t, bus.cpu_read(program_counter++));
 						break;
 					case CPU_MODE_INDIRECT:
 						indirect = bus.cpu_read(program_counter++);

@@ -139,7 +139,7 @@ namespace nescc {
 		#define CPU_MODE_MAX CPU_MODE_ZERO_PAGE_Y
 
 		static const std::string CPU_MODE_STR[] = {
-			"abs", "abs, x", "abs, y", "Acc", "#", "imp", "(abs)", "(abs, x)", "(abs), y",
+			"abs", "abs, x", "abs, y", "a", "@", "imp", "[abs]", "[abs, x]", "[abs], y",
 			"int", "intr", "rel", "pull", "push", "zp", "zp, x", "zp, y",
 			};
 

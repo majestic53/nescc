@@ -147,11 +147,15 @@ namespace nescc {
 
 		#define NESCC_ASSEMBLER "Nescc-assembler"
 
+		#define ADDRESS_MODE_RELATIVE_LENGTH 2
+
 		#define ARGUMENT_COLUMN_WIDTH 24
 		#define ARGUMENT_DELIMITER '-'
 
 		#define ASSEMBLE_BINARY_EXTENSION "nes"
 		#define ASSEMBLE_LIST_EXTENSION "lst"
+
+		#define BANK_MEMORY_FILL UINT8_MAX
 
 		#define COMMAND_OPERAND_COUNT 1
 

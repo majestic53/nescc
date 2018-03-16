@@ -49,12 +49,12 @@ What's there
 
 ### Assembler
 
-Nothing yet
+* Supports all commands (including illegal commands)
+* Supports a variety of pragmas
 
 What's Missing
 --------------
 
-* Assembler is a work-in-progress
 * APU is not fully implemented in the emulator
 
 Build
@@ -296,6 +296,11 @@ Changelog
 
 Version 0.1.1811
 ----------------
+*Updated: 3/15/2018*
+
+* Completed assembler implementation
+	* Added an example under docs
+
 *Updated: 3/14/2018*
 
 * Added listing generation
